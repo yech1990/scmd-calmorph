@@ -90,6 +90,10 @@ public class Statistics
 		return new NumElementAndStatValuePair(sampleCollection.size(), calcMean(sampleCollection));
 	}
 	
+    public Collection filter(TableIterator ti)
+    {
+        return getFilteringStrategy().filter(ti);
+    }
 
 	/**
 	 * •s•Î•ªŽU‚ð•Ô‚·
