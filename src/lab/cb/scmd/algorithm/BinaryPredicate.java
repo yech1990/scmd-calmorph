@@ -14,9 +14,9 @@ package lab.cb.scmd.algorithm;
  * @author leo
  *
  */
-public interface BinaryPredicate 
+public interface BinaryPredicate<E, F> 
 {
-	public boolean isTrue(Object o1, Object o2);
+	public boolean isTrue(E o1, F o2);
 }
 
 

@@ -14,9 +14,9 @@ package lab.cb.scmd.algorithm;
  * @author leo
  *
  */
-public interface Functor
+public interface Functor<E>
 {
-    public void apply(Object input);
+    public void apply(E input);
 }
 
 

@@ -10,13 +10,13 @@
 
 package lab.cb.scmd.algorithm;
 
-/**
+/** EŒ^‚©‚çFŒ^‚É•ÏŠ·‚·‚étransformer‚Ìinterface
  * @author leo
  *
  */
-public interface Transformer 
+public interface Transformer<E, F> 
 {
-	public Object transform(Object object);
+	public F transform(E object);
 }
 
 

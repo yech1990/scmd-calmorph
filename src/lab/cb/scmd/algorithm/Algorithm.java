@@ -25,14 +25,13 @@ public class Algorithm
 	 * @param predicate
 	 * @return
 	 */
-	static public Collection select(Collection inputCollection, Collection outputCollection, UnaryPredicate predicate)
+	static public <E> Collection<E> select(Collection<E> inputCollection, Collection<E> outputCollection, UnaryPredicate<E> predicate)
 	{
-		for(Iterator it = inputCollection.iterator(); it.hasNext(); )
-		{
-			Object element = it.next();
-			if(predicate.isTrue(element))
-				outputCollection.add(element);
-		}
+	    for(E element : inputCollection)
+        {
+	        if(predicate.isTrue(element))
+                outputCollection.add(element);
+        }
 		return outputCollection;
 	}
 	
@@ -42,13 +41,12 @@ public class Algorithm
 	 * @param transformer
 	 * @return
 	 */
-	static public Collection transform(Collection inputCollection, Collection outputCollection, Transformer transformer)
+	static public <E, F> Collection<F> transform(Collection<E> inputCollection, Collection<F> outputCollection, Transformer<E, F> transformer)
 	{
-		for(Iterator it = inputCollection.iterator(); it.hasNext(); )
-		{
-			Object element = it.next();
-			outputCollection.add(transformer.transform(element));
-		}		
+        for(E element : inputCollection)
+        {
+            outputCollection.add(transformer.transform(element));
+        }
 		return outputCollection;
 	}
 	
@@ -59,11 +57,10 @@ public class Algorithm
 	 * @param selectiveTransformer
 	 * @return
 	 */
-	static public Collection selectiveTransform(Collection inputCollection, Collection outputCollection, SelectiveTransformer selectiveTransformer)
+	static public <E, F> Collection<F> selectiveTransform(Collection<E> inputCollection, Collection<F> outputCollection, SelectiveTransformer<E, F> selectiveTransformer)
 	{
-		for(Iterator it = inputCollection.iterator(); it.hasNext(); )
+		for(E element : inputCollection)
 		{
-			Object element = it.next();
 			if(selectiveTransformer.isTrue(element))
 				outputCollection.add(selectiveTransformer.transform(element));
 		}
@@ -76,12 +73,12 @@ public class Algorithm
 	 * @param predicate
 	 * @return predicateÇñûÇΩÇ∑óvëfÇÃêî
 	 */
-	static public int count(Collection inputCollection, UnaryPredicate predicate)
+	static public <E> int count(Collection<E> inputCollection, UnaryPredicate<E> predicate)
 	{
 	    int count = 0;
-	    for(Iterator it = inputCollection.iterator(); it.hasNext(); )
+	    for(E element : inputCollection)
 	    {
-	        if(predicate.isTrue(it.next()))
+	        if(predicate.isTrue(element))
 	              count++;
 	    }
 	    return count;
@@ -92,24 +89,29 @@ public class Algorithm
 	 * @param predicate
 	 * @return
 	 */
-	static public boolean satisfy(Collection inputColletion, UnaryPredicate predicate)
+	static public <E> boolean satisfy(Collection<E> inputCollection, UnaryPredicate<E> predicate)
 	{
-	    for(Iterator it = inputColletion.iterator(); it.hasNext(); )
+	    for(E element : inputCollection)
 	    {
-	        if(!predicate.isTrue(it.next()))
+	        if(!predicate.isTrue(element))
 	            return false;    
 	    }
 	    return true;
 	}
 	
 	
-	static public Object find(Collection inputCollection, UnaryPredicate predicate)
+	/** inputCollectionÇÃíÜÇ≈ÅAç≈èâÇ…predicateÇñûÇΩÇ∑Ç‡ÇÃÇï‘Ç∑
+	 * @param <E>
+	 * @param inputCollection ì¸óÕ
+	 * @param predicate  èåè
+	 * @return inputCollectionÇÃíÜÇ≈ÅAç≈èâÇ…predicateÇñûÇΩÇ∑Ç‡ÇÃÇï‘Ç∑
+	 */
+	static public <E> E find(Collection<E> inputCollection, UnaryPredicate<E> predicate)
 	{
-	    for(Iterator it = inputCollection.iterator(); it.hasNext(); )
+	    for(E element : inputCollection)
 	    {
-	        Object elem = it.next();
-	        if(!predicate.isTrue(elem))
-	            return elem;
+	        if(!predicate.isTrue(element))
+	            return element;
 	    }
 	    return null;
 	}
@@ -122,10 +124,10 @@ public class Algorithm
 	 * @param binaryPredicate ÇQçÄÇ™àÍívÇ∑ÇÈÇ©Ç«Ç§Ç©ÇîªíËÇ∑ÇÈBinaryPredicate
 	 * @return ê^ãUíl
 	 */
-	static public boolean equal(Collection input1, Collection input2, BinaryPredicate binaryPredicate)
+	static public <E> boolean equal(Collection<E> input1, Collection<E> input2, BinaryPredicate<E, E> binaryPredicate)
 	{
-	    Iterator it1 = input1.iterator();
-	    Iterator it2 = input2.iterator();
+	    Iterator<E> it1 = input1.iterator();
+	    Iterator<E> it2 = input2.iterator();
 	    for( ; it1.hasNext(); )
 	    {
 	        if(!it2.hasNext())
@@ -194,12 +196,11 @@ public class Algorithm
 	 * @param input
 	 * @param functor
 	 */
-	static public void foreach(Collection input, Functor functor) 
+	static public <E> void foreach(Collection<E> input, Functor<E> functor) 
 	{
-	   Iterator it = input.iterator();
-	   for( ; it.hasNext(); )
+	   for(E element : input)
 	   {
-	       functor.apply(it.next());
+	       functor.apply(element);
 	   }
 	}
 	
