@@ -304,7 +304,7 @@ public class Statistics
 
 	static public double getMaxValue(Collection c)
 	{
-		double max = Double.MIN_VALUE;
+		double max = - Double.MAX_VALUE;
 		for (Iterator it = c.iterator(); it.hasNext();)
 		{
 			double v = ((Double) it.next()).doubleValue();
