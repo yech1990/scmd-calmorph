@@ -15,16 +15,16 @@ package lab.cb.scmd.algorithm;
  * @author leo
  *
  */
-public interface SelectiveTransformer extends UnaryPredicate, Transformer 
+public interface SelectiveTransformer<E, F> extends UnaryPredicate<E>, Transformer<E, F> 
 {
 	/* (non-Javadoc)
 	 * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
 	 */
-	public boolean isTrue(Object target);
+	public boolean isTrue(E target);
 	/* (non-Javadoc)
 	 * @see lab.cb.scmd.algorithm.Transformer#transform(java.lang.Object)
 	 */
-	public Object transform(Object object);
+	public F transform(E object);
 }
 
 

@@ -20,7 +20,7 @@ import junit.framework.TestCase;
  */
 public class AlgorithmTest extends TestCase {
 	
-	Vector _integerSet;
+	Vector<Integer> _integerSet;
 	
 	void validateAnswer(int[] answer, Collection result)
 	{
@@ -52,10 +52,10 @@ public class AlgorithmTest extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		_integerSet = new Vector();
+		_integerSet = new Vector<Integer>();
 		int[] intArray = { 1, 2, 5, 10, -1, 4, 8 };
 		for(int i=0; i<intArray.length; i++)
-			_integerSet.add(new Integer(intArray[i]));
+			_integerSet.add(intArray[i]);
 	}
 	
 	public void testSelect() {
@@ -66,11 +66,10 @@ public class AlgorithmTest extends TestCase {
 	}
 
 	public void testTransform() {
-		class Incrementer implements Transformer {
-			public Object transform(Object o)
+		class Incrementer implements Transformer<Integer, Integer>{
+			public Integer transform(Integer i)
 			{
-				Integer i = (Integer) o;
-				return new Integer(i.intValue() + 1);
+				return new Integer(i + 1);
 			}
 		}
 		Vector result = new Vector();
