@@ -39,6 +39,7 @@ while(<FILELIST>)
 			next;
         }
 		# replace package name
+		s/scmd\./lab\.cb\.scmd\./g;
 		s/$prev_p/$new_p/g;
 		print OUT;
 	}
