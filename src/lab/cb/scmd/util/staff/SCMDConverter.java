@@ -543,7 +543,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 					+ newline
 					+ "5. 使用しない画像のチェックボックスを外してからRenameを選択"
 					+ newline
-					+ "6. 表示されるrename log を確認して、問題なければRename Executeを選択"
+					+ "6. 表示されるrename logを確認して、問題がなければRename Executeを選択"
 					+ newline
 					+ "7. ファイル名が変換されてバックアップフォルダに入れられ、元のフォルダが削除される"
 					+ newline
