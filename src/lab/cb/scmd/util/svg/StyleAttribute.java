@@ -1,9 +1,12 @@
-/*
- * Created on 2004/09/16
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+//--------------------------------------
+// SCMD Project
+//
+// StyleAttribute.java 
+// Since:  2004/09/16
+//
+// $URL$ 
+// $LastChangedBy$ 
+//--------------------------------------/*
 package lab.cb.scmd.util.svg;
 
 import java.util.Iterator;
