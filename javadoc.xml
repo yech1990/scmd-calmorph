@@ -8,7 +8,7 @@
 	sourcepath="src" splitindex="true" use="true"
 	windowtitle="SCMD Project Documentation"
 	stylesheetfile="javadoc.css"
-	Locale="en_US"
+	Locale="en_US" Encoding="SJIS"
 	>
 	<fileset dir="src">
 		<exclude name="lab/cb/scmd/util/staff/**"/>
