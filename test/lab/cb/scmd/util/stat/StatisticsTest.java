@@ -11,6 +11,7 @@
 package lab.cb.scmd.util.stat;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.table.*;
@@ -72,6 +73,18 @@ public class StatisticsTest extends TestCase
 		}
 
 	}
+    
+    public void testMin()
+    {
+        Vector<Double> v = new Vector<Double>();
+        v.add(Double.MIN_VALUE);
+        v.add(0.0);
+        double min = Statistics.getMinValue(v);
+        assertEquals(0.0, min);
+        v.add(-1.0);
+        min = Statistics.getMinValue(v);
+        assertEquals(-1.0, min);
+    }
 
 }
 
