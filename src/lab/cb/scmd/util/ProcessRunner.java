@@ -117,7 +117,7 @@ public class ProcessRunner
         try
         {
             Process p = Runtime.getRuntime().exec(tokenize(cmd));
-            PipeWorker errLogger = new PipeWorker(p.getErrorStream(), System.out);
+            PipeWorker errLogger = new PipeWorker(p.getErrorStream(), System.err);
             Thread logThread = new Thread(errLogger);
             logThread.start();
             Thread thread = new Thread(new PipeWorker(in, p.getOutputStream()));
@@ -172,7 +172,9 @@ class PipeWorker implements Runnable
             }
             _out.flush();
             _in.close();
-            _out.close();
+            
+            if(_out != System.out && _out != System.err)
+                _out.close();
         }
         catch (IOException e)
         {
