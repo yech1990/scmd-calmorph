@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import lab.cb.scmd.exception.SCMDException;
+import lab.cb.scmd.util.io.NullPrintStream;
 import lab.cb.scmd.util.table.BasicTable;
 import lab.cb.scmd.util.table.FlatTable;
 
@@ -29,12 +30,14 @@ import lab.cb.scmd.util.table.FlatTable;
  * Standard Error に、削除したORFのリストを出力
  */
 public class EliminateMergedGenes {
-    BasicTable morphTable = null;
-    HashMap<String, String> mergeList = new HashMap<String, String> ();
+    private BasicTable morphTable = null;
+    private HashMap<String, String> changeList = new HashMap<String, String> ();
+    private HashMap<String, String> changeReason = new HashMap<String, String> ();
     int ORFCOL = 0;
+    int RESCOL = 1;
     int MEGCOL = 8;
-    PrintStream out = System.out;
-    PrintStream err = System.err;
+    private PrintStream out = System.out; //new NullPrintStream();
+    private PrintStream err = System.err;
 
     public static void main(String[] args) {
         EliminateMergedGenes emg = new EliminateMergedGenes();
@@ -52,17 +55,32 @@ public class EliminateMergedGenes {
         }
         out.println();
         
+        int count = 0;
         for( int i = 0; i < morphTable.getRowSize(); i++ ) {
-            if( mergeList.containsKey(morphTable.getRowLabel(i)) ) {
-                err.println("Merged: " +  morphTable.getRowLabel(i) + " to " + mergeList.get(morphTable.getRowLabel(i)));
+            String label = morphTable.getRowLabel(i);
+            if( changeList.containsKey(label) ) {
+                err.println(morphTable.getRowLabel(i) + "\t" + changeList.get(morphTable.getRowLabel(i)) + "\tMerged");
+                count++;
                 continue;
             }
+            if( changeReason.containsKey(label) &&
+                    changeReason.get(label).equals("Deleted")) {
+                err.println(morphTable.getRowLabel(i) + "\t" + "-" + "\tDeleted");
+                count++;
+                continue;
+            }
+//            if( changeReason.containsKey(label)) {
+//                err.println(morphTable.getRowLabel(i) + "\t" + "null" + "\t" + changeReason.get(label));
+//                count++;
+//                continue;
+//            }
             out.print(morphTable.getRowLabel(i));
             for( int j = 0; j < morphTable.getColSize(); j++ ) {
                 out.print("\t" + morphTable.getCell(i, j).toString());
             }
             out.println();
         }
+        err.print("# of eliminated genes: " + count);
     }
 
     /**
@@ -78,14 +96,15 @@ public class EliminateMergedGenes {
                 String aliasOrf = changeTable.getCell(i, ORFCOL).toString();
                 String toOrf = changeTable.getCell(i, MEGCOL).toString();
                 if( toOrf.length() != 0 ) {
-                    mergeList.put(aliasOrf, toOrf);
+                    changeList.put(aliasOrf, toOrf);
+                    changeList.put(toOrf,toOrf);
                 }
+                String[] res = changeTable.getCell(i, RESCOL).toString().split("\\|");
+                changeReason.put(aliasOrf, res[1]);
             }
         } catch (SCMDException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
     }
-    
 }
