@@ -120,11 +120,7 @@ public class TeardropBackground {
 		double max = s.getMaxValue(verticalIterator);
 		verticalIterator = _dataset.getVerticalIterator(label);
 		double min = s.getMinValue(verticalIterator);
-		TeardropStatistics tds = new TeardropStatistics();
-		tds.setAvg(avg);
-		tds.setSD(sd);
-		tds.setMax(max);
-		tds.setMin(min);
+		TeardropStatistics tds = new TeardropStatistics(avg, sd, max, min);
 
 		verticalIterator = _dataset.getVerticalIterator(label);
 		tds.calcHistgram(s.getFilteringStrategy().filter(verticalIterator));

@@ -13,6 +13,11 @@ package lab.cb.scmd.util.teardrop;
 import java.util.Collection;
 import java.util.Iterator;
 
+/**
+ * Teardrop描画用のデータを格納している
+ * @author sesejun
+ *
+ */
 public class TeardropStatistics {
 	private int LIMIT = 1000;
 	
@@ -25,6 +30,15 @@ public class TeardropStatistics {
 	private int		_maxcount;
 	
 	private double DIVISIONNUMOFSD = 5.0;
+    
+    public TeardropStatistics(double average, double sd, double min, double max)
+    {
+        setAvg(average);
+        setSD(sd);
+        setMin(min);
+        setMax(max);        
+    }
+    
 	/**
 	 * @return Returns the avg.
 	 */
@@ -74,19 +88,20 @@ public class TeardropStatistics {
 		this._sd = sd;
 	}
 	/**
-	 * @param column
+	 * @param samples
 	 */
-	public void calcHistgram(Collection column) {
+	public void calcHistgram(Collection samples) {
 		double diff = getMax() - getMin();
 		_bucketSize = getSD() / DIVISIONNUMOFSD;
 		int numOfBuckets = (int)Math.ceil( diff / _bucketSize );
 		if( numOfBuckets > LIMIT ) {
+            // TODO 0の配列を返すのは意味がないのでは？
 			_count = new int [0];
 			return;
 		}
 		_count = new int[numOfBuckets];
 		
-		for( Iterator it = column.iterator();  it.hasNext(); ) {
+		for( Iterator it = samples.iterator();  it.hasNext(); ) {
 			double v = ((Double)it.next()).doubleValue();
 			int index = getIndex(v);
 			_count[index]++;
