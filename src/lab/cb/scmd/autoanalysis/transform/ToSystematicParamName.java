@@ -14,7 +14,6 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import lab.cb.scmd.exception.SCMDException;
-import lab.cb.scmd.util.table.BasicTable;
 import lab.cb.scmd.util.table.FlatTable;
 
 /**
@@ -67,6 +66,7 @@ public class ToSystematicParamName {
 
             while ( (line = fileReader.readLine() ) != null) {
                 out.print(line);
+                out.println();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
