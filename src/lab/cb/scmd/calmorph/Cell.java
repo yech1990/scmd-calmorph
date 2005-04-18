@@ -40,7 +40,7 @@ class Cell implements Serializable {
 
 	Point bottomrightPoint;
 
-	Point centerpoint, neckpoint, hippoint, budcenterpoint, budtop;
+	private Point neckpoint, centerpoint, hippoint, budcenterpoint, budtop;
 
 	Point[] longpoint, shortpoint, budlongpoint, budshortpoint;// 楕円の端点
 
@@ -367,75 +367,105 @@ class Cell implements Serializable {
 			if (group == 1
 					|| distance(longpoint[0], neckpoint) < distance(
 							longpoint[1], neckpoint)) {
+				// C1-1
 				Cpointparam[0] = longpoint[0];
+				// C1-2
 				Cpointparam[1] = longpoint[1];
 			} else {
+				// C1-1
 				Cpointparam[0] = longpoint[1];
+				// C1-2
 				Cpointparam[1] = longpoint[0];
 			}// 楕円近似の長軸の点
+
 			if (group == 1
 					|| distance(shortpoint[0], neckpoint) < distance(
 							shortpoint[1], neckpoint)) {
+				// C2-1
 				Cpointparam[2] = shortpoint[0];
+				// C2-2
 				Cpointparam[3] = shortpoint[1];
 			} else {
+				// C2-1
 				Cpointparam[2] = shortpoint[1];
+				// C2-2
 				Cpointparam[3] = shortpoint[0];
 			}// 楕円近似の短軸の点
+
 			if (group != 1) {
 				if (distance(neck[0], Cpointparam[0]) < distance(neck[1],
 						Cpointparam[0])) {
+					// C3-1
 					Cpointparam[4] = new Point(neck[0] % w, neck[0] / w);
+					// C3-2
 					Cpointparam[5] = new Point(neck[1] % w, neck[1] / w);
 				} else {
+					// C3-1
 					Cpointparam[4] = new Point(neck[1] % w, neck[1] / w);
+					// C3-2
 					Cpointparam[5] = new Point(neck[0] % w, neck[0] / w);
 				}
 			}// ネックの両端の点
+			// ネックの中点
 			if (group != 1)
-				Cpointparam[6] = neckpoint;
+				Cpointparam[6] = neckpoint; // C4-1
+			// 娘細胞の長軸の点
 			if (group != 1)
-				Cpointparam[7] = budtop;// 娘細胞の長軸の点
+				Cpointparam[7] = budtop; // C4-2 
 			if (group != 1 && bud_short_flag) {
 				if (distance(budshortpoint[0], Cpointparam[4]) < distance(
 						budshortpoint[1], Cpointparam[4])) {
+					// C5-1
 					Cpointparam[8] = budshortpoint[0];
+					// C5-2
 					Cpointparam[9] = budshortpoint[1];
 				} else {
+					// C5-1
 					Cpointparam[8] = budshortpoint[1];
+					// C5-2
 					Cpointparam[9] = budshortpoint[0];
 				}
 			}// 娘細胞の短軸の点
 
+			// C6
 			for (int i = 0; i < brightestCpoint.size(); i++) {
 				int p = ((Integer) brightestCpoint.elementAt(i)).intValue();
 				Cpointsparam[0].add(new Point(p % w, p / w));// 細胞壁で最も輝度の高い点
 			}
+			// C7
 			for (int i = 0; i < darkestCpoint.size(); i++) {
 				int p = ((Integer) darkestCpoint.elementAt(i)).intValue();
 				Cpointsparam[1].add(new Point(p % w, p / w));// //細胞壁で最も輝度の低い点
 			}
+			// C8
 			for (int i = 0; i < widestCpoint.size(); i++) {
 				int p = ((Integer) widestCpoint.elementAt(i)).intValue();
 				Cpointsparam[2].add(new Point(p % w, p / w));// //細胞壁で最も厚い点
 			}
+			// C9
 			for (int i = 0; i < narrowestCpoint.size(); i++) {
 				int p = ((Integer) narrowestCpoint.elementAt(i)).intValue();
 				Cpointsparam[3].add(new Point(p % w, p / w));// //細胞壁で最も薄い点
 			}
 
+			// C10
 			if (group != 1)
 				Cpointparam[10] = farfromneckpoint;// ネックの中点から最も遠い外周の点
 
+			// C11-1
 			if (group == 1)
 				Cbaseparam[0] = cover.size();
 			else
 				Cbaseparam[0] = cover.size() - bud_cover.size();// 母細胞の大きさ
+			// C11-2
 			if (group != 1)
 				Cbaseparam[1] = bud_cover.size();// 芽の大きさ
+			// C12-1
 			Cbaseparam[2] = edgeSize(mother_edge);// 母細胞の外周の長さ
+			// C12-2
 			if (group != 1)
 				Cbaseparam[3] = edgeSize(bud_edge);// 芽の外周の長さ
+			// C13
 			Cbaseparam[4] = fitness;// 楕円近似の適合度
 
 			Cexpandparam[0] = cover.size();// 細胞の大きさ
@@ -726,41 +756,49 @@ class Cell implements Serializable {
 				}
 			}
 
+			// D101
 			Dexpandparam[0] = Dpoint.size();// これのみDEFについても数える
 
 			if (Dgroup.equals("A") || Dgroup.equals("A1") || Dgroup.equals("B")
 					|| Dgroup.equals("C")) {
 				int c = 0;
+				// c = 0, D1-1
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = (Point) DpointB.elementAt(0);
 				else
 					Dpointparam[c] = (Point) Dpoint.elementAt(0);// 核領域の重心（母）
 				c++;
+				// c = 1, D1-2 
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = (Point) DpointB.elementAt(1);
 				else if (Dgroup.equals("C"))
 					Dpointparam[c] = (Point) Dpoint.elementAt(1);// 核領域の重心（娘）
 				c++;
+				// c = 2, D1-3-1
 				if (Dgroup.equals("A")
 						|| Dgroup.equals("A1")
 						|| (Dgroup.equals("B") && inmother((Point) Dpoint
 								.elementAt(0))))
 					Dpointparam[c] = (Point) Dpoint.elementAt(0); // 核領域の重心（全体、母側）
 				c++;
+				// c = 3, D1-3-2
 				if (Dgroup.equals("B")
 						&& !inmother((Point) Dpoint.elementAt(0)))
 					Dpointparam[c] = (Point) Dpoint.elementAt(0); // 核領域の重心（全体、娘側）
 				c++;
+				// c = 4, D2-1
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = (Point) DbrightpointB.elementAt(0);
 				else
 					Dpointparam[c] = (Point) Dbrightpoint.elementAt(0);// 核領域の最大輝点（母）
 				c++;
+				// c = 5, D2-2
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = (Point) DbrightpointB.elementAt(1);
 				else if (Dgroup.equals("C"))
 					Dpointparam[c] = (Point) Dbrightpoint.elementAt(1);// 核領域の最大輝点（娘）
 				c++;
+				// c = 6, D2-3-1
 				if (Dgroup.equals("A")
 						|| Dgroup.equals("A1")
 						|| (Dgroup.equals("B") && inmother(((Point) Dbrightpoint
@@ -768,53 +806,68 @@ class Cell implements Serializable {
 								* w + (((Point) Dbrightpoint.elementAt(0)).x))))
 					Dpointparam[c] = (Point) Dbrightpoint.elementAt(0); // 核領域の最大輝点（全体、母側）
 				c++;
+				// c = 7, D2-3-2
 				if (Dgroup.equals("B")
 						&& !inmother((Point) Dbrightpoint.elementAt(0)))
 					Dpointparam[c] = (Point) Dbrightpoint.elementAt(0); // 核領域の最大輝点（全体、娘側）
 				c++;
+				// c = 8, D3-1
 				if (!Dgroup.equals("B"))
 					Dpointparam[c] = (Point) D345point[0].elementAt(0);// 重心から最も遠い核の外周点（母）
 				c++;
+				// c = 9, D3-2
 				if (Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[0].elementAt(1);// 重心から最も遠い核の外周点（娘）
 				c++;
+				// c = 10, D3-3
 				if (!Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[0].elementAt(0);// 重心から最も遠い核の外周点（全体）
 				c++;
+				// c = 11, D4-1 
 				if (!Dgroup.equals("B"))
 					Dpointparam[c] = (Point) D345point[1].elementAt(0);// D3から最も遠い核の外周点（母）
 				c++;
+				// c = 12, D4-2
 				if (Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[1].elementAt(1);// D3から最も遠い核の外周点（娘）
 				c++;
+				// c = 13, D4-3
 				if (!Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[1].elementAt(0);// D3から最も遠い核の外周点（全体）
 				c++;
+				// c = 14, D5-1
 				if (!Dgroup.equals("B"))
 					Dpointparam[c] = (Point) D345point[2].elementAt(0);// 重心を通り線分D3D4に対して垂直に交わる直線と核の外周と交わる遠いほうの点（母）
 				c++;
+				// c = 15, D5-2
 				if (Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[2].elementAt(1);// 重心を通り線分D3D4に対して垂直に交わる直線と核の外周と交わる遠いほうの点（娘）
 				c++;
+				// c = 16, D5-3
 				if (!Dgroup.equals("C"))
 					Dpointparam[c] = (Point) D345point[2].elementAt(0);// 重心を通り線分D3D4に対して垂直に交わる直線と核の外周と交わる遠いほうの点（全体）
 				c++;
+				// c = 17, D6-1
 				if (Dgroup.equals("A1") || Dgroup.equals("C"))
 					Dpointparam[c] = Intersection((Point) Dpoint.elementAt(0),
 							neckpoint, (Vector) Dedge.elementAt(0))[2];// 核の重心とネックの中点を結んだ直線と核の外周との交点（母）
 				c++;
+				// c = 18, D6-2
 				if (Dgroup.equals("C"))
 					Dpointparam[c] = Intersection((Point) Dpoint.elementAt(1),
 							neckpoint, (Vector) Dedge.elementAt(1))[2];// 核の重心とネックの中点を結んだ直線と核の外周との交点（娘）
 				c++;
+				// c = 19, D7
 				if (Dgroup.equals("A1") || Dgroup.equals("C"))
 					Dpointparam[c] = Intersection((Point) Dpoint.elementAt(0),
 							farfromneckpoint, (Vector) Dedge.elementAt(0))[2];// 核の重心と壁の外周の最遠点を結んだ直線と核の外周との交点
 				c++;
+				// c = 20, D8
 				if (Dgroup.equals("C"))
 					Dpointparam[c] = Intersection((Point) Dpoint.elementAt(1),
 							budtop, (Vector) Dedge.elementAt(1))[2];// 核の重心と芽の先端を結んだ直線と核の外周との交点
 				c++;
+				// c = 21, D9-1
 				if (!Dgroup.equals("B")) {
 					Point[] pp = Intersection((Point) Dpoint.elementAt(0),
 							centerpoint, mother_edge);
@@ -827,6 +880,7 @@ class Cell implements Serializable {
 								neck[1] / w));
 				}
 				c++;
+				// c = 22, D9-2
 				if (Dgroup.equals("C") && budell_flag) {
 					Point[] pp = Intersection((Point) Dpoint.elementAt(1),
 							budcenterpoint, bud_edge);
@@ -838,6 +892,7 @@ class Cell implements Serializable {
 								% w, neck[1] / w));
 				}
 				c++;
+				// c = 23, D10-1
 				if (!Dgroup.equals("B")) {
 					Point[] pp = Intersection(
 							(Point) Dbrightpoint.elementAt(0), centerpoint,
@@ -851,6 +906,7 @@ class Cell implements Serializable {
 								neck[1] / w));
 				}
 				c++;
+				// c = 24, D10-2
 				if (Dgroup.equals("C") && budell_flag) {
 					Point[] pp = Intersection(
 							(Point) Dbrightpoint.elementAt(1), budcenterpoint,
@@ -863,6 +919,7 @@ class Cell implements Serializable {
 								% w, neck[1] / w));
 				}
 				c++;
+				// c = 25, D11-1
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = Intersection((Point) DpointB.elementAt(0),
 							neckpoint, mother_edge)[0];// D1-1とネックの中点を結ぶ直線と細胞外周との交点（母）
@@ -870,6 +927,7 @@ class Cell implements Serializable {
 					Dpointparam[c] = Intersection((Point) Dpoint.elementAt(0),
 							neckpoint, mother_edge)[0];
 				c++;
+				// c = 26, D11-2
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = Intersection(neckpoint, (Point) DpointB
 							.elementAt(1), bud_edge)[1];// D1-2とネックの中点を結ぶ直線と細胞外周との交点（娘）
@@ -877,6 +935,7 @@ class Cell implements Serializable {
 					Dpointparam[c] = Intersection(neckpoint, (Point) Dpoint
 							.elementAt(1), bud_edge)[1];
 				c++;
+				// c = 27, D12-1
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = Intersection((Point) DbrightpointB
 							.elementAt(0), neckpoint, mother_edge)[0];// D2-1とネックの中点を結ぶ直線と細胞外周との交点（母）
@@ -884,6 +943,7 @@ class Cell implements Serializable {
 					Dpointparam[c] = Intersection((Point) Dbrightpoint
 							.elementAt(0), neckpoint, mother_edge)[0];
 				c++;
+				// c = 28, D12-2
 				if (Dgroup.equals("B"))
 					Dpointparam[c] = Intersection(neckpoint,
 							(Point) DbrightpointB.elementAt(1), bud_edge)[1];// D2-2とネックの中点を結ぶ直線と細胞外周との交点（娘）
@@ -891,6 +951,7 @@ class Cell implements Serializable {
 					Dpointparam[c] = Intersection(neckpoint,
 							(Point) Dbrightpoint.elementAt(1), bud_edge)[1];
 				c++;
+				// c = 29, D13-1
 				if (Dgroup.equals("B")) {
 					if (inmother((Point) D345point[0].elementAt(0))
 							&& !inmother((Point) D345point[1].elementAt(0)))
@@ -902,6 +963,7 @@ class Cell implements Serializable {
 								(Point) D345point[1].elementAt(0), mother_edge)[1];// B細胞についてD3-3orD4-3とネックの中点を結ぶ直線と細胞外周との交点（母）
 				}
 				c++;
+				// c = 30, D13-2
 				if (Dgroup.equals("B")) {
 					if (!inmother((Point) D345point[0].elementAt(0))
 							&& inmother((Point) D345point[1].elementAt(0)))
@@ -915,21 +977,26 @@ class Cell implements Serializable {
 				// c=30
 
 				c = 0;
+				
+				// c = 0, D14-1 
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Vector) DcoverB.elementAt(0)).size();// 核領域の面積（母）
 				else
 					Dbaseparam[c] = ((Vector) Dcover.elementAt(0)).size();
 				c++;
+				// c = 1, D14-2
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Vector) DcoverB.elementAt(1)).size();// 核領域の面積（娘）
 				else if (Dgroup.equals("C"))
 					Dbaseparam[c] = ((Vector) Dcover.elementAt(1)).size();
 				c++;
+				// c = 2, D14-3
 				if (Dgroup.equals("A") || Dgroup.equals("A1"))
 					Dbaseparam[c] = Dbaseparam[c - 2];// 核領域の面積（全体）
 				else
 					Dbaseparam[c] = Dbaseparam[c - 2] + Dbaseparam[c - 1];
 				c++;
+				// c = 3, D15-1
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Integer) DtotalbrightB.elementAt(0))
 							.intValue();// 核領域の輝度の合計（母）
@@ -937,6 +1004,7 @@ class Cell implements Serializable {
 					Dbaseparam[c] = ((Integer) Dtotalbright.elementAt(0))
 							.intValue();
 				c++;
+				// c = 4, D15-2
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Integer) DtotalbrightB.elementAt(1))
 							.intValue();// 核領域の輝度の合計（娘）
@@ -944,11 +1012,13 @@ class Cell implements Serializable {
 					Dbaseparam[c] = ((Integer) Dtotalbright.elementAt(1))
 							.intValue();
 				c++;
+				// c = 5, D15-3
 				if (Dgroup.equals("A") || Dgroup.equals("A1"))
 					Dbaseparam[c] = Dbaseparam[c - 2];// 核領域の輝度の合計（全体）
 				else
 					Dbaseparam[c] = Dbaseparam[c - 2] + Dbaseparam[c - 1];
 				c++;
+				// c = 6, D16-1
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Integer) DmaxbrightB.elementAt(0))
 							.intValue();// 核領域の最大輝度（母）
@@ -956,6 +1026,7 @@ class Cell implements Serializable {
 					Dbaseparam[c] = ((Integer) Dmaxbright.elementAt(0))
 							.intValue();
 				c++;
+				// c = 7, D16-2
 				if (Dgroup.equals("B"))
 					Dbaseparam[c] = ((Integer) DmaxbrightB.elementAt(1))
 							.intValue();// 核領域の最大輝度（娘）
@@ -963,6 +1034,7 @@ class Cell implements Serializable {
 					Dbaseparam[c] = ((Integer) Dmaxbright.elementAt(1))
 							.intValue();
 				c++;
+				// c = 8, D16-3
 				if (Dgroup.equals("C"))
 					Dbaseparam[c] = Math.max(Dbaseparam[c - 2],
 							Dbaseparam[c - 1]);// 核領域の最大輝度（全体）
@@ -972,26 +1044,32 @@ class Cell implements Serializable {
 				else
 					Dbaseparam[c] = Dbaseparam[c - 2];
 				c++;
+				// c = 9, D17-1
 				if (!Dgroup.equals("B"))
 					Dbaseparam[c] = getfitness((Vector) Dedge.elementAt(0));
 				c++;
+				// c = 10, D17-2
 				if (Dgroup.equals("C"))
 					Dbaseparam[c] = getfitness((Vector) Dedge.elementAt(1));
 				c++;
+				// c = 11, D17-3
 				if (!Dgroup.equals("C"))
 					Dbaseparam[c] = getfitness((Vector) Dedge.elementAt(0));
 				// c=11
 
 				c = 1;
+				// D102
 				if (Dgroup.equals("A"))
 					Dexpandparam[c] = Math.max(distance(longpoint[0],
 							Dpointparam[0]), distance(longpoint[1],
 							Dpointparam[0]));// D1-1C1-2 (A)
 				c++;
+				// D103
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(hippoint, Dpointparam[0]);// D1-1C1-2
 																			// (!A)
 				c++;
+				// D104
 				if (Dgroup.equals("A"))
 					Dexpandparam[c] = Math.max(distance(longpoint[0],
 							Dpointparam[0]), distance(longpoint[1],
@@ -1001,95 +1079,120 @@ class Cell implements Serializable {
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(hippoint, Dpointparam[3]);
 				c++;
+				// D105
 				if (Dgroup.equals("A") && Dexpandparam[c - 3] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 3] / long_length;// D1-1C1-2/C103(A)
 				c++;
+				// D106
 				if (!Dgroup.equals("A") && Dexpandparam[c - 3] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 3] / long_length;// D1-1C1-2/C103
 																		// (!A)
 				c++;
+				// D107
 				if (!Dgroup.equals("C") && Dexpandparam[c - 3] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 3] / long_length;// D1-3C1-2/C103
 				c++;
+				// D108
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[0]);// D1-1M1
 				c++;
+				// D109
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[1]);// D1-2M1
 				c++;
+				// D110
 				if (Dgroup.equals("A1") || Dgroup.equals("B"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[2]);// D1-3-1M1
 				c++;
+				// D111
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[3]);// D1-3-2M1
 				c++;
+				// D112
 				if (!Dgroup.equals("A") && Dexpandparam[c - 4] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 4]
 							/ distance(neckpoint, farfromneckpoint);// D1-1M1/C128
 				c++;
+				// D113
 				if ((Dgroup.equals("B") || Dgroup.equals("C"))
 						&& Dexpandparam[c - 4] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 4] / budlong_length;// D1-2M1/C107
 				c++;
+				// D114
 				if ((Dgroup.equals("A1") || Dgroup.equals("B"))
 						&& Dexpandparam[c - 4] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 4]
 							/ distance(neckpoint, farfromneckpoint);// D1-3-1M1/C128
 				c++;
+				// D115
 				if (Dgroup.equals("B") && Dexpandparam[c - 4] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 4] / budlong_length;// D1-3-2M1/C107
 				c++;
+				// D116
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[0], neckpoint)
 							+ distance(Dpointparam[1], neckpoint);// D1-1M1D1-2
 				c++;
+				// D117
 				Dexpandparam[c] = distance(centerpoint, Dpointparam[0]);// D1-1C1
 				c++;
+				// D118
 				if (!Dgroup.equals("C"))
 					Dexpandparam[c] = distance(centerpoint, Dpointparam[2]);// D1-3C1
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(centerpoint, Dpointparam[3]);
 				c++;
+				// D119
 				if ((Dgroup.equals("B") || Dgroup.equals("C")) && budell_flag)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[1]);// D1-2C2
 				c++;
+				// D120
 				if (Dgroup.equals("B") && budell_flag)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[3]);// D1-3C2
 				if (Dgroup.equals("B") && budell_flag && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[2]);
 				c++;
+				// D121
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(budtop, Dpointparam[1]);// D1-2C4-2
 				c++;
+				// D122
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = distance(budtop, Dpointparam[3]);// D1-3C4-2
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(budtop, Dpointparam[2]);
 				c++;
+				// D123
 				if ((Dgroup.equals("B") || Dgroup.equals("C"))
 						&& Dexpandparam[c - 2] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 2] / budlong_length;// D1-2C4-2/C107
 				c++;
+				// D124
 				if (Dgroup.equals("B") && Dexpandparam[c - 2] != -1)
 					Dexpandparam[c] = Dexpandparam[c - 2] / budlong_length;// D1-3C4-2/C107
 				c++;
+				// D125
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[0]);// D1-1C10
 				c++;
+				// D126
 				if (Dgroup.equals("A1") || Dgroup.equals("B"))
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[2]);// D1-3C10
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[3]);
 				c++;
+				// D127
 				if (Dgroup.equals("A"))
 					Dexpandparam[c] = Math.max(distance(longpoint[0],
 							Dpointparam[4]), distance(longpoint[1],
 							Dpointparam[4]));// D2-1C1-2 (A)
 				c++;
+				// D128
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(hippoint, Dpointparam[4]);// D2-1C1-2
 																			// (!A)
 				c++;
+				// D129
 				if (Dgroup.equals("A"))
 					Dexpandparam[c] = Math.max(distance(longpoint[0],
 							Dpointparam[0]), distance(longpoint[1],
@@ -1099,53 +1202,67 @@ class Cell implements Serializable {
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(hippoint, Dpointparam[7]);
 				c++;
+				// D130
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[4]);// D2-1M1
 				c++;
+				// D131
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[5]);// D2-2M1
 				c++;
+				// D132
 				if (Dgroup.equals("A1") || Dgroup.equals("B"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[6]);// D2-3-1M1
 				c++;
+				// D133
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = distance(neckpoint, Dpointparam[7]);// D2-3-2M1
 				c++;
+				// D134
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[4], neckpoint)
 							+ distance(Dpointparam[5], neckpoint);// D2-1M1D2-2
 				c++;
+				// D135
 				Dexpandparam[c] = distance(centerpoint, Dpointparam[4]);// D2-1C1
 				c++;
+				// D136
 				if (!Dgroup.equals("C"))
 					Dexpandparam[c] = distance(centerpoint, Dpointparam[6]);// D2-3C1
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(centerpoint, Dpointparam[7]);
 				c++;
+				// D137
 				if ((Dgroup.equals("B") || Dgroup.equals("C")) && budell_flag)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[5]);// D2-2C2
 				c++;
+				// D138
 				if (Dgroup.equals("B") && budell_flag)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[7]);// D2-3C2
 				if (Dgroup.equals("B") && budell_flag && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(budcenterpoint, Dpointparam[6]);
 				c++;
+				// D139
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(budtop, Dpointparam[5]);// D2-2C4-2
 				c++;
+				// D140
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = distance(budtop, Dpointparam[7]);// D2-3C4-2
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(budtop, Dpointparam[6]);
 				c++;
+				// D141
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[4]);// D2-1C10
 				c++;
+				// D142
 				if (Dgroup.equals("A1") || Dgroup.equals("B"))
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[6]);// D2-3C10
 				if (Dgroup.equals("B") && Dexpandparam[c] == -1)
 					Dexpandparam[c] = distance(farfromneckpoint, Dpointparam[7]);
 				c++;
+				// D143
 				if (Dgroup.equals("A1") || Dgroup.equals("C")) {
 					if (Dpointparam[17].x != -1)
 						Dexpandparam[c] = distance(neckpoint, Dpointparam[17]);// D6-1M1
@@ -1153,6 +1270,7 @@ class Cell implements Serializable {
 						Dexpandparam[c] = 0;
 				}
 				c++;
+				// D144
 				if (Dgroup.equals("C")) {
 					if (Dpointparam[18].x != -1)
 						Dexpandparam[c] = distance(neckpoint, Dpointparam[18]);// D6-2M1
@@ -1160,13 +1278,16 @@ class Cell implements Serializable {
 						Dexpandparam[c] = 0;
 				}
 				c++;
+				// D145
 				if (Dgroup.equals("A1") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(farfromneckpoint,
 							Dpointparam[19]);// D7C10
 				c++;
+				// D146
 				if (Dgroup.equals("C"))
 					Dexpandparam[c] = distance(budtop, Dpointparam[20]);// D8C4-2
 				c++;
+				// D147
 				if (!Dgroup.equals("B")) {
 					if (distance(centerpoint, Dpointparam[0]) == 0)
 						Dexpandparam[c] = 0;
@@ -1175,6 +1296,7 @@ class Cell implements Serializable {
 								/ distance(centerpoint, Dpointparam[21]);// D1-1C1/C1D9-1
 				}
 				c++;
+				// D148
 				if (!Dgroup.equals("B")) {
 					if (distance(centerpoint, Dpointparam[4]) == 0)
 						Dexpandparam[c] = 0;
@@ -1183,6 +1305,7 @@ class Cell implements Serializable {
 								/ distance(centerpoint, Dpointparam[23]);// D2-1C1/C1D10-1
 				}
 				c++;
+				// D149
 				if (Dgroup.equals("C") && budell_flag) {
 					if (distance(budcenterpoint, Dpointparam[1]) == 0)
 						Dexpandparam[c] = 0;
@@ -1192,6 +1315,7 @@ class Cell implements Serializable {
 								/ distance(budcenterpoint, Dpointparam[22]);// D1-2C2/C2D9-2
 				}
 				c++;
+				// D150
 				if (Dgroup.equals("C") && budell_flag) {
 					if (distance(budcenterpoint, Dpointparam[5]) == 0)
 						Dexpandparam[c] = 0;
@@ -1201,6 +1325,7 @@ class Cell implements Serializable {
 								/ distance(budcenterpoint, Dpointparam[24]);// D2-2C2/C2D10-2
 				}
 				c++;
+				// D151
 				if (Dgroup.equals("C")) {
 					if (Dpointparam[17].x != -1 && Dpointparam[18].x != -1
 							&& distance(neckpoint, Dpointparam[17]) != 0)
@@ -1210,6 +1335,7 @@ class Cell implements Serializable {
 						Dexpandparam[c] = 0;
 				}
 				c++;
+				// D152
 				if (Dgroup.equals("A1") || Dgroup.equals("C")) {
 					if (Dpointparam[17].x != -1
 							&& distance(farfromneckpoint, Dpointparam[19]) != 0)
@@ -1219,6 +1345,7 @@ class Cell implements Serializable {
 						Dexpandparam[c] = 0;
 				}
 				c++;
+				// D153
 				if (Dgroup.equals("C")) {
 					if (Dpointparam[18].x != -1
 							&& distance(budtop, Dpointparam[20]) != 0)
@@ -1228,6 +1355,7 @@ class Cell implements Serializable {
 						Dexpandparam[c] = 0;
 				}
 				c++;
+				// D154
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = angle(hippoint, centerpoint,
 							Dpointparam[0]);
@@ -1235,6 +1363,7 @@ class Cell implements Serializable {
 					Dexpandparam[c] = angle(longpoint[0], centerpoint,
 							Dpointparam[0]);// angD1-1C1C1-2
 				c++;
+				// D155
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = angle(hippoint, centerpoint,
 							Dpointparam[4]);
@@ -1242,162 +1371,205 @@ class Cell implements Serializable {
 					Dexpandparam[c] = angle(longpoint[0], centerpoint,
 							Dpointparam[4]);// angD2-1C1C1-2
 				c++;
+				// D156
 				if ((Dgroup.equals("B") || Dgroup.equals("C")) && budell_flag)
 					Dexpandparam[c] = angle(budtop, budcenterpoint,
 							Dpointparam[1]);// angD1-2C2C4-2
 				c++;
+				// D157
 				if ((Dgroup.equals("B") || Dgroup.equals("C")) && budell_flag)
 					Dexpandparam[c] = angle(budtop, budcenterpoint,
 							Dpointparam[5]);// angD2-2C2C4-2
 				c++;
+				// D158
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(longpoint[0], longpoint[1],
 							Dpointparam[0], Dpointparam[1]);// angD1-1D18-1C1-2
 				c++;
+				// D159
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(longpoint[0], longpoint[1],
 							Dpointparam[4], Dpointparam[5]);// angD2-1D19-1C1-2
 				c++;
+				// D160
 				if (Dgroup.equals("A1"))
 					Dexpandparam[c] = angle(longpoint[0], longpoint[1],
 							Dpointparam[8], Dpointparam[11]);// angD4-1D20C1-2
 				c++;
+				// D161
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = angle(longpoint[0], longpoint[1],
 							Dpointparam[10], Dpointparam[13]);// angD4-3D21-1C1-2
 				c++;
+				// D162
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[0], Dpointparam[1]);// angD1-1D22C1
 				c++;
+				// D163
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[4], Dpointparam[5]);// angD2-1D23C1
 				c++;
+				// D164
 				if (Dgroup.equals("A1"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[8], Dpointparam[11]);// angD4-1D24C1
 				c++;
+				// D165
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[10], Dpointparam[13]);// angD4-3D25C1
 				c++;
+				// D166
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(budtop, neckpoint, Dpointparam[0],
 							Dpointparam[1]);// angD1-2D18-2C4-2
 				c++;
+				// D167
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = angle(budtop, neckpoint, Dpointparam[4],
 							Dpointparam[5]);// angD2-2D19-2C4-2
 				c++;
+				// D168
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = angle(budtop, neckpoint, Dpointparam[10],
 							Dpointparam[13]);// angD3-3D21-2C4-2
 				c++;
+				// D169
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[0]);// angD1-1M1C1
 				c++;
+				// D170
 				if (!Dgroup.equals("A"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[4]);// angD2-1M1C1
 				c++;
+				// D171
 				if (Dgroup.equals("A1"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[11]);// angD4-1M1C1
 				c++;
+				// D172
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = angle(centerpoint, neckpoint,
 							Dpointparam[13]);// angD4-3M1C1
 				c++;
+				// D173
 				if (!Dgroup.equals("B"))
 					Dexpandparam[c] = distance(Dpointparam[0], Dpointparam[8]);// D1-1D3-1
 				c++;
+				// D174
 				if (Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[1], Dpointparam[9]);// D1-2D3-2
 				c++;
+				// D175
 				if (!Dgroup.equals("C"))
 					Dexpandparam[c] = distance((Point) Dpoint.elementAt(0),
 							Dpointparam[10]);// D1-3D3-3
 				c++;
+				// D176
 				if (!Dgroup.equals("B"))
 					Dexpandparam[c] = distance(Dpointparam[8], Dpointparam[11]);// D3-1D4-1
 				c++;
+				// D177
 				if (Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[9], Dpointparam[12]);// D3-2D4-2
 				c++;
+				// D178
 				if (!Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[10], Dpointparam[13]);// D3-3D4-3
 				c++;
+				// D179
 				if (!Dgroup.equals("B"))
 					Dexpandparam[c] = distance(Dpointparam[0], Dpointparam[14]);// D1-1D5-1
 				c++;
+				// D180
 				if (Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[1], Dpointparam[15]);// D1-2D5-2
 				c++;
+				// D181
 				if (!Dgroup.equals("C"))
 					Dexpandparam[c] = distance((Point) Dpoint.elementAt(0),
 							Dpointparam[16]);// D1-3D5-3
 				c++;
+				// D182
 				if (!Dgroup.equals("B") && Dpointparam[8].x != -1
 						&& Dpointparam[11].x != -1 && Dpointparam[14].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[8], Dpointparam[11])
 							/ distance(Dpointparam[0], Dpointparam[14]);// D3-1D4-1/D1-1D5-1
 				c++;
+				// D183
 				if (Dgroup.equals("C") && Dpointparam[9].x != -1
 						&& Dpointparam[12].x != -1 && Dpointparam[15].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[9], Dpointparam[12])
 							/ distance(Dpointparam[1], Dpointparam[15]);// D3-2D4-2/D1-2D5-2
 				c++;
+				// D184
 				if (!Dgroup.equals("C") && Dpointparam[10].x != -1
 						&& Dpointparam[13].x != -1 && Dpointparam[16].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[10], Dpointparam[13])
 							/ distance((Point) Dpoint.elementAt(0),
 									Dpointparam[16]);// D3-3D4-3/D1-3D5-3
 				c++;
+				// D185
 				if ((Dgroup.equals("B") || Dgroup.equals("C"))
 						&& Dpointparam[25].x != -1 && Dpointparam[26].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[25], neckpoint)
 							+ distance(Dpointparam[26], neckpoint);// D11-1M1D11-2
 				c++;
+				// D186
 				if ((Dgroup.equals("B") || Dgroup.equals("C"))
 						&& Dpointparam[27].x != -1 && Dpointparam[28].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[27], neckpoint)
 							+ distance(Dpointparam[28], neckpoint);// D12-1M1D12-2
 				c++;
+				// D187
 				if (Dgroup.equals("B") && Dpointparam[29].x != -1
 						&& Dpointparam[30].x != -1)
 					Dexpandparam[c] = distance(Dpointparam[29], neckpoint)
 							+ distance(Dpointparam[30], neckpoint);// D13-1M1D13-2
 				c++;
+				// D188
 				Dexpandparam[c] = distance(Dpointparam[0], Dpointparam[4]);// D1-1D2-1
 				c++;
+				// D189
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = distance(Dpointparam[1], Dpointparam[5]);// D1-2D2-2
 				c++;
+				// D190
 				if (Dgroup.equals("B"))
 					Dexpandparam[c] = distance((Point) Dpoint.elementAt(0),
 							(Point) Dbrightpoint.elementAt(0));// D1-3D2-3
 				else if (Dgroup.equals("A") || Dgroup.equals("A1"))
 					Dexpandparam[c] = distance(Dpointparam[0], Dpointparam[4]);
 				c++;
+				// D191
 				Dexpandparam[c] = Dbaseparam[3] / Dbaseparam[0];// D15-1/D14-1
 				c++;
+				// D192
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = Dbaseparam[4] / Dbaseparam[1];// D15-2/D14-2
 				c++;
+				// D193
 				Dexpandparam[c] = Dbaseparam[5] / Dbaseparam[2];// D15-3/D14-3
 				c++;
+				// D194
 				Dexpandparam[c] = Dbaseparam[6] / Dexpandparam[c - 3];// D16-1/(D15-1/D14-1)
 				c++;
+				// D195
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = Dbaseparam[7] / Dexpandparam[c - 3];// D16-2/(D15-2/D14-2)
 				c++;
+				// D196
 				Dexpandparam[c] = Dbaseparam[8] / Dexpandparam[c - 3];// D16-3/(D15-3/D14-3)
 				c++;
+				// D197
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = Dbaseparam[1] / Dbaseparam[0];// D14-2/D14-1
 				c++;
+				// D198
 				if (Dgroup.equals("B") || Dgroup.equals("C"))
 					Dexpandparam[c] = Dbaseparam[4] / Dbaseparam[3];// D15-2/D15-1
 			}
@@ -1753,76 +1925,104 @@ class Cell implements Serializable {
 
 		if (Agroup != "N" && group > 0) {
 			int c = 0;
+			// c = 0, A2-1
 			Apointparam[c] = Acenterpoint[0][0];// アクチン領域の重心（母）
 			c++;
+			// c = 1, A2-2
 			if (group > 1)
 				Apointparam[c] = Acenterpoint[1][0];// アクチン領域の重心（娘）
 			c++;
+			// c = 2, A2-3
 			Apointparam[c] = Acenterpoint[2][0];// アクチン領域の重心（全体）
 			c++;
+			// c = 3, A3-1
 			Apointparam[c] = Apatchcenterpoint[0][0];// アクチンパッチの重心（母）
 			c++;
+			// c = 4, A3-2
 			if (group > 1)
 				Apointparam[c] = Apatchcenterpoint[1][0];// アクチンパッチの重心（娘）
 			c++;
+			// c = 5, A3-3
 			Apointparam[c] = Apatchcenterpoint[2][0];// アクチンパッチの重心（全体）
 			c++;
+			// c = 6, A4-1
 			Apointparam[c] = Acenterpoint[0][3];// 輝度4乗で重み付けしたアクチン領域の重心（母）
 			c++;
+			// c = 7, A4-2
 			if (group > 1)
 				Apointparam[c] = Acenterpoint[1][3];// 輝度4乗で重み付けしたアクチン領域の重心（娘）
 			c++;
+			// c = 8, A4-3
 			Apointparam[c] = Acenterpoint[2][3];// 輝度4乗で重み付けしたアクチン領域の重心（全体）
 			c++;
+			// c = 9, A5-1
 			Apointparam[c] = Apatchcenterpoint[0][3];// 輝度4乗で重み付けしたアクチンパッチの重心（母）
 			c++;
+			// c = 10, A5-2
 			if (group > 1)
 				Apointparam[c] = Apatchcenterpoint[1][3];// 輝度4乗で重み付けしたアクチンパッチの重心（娘）
 			c++;
+			// c = 11, A5-3
 			Apointparam[c] = Apatchcenterpoint[2][3];// 輝度4乗で重み付けしたアクチンパッチの重心（全体）
 			c++;
+			// c = 12, A6-1
 			if (group > 1)
 				Apointparam[c] = farfromneckApoint[0];// ネックの中点から最も距離の遠いアクチン領域の点（母）
 			c++;
+			// c = 13, A6-2
 			if (group > 1)
 				Apointparam[c] = farfromneckApoint[1];// ネックの中点から最も距離の遠いアクチン領域の点（娘）
 			c++;
+			// c = 14, A6-3
 			if (group > 1)
 				Apointparam[c] = farfromneckApoint[2];// ネックの中点から最も距離の遠いアクチン領域の点（全体）
 
 			c = 0;
+			// c = 0, A7-1
 			Abaseparam[c] = Aregionsize[0];// アクチン領域の大きさ（母）
 			c++;
+			// c = 1, A7-2
 			if (group > 1)
 				Abaseparam[c] = Aregionsize[1];// アクチン領域の大きさ（娘）
 			c++;
+			// c = 2, A8-1
 			Abaseparam[c] = Atotalbright[0];// アクチン輝度の合計（母）
 			c++;
+			// c = 3, A8-2
 			if (group > 1)
 				Abaseparam[c] = Atotalbright[1];// アクチン輝度の合計（娘）
 			c++;
+			// c = 4, A9
 			if (group > 1)
 				Abaseparam[c] = actinonneckline;// ネックにおけるアクチン領域の占める割合
 
 			c = 0;
+			// A101
 			Aexpandparam[c] = (double) Acover.size() / (double) cover.size();// アクチン領域の細胞に対する割合
 			c++;
+			// A102
 			if (group > 1)
 				Aexpandparam[c] = (double) Aregionsize[1]
 						/ (double) Acover.size();// アクチン領域のうち芽に閉めるアクチン領域の割合
 			c++;
+			// A103
 			if (group > 1)
 				Aexpandparam[c] = motheractincenterposition;// アクチンの偏り(母細胞側）
 			c++;
+			// A104
 			if (group > 1)
 				Aexpandparam[c] = budactincenterposition;// アクチンの偏り（芽側）
 			c++;
+			// A120
 			Aexpandparam[c] = actinpathlength;// アクチンパッチの総延長
 			c++;
+			// A121
 			Aexpandparam[c] = maxpatchdistance;// アクチンパッチの最大距離
 			c++;
+			// A122
 			Aexpandparam[c] = brightpatchnumber;
 			c++;
+			// A123
 			Aexpandparam[c] = (double) totalpatchsize / (double) Acover.size();// アクチンパッチのアクチン領域に対する割合
 
 		}
@@ -2230,9 +2430,11 @@ class Cell implements Serializable {
 		pw.print(num + "\t");
 		pw.print(id + "\t");
 		pw.print(Cgroup + "\t");
+		// C1-1 .. C5-2
 		for (int i = 0; i < 10; i++) {
 			pw.print("[" + Cpointparam[i].x + "," + Cpointparam[i].y + "]\t");
 		}
+		// C6 .. C9
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < Cpointsparam[i].size(); j++) {
 				Point p = (Point) Cpointsparam[i].elementAt(j);
@@ -2240,6 +2442,7 @@ class Cell implements Serializable {
 			}
 			pw.print("\t");
 		}
+		// C10
 		pw.print("[" + Cpointparam[10].x + "," + Cpointparam[10].y + "]\t");
 		for (int i = 0; i < 5; i++) {
 			pw.print(Cbaseparam[i] + "\t");
@@ -2262,9 +2465,11 @@ class Cell implements Serializable {
 		pw.print(id + "\t");
 		pw.print(Cgroup + "\t");
 		pw.print(Dgroup + "\t");
+		// D1-1 .. D13-2
 		for (int i = 0; i < 31; i++) {
 			pw.print("[" + Dpointparam[i].x + "," + Dpointparam[i].y + "]\t");
 		}
+		// D14-1 .. D17-3
 		for (int i = 0; i < 12; i++) {
 			pw.print(Dbaseparam[i] + "\t");
 		}
@@ -2272,10 +2477,15 @@ class Cell implements Serializable {
 	}
 
 	public void writeXLSExpandD(PrintWriter pw, int num) {
+		//image_number
 		pw.print(num + "\t");
+		//cell_id
 		pw.print(id + "\t");
+		//Cgroup
 		pw.print(Cgroup + "\t");
+		//Dgroup
 		pw.print(Dgroup + "\t");
+		//D101..D198
 		for (int i = 0; i < 98; i++) {
 			pw.print(Dexpandparam[i] + "\t");
 		}
@@ -2287,8 +2497,11 @@ class Cell implements Serializable {
 		pw.print(id + "\t");
 		pw.print(Cgroup + "\t");
 		pw.print(Agroup + "\t");
+		// A2-1 ..A6-3 
 		for (int i = 0; i < 15; i++)
 			pw.print("[" + Apointparam[i].x + "," + Apointparam[i].y + "]\t");
+		
+		// A7-1, A7-2, A8-1, A8-2, A9
 		for (int i = 0; i < 5; i++)
 			pw.print(Abaseparam[i] + "\t");
 		pw.println();
