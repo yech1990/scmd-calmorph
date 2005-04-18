@@ -152,7 +152,32 @@ class DisruptantProcess {
         }
     }
     public void setXLSHeaderBaseC(PrintWriter pw) {
-        pw.println("image_number\tcell_id\tCgroup\tC1-1\tC1-2\tC2-1\tC2-2\tC3-1\tC3-2\tC4-1\tC4-2\tC5-1\tC5-2\tC6\tC7\tC8\tC9\tC10\tC11-1\tC11-2\tC12-1\tC12-2\tC13\t");
+    	String[] headerBaseC = {
+    			"image_number",
+    			"cell_id",
+    			"Cgroup",
+    			"C1-1",
+    			"C1-2",
+    			"C2-1",
+    			"C2-2",
+    			"C3-1",
+    			"C3-2",
+    			"C4-1",
+    			"C4-2",
+    			"C5-1",
+    			"C5-2",
+    			"C6",
+    			"C7",
+    			"C8",
+    			"C9",
+    			"C10",
+    			"C11-1",
+    			"C11-2",
+    			"C12-1",
+    			"C12-2",
+    			"C13"
+    	};
+		printOneLine(pw, headerBaseC, "\t");
     }
     public void setXLSHeaderExpandC(PrintWriter pw) {
     	pw.print("image_number\tcell_id\tCgroup\t");
@@ -161,7 +186,56 @@ class DisruptantProcess {
         pw.println();
     }
     public void setXLSHeaderBaseD(PrintWriter pw) {
-        pw.println("image_number\tcell_id\tCgroup\tDgroup\tD1-1\tD1-2\tD1-3-1\tD1-3-2\tD2-1\tD2-2\tD2-3-1\tD2-3-2\tD3-1\tD3-2\tD3-3\tD4-1\tD4-2\tD4-3\tD5-1\tD5-2\tD5-3\tD6-1\tD6-2\tD7\tD8\tD9-1\tD9-2\tD10-1\tD10-2\tD11-1\tD11-2\tD12-1\tD12-2\tD13-1\tD13-2\tD14-1\tD14-2\tD14-3\tD15-1\tD15-2\tD15-3\tD16-1\tD16-2\tD16-3\tD17-1\tD17-2\tD17-3\t");
+    	String[] headerBaseD = {
+    			"image_number",
+    			"cell_id",
+    			"Cgroup",
+    			"Dgroup",
+    			"D1-1",
+    			"D1-2",
+    			"D1-3-1",
+    			"D1-3-2",
+    			"D2-1",
+    			"D2-2",
+    			"D2-3-1",
+    			"D2-3-2",
+    			"D3-1",
+    			"D3-2",
+    			"D3-3",
+    			"D4-1",
+    			"D4-2",
+    			"D4-3",
+    			"D5-1",
+    			"D5-2",
+    			"D5-3",
+    			"D6-1",
+    			"D6-2",
+    			"D7",
+    			"D8",
+    			"D9-1",
+    			"D9-2",
+    			"D10-1",
+    			"D10-2",
+    			"D11-1",
+    			"D11-2",
+    			"D12-1",
+    			"D12-2",
+    			"D13-1",
+    			"D13-2",
+    			"D14-1",
+    			"D14-2",
+    			"D14-3",
+    			"D15-1",
+    			"D15-2",
+    			"D15-3",
+    			"D16-1",
+    			"D16-2",
+    			"D16-3",
+    			"D17-1",
+    			"D17-2",
+    			"D17-3"
+    	};
+		printOneLine(pw, headerBaseD, "\t");
     }
     public void setXLSHeaderExpandD(PrintWriter pw) {
     	pw.print("image_number\tcell_id\tCgroup\tDgroup\t");
@@ -169,17 +243,59 @@ class DisruptantProcess {
         pw.println();
     }
     public void setXLSHeaderBaseA(PrintWriter pw) {
-        pw.println("image_number\tcell_id\tCgroup\tAgroup\tA2-1\tA2-2\tA2-3\tA3-1\tA3-2\tA3-3\tA4-1\tA4-2\tA4-3\tA5-1\tA5-2\tA5-3\tA6-1\tA6-2\tA6-3\tA7-1\tA7-2\tA8-1\tA8-2\tA9\t");
+    	String[] headerBaseA = {
+    			"image_number",
+    			"cell_id",
+    			"Cgroup",
+    			"Agroup",
+    			"A2-1",
+    			"A2-2",
+    			"A2-3",
+    			"A3-1",
+    			"A3-2",
+    			"A3-3",
+    			"A4-1",
+    			"A4-2",
+    			"A4-3",
+    			"A5-1",
+    			"A5-2",
+    			"A5-3",
+    			"A6-1",
+    			"A6-2",
+    			"A6-3",
+    			"A7-1",
+    			"A7-2",
+    			"A8-1",
+    			"A8-2",
+    			"A9"
+    	};
+    	printOneLine(pw, headerBaseA, "\t");
     }
     public void setXLSHeaderExpandA(PrintWriter pw) {
-    	pw.print("image_number\tcell_id\tCgroup\tAgroup\tA101\tA102\tA103\tA104\tA120\tA121\tA122\tA123\t");
+    	String[] headerExpandA = {
+    			"image_number",
+    			"cell_id",
+    			"Cgroup",
+    			"Agroup",
+    			"A101",
+    			"A102",
+    			"A103",
+    			"A104",
+    			"A120",
+    			"A121",
+    			"A122",
+    			"A123"		
+    	};
+    	for(int i = 0; i < headerExpandA.length; i++ ) {
+    		pw.print(headerExpandA[i] + "\t");
+    	}
         pw.println();
     }
     public void setXLSHeaderPatchA(PrintWriter pw) {
         pw.println("image_number\tcell_id\tposition\tsize\tbrightness\t");
     }
     public void setXLSHeaderVers(PrintWriter pw) {
-    		String[] versatiles = {
+    	String[] versatiles = {
 				"image_number",
 				"cell_id",
 				"Cgroup",
@@ -216,7 +332,7 @@ class DisruptantProcess {
 				"x2",
 				"y2"
 		};
-		printOneLine(pw, versatiles, "\t");
+    	printOneLine(pw, versatiles, "\t");
 //        pw.println("image_number\tcell_id\tCgroup\tmother_cell_size\tbud_cell_size\tbud_ratio\taxis_ratio_in_mother\taxis_ratio_in_bud\tbud_direction\tneck_position\tneck_width\tAgroup\tactin_region_ratio\tbud_actin_ratio\tmother_actin_gravity_point\tbud_actin_gravity_point\tDgroup\tnuclear_number\tnuclear_size_in_mother\tnuclear_size_in_bud\tnuclear_size_in_cell\tnuclear_axis_ratio_in_mother\tnuclear_axis_ratio_in_bud\tnuclear_axis_ratio_in_cell\thip_nuclear\tmother_cell_center_nuclear\tneck_nuclear_in_mother\tbud_top_nuclear\tbud_cell_center_nuclear\tneck_nuclear_in_bud\tlength_between_nucleus\t");
     }
     public void setXMLHeader(PrintWriter pwxml) {

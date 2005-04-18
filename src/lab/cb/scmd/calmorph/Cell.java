@@ -16,8 +16,9 @@ import java.awt.*;
 import java.awt.geom.*;
 
 class Cell implements Serializable{
-    int w,h,size,group,id;//画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
-    String Cgroup,Dgroup,Agroup;
+    int w,h,size,id;//画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
+    private int group;
+    private String Cgroup, Dgroup,Agroup;
     int budcrush;
     Vector cover,edge,mother_edge,bud_edge,bud_cover,edge_2,cover_2;
     int[] neck;
@@ -110,6 +111,27 @@ class Cell implements Serializable{
         actinpatchbright = new Vector();
         actinpatchsize = new Vector();
         fitness = -1;
+    }
+
+    public void setGroup(int n) {
+    	group = n;
+    }
+    public String getCgroup() {
+    	return Cgroup;
+    }
+    public String getDgroup() {
+    	return Dgroup;
+    }
+    public String getAgroup() {
+    	return Agroup;
+    }
+    public void setAgroup(String ag) {
+    	Agroup = ag;
+    }
+    
+
+    public int getGroup() {
+    	return group;
     }
     ////////////////////////////////////////////////////////////////////////////////
     //楕円を当てる
