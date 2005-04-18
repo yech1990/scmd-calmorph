@@ -2289,7 +2289,7 @@ class CellImage {
 		int[][] mpointB = new int[vec.length][2];//B細胞におけるネックラインで切ったときの母細胞側、芽側の重心
 		Vector MafterB = new Vector();
 		for(int i=0;i<cell.length;i++) {
-			cell[i].flag_ud = false;
+			cell[i].setFlagUD(false);
 		}
 		for(int i=0;i<vec.length;i++) {
 			int r=1;
@@ -2320,7 +2320,7 @@ class CellImage {
 			if(maxbr > 30) mpoint[i] = pointy*w+pointx;//暗すぎる核は除く
 			else mpoint[i] = 0;
 			if(pixeltocell[mpoint[i]] >= 0 && r == 0 && d > 0){//核が母細胞と芽の両方にかかっている……分裂中の核
-				cell[pixeltocell[mpoint[i]]].flag_ud = true;
+				cell[pixeltocell[mpoint[i]]].setFlagUD(true);
 				int s1=0;
 				int pointx1=0;
 				int pointy1=0;
@@ -2370,7 +2370,7 @@ class CellImage {
 			}
 		}
 		for(int i=0;i<vec.length;i++) {
-			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].flag_ud && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
+			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
 				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][0]%w,mpointB[i][0]/w));
 				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][1]%w,mpointB[i][1]/w));
 			}
@@ -2412,7 +2412,7 @@ class CellImage {
 				brightpoint[i] = pconA;
 			}
 			
-			if(pixeltocell[mpoint[i]]>=0 && cell[pixeltocell[mpoint[i]]].flag_ud && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1){
+			if(pixeltocell[mpoint[i]]>=0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1){
 				int brightness1 = 0;
 				int brightness2 = 0;
 				Vector bpoint1 = new Vector();
@@ -2494,7 +2494,7 @@ class CellImage {
 			}
 		}
 		for(int i=0;i<vec.length;i++) {
-			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].flag_ud && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
+			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
 				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][0]%w,brightpointB[i][0]/w));
 				cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(DImage[brightpointB[i][0]]));
 				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][1]%w,brightpointB[i][1]/w));
@@ -2521,7 +2521,7 @@ class CellImage {
 				}
 				cell[pixeltocell[mpoint[i]]].Dcover.add(Dc);
 				cell[pixeltocell[mpoint[i]]].Dtotalbright.add(new Integer(totalbr));
-				if(cell[pixeltocell[mpoint[i]]].flag_ud && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1){
+				if(cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1){
 					Vector Dc1 = new Vector();
 					Vector Dc2 = new Vector();
 					int totalbr1=0;
