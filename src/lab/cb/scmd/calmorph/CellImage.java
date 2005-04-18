@@ -817,7 +817,7 @@ class CellImage {
 		}
 		for(int i=0;i<vec.length;i++) {
 			cell[i] = new Cell(w,h,startid+i);
-			cell[i].group = 1;
+			cell[i].setGroup(1);
 			for(int j=0;j<vec[i].size();j++) {
 				int p=((Integer)vec[i].get(j)).intValue();
 				pixeltocell[p]=i;
@@ -904,7 +904,7 @@ class CellImage {
 				}
 				if(t>0) q=q/t;
 				if(r>0 && (cell[i].edge.size() - t > 0)) r=r/(cell[i].edge.size() - t);
-				if(q<50 && r>100 && r-q>70) cell[i].group = 0;
+				if(q<50 && r>100 && r-q>70) cell[i].setGroup(0);
 			}
 		}
 		edgecorrect2(vec2,image2,oriimage);
@@ -920,7 +920,7 @@ class CellImage {
 			int p=((Integer)vec2[i].get(0)).intValue();
 			if(nextpoint2(image2,i,p,check,p) && vec2[i].size() == cell[i].edge_2.size()) {
 			} else {
-				cell[i].group = 0;
+				cell[i].setGroup(0);
 			}
 		}
 	}
@@ -1334,7 +1334,7 @@ class CellImage {
             int es;
             boolean neck1 = false;
             int[] score,scoretmp;
-            if(cell[i].group > 0) {
+            if(cell[i].getGroup() > 0) {
                 Vector neck = new Vector();
                 int jj;
                 int start;
@@ -1397,7 +1397,7 @@ class CellImage {
                 }
                 if(neck.size() > 2 || cell[i].edge.size() < 10) {
                     cell[i].bud_ratio = 0;
-                    cell[i].group = 0;
+                    cell[i].setGroup(0);
                     continue;
                 }
                 if(neck.size() == 2) {//一回目ネック２個
@@ -1440,13 +1440,13 @@ class CellImage {
                         }
                         cell[i].bud_edge = new Vector();
                         cell[i].bud_ratio = 0;
-                        cell[i].group = 0;
+                        cell[i].setGroup(0);
                     } else {
                         cell[i].bud_ratio = Math.sqrt((double)cell[i].bud_cover.size()/(cell[i].cover.size()-cell[i].bud_cover.size()));
-                        if(cell[i].bud_ratio == 0) cell[i].group = 1;
-                        else if(cell[i].bud_ratio < 0.5) cell[i].group = 2;
-                        else if(cell[i].bud_ratio < 0.7) cell[i].group = 3;
-                        else cell[i].group = 4;
+                        if(cell[i].bud_ratio == 0) cell[i].setGroup(1);
+                        else if(cell[i].bud_ratio < 0.5) cell[i].setGroup(2);
+                        else if(cell[i].bud_ratio < 0.7) cell[i].setGroup(3);
+                        else cell[i].setGroup(4);
                     }
                     cell[i].neck = new int[2];
                     for(int j=0;j<2;j++) {
@@ -1458,7 +1458,7 @@ class CellImage {
                         cell[i].mother_edge.add(new Integer(((Integer)cell[i].edge.get((j+jj+es)%es)).intValue()));
                     }
                     cell[i].bud_ratio = 0;
-                    cell[i].group = 1;
+                    cell[i].setGroup(1);
                     neck1 = true;//一回目でネックをひとつ見つけている
                     tmp = neck;
                 } else {
@@ -1466,12 +1466,12 @@ class CellImage {
                         cell[i].mother_edge.add(new Integer(((Integer)cell[i].edge.get((j+jj+es)%es)).intValue()));
                     }
                     cell[i].bud_ratio = 0;
-                    cell[i].group = 1;
+                    cell[i].setGroup(1);
                 }
                 //noに分類されたものについてくびれの認識をゆるくしてみる。
                 //small以外には変えない
                 for(int th=scorethr-20;th>=820;th-=20) {
-                    if(cell[i].group == 1) {
+                    if(cell[i].getGroup() == 1) {
                         jj=0;
                         while(true) {
                             if(jj<-es) {
@@ -1530,13 +1530,13 @@ class CellImage {
                             } else {
                                 double bud_ratio = Math.sqrt((double)bud_cover.size()/(cell[i].cover.size()-bud_cover.size()));
 								if(bud_ratio < 0.5 && bud_ratio > 0) {
-									cell[i].group = 2;//smallに変える
+									cell[i].setGroup(2);//smallに変える
 								} else if(bud_ratio < 0.7 && bud_ratio > 0 && neck1) {//最初に一つネックがみつかってるときのみ
-									cell[i].group = 3;//mediumに変える
+									cell[i].setGroup(3);//mediumに変える
 								} else if(bud_ratio <= 1.0 && bud_ratio > 0 && neck1) {//最初に一つネックがみつかってるときのみ
-									cell[i].group = 4;//largeに変える
+									cell[i].setGroup(4);//largeに変える
 								}
-								if(cell[i].group > 1){
+								if(cell[i].getGroup() > 1){
 	                                cell[i].mother_edge = medge;
     	                            cell[i].bud_edge = bedge;
         	                        cell[i].bud_ratio = bud_ratio;
@@ -1623,13 +1623,13 @@ class CellImage {
                                 }
                                 cell[i].bud_edge = new Vector();
                                 cell[i].bud_ratio = 0;
-                                cell[i].group = 1;
+                                cell[i].setGroup(1);
                             } else {
                                 cell[i].bud_ratio = Math.sqrt((double)cell[i].bud_cover.size()/(cell[i].cover.size()-cell[i].bud_cover.size()));
-                                if(cell[i].bud_ratio == 0) cell[i].group = 1;
-                                else if(cell[i].bud_ratio < 0.5) cell[i].group = 2;
-                                else if(cell[i].bud_ratio < 0.7) cell[i].group = 3;
-                                else cell[i].group = 4;
+                                if(cell[i].bud_ratio == 0) cell[i].setGroup(1);
+                                else if(cell[i].bud_ratio < 0.5) cell[i].setGroup(2);
+                                else if(cell[i].bud_ratio < 0.7) cell[i].setGroup(3);
+                                else cell[i].setGroup(4);
                             }
                             cell[i].neck = new int[2];
                             for(int j=0;j<2;j++) {
@@ -1939,7 +1939,7 @@ class CellImage {
 			double[] width = new double[cell[i].edge.size()];
 			for(int j=0;j<cell[i].edge.size();j++){
 				int p=((Integer)cell[i].edge.get(j)).intValue();
-				if(cell[i].group>1){
+				if(cell[i].getGroup() > 1){
 					int q1 = cell[i].neck[0];
 					int q2 = cell[i].neck[1];
 					if((Math.abs(p-q1)%w<=2 && Math.abs(p-q1)/w<=2) || (Math.abs(p-q2)%w<=2 && Math.abs(p-q2)/w<=2)) {width[j]=-1;continue;}
@@ -2302,7 +2302,7 @@ class CellImage {
 				int pconA=((Integer)vec[i].get(j)).intValue()+Ddiff;//細胞画像の位置にする
 				int pdapi=((Integer)vec[i].get(j)).intValue();//DAPI画像の位置にする
 				if(pixeltocell[pconA] >= 0) {
-					if(cell[pixeltocell[pconA]].group >=2) {
+					if(cell[pixeltocell[pconA]].getGroup() >=2) {
 						int k;
 						if(cell[pixeltocell[pconA]].inmother(pconA)) k=1;
 						else k=0;
@@ -2897,7 +2897,7 @@ class CellImage {
             	brx4=-1;
             	bry4=-1;
             }
-            if((flag_tmp || maxbright<10) && cell[i].group>0) cell[i].Agroup = "N";
+            if((flag_tmp || maxbright<10) && cell[i].getGroup() > 0) cell[i].setAgroup("N");
             else {
             	cell[i].Aregionsize[0] = regionsize;
             	cell[i].Atotalbright[0] = totalbright;
@@ -2906,16 +2906,16 @@ class CellImage {
             	cell[i].Acenterpoint[2][2]=new Point((int)brxx,(int)bryy);
             	cell[i].Acenterpoint[2][3]=new Point((int)brx3,(int)bry3);
             	cell[i].Acenterpoint[2][4]=new Point((int)brx4,(int)bry4);
-            	if(cell[i].group == 1){
-	                if(regionsize > cell[i].cover.size()/4) cell[i].Agroup = "A";
-    	            else cell[i].Agroup = "B";
+            	if(cell[i].getGroup() == 1){
+	                if(regionsize > cell[i].cover.size()/4) cell[i].setAgroup("A");
+    	            else cell[i].setAgroup("B");
 	            	cell[i].Acenterpoint[0][0]=new Point(x,y);
     	        	cell[i].Acenterpoint[0][1]=new Point(brx,bry);
         	    	cell[i].Acenterpoint[0][2]=new Point((int)brxx,(int)bryy);
         	    	cell[i].Acenterpoint[0][3]=new Point((int)brx3,(int)bry3);
         	    	cell[i].Acenterpoint[0][4]=new Point((int)brx4,(int)bry4);
             	}
-            	else if(cell[i].group > 1){
+            	else if(cell[i].getGroup() > 1){
 		            int mregionsize = 0;
         		    int mtotalbright = 0;
             		int bregionsize = 0;
@@ -3049,7 +3049,7 @@ class CellImage {
             	    cell[i].Atotalbright[1] = btotalbright;
             	}
             }
-            if(cell[i].group>=2){//ネックライン上に乗っているアクチン領域のネックライン全体に対する割合を求める
+            if(cell[i].getGroup()>=2){//ネックライン上に乗っているアクチン領域のネックライン全体に対する割合を求める
             	if(Math.abs(cell[i].neck[0]%w-cell[i].neck[1]%w)>Math.abs(cell[i].neck[0]/w-cell[i].neck[1]/w)){
             		int min = 0;
             		if(cell[i].neck[0]%w>cell[i].neck[1]%w) min = 1;
@@ -3327,7 +3327,7 @@ class CellImage {
                 total2 += br*br;
                 total3 += br*br*br;
                 total4 += br*br*br*br;
-				if(cell[i].group > 1){
+				if(cell[i].getGroup() > 1){
                     if(cell[i].inmother(p)) {
                         mpatchsize++;
                         mtotal+=br;
@@ -3397,7 +3397,7 @@ class CellImage {
             cell[i].Apatchcenterpoint[0][2]=new Point((int)brxx,(int)bryy);
             cell[i].Apatchcenterpoint[0][3]=new Point((int)brx3,(int)bry3);
             cell[i].Apatchcenterpoint[0][4]=new Point((int)brx4,(int)bry4);
-            if(cell[i].group>1){
+            if(cell[i].getGroup()>1){
 		         if(mpatchsize!=0) {
 		            mx/=mpatchsize;
         		    my/=mpatchsize;
@@ -3462,14 +3462,14 @@ class CellImage {
         for(int i=0;i<cell.length;i++){//アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
         	cell[i].actinpatchpath = new Vector();
         	if(cell[i].actinpatchpoint.size()>0){
-        	if(cell[i].group==1){
+        	if(cell[i].getGroup()==1){
         		int[] path = new int[cell[i].actinpatchpoint.size()];
         		cell[i].actinpathlength = shortestpathlength((Vector)cell[i].actinpatchpoint.clone(),path);
         		for(int j=0;j<path.length;j++){
         			cell[i].actinpatchpath.add(new Point(path[j]%w,path[j]/w));
         		}
         	}
-        	else if(cell[i].group>1){
+        	else if(cell[i].getGroup()>1){
         		Vector mpatch = new Vector();
         		Vector bpatch = new Vector();
         		for(int j=0;j<cell[i].actinpatchpoint.size();j++){

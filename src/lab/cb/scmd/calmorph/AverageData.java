@@ -62,9 +62,9 @@ class AverageData {
 
     public void addCellData(CellImage image) {
         for (int i = 0; i < image.cell.length; i++) {
-            Cgroup.add(image.cell[i].Cgroup);
-            Dgroup.add(image.cell[i].Dgroup);
-            Agroup.add(image.cell[i].Agroup);
+            Cgroup.add(image.cell[i].getCgroup());
+            Dgroup.add(image.cell[i].getDgroup());
+            Agroup.add(image.cell[i].getAgroup());
             for (int j = 0; j < versparam.length; j++) {
                 versparam[j].add(new Double(image.cell[i].versparam[j]));
             }
