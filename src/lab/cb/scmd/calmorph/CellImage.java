@@ -3460,61 +3460,11 @@ class CellImage {
         }
         
         for(int i=0;i<cell.length;i++){//アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
-        	cell[i].actinpatchpath = new Vector();
-        	if(cell[i].actinpatchpoint.size()>0){
-        	if(cell[i].getGroup()==1){
-        		int[] path = new int[cell[i].actinpatchpoint.size()];
-        		cell[i].actinpathlength = shortestpathlength((Vector)cell[i].actinpatchpoint.clone(),path);
-        		for(int j=0;j<path.length;j++){
-        			cell[i].actinpatchpath.add(new Point(path[j]%w,path[j]/w));
-        		}
-        	}
-        	else if(cell[i].getGroup()>1){
-        		Vector mpatch = new Vector();
-        		Vector bpatch = new Vector();
-        		for(int j=0;j<cell[i].actinpatchpoint.size();j++){
-        			int p = ((Integer)cell[i].actinpatchpoint.get(j)).intValue();
-        			if(cell[i].inmother(p)) mpatch.add(new Integer(p));
-        			else bpatch.add(new Integer(p));
-        		}
-        		if(mpatch.size()>0 && bpatch.size()>0){
-        			mpatch.add(new Integer(cell[i].neckpoint.y*w+cell[i].neckpoint.x));
-        			bpatch.add(new Integer(cell[i].neckpoint.y*w+cell[i].neckpoint.x));
-	        		int[] path = new int[mpatch.size()];
-	        		double length = shortestpathlength(mpatch,path);
-	        		int j=0;
-	        		while(path[j]!=cell[i].neckpoint.y*w+cell[i].neckpoint.x) j++;
-    	    		for(int k=j;k<path.length+j;k++){
-        				cell[i].actinpatchpath.add(new Point(path[k%path.length]%w,path[k%path.length]/w));
-        			}
-        			path = new int[bpatch.size()];
-	        		cell[i].actinpathlength = length + shortestpathlength(bpatch,path);
-	        		j=0;
-	        		while(path[j]!=cell[i].neckpoint.y*w+cell[i].neckpoint.x) j++;
-    	    		for(int k=j;k<path.length+j;k++){
-        				cell[i].actinpatchpath.add(new Point(path[k%path.length]%w,path[k%path.length]/w));
-        			}
-        		}
-        		else if(mpatch.size()>0){
-        			int[] path = new int[mpatch.size()];
-        			cell[i].actinpathlength = shortestpathlength(mpatch,path);
-        			for(int j=0;j<path.length;j++){
-        				cell[i].actinpatchpath.add(new Point(path[j]%w,path[j]/w));
-        			}
-        		}
-        		else if(bpatch.size()>0){
-        			int[] path = new int[bpatch.size()];
-        			cell[i].actinpathlength = shortestpathlength(bpatch,path);
-        			for(int j=0;j<path.length;j++){
-        				cell[i].actinpatchpath.add(new Point(path[j]%w,path[j]/w));
-        			}
-        		}
-        		else cell[i].actinpathlength = -1;
-        	}
-        	}
+        	cell[i].calcActinpathlength();
         }
 	}
-    
+	
+
     
     
     public boolean bright(int[] image,int p1,int p2) {
@@ -3580,66 +3530,7 @@ class CellImage {
     
     
     
-    ///////////////////////////////////////////////////////////////////////////
-    //近似アルゴリズムで最小TSPパスを求める
-    ///////////////////////////////////////////////////////////////////////////
-    public double shortestpathlength(Vector points,int[] ps){
-    	int n = points.size();
-    	for(int i=0;i<n;i++) ps[i] = ((Integer)points.get(i)).intValue();
-    	double length = 0;
-    	for(int i=0;i<n;i++) length+=distance(ps[i],ps[(i+1)%n]);
-    	int i0=0;
-LOOP:
-    	while(true){
-    		int i;
-    		for(i=i0;i<i0+n;i++){
-    			for(int j=i+2;j<i+n-1;j++)
-    			{
-    				double tmplength = distance(ps[i%n],ps[j%n])+distance(ps[(i+1)%n],ps[(j+1)%n])-distance(ps[i%n],ps[(i+1)%n])-distance(ps[j%n],ps[(j+1)%n]);
-    				if(tmplength<-0.0001)
-    				{
-    					length+=tmplength;
-    					for(int k=0;k<(j-i)/2;k++)
-    					{
-    						int tmp = ps[(i+1+k)%n];
-    						ps[(i+1+k)%n] = ps[(j-k)%n];
-    						ps[(j-k)%n] = tmp;
-    					}
-    					i0 = (i+1)%n;
-    					continue LOOP;
-    				}
-    			}
-    		}
-    		for(i=i0;i<i0+n;i++){
-    			for(int k=i+1;k<=i+3;k++){
-    				for(int j=k+1;j<i+n-1;j++){
-    					double tmplength = distance(ps[i%n],ps[(k+1)%n])+distance(ps[j%n],ps[k%n])+distance(ps[(i+1)%n],ps[(j+1)%n])-distance(ps[i%n],ps[(i+1)%n])-distance(ps[j%n],ps[(j+1)%n])-distance(ps[k%n],ps[(k+1)%n]);
-    					if(tmplength<-0.0001){
-    						length+=tmplength;
-    						int[] tmp = new int[3];
-						    for(int l=i+1; l<=k; l++) tmp[l-i-1]=ps[l%n];
-     						for(int l=k+1; l<=j; l++) ps[(l-k+i)%n]=ps[l%n];
-     						for(int l=0; l<k-i; l++) ps[(j-k+i+1+l)%n]=tmp[k-i-1-l];
-    						i0 = (i+1)%n;
-    						continue LOOP;
-    					}
-    					if(k==i+1) continue;
-    					tmplength = distance(ps[i%n],ps[(k+1)%n])+distance(ps[j%n],ps[(i+1)%n])+distance(ps[k%n],ps[(j+1)%n])-distance(ps[i%n],ps[(i+1)%n])-distance(ps[j%n],ps[(j+1)%n])-distance(ps[k%n],ps[(k+1)%n]);
-    					if(tmplength<-0.0001){
-    						length+=tmplength;
-    						int[] tmp = new int[3];
-						    for(int l=i+1; l<=k; l++) tmp[l-i-1]=ps[l%n];
-     						for(int l=k+1; l<=j; l++) ps[(l-k+i)%n]=ps[l%n];
-     						for(int l=0; l<k-i; l++) ps[(j-l)%n]=tmp[k-i-1-l];
-    						i0 = (i+1)%n;
-    						continue LOOP;
-    					}
-    				}
-    			}
-    		}
-    		return length;
-    	}
-    }
+
     /////////////////////////////////////////////////////////////////////////////////
     //アクチンに関するデータをセット
     /////////////////////////////////////////////////////////////////////////////////
