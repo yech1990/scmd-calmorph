@@ -32,7 +32,7 @@ class Cell implements Serializable {
 
 	double fitness;
 
-	double[] mother_ellipse, bud_ellipse;// 楕円パラメータ
+	private double[] mother_ellipse, bud_ellipse;// 楕円パラメータ
 
 	boolean budell_flag, bud_short_flag;
 
@@ -2478,6 +2478,156 @@ class Cell implements Serializable {
 			pw2.println((p % w) + "," + (p / w) + "</actin>");
 		}
 		pw2.println("  </celldata>");
+	}
+	
+	//	アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
+	public void calcActinpathlength() {
+		this.actinpatchpath = new Vector();
+		if (this.actinpatchpoint.size() > 0) {
+			if (this.getGroup() == 1) {
+				int[] path = new int[this.actinpatchpoint.size()];
+				this.actinpathlength = shortestpathlength(
+						(Vector) this.actinpatchpoint.clone(), path);
+				for (int j = 0; j < path.length; j++) {
+					this.actinpatchpath.add(new Point(path[j] % w, path[j]
+							/ w));
+				}
+			} else if (this.getGroup() > 1) {
+				Vector mpatch = new Vector();
+				Vector bpatch = new Vector();
+				for (int j = 0; j < this.actinpatchpoint.size(); j++) {
+					int p = ((Integer) this.actinpatchpoint.get(j))
+							.intValue();
+					if (this.inmother(p))
+						mpatch.add(new Integer(p));
+					else
+						bpatch.add(new Integer(p));
+				}
+				if (mpatch.size() > 0 && bpatch.size() > 0) {
+					mpatch.add(new Integer(this.neckpoint.y * w
+							+ this.neckpoint.x));
+					bpatch.add(new Integer(this.neckpoint.y * w
+							+ this.neckpoint.x));
+					int[] path = new int[mpatch.size()];
+					double length = shortestpathlength(mpatch, path);
+					int j = 0;
+					while (path[j] != this.neckpoint.y * w
+							+ this.neckpoint.x)
+						j++;
+					for (int k = j; k < path.length + j; k++) {
+						this.actinpatchpath.add(new Point(path[k
+								% path.length]
+								% w, path[k % path.length] / w));
+					}
+					path = new int[bpatch.size()];
+					this.actinpathlength = length
+							+ shortestpathlength(bpatch, path);
+					j = 0;
+					while (path[j] != this.neckpoint.y * w
+							+ this.neckpoint.x)
+						j++;
+					for (int k = j; k < path.length + j; k++) {
+						this.actinpatchpath.add(new Point(path[k
+								% path.length]
+								% w, path[k % path.length] / w));
+					}
+				} else if (mpatch.size() > 0) {
+					int[] path = new int[mpatch.size()];
+					this.actinpathlength = shortestpathlength(mpatch, path);
+					for (int j = 0; j < path.length; j++) {
+						this.actinpatchpath.add(new Point(path[j] % w,
+								path[j] / w));
+					}
+				} else if (bpatch.size() > 0) {
+					int[] path = new int[bpatch.size()];
+					this.actinpathlength = shortestpathlength(bpatch, path);
+					for (int j = 0; j < path.length; j++) {
+						this.actinpatchpath.add(new Point(path[j] % w,
+								path[j] / w));
+					}
+				} else
+					this.actinpathlength = -1;
+			}
+		}
+	}
+    
+    ///////////////////////////////////////////////////////////////////////////
+    //近似アルゴリズムで最小TSPパスを求める
+    ///////////////////////////////////////////////////////////////////////////
+    private double shortestpathlength(Vector points, int[] ps) {
+		int n = points.size();
+		for (int i = 0; i < n; i++)
+			ps[i] = ((Integer) points.get(i)).intValue();
+		double length = 0;
+		for (int i = 0; i < n; i++)
+			length += distance(ps[i], ps[(i + 1) % n]);
+		int i0 = 0;
+		LOOP: while (true) {
+			int i;
+			for (i = i0; i < i0 + n; i++) {
+				for (int j = i + 2; j < i + n - 1; j++) {
+					double tmplength = distance(ps[i % n], ps[j % n])
+							+ distance(ps[(i + 1) % n], ps[(j + 1) % n])
+							- distance(ps[i % n], ps[(i + 1) % n])
+							- distance(ps[j % n], ps[(j + 1) % n]);
+					if (tmplength < -0.0001) {
+						length += tmplength;
+						for (int k = 0; k < (j - i) / 2; k++) {
+							int tmp = ps[(i + 1 + k) % n];
+							ps[(i + 1 + k) % n] = ps[(j - k) % n];
+							ps[(j - k) % n] = tmp;
+						}
+						i0 = (i + 1) % n;
+						continue LOOP;
+					}
+				}
+			}
+			for (i = i0; i < i0 + n; i++) {
+				for (int k = i + 1; k <= i + 3; k++) {
+					for (int j = k + 1; j < i + n - 1; j++) {
+						double tmplength = distance(ps[i % n], ps[(k + 1) % n])
+								+ distance(ps[j % n], ps[k % n])
+								+ distance(ps[(i + 1) % n], ps[(j + 1) % n])
+								- distance(ps[i % n], ps[(i + 1) % n])
+								- distance(ps[j % n], ps[(j + 1) % n])
+								- distance(ps[k % n], ps[(k + 1) % n]);
+						if (tmplength < -0.0001) {
+							length += tmplength;
+							int[] tmp = new int[3];
+							for (int l = i + 1; l <= k; l++)
+								tmp[l - i - 1] = ps[l % n];
+							for (int l = k + 1; l <= j; l++)
+								ps[(l - k + i) % n] = ps[l % n];
+							for (int l = 0; l < k - i; l++)
+								ps[(j - k + i + 1 + l) % n] = tmp[k - i - 1 - l];
+							i0 = (i + 1) % n;
+							continue LOOP;
+						}
+						if (k == i + 1)
+							continue;
+						tmplength = distance(ps[i % n], ps[(k + 1) % n])
+								+ distance(ps[j % n], ps[(i + 1) % n])
+								+ distance(ps[k % n], ps[(j + 1) % n])
+								- distance(ps[i % n], ps[(i + 1) % n])
+								- distance(ps[j % n], ps[(j + 1) % n])
+								- distance(ps[k % n], ps[(k + 1) % n]);
+						if (tmplength < -0.0001) {
+							length += tmplength;
+							int[] tmp = new int[3];
+							for (int l = i + 1; l <= k; l++)
+								tmp[l - i - 1] = ps[l % n];
+							for (int l = k + 1; l <= j; l++)
+								ps[(l - k + i) % n] = ps[l % n];
+							for (int l = 0; l < k - i; l++)
+								ps[(j - l) % n] = tmp[k - i - 1 - l];
+							i0 = (i + 1) % n;
+							continue LOOP;
+						}
+					}
+				}
+			}
+			return length;
+		}
 	}
 }
 
