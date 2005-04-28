@@ -58,12 +58,13 @@ public class CellShapeStat implements TableFileName
                                            new EliminateOnePercentOfBothSidesStrategy());
 
     /**
+     *  C-num-no, D-num-C などのグループの組み合わせの値を求めるクラス
      *  
+     *  @leo
      */
     public CellShapeStat()
     {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public static void main(String[] arg) {
