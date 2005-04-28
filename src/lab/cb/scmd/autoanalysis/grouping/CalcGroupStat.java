@@ -43,7 +43,7 @@ public class CalcGroupStat implements TableFileName
 	final static int	OPT_HELP			= 0;
 	final static int	OPT_VERBOSE			= 1;
 	final static int	OPT_BASEDIR			= 2;
-	final static int	OPT_OLD_FORMAT		= 3;
+	//final static int	OPT_OLD_FORMAT		= 3;
 	final static int	OPT_ELIMINATE		= 4;
 	final static int	OPT_SHORTVARIABLES	= 5;
 
