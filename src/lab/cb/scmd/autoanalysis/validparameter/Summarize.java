@@ -13,12 +13,14 @@ package lab.cb.scmd.autoanalysis.validparameter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import lab.cb.scmd.autoanalysis.grouping.CalMorphTable;
@@ -27,21 +29,26 @@ import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.cui.Option;
 import lab.cb.scmd.util.cui.OptionParser;
 import lab.cb.scmd.util.cui.OptionWithArgument;
+import lab.cb.scmd.util.io.NullPrintStream;
+import lab.cb.scmd.util.table.BasicTable;
 import lab.cb.scmd.util.table.Cell;
-import lab.cb.scmd.util.table.TableIterator;
+import lab.cb.scmd.util.table.FlatTable;
 
 /**
 * @author nakatani
-*
+* 
+* NucleusStageClassifier, calcgroupstat, makexls で作成したパラメータから、
+* 501のパラメータ（param.xlsで指定したパラメータ）を抽出する
+* 
 */
 public class Summarize {
 	OptionParser		parser				= new OptionParser();
-	boolean				verbose             = true;
 	String 				targetDir           = null;
 	String				parameterFile       = null;
 	String              orfFile             = null;
 	String              outputFile          = null;
-	static final String SEP=File.separator;
+    int                 ignoreThreshold     = 0;
+	static final String SEP = File.separator;
 	
 	// option IDs
 	final static int	OPT_HELP			= 0;
@@ -50,45 +57,22 @@ public class Summarize {
 	final static int    OPT_PARAMETER       = 3;
 	final static int    OPT_ORF             = 4;
 	final static int    OPT_OUTPUT          = 5;
+    final static int    OPT_IGNORETHRESHOLD = 6;
+    
+    PrintStream    _log = new NullPrintStream();
 	
 	Summarize(){}
-	protected Summarize(String target_dir, String parameter_file) throws SCMDException, IOException{
-		targetDir=target_dir;
-		parameterFile=parameter_file;
+    
+	public Summarize(String target_dir, String parameter_file) throws SCMDException, IOException{
+		targetDir = target_dir;
+		parameterFile = parameter_file;
 		readOutputParameterList();
 		readAllData();
 	}
-	protected Vector getParameterNames(){
-		return outputHeader;
-	}
-	protected Double[] getValidDataForIthParameter(int Ith,HashMap ignoreOrfList){
-		TableIterator ite=(TableIterator)outputDataTable.get(Ith);
-		ite=(TableIterator)ite.clone();
-		TableIterator orf=(TableIterator)outputDataTable.get(0);
-		orf=(TableIterator)orf.clone();
-		Vector v=new Vector();
-		for(;orf.hasNext();){
-			Cell c=(Cell)ite.next();
-			if(ignoreOrfList!=null){
-				Cell orfCell=(Cell)orf.next();
-				if(ignoreOrfList.containsKey(orfCell.toString()))continue;
-			}
-			if(c.isValidAsDouble()){
-				double d=c.doubleValue();
-				if(d<0)continue;
-				v.add(new Double(d));
-			}
-		}
-		Double[] returnValue=new Double[v.size()];
-		for(int i=0;i<v.size();++i){
-			returnValue[i]=(Double)v.get(i);
-		}
-		return returnValue;
-		//return (Double[])v.toArray();
-	}
-	protected HashMap getOrfIgnore(int threshold) throws SCMDException{
+
+    protected TreeSet<String> getOrfIgnore(int threshold) throws SCMDException{
 		CalMorphTable versatileTable = new CalMorphTable(targetDir+SEP+DataFileName.VERSATILE);
-		HashMap IgnoreList = new HashMap();
+		TreeSet<String> IgnoreList = new TreeSet<String> ();
 		int orfSize=versatileTable.getRowSize();
 		for(int i=0;i<orfSize;++i){
 			Cell c = versatileTable.getCell(i,1);
@@ -98,45 +82,14 @@ public class Summarize {
 			int sampleNumber=(int)c.doubleValue();
 			if(sampleNumber<threshold){
 				String orf=versatileTable.getCell(i,0).toString();
-				IgnoreList.put(orf,orf);
-				if(verbose){
-					System.out.println("ignore "+orf+". sample number="+sampleNumber+" < threshold="+threshold);				
-				}
+				IgnoreList.add(orf);
+				_log.println("ignore "+orf+". sample number="+sampleNumber+" < threshold="+threshold);				
 			}
 		}
 		return IgnoreList;
-	
 	}
-	/*
-	protected HashMap getOrfIgnore(int threshold) throws SCMDException{
-		CalMorphTable[] dataNumTables = new CalMorphTable[DataFileName.NUM_FILE_NAME.length]; 
-		for(int i=0;i<dataNumTables.length;++i){
-			String filename=targetDir+SEP+DataFileName.NUM_FILE_NAME[i];
-			if(verbose)System.out.println("reading "+filename);
-			dataNumTables[i]=new CalMorphTable(filename);
-		}
-		HashMap IgnoreList=new HashMap();
-		int rowSize=dataNumTables[0].getRowSize();
-		for(int i=0;i<rowSize;++i){
-			int sampleNumber=0;
-			for(int j=0;j<dataNumTables.length;++j){
-				Cell c = dataNumTables[j].getCell(i,1);
-				if(c.isValidAsDouble()==false){
-					System.err.println("Error in Summarize.getOrfIgnore(). format error in "+targetDir+SEP+DataFileName.NUM_FILE_NAME[j]+'?');
-				}
-				sampleNumber+=c.doubleValue();
-			}
-			if(sampleNumber<threshold){
-				String orf=dataNumTables[0].getCell(i,0).toString();
-				IgnoreList.put(orf,orf);
-				if(verbose){
-					System.out.println("ignore "+orf+". sample number="+sampleNumber+" < threshold="+threshold);
-				}
-			}
-		}
-		return IgnoreList;
-	}*/
-	/**
+
+    /**
 	 * @param args
 	 * @throws SCMDException
 	 * @throws IOException
@@ -146,8 +99,13 @@ public class Summarize {
 		setupOptionParser();
 		parser.getContext(args);
 
-		if(parser.isSet(OPT_HELP))printUsage(0);
-		if(parser.isSet(OPT_VERBOSE))verbose=true;
+		if(parser.isSet(OPT_HELP)) {
+            printUsage(0);
+            System.exit(0);
+        }
+		if(parser.isSet(OPT_VERBOSE))
+		    _log = System.out;
+        
 		if(parser.isSet(OPT_TARGETDIR)){
 			targetDir = new String(parser.getValue(OPT_TARGETDIR));
 		}else{
@@ -168,6 +126,9 @@ public class Summarize {
 		}else{
 			printUsage(-1);
 		}
+        if(parser.isSet(OPT_IGNORETHRESHOLD)) {
+            ignoreThreshold = Integer.parseInt(new String(parser.getValue(OPT_IGNORETHRESHOLD)));
+        } 
 	}
 
 	private void setupOptionParser() throws SCMDException
@@ -193,7 +154,7 @@ public class Summarize {
 			Summarize s=new Summarize();	
 			s.setupByArguments(args);
 			s.readAllData();
-			s.outputSummary(s.getOrfIgnore(200));
+            s.outputSummary();
 		}
 		catch(SCMDException e)
 		{
@@ -207,16 +168,71 @@ public class Summarize {
 	}
 	
 	
-	//
-	HashMap outputParameterList	= new HashMap();
-	Vector  outputHeader        = new Vector();
-	HashMap outputOrfList       = new HashMap();
-	Vector  outputDataTable     = new Vector();
+    Vector<String> outputParams = new Vector<String>();
+    Vector<String> outputOrfList = new Vector<String>();
+    OutputResult result = new OutputResult();
+    
+    //取り出した値を格納するコンテナ
+    class OutputResult {
+        Map<String, Map<String, String>> table = new TreeMap<String, Map<String, String>>();
+        TreeSet<String> cols = new TreeSet<String> ();
+        String TABLENAME = ""; 
+        String NULLVALUE = ".";
+        
+        public void setTableName(String name) {
+            TABLENAME = name;
+        }
+        
+        public String getTableName() {
+            return TABLENAME;
+        }
+        
+        public String get(String rowname, String colname) {
+            Map<String, String> onerow = table.get(rowname);
+            if(onerow == null)
+                return NULLVALUE;
+            String str = onerow.get(colname);
+            if(str == null)
+                return NULLVALUE;
+            return str;
+        }
+        
+        public void set(String rowname, String colname, String value) {
+            if(!table.containsKey(rowname))
+                table.put(rowname, new TreeMap<String, String>());
+            Map<String, String> onerow = table.get(rowname);
+            onerow.put(colname, value);
+            if(!cols.contains(colname)) 
+                cols.add(colname);
+        }
+        
+        public boolean colExists(String colname) {
+            return cols.contains(colname);
+        }
+
+        /**
+         * @return
+         */
+        public Vector<String> getRowList() {
+            int size = table.keySet().size();
+            String[] liststr = new String [size];
+            Vector<String> list = new Vector<String> ();
+            int n = 0;
+            for(String r: table.keySet()) {
+                liststr[n++] = r;
+            }
+            Arrays.sort(liststr);
+            for(String r: liststr) {
+                list.add(r);
+            }
+            return list;
+        }
+    }
 	
 	private void readOutputParameterList() throws IOException {		
 		int parameterIndex=0;
-		outputParameterList.put("name",new Integer(parameterIndex++));
-		outputHeader.add("name");
+        result.setTableName("name");
+        
 		BufferedReader parameterListReader = null;
 		try {
 			parameterListReader = new BufferedReader(new FileReader(parameterFile));
@@ -226,13 +242,9 @@ public class Summarize {
 		}
 		String line;
 		while( (line=parameterListReader.readLine())!=null){
-			java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(line, "\t");
-			while (tokenizer.hasMoreTokens())
-			{
-				String token = tokenizer.nextToken();
-				outputParameterList.put(token,new Integer(parameterIndex++));
-				outputHeader.add(token);
-			}
+            String[] cols = line.split("\t+");
+            for(String c: cols) 
+                outputParams.add(c);
 		}
 	}
 	private void readOutputOrfList() throws IOException {
@@ -244,82 +256,74 @@ public class Summarize {
 			e.printStackTrace();
 		}
 		String line;
-		while( (line=orfListReader.readLine())!=null){
-			java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(line, "\t");
-			while (tokenizer.hasMoreTokens())
-			{
-				String token = tokenizer.nextToken();
-				outputOrfList.put(token,token);
-			}
+		while( (line=orfListReader.readLine()) != null){
+            String[] cols = line.split("\t+");
+            for(String c: cols) {
+                outputOrfList.add(c);
+            }
 		}
 	}
 	
-	public void readAllData()throws SCMDException{
-		outputDataTable.setSize(outputParameterList.size());
-		for(int i=0;i<DataFileName.GROUP_FILE_NAME.length;++i){
-			readFile(targetDir+SEP+DataFileName.GROUP_FILE_NAME[i]);
+	public void readAllData() throws SCMDException{
+		for(int i=0 ; i < DataFileName.GROUP_FILE_NAME.length ; ++i){
+			readFile(targetDir + SEP + DataFileName.GROUP_FILE_NAME[i] );
 		}
 		//in case specified parameter does not exist
-		boolean no_such_param=false;
-		for(int i=1;i<outputDataTable.size();++i){
-			if(outputDataTable.get(i)==null){
-				no_such_param=true;
-				System.out.println("Error. no such parameter. "+outputHeader.get(i));
-			}
-		}
+		boolean no_such_param = false;
+        for(String s: outputParams) {
+            if( !result.colExists(s) ) {
+                no_such_param = true;
+                _log.println("Error. no such parameter. " + s);
+            }
+        }
 		if(no_such_param){
-			System.out.println("target directory = "+targetDir);
+			_log.println("target directory = "+targetDir);
 			System.exit(-1);
 		}
 	}
-	private void readFile(String filename)throws SCMDException{
-		CalMorphTable cmt=new CalMorphTable(filename);
-		int colSize=cmt.getColSize();
-		int rowSize=cmt.getRowSize();
-		if(verbose){
-			System.out.println("reading "+filename+"\t"+colSize+" parameters"+"\t"+rowSize+" ORFs");
-		}
-		Vector parameters=cmt.getColLabelList();
-		Iterator i=parameters.iterator();
-		while(i.hasNext()){
-			String parameterName=(String)i.next();
-			if(outputParameterList.containsKey(parameterName)==false)continue;
-			int parameterIndex=((Integer)outputParameterList.get(parameterName)).intValue();
-			outputDataTable.set(parameterIndex,cmt.getVerticalIterator(parameterName));
-		}
+
+    private void readFile(String filename) throws SCMDException{
+		BasicTable cmt = new FlatTable(filename, true, true);
+		int colSize = cmt.getColSize();
+		int rowSize = cmt.getRowSize();
+
+        _log.println("reading " + filename + "\t" + colSize+" parameters"+"\t"+rowSize+" ORFs");
+
+        for(int row = 0; row < rowSize; row++ ) {
+            String rowname = cmt.getRowLabel(row);
+            for(int col = 0; col < colSize; col++ ) {
+                String colname = cmt.getColLabel(col);
+                result.set(rowname, colname, cmt.getCell(row, col).toString());
+            }
+        }
+        
 	}
-	public void outputSummary(HashMap ignoreOrfList) throws IOException{
-		PrintWriter outfile = new PrintWriter(new FileWriter(outputFile));
-		Iterator i=outputHeader.iterator();
-		for(;i.hasNext();){
-			String s=(String)i.next();
-			outfile.print(s+"\t");
-		}
-		outfile.println();
-		
-		while(true){
-			Iterator j=outputDataTable.iterator();
-			TableIterator ti=(TableIterator)j.next();
-			if(ti.hasNext()==false)break;
-			Cell c=(Cell)ti.next();
-			String orfName=c.toString();
-			boolean outputThisOrf=false;
-			if(orfFile==null || outputOrfList.containsKey(orfName)){
-				if(orfFile==null && ignoreOrfList!=null && ignoreOrfList.containsKey(orfName) ){	
-				}else{
-					outputThisOrf=true;
-					outfile.print(orfName+"\t");
-				}
-			}
-			for(;j.hasNext();){
-				TableIterator ite=(TableIterator)j.next();
-				Cell cell=(Cell)ite.next();
-				if(outputThisOrf)outfile.print(cell.toString()+"\t");
-			}
-			if(outputThisOrf)outfile.println();
-		}
-		outfile.close();
-	}
+
+    public void outputSummary() throws IOException, SCMDException {
+        outputSummary(getOrfIgnore(ignoreThreshold));
+    }
+
+    public void outputSummary(TreeSet<String> ignoreOrfList) throws IOException {
+        PrintStream outfile = new PrintStream(new FileOutputStream(outputFile));
+        
+        outfile.print(result.getTableName());
+        for(String p: outputParams) {
+            outfile.print("\t" + p);
+        }
+        outfile.println();
+        if(outputOrfList == null || outputOrfList.size() == 0 )
+            outputOrfList = result.getRowList();
+        for(String o: outputOrfList) {
+            if(ignoreOrfList.contains(o))
+                continue;
+            outfile.print(o);
+            for(String p: outputParams) {
+                outfile.print("\t" + result.get(o, p));
+            }
+            outfile.println();
+        }
+    }
+    
 }
 
 
