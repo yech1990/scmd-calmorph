@@ -15,10 +15,12 @@ import lab.cb.scmd.util.analysis.table.DataMatrix;
 
 /**
  * @author sesejun
+ *
  * compute connected components or cliques
  * between parameters. 
  * Export format is for GraphViz
  * 
+ * 2005/05/10 add cramer's v option
  */
 public class CorrelationGraph {
 	protected DataMatrix dm = new DataMatrix();
@@ -31,6 +33,7 @@ public class CorrelationGraph {
     boolean coloredNodes = false;
 	boolean showTable = false;
 	protected double[][] corMatrix;
+    boolean USECRAMERSV = true;
 
 	public static void main(String[] args) {
 		int num = 0;
@@ -59,6 +62,10 @@ public class CorrelationGraph {
             cc.setColoredNodes( true );
             num++;
         }
+        if( args[num].equals("-v")) {
+            cc.setUseCramersV(true);
+            num++;
+        }
 		cc.setThreshold(Double.parseDouble(args[num++]));
 		cc.load(args[num++]);
 		String [] genes = new String [args.length - num];
@@ -69,6 +76,13 @@ public class CorrelationGraph {
 	}
 
 	/**
+     * @param b
+     */
+    private void setUseCramersV(boolean b) {
+        USECRAMERSV = b;
+    }
+
+    /**
      * @param b
      */
     private void setCountComponents(boolean b) {
@@ -141,7 +155,14 @@ public class CorrelationGraph {
             boolean isUsed = true;
 			for( int j = i + 1; j < size; j++ ) {
 				row2 = nm.getOneColumn(j);
-				double cor = correlation(row1, row2);
+                double cor = 0.0;
+                if( USECRAMERSV ) {
+                    // pearson's correlation
+                    cor = correlation(row1, row2);
+                } else {
+                    // p-value using binomial test
+                    cor = cramersv(row1, row2);
+                }
 				corMatrix[i][j] = cor;
 				// for finding maximum clique
 				if( ( isSmallerCorrelation == false && ( cor >= THRESHOLD || cor <= -1.0 * THRESHOLD ) ) ||
@@ -178,6 +199,57 @@ public class CorrelationGraph {
 	}
 
     /**
+     * @param row1
+     * @param row2
+     * @return
+     */
+    private double cramersv(double[] row1, double[] row2) {
+        // Both row1 and row2 take -1, 0, 1.
+        int[][] count = new int [3][3];
+        int[] ni = new int[3];
+        int[] nj = new int[3];
+
+        for( int i = 0; i < 3; i++ ) 
+            for( int j = 0; j < 3; j++ )
+                count[i][j] = 0;
+        for( int i = 0; i < 3; i++ ) {
+            ni[i] = 0;
+            nj[i] = 0;
+        }
+            
+        int n = row1.length;
+        for(int i = 0; i < n; i++ ) {
+            int r1 = 0;
+            int r2 = 0;
+            if( row1[i] < 0 )
+                r1 = 2;
+            else if( row1[i] > 0 )
+                r1 = 1;
+            else
+                r1 = 0;
+            if( row2[i] < 0 )
+                r2 = 2;
+            else if ( row2[i] > 0 )
+                r2 = 1;
+            else
+                r2 = 0;
+            count[r1][r2]++;
+            ni[r1]++;
+            nj[r2]++;
+        }
+        
+        double chisqr = 0.0;
+        for( int i = 0; i < 3; i++ ) 
+            for( int j = 0; j < 3; j++) {
+                double eij = ni[i] * nj[j] / (double)n;
+                chisqr += ( count[i][j] - eij ) * ( count[i][j] - eij ) / eij;
+            }
+        double phi = Math.sqrt(chisqr / n);
+        double cramersV = phi / Math.sqrt(3 - 1);
+        return cramersV;
+    }
+
+    /**
 	 * 
 	 */
 	private void printAdjacencies() {
@@ -193,13 +265,13 @@ public class CorrelationGraph {
             for( int i = 0; i < size; i++ ) {
                 String color = "";
                 if( dm.getColumnName(i).charAt(0) == 'A') {
-                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=darkorange1]");
+                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=darkorange1];");
                 }
                 if( dm.getColumnName(i).charAt(0) == 'C') {
-                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=greenyellow]");
+                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=greenyellow];");
                 }
                 if( dm.getColumnName(i).charAt(0) == 'D') {
-                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=cadetblue1]");
+                    System.out.println("\t\"" + dm.getColumnName(i) + "\" [color=cadetblue1];");
                 }
             }
         }
@@ -213,9 +285,9 @@ public class CorrelationGraph {
 				    System.out.print("\"" + dm.getColumnName(j) + "\"");
 					DecimalFormat exFormat = new DecimalFormat("##.#####");
                     if( coloredNodes != true ) {
-                        System.out.print(" [label=\"" + exFormat.format( cor ) + "\"];");
+                        System.out.print(" [label=\"" + exFormat.format( cor ) + "\"]");
                     }
-                    System.out.println();
+                    System.out.println(";");
                     if(availableList.contains(i))
                         availableList.remove(i);
                     if(availableList.contains(j))
