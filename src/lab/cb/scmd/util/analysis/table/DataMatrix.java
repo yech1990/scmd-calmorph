@@ -241,7 +241,10 @@ public class DataMatrix {
 	}
 	
 	public double [] getOneColumn(String str) {
-		int column = (getColumnNumber(str)).intValue();
+        Integer colnum = getColumnNumber(str);
+        if( colnum == null )
+            return null;
+		int column = colnum.intValue();
 		return getOneColumn(column);
 	}
 	
