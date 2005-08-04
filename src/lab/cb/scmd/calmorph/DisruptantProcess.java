@@ -11,6 +11,13 @@ package lab.cb.scmd.calmorph;
 
 import java.io.*;
 
+/**
+ * 
+ * 画像解析後のファイルを吐き出す
+ * 
+ * @author mattun
+ *
+ */
 class DisruptantProcess {
     String name,path,outdir,xmldir;
     GUIFrame gui;
@@ -58,7 +65,7 @@ class DisruptantProcess {
 		PrintWriter pw2 = null;
 		PrintWriter pwxml = null;
 		
-		
+		//	ファイルに書き込むためのPrintWriterを作成する
         try {
         	pwvers = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+".xls")));
         	if(outsheet){
@@ -80,6 +87,7 @@ class DisruptantProcess {
         } catch (Exception e) {
             System.err.println("DisruptantProcess.process():"+e);
         }
+        //	ファイルにヘッダー情報を書き込む
         setXLSHeaderVers(pwvers);
         if(outsheet){
 	        setXLSHeaderBaseC(pwbaseC);
@@ -96,7 +104,10 @@ class DisruptantProcess {
         }
         if(pwxml!=null) setXMLHeader(pwxml);
         int startid = 0;
+
+        //	平均値計算？
         AverageData ad = new AverageData(name,outdir);
+        
         for(int i=1;i<=maximage;i++) {
 			try
 			{
@@ -110,6 +121,7 @@ class DisruptantProcess {
             image.setOptions(objectsave,objectload,outimage,outsheet);
             if(gui != null) gui.state_jtf.setText("proc:"+name+"-"+i+"...");
             else if(outstate) System.err.println("proc:"+name+"-"+i+"...");
+            //	画像から解析？
             startid += image.process(pwbaseC,pwexpandC,pwbaseD,pwexpandD,pwbaseA,pwexpandA,pwpatchA,pwvers,pwxml);
 			if(!image.err) ad.addCellData(image);
 			else pw2.println(i + ": " + image.err_kind);
@@ -124,24 +136,24 @@ class DisruptantProcess {
         pwvers.flush();
         pwvers.close();
         if(outsheet){
-        pwbaseC.flush();
-        pwbaseC.close();
-        pwexpandC.flush();
-        pwexpandC.close();
-        if(calD){
-        	pwbaseD.flush();
-        	pwbaseD.close();
-	        pwexpandD.flush();
-    	    pwexpandD.close();
-        }
-        if(calA){
-	        pwbaseA.flush();
-    	    pwbaseA.close();
-        	pwexpandA.flush();
-        	pwexpandA.close();
-        	pwpatchA.flush();
-        	pwpatchA.close();
-        }
+	        pwbaseC.flush();
+	        pwbaseC.close();
+	        pwexpandC.flush();
+	        pwexpandC.close();
+		    if(calD){
+	        	pwbaseD.flush();
+	        	pwbaseD.close();
+		        pwexpandD.flush();
+	    	    pwexpandD.close();
+	        }
+	        if(calA){
+		        pwbaseA.flush();
+	    	    pwbaseA.close();
+	        	pwexpandA.flush();
+	        	pwexpandA.close();
+	        	pwpatchA.flush();
+	        	pwpatchA.close();
+	        }
         }
         pw2.flush();
         pw2.close();
@@ -151,6 +163,10 @@ class DisruptantProcess {
         	pwxml.close();
         }
     }
+    /**
+     * FILENAME_conA_basic.xls
+     * @param pw
+     */
     public void setXLSHeaderBaseC(PrintWriter pw) {
     	String[] headerBaseC = {
     			"image_number",
@@ -179,12 +195,20 @@ class DisruptantProcess {
     	};
 		printOneLine(pw, headerBaseC, "\t");
     }
+    /**
+     * FILENAME_conA_biological.xls
+     * @param pw
+     */
     public void setXLSHeaderExpandC(PrintWriter pw) {
     	pw.print("image_number\tcell_id\tCgroup\t");
         for(int i=101;i<=118;i++) pw.print("C" + i + "\t");
         pw.print("C126\tC127\tC128\t");
         pw.println();
     }
+    /**
+     * FILENAME_dapi_basic.xls
+     * @param pw
+     */
     public void setXLSHeaderBaseD(PrintWriter pw) {
     	String[] headerBaseD = {
     			"image_number",
@@ -237,11 +261,19 @@ class DisruptantProcess {
     	};
 		printOneLine(pw, headerBaseD, "\t");
     }
+    /**
+     * FILENAME_dapi_biological.xls
+     * @param pw
+     */
     public void setXLSHeaderExpandD(PrintWriter pw) {
     	pw.print("image_number\tcell_id\tCgroup\tDgroup\t");
         for(int i=101;i<=198;i++) pw.print("D" + i + "\t");
         pw.println();
     }
+    /**
+     * FILENAME_actin_basic.xls
+     * @param pw
+     */
     public void setXLSHeaderBaseA(PrintWriter pw) {
     	String[] headerBaseA = {
     			"image_number",
@@ -271,6 +303,10 @@ class DisruptantProcess {
     	};
     	printOneLine(pw, headerBaseA, "\t");
     }
+    /**
+     * FILENAME_dapi_biological.xls
+     * @param pw
+     */
     public void setXLSHeaderExpandA(PrintWriter pw) {
     	String[] headerExpandA = {
     			"image_number",
@@ -291,9 +327,17 @@ class DisruptantProcess {
     	}
         pw.println();
     }
+    /**
+     * FILENAME_actin_patch.xls
+     * @param pw
+     */
     public void setXLSHeaderPatchA(PrintWriter pw) {
         pw.println("image_number\tcell_id\tposition\tsize\tbrightness\t");
     }
+    /**
+     * FILENAME.xls
+     * @param pw
+     */
     public void setXLSHeaderVers(PrintWriter pw) {
     	String[] versatiles = {
 				"image_number",

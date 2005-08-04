@@ -10,17 +10,22 @@ package lab.cb.scmd.calmorph;
 // $LastChangedBy$ 
 //--------------------------------------
 
-import java.io.*;
+import java.io.File;
+import java.util.Vector;
 
 class CalMorph {
-    boolean outstate,objectsave,outimage;
+    boolean outstate,objectsave,outimage,subdir;
     int maximage,objectload;
     String name,path,outdir,xmldir;
-    
-    public static void main(String[] s) {
+
+    public CalMorph() {
+    }
+   
+    public static void main(String[] args) {
         CalMorph cm = new CalMorph();
-        File in=null,out=null,xml=null;
-        if(s.length == 1) {
+
+        //	コマンドラインヘルプを表示する
+        if(args.length == 1) {
             System.err.println("CalMorph");
             System.err.println("gui usage: java CalMorph");
             System.err.println("cui usage: java CalMorph [OPTION] inputdir outputdir xmldir");
@@ -28,96 +33,126 @@ class CalMorph {
             System.err.println("  --outstate");
             System.err.println("  --objectsave");
             System.err.println("  --objectload=value");
-            System.err.println("  --outimage");
+            System.err.println("  --subdir");	//	サブディレクトリ
             System.exit(1);
-        } else if(s.length == 0) {//引数0でGUI起動
+        //	GUIで起動する
+        } else if(args.length == 0) {//引数0でGUI起動
             GUIFrame gui = new GUIFrame();
             gui.setVisible(true);
-		} else if(s[s.length-3].substring(0,1).equals("-")) {
-			System.err.println("directory name \""+s[s.length-3]+"\" is not allowed");
+        //	パラメータエラー
+		} else if(args[args.length-3].substring(0,1).equals("-")) {
+			System.err.println("directory name \""+args[args.length-3]+"\" is not allowed");
 			System.exit(1);
-        } else if(s[s.length-2].substring(0,1).equals("-")) {
-            System.err.println("directory name \""+s[s.length-2]+"\" is not allowed");
-            System.exit(1);
-        } else if(s[s.length-1].substring(0,1).equals("-")) {
-            System.err.println("directory name \""+s[s.length-1]+"\" is not allowed");
-            System.exit(1);
-        } else {
-            //optionのデフォルト値
-            cm.maximage = 200;
-            cm.outstate = false;
-            cm.objectsave = false;
-            cm.objectload = -1;
-            for(int i=0;i<s.length-3;i++) {
-                cm.optionSearch(s[i]);
-            }
-            in = new File(s[s.length-3]);
-            out = new File(s[s.length-2]);
-            xml = new File(s[s.length-1]);
-            if(in.exists()) {
-                cm.name = in.getName();
-                cm.path = in.getAbsolutePath()+"/"+in.getName();
-            } else {
-                System.err.println("error:"+in.getName()+" not exist");
-                System.exit(1);
-            }
-            if(out.exists()) {
-                cm.outdir = out.getAbsolutePath();
-            } else {
-                out.mkdir();
-                cm.outdir = out.getAbsolutePath();
-            }
-			if(xml.exists()) {
-				cm.xmldir = xml.getAbsolutePath();
-			} else {
-				xml.mkdir();
-				cm.xmldir = xml.getAbsolutePath();
-			}
-            
-			String ls[] = in.list();
-			for (int i = 0; i < ls.length; i++)
-			{
-				if(ls[i].substring(ls[i].length()-4,ls[i].length()).equals(".jpg")){
-					int j=ls[i].length()-5;
-					while(ls[i].charAt(j) != 'A' && ls[i].charAt(j) != 'C' && ls[i].charAt(j) != 'D' && j>0) j--;
-					if(j>0){
-						int k = Integer.parseInt(ls[i].substring(j+1,ls[i].length()-4));
-						if(k>cm.maximage) cm.maximage = k;
-					}
+		//	パラメータエラー
+		} else if(args[args.length-2].substring(0,1).equals("-")) {
+			System.err.println("directory name \""+args[args.length-2]+"\" is not allowed");
+			System.exit(1);
+		//	パラメータエラー
+		} else if(args[args.length-1].substring(0,1).equals("-")) {
+			System.err.println("directory name \""+args[args.length-1]+"\" is not allowed");
+			System.exit(1);
+		//	CUIで起動する
+		} else {
+			cm.CUI(args);
+		}
+	}
+    
+    public void CUI(String args[]) {
+        File in=null,out=null,xml=null;
+
+    	//optionのデフォルト値
+		this.maximage = 200;
+		this.outstate = false;
+		this.objectsave = false;
+		this.subdir = false;
+		this.objectload = -1;
+		for(int i=0;i<args.length-3;i++) {
+			this.optionSearch(args[i]);
+		}
+		
+		in = new File(args[args.length-3]);
+		out = new File(args[args.length-2]);
+		xml = new File(args[args.length-1]);
+		if(in.exists()) {
+			this.name = in.getName();
+			this.path = in.getAbsolutePath()+"/"+in.getName();
+		} else {
+			System.err.println("error:"+in.getName()+" not exist");
+			System.exit(1);
+		}
+		if(out.exists()) {
+			this.outdir = out.getAbsolutePath();
+		} else {
+			out.mkdir();
+			this.outdir = out.getAbsolutePath();
+		}
+		if(xml.exists()) {
+			this.xmldir = xml.getAbsolutePath();
+		} else {
+			xml.mkdir();
+			this.xmldir = xml.getAbsolutePath();
+		}
+		
+		//	.jpgの数を数える
+		String ls[] = in.list();
+		for (int i = 0; i < ls.length; i++)
+		{
+			if(ls[i].substring(ls[i].length()-4,ls[i].length()).equals(".jpg")){
+				int j=ls[i].length()-5;
+				while(ls[i].charAt(j) != 'A' && ls[i].charAt(j) != 'C' && ls[i].charAt(j) != 'D' && j>0) j--;
+				if(j>0){
+					int k = Integer.parseInt(ls[i].substring(j+1,ls[i].length()-4));
+					if(k>this.maximage) this.maximage = k;
 				}
 			}
-            cm.main();
-        }
+		}
+		
+		//	指定されたinputdirのなかのディレクトリを対象にする
+		if(subdir) {		
+			File infiles[] = in.listFiles();
+			Vector<File> dirs = new Vector<File>();
+			for(int i=0;i<infiles.length;i++) {
+				if(infiles[i].isDirectory() && !infiles[i].isHidden()){
+					System.out.println(infiles[i].getAbsolutePath());
+					dirs.add(infiles[i]);
+				}
+			}
+	        for(int i=0;i<dirs.size();i++) {
+	            String name = dirs.get(i).getName();
+	            String path = dirs.get(i).getAbsolutePath()+"/"+dirs.get(i).getName();
+	            DisruptantProcess dp = new DisruptantProcess(name,path,outdir,null,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
+				if(i==0) dp.setPrintFile("GUI");
+	            dp.process();
+	        }
+		} else {
+			//	計算する
+			DisruptantProcess dp = new DisruptantProcess(name,path,outdir,xmldir,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
+			dp.setPrintFile("CUI");
+			dp.process();
+		}
     }
-    public CalMorph() {
-    }
-    public void main() {
-    	
-        DisruptantProcess dp = new DisruptantProcess(name,path,outdir,xmldir,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
-		dp.setPrintFile("CUI");
-        dp.process();
-    }
-    public void optionSearch(String option) {
-        if(option.length() < 10) {
-            System.err.println("Unrecognized option:"+option);
-            System.exit(1);
-        } else if(option.substring(0,10).equals("--outstate")) {
-            outstate=true;
-            System.err.println("outstate");
-        } else if(option.length() == 12 && option.substring(0,12).equals("--objectsave")) {
-            objectsave=true;
-            System.err.println("objectsave");
-        } else if(option.length() >= 13 && option.substring(0,13).equals("--objectload=")) {
-            objectload = Integer.parseInt(option.substring(13));
-            System.err.println("objectload="+objectload);
-        } else if(option.length() == 10 && option.substring(0,10).equals("--outimage")) {
-            outimage=true;
-            System.err.println("outimage");
-        } else {
-            System.err.println("Unrecognized option:"+option);
-            System.exit(1);
-        }
-    }
+
+	public void optionSearch(String option) {
+		if(option.length() == 10 && option.substring(0,10).equals("--outstate")) {
+			outstate=true;
+			System.err.println("outstate");
+		} else if(option.length() == 12 && option.substring(0,12).equals("--objectsave")) {
+			objectsave=true;
+			System.err.println("objectsave");
+		} else if(option.length() >= 13 && option.substring(0,13).equals("--objectload=")) {
+			objectload = Integer.parseInt(option.substring(13));
+			System.err.println("objectload="+objectload);
+		} else if(option.length() == 10 && option.substring(0,10).equals("--outimage")) {
+			outimage=true;
+			System.err.println("outimage");
+		} else if(option.length() == 8 && option.substring(0,8).equals("--subdir")) {
+			subdir=true;
+			System.err.println("subdir");
+		} else {
+			System.err.println("Unrecognized option:"+option);
+			System.exit(1);
+		}
+	}
 }
 
 //--------------------------------------

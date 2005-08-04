@@ -1,10 +1,32 @@
 package lab.cb.scmd.calmorph;
-import java.io.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+import java.util.Vector;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.SoftBevelBorder;
 
 public class GUIFrame extends JFrame {
     JTextField out_jtf,state_jtf;
@@ -20,14 +42,20 @@ public class GUIFrame extends JFrame {
     File[] files;
     
     public GUIFrame() {
+    	initialize();
+    }
+    
+	private void initialize() {
+		//this.setSize(300,200);
+		this.setBounds(0,0,600,400);
+        this.setTitle("CalMorph");
         addWindowListener(createClosingListener()); 
         jcoms = new Vector();
         flag_reset = false;
-        setTitle("CalMorph");
-        setBounds(0,0,600,400);
         getContentPane().setLayout(new GridLayout(1,2));
         setControlFrame();
-    }
+	}
+    
     public void setControlFrame() {
         JPanel hor_jp,bor_jp,ver_jp;
         JLabel jl;
@@ -115,7 +143,7 @@ public class GUIFrame extends JFrame {
         left_jp.add(bor_jp);
         
         
-        //right_jpÇÃèÄîı
+        //right_jpÇÃèÄîık
         bor_jp = new JPanel(new BorderLayout());
         bor_jp.setBorder(new SoftBevelBorder(BevelBorder.LOWERED));
         hor_jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -217,6 +245,11 @@ public class GUIFrame extends JFrame {
         };
         return new JButton(a);
     }
+    /**
+     * 
+     * RunÉ{É^ÉìÇ™âüÇ≥ÇÍÇΩÇ∆Ç´Ç…åƒÇŒÇÍÇÈ
+     * 
+     */
     public void start() {
         String outdir = out.getAbsolutePath();
         int maximage = Integer.parseInt((String)maximage_cob.getSelectedItem());
