@@ -17,7 +17,7 @@ package lab.cb.scmd.algorithm;
 public class NotEqual extends ComparisonPredicate
 {
 
-    /**
+    /**f
      * @param comparisonTarget
      */
     public NotEqual(Comparable comparisonTarget)

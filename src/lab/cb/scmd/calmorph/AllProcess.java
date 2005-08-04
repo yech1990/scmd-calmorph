@@ -1,8 +1,17 @@
 package lab.cb.scmd.calmorph;
 
-import java.io.*;
-import javax.swing.*;
+import java.io.File;
 
+import javax.swing.JComponent;
+
+/**
+ * 
+ * CalMorphのDisruptantProcessの
+ * ファイル複数指定できる版？
+ * 
+ * @author mattun
+ *
+ */
 class AllProcess extends Thread {
     File[] files;
     String outdir;
