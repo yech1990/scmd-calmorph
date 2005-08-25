@@ -1,9 +1,0 @@
-SCMD_ROOT = http://scmd.gi.k.u-tokyo.ac.jp/
-PHOTO_DIR = staff/photo
-IRFAN_VIEW = C:/Program Files/IrfanView/i_view32.exe
-IMAGE_MAGICK = ./
-CONVERT = convert.exe
-MOGRIFY = mogrify.exe
-
-ORF_TABLE = orf_descriptions.tab
-PLATE_TABLE = platetable.tab
