@@ -92,21 +92,7 @@ class CalMorph {
 			xml.mkdir();
 			this.xmldir = xml.getAbsolutePath();
 		}
-		
-		//	.jpgの数を数える
-		String ls[] = in.list();
-		for (int i = 0; i < ls.length; i++)
-		{
-			if(ls[i].substring(ls[i].length()-4,ls[i].length()).equals(".jpg")){
-				int j=ls[i].length()-5;
-				while(ls[i].charAt(j) != 'A' && ls[i].charAt(j) != 'C' && ls[i].charAt(j) != 'D' && j>0) j--;
-				if(j>0){
-					int k = Integer.parseInt(ls[i].substring(j+1,ls[i].length()-4));
-					if(k>this.maximage) this.maximage = k;
-				}
-			}
-		}
-		
+			
 		//	指定されたinputdirのなかのディレクトリを対象にする
 		if(subdir) {		
 			File infiles[] = in.listFiles();
@@ -118,13 +104,44 @@ class CalMorph {
 				}
 			}
 	        for(int i=0;i<dirs.size();i++) {
-	            String name = dirs.get(i).getName();
+	    		//	.jpgの数を数える
+	    		String ls[] = dirs.get(i).list();
+	    		for (int j = 0; j < ls.length; j++)
+	    		{
+	    			if(ls[j].substring(ls[j].length()-4,ls[j].length()).equals(".jpg")){
+	    				int k=ls[j].length()-5;
+	    				while(ls[j].charAt(k) != 'A' && ls[j].charAt(k) != 'C' && ls[j].charAt(k) != 'D' && k>0) k--;
+	    				if(k>0){
+	    					int l = Integer.parseInt(ls[j].substring(k+1,ls[j].length()-4));
+	    					if(l>this.maximage) this.maximage = l;
+	    				}
+	    			}
+	    		}
+
+	    		//	ディレクトリ名
+	        	String name = dirs.get(i).getName();
+	        	//	ディレクトリパス
 	            String path = dirs.get(i).getAbsolutePath()+"/"+dirs.get(i).getName();
+	            //	計算する
 	            DisruptantProcess dp = new DisruptantProcess(name,path,outdir,null,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
 				if(i==0) dp.setPrintFile("GUI");
 	            dp.process();
 	        }
 		} else {
+			//	.jpgの数を数える
+			String ls[] = in.list();
+			for (int i = 0; i < ls.length; i++)
+			{
+				if(ls[i].substring(ls[i].length()-4,ls[i].length()).equals(".jpg")){
+					int j=ls[i].length()-5;
+					while(ls[i].charAt(j) != 'A' && ls[i].charAt(j) != 'C' && ls[i].charAt(j) != 'D' && j>0) j--;
+					if(j>0){
+						int k = Integer.parseInt(ls[i].substring(j+1,ls[i].length()-4));
+						if(k>this.maximage) this.maximage = k;
+					}
+				}
+			}
+
 			//	計算する
 			DisruptantProcess dp = new DisruptantProcess(name,path,outdir,xmldir,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
 			dp.setPrintFile("CUI");
