@@ -11,6 +11,7 @@ package lab.cb.scmd.autoanalysis.grouping;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
 import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.table.Cell;
 import lab.cb.scmd.util.table.TableIterator;

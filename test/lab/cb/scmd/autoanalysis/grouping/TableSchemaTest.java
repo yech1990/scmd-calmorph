@@ -7,7 +7,8 @@
 package lab.cb.scmd.autoanalysis.grouping;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import lab.cb.scmd.exception.*;
+
+import lab.cb.scmd.exception.SCMDException;
 
 import junit.framework.TestCase;
 

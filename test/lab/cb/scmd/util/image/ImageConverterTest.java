@@ -14,7 +14,7 @@ package lab.cb.scmd.util.image;
 import java.io.*;
 import java.util.Properties;
 
-import lab.cb.scmd.exception.*;
+import lab.cb.scmd.exception.SCMDException;
 
 import junit.framework.TestCase;
 //import junit.framework.TestSuite;
