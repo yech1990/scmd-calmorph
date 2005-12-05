@@ -13,6 +13,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.cui.*;
 import lab.cb.scmd.util.io.NullPrintStream;
 import lab.cb.scmd.util.stat.EliminateOnePercentOfBothSidesStrategy;
@@ -21,7 +22,6 @@ import lab.cb.scmd.util.stat.Statistics;
 import lab.cb.scmd.util.stat.StatisticsWithMissingValueSupport;
 import lab.cb.scmd.util.table.*;
 import lab.cb.scmd.util.time.StopWatch;
-import lab.cb.scmd.exception.SCMDException;
 
 /**
  * グループ毎{A, A1B, C}の統計値等を計算するクラス
@@ -46,6 +46,7 @@ public class CalcGroupStat implements TableFileName
 	//final static int	OPT_OLD_FORMAT		= 3;
 	final static int	OPT_ELIMINATE		= 4;
 	final static int	OPT_SHORTVARIABLES	= 5;
+	final static int	OPT_CALCORFSTAT		= 6;
 
 	String				_baseDirName		= ".";
 	boolean				_isVerbose			= false;
@@ -606,9 +607,9 @@ public class CalcGroupStat implements TableFileName
 		if(_parser.isSet(OPT_HELP))
 			printUsage(0);
 
-		if(_parser.isSet(OPT_BASEDIR))
+		if(_parser.isSet(OPT_BASEDIR) && !_parser.isSet(OPT_CALCORFSTAT) )
 			_baseDirName = new String(_parser.getValue(OPT_BASEDIR));
-		if(_parser.isSet(OPT_VERBOSE))
+		if(_parser.isSet(OPT_VERBOSE) || _isVerbose )
 		{
 			_log = System.out;
 		}
@@ -633,11 +634,13 @@ public class CalcGroupStat implements TableFileName
 		_parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
 		_parser.setOption(new OptionWithArgument(OPT_BASEDIR, "b", "basedir", "DIR",
 				"set input directory base (default = current directory)"));
+		
 		//		_parser.setOption(new Option(OPT_OLD_FORMAT, "", "oldformat",
 		//				"output in the old format ({A, A1B, C}_data.xls, _datanum.xls)"));
 		_parser.setOption(new Option(OPT_ELIMINATE, "e", "eliminate", "eliminates 1% of both sides of samples"));
 		_parser.setOption(new Option(OPT_SHORTVARIABLES, "s", "short", "only output basic parameters"));
 		//_parser.setRequirementForNonOptionArgument();
+		_parser.setOption(new Option(OPT_CALCORFSTAT, "c", "calcgroupstat", "calculate group statistics"));
 	}
 
 	public void printUsage(int exitCode)
@@ -663,6 +666,14 @@ public class CalcGroupStat implements TableFileName
 		{
 			System.err.println(e.getMessage());
 		}
+	}
+
+	public void setBaseDir(String dirname) {
+		_baseDirName = dirname;
+	}
+
+	public void setVerbose() {
+		_isVerbose = true;
 	}
 }
 //--------------------------------------

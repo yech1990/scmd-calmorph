@@ -40,6 +40,14 @@ public class TableSchema {
 	public TableSchema(String schemaFile) throws SCMDException {
 		loadFromFile(schemaFile);
 	}
+	
+	public TableSchema(String schemaStr, boolean isFile ) throws SCMDException {
+		if( isFile ) {
+			loadFromFile(schemaStr);
+		} else {
+			loadSchema(schemaStr);
+		}
+	}
 
 	public int numRule(){
 		return _labelList.size();
@@ -68,8 +76,24 @@ public class TableSchema {
 
 	void loadFromFile(String schemaFile) throws SCMDException {
 		try {
+			Reader fileReader = new FileReader(schemaFile);
+			loadSchema(fileReader);
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+			throw new SCMDException(
+				"error occured while loading " + schemaFile);			
+		} 
+	}
+	
+	void loadSchema(String schemaStr) throws SCMDException {
+		Reader reader = new StringReader(schemaStr);
+		loadSchema(reader);
+	}
+	
+	void loadSchema(Reader schema) throws SCMDException {
+		try {
 			BufferedReader fileReader =
-				new BufferedReader(new FileReader(schemaFile));
+				new BufferedReader(schema);
 			// read labels
 			String line;
 			int lineCount = 0;
@@ -85,7 +109,7 @@ public class TableSchema {
 					_labelList.add(newAttributeName);
 					int tableType = TableTypeServer.getTableType(originalTableName);
 					if(tableType == -1)
-						throw new SCMDException(originalTableName + " is invalid data file type in " + schemaFile + " line: " + lineCount);
+						throw new SCMDException(originalTableName + " is invalid data file type at line: " + lineCount);
 					_labelToSourcePosition.put(
 						newAttributeName,
 						new AttributePosition(tableType, originalAttributeName));
@@ -97,7 +121,7 @@ public class TableSchema {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			throw new SCMDException(
-				"error occured while loading " + schemaFile);
+				"error occured while loading schema file");
 		}
 	}
 	Vector _labelList = new Vector();

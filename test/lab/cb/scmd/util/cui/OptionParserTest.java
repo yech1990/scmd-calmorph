@@ -13,7 +13,7 @@ package lab.cb.scmd.util.cui;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import lab.cb.scmd.exception.*;
+import lab.cb.scmd.exception.SCMDException;
 
 /**
  * @author leo

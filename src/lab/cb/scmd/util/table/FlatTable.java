@@ -12,7 +12,8 @@ package lab.cb.scmd.util.table;
 
 import java.io.*;
 import java.util.*;
-import lab.cb.scmd.exception.*;
+
+import lab.cb.scmd.exception.SCMDException;
 
 /**
  * @author leo

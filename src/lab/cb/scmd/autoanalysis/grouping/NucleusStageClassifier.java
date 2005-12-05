@@ -11,6 +11,7 @@ package lab.cb.scmd.autoanalysis.grouping;
 
 import java.io.*;
 import java.util.*;
+
 import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.cui.*;
 import lab.cb.scmd.util.io.NullPrintStream;
@@ -38,6 +39,36 @@ public class NucleusStageClassifier implements TableFileName
 	final int			OPT_AUTOSEARCH		= 4;
 	final int			OPT_BASEDIR			= 5;
 
+	// コマンドライン以外からの起動時に設定するオプション
+	private boolean SET_RUN_ON_COMMANDLINE = true;
+	private boolean	SET_OPT_AUTOSEARCH	= false;
+	private boolean SET_OPT_BASEDIR = false; 
+	private boolean SET_OPT_VERBOSE = false;
+	private boolean SET_OPT_OUTDIR = false;
+	
+	public void setNotRunOnCommandLine() {
+		SET_RUN_ON_COMMANDLINE = false;
+	}
+
+	public void setAutoSearch() {
+		SET_OPT_AUTOSEARCH = true;
+	}
+	
+	public void setBaseDir(String dirname) {
+		SET_OPT_BASEDIR = true;
+		_baseDir = dirname;
+	}
+	
+	public void setVerbose() {
+		SET_OPT_VERBOSE = true;
+	}
+	
+	public void setOutDir(String dirname) {
+		SET_OPT_OUTDIR = true;
+		_settings.setProperty("OUTPUT_DIR", dirname);
+	}
+	
+	
 	public NucleusStageClassifier()
 	{
 		TableTypeServer.Initialize();
@@ -73,7 +104,7 @@ public class NucleusStageClassifier implements TableFileName
 			//_optParser.setRequirementForNonOptionArgument();
 			_optParser.setOption(new Option(OPT_AUTOSEARCH, "a", "auto", "auto search orf directories"));
 			_optParser.setOption(new OptionWithArgument(OPT_BASEDIR, "b", "basedir", "DIR", "set input directory base"));
-			if(args.length < 1)
+			if(args.length < 1 && SET_RUN_ON_COMMANDLINE )
 				printUsage(1);
 
 			_optParser.getContext(args);
@@ -82,7 +113,7 @@ public class NucleusStageClassifier implements TableFileName
 				printUsage(0);
 
 			// setup
-			if(_optParser.isSet(OPT_VERBOSE))
+			if(_optParser.isSet(OPT_VERBOSE) || SET_OPT_VERBOSE )
 				_log = System.out;
 			if(_optParser.isSet(OPT_SETTING_FILE))
 			{
@@ -94,7 +125,7 @@ public class NucleusStageClassifier implements TableFileName
 			if(_optParser.isSet(OPT_BASEDIR))
 				_baseDir = _optParser.getValue(OPT_BASEDIR);
 
-			if(_optParser.isSet(OPT_AUTOSEARCH))
+			if(_optParser.isSet(OPT_AUTOSEARCH) || SET_OPT_AUTOSEARCH )
 			{
 				// search orf directories
 				File baseDir = new File(_baseDir);
@@ -105,7 +136,10 @@ public class NucleusStageClassifier implements TableFileName
 				{
 					if(!file[i].isDirectory())
 						continue; // skip non directory files
-
+					if( file[i].getName().charAt(0) == '.' ) {
+						_log.println("directory " + file[i].getName() + " skipped because of invalid directory name");
+						continue;
+					}
 					String orfName = file[i].getName();
 					inputFileList.add(orfName);
 				}
@@ -136,10 +170,14 @@ public class NucleusStageClassifier implements TableFileName
 			final int TABLE_A = 0;
 			final int TABLE_A1B = 1;
 			final int TABLE_C = 2;
-			TableSchema schema_A = new TableSchema("struct_A.txt");
-			TableSchema schema_A1 = new TableSchema("struct_A1.txt");
-			TableSchema schema_B = new TableSchema("struct_B.txt");
-			TableSchema schema_C = new TableSchema("struct_C.txt");
+//			TableSchema schema_A = new TableSchema("struct_A.txt");
+//			TableSchema schema_A1 = new TableSchema("struct_A1.txt");
+//			TableSchema schema_B = new TableSchema("struct_B.txt");
+//			TableSchema schema_C = new TableSchema("struct_C.txt");
+			TableSchema schema_A = new TableSchema(structA, false);
+			TableSchema schema_A1 = new TableSchema(structA1, false);
+			TableSchema schema_B = new TableSchema(structB, false);
+			TableSchema schema_C = new TableSchema(structC, false);
 			for (Iterator fi = inputFileList.iterator(); fi.hasNext();)
 			{
 				String inputDir = _baseDir + File.separator + (String) fi.next();
@@ -259,6 +297,325 @@ public class NucleusStageClassifier implements TableFileName
 		System.out.println(_optParser.createHelpMessage());
 		System.exit(exitCode);
 	}
+	
+	private String structA = 
+		"# schema of	table A	\n" +
+		"# (attribute name, original	table, original attributename)\n" +
+		"image_number	T_ORF	image_number\n" +
+		"cell_id	T_ORF	cell_id\n" +
+		"Agroup	T_ORF	Agroup\n" +
+		"C11-1_A	T_CONA_BASIC	C11-1\n" +
+		"C12-1_A	T_CONA_BASIC	C12-1\n" +
+		"C13_A	T_CONA_BASIC	C13\n" +
+		"C103_A	T_CONA_BIOLOGICAL	C103\n" +
+		"C104_A	T_CONA_BIOLOGICAL	C104\n" +
+		"C115_A	T_CONA_BIOLOGICAL	C115\n" +
+		"C126_A	T_CONA_BIOLOGICAL	C126\n" +
+		"C127_A	T_CONA_BIOLOGICAL	C127\n" +
+		"A7-1_A	T_ACTIN_BASIC	A7-1\n" +
+		"A8-1_A	T_ACTIN_BASIC	A8-1\n" +
+		"A101_A	T_ACTIN_BIOLOGICAL	A101\n" +
+		"A120_A	T_ACTIN_BIOLOGICAL	A120\n" +
+		"A121_A	T_ACTIN_BIOLOGICAL	A121\n" +
+		"A122_A	T_ACTIN_BIOLOGICAL	A122\n" +
+		"A123_A	T_ACTIN_BIOLOGICAL	A123\n" +
+		"D14-1_A	T_DAPI_BASIC	D14-1\n" +
+		"D15-1_A	T_DAPI_BASIC	D15-1\n" +
+		"D16-1_A	T_DAPI_BASIC	D16-1\n" +
+		"D17-1_A	T_DAPI_BASIC	D17-1\n" +
+		"D102_A	T_DAPI_BIOLOGICAL	D102\n" +
+		"D105_A	T_DAPI_BIOLOGICAL	D105\n" +
+		"D117_A	T_DAPI_BIOLOGICAL	D117\n" +
+		"D127_A	T_DAPI_BIOLOGICAL	D127\n" +
+		"D135_A	T_DAPI_BIOLOGICAL	D135\n" +
+		"D147_A	T_DAPI_BIOLOGICAL	D147\n" +
+		"D148_A	T_DAPI_BIOLOGICAL	D148\n" +
+		"D154_A	T_DAPI_BIOLOGICAL	D154\n" +
+		"D155_A	T_DAPI_BIOLOGICAL	D155\n" +
+		"D173_A	T_DAPI_BIOLOGICAL	D173\n" +
+		"D176_A	T_DAPI_BIOLOGICAL	D176\n" +
+		"D179_A	T_DAPI_BIOLOGICAL	D179\n" +
+		"D182_A	T_DAPI_BIOLOGICAL	D182\n" +
+		"D188_A	T_DAPI_BIOLOGICAL	D188\n" +
+		"D191_A	T_DAPI_BIOLOGICAL	D191\n" +
+		"D194_A	T_DAPI_BIOLOGICAL	D194\n";
+	
+	private String structA1 =
+		"image_number	T_ORF image_number\n" +
+		"cell_id	T_ORF	cell_id\n" +
+		"Cgroup	T_ORF	Cgroup\n" +
+		"Agroup	T_ORF	Agroup\n" +
+		"Dgroup	T_ORF	Dgroup\n" +
+		"C11-1_A1B	T_CONA_BASIC	C11-1\n" +
+		"C11-2_A1B	T_CONA_BASIC	C11-2\n" +
+		"C12-1_A1B	T_CONA_BASIC	C12-1\n" +
+		"C12-2_A1B	T_CONA_BASIC	C12-2\n" +
+		"C13_A1B	T_CONA_BASIC	C13\n" +
+		"C101_A1B	T_CONA_BIOLOGICAL	C101\n" +
+		"C102_A1B	T_CONA_BIOLOGICAL	C102\n" +
+		"C103_A1B	T_CONA_BIOLOGICAL	C103\n" +
+		"C104_A1B	T_CONA_BIOLOGICAL	C104\n" +
+		"C105_A1B	T_CONA_BIOLOGICAL	C105\n" +
+		"C106_A1B	T_CONA_BIOLOGICAL	C106\n" +
+		"C107_A1B	T_CONA_BIOLOGICAL	C107\n" +
+		"C108_A1B	T_CONA_BIOLOGICAL	C108\n" +
+		"C109_A1B	T_CONA_BIOLOGICAL	C109\n" +
+		"C110_A1B	T_CONA_BIOLOGICAL	C110\n" +
+		"C111_A1B	T_CONA_BIOLOGICAL	C111\n" +
+		"C112_A1B	T_CONA_BIOLOGICAL	C112\n" +
+		"C113_A1B	T_CONA_BIOLOGICAL	C113\n" +
+		"C114_A1B	T_CONA_BIOLOGICAL	C114\n" +
+		"C115_A1B	T_CONA_BIOLOGICAL	C115\n" +
+		"C116_A1B	T_CONA_BIOLOGICAL	C116\n" +
+		"C117_A1B	T_CONA_BIOLOGICAL	C117\n" +
+		"C118_A1B	T_CONA_BIOLOGICAL	C118\n" +
+		"C126_A1B	T_CONA_BIOLOGICAL	C126\n" +
+		"C127_A1B	T_CONA_BIOLOGICAL	C127\n" +
+		"C128_A1B	T_CONA_BIOLOGICAL	C128\n" +
+		"A7-1_A1B	T_ACTIN_BASIC	A7-1\n" +
+		"A7-2_A1B	T_ACTIN_BASIC	A7-2\n" +
+		"A8-1_A1B	T_ACTIN_BASIC	A8-1\n" +
+		"A8-2_A1B	T_ACTIN_BASIC	A8-2\n" +
+		"A9_A1B	T_ACTIN_BASIC	A9\n" +
+		"A101_A1B	T_ACTIN_BIOLOGICAL	A101\n" +
+		"A102_A1B	T_ACTIN_BIOLOGICAL	A102\n" +
+		"A103_A1B	T_ACTIN_BIOLOGICAL	A103\n" +
+		"A104_A1B	T_ACTIN_BIOLOGICAL	A104\n" +
+		"A120_A1B	T_ACTIN_BIOLOGICAL	A120\n" +
+		"A121_A1B	T_ACTIN_BIOLOGICAL	A121\n" +
+		"A122_A1B	T_ACTIN_BIOLOGICAL	A122\n" +
+		"A123_A1B	T_ACTIN_BIOLOGICAL	A123\n" +
+		"D14-3_A1B	T_DAPI_BASIC	D14-3\n" +
+		"D15-3_A1B	T_DAPI_BASIC	D15-3\n" +
+		"D16-3_A1B	T_DAPI_BASIC	D16-3\n" +
+		"D17-3_A1B	T_DAPI_BASIC	D17-1\n" +
+		"D104_A1B	T_DAPI_BIOLOGICAL	D104\n" +
+		"D107_A1B	T_DAPI_BIOLOGICAL	D107\n" +
+		"D110_A1B	T_DAPI_BIOLOGICAL	D110\n" +
+		"D114_A1B	T_DAPI_BIOLOGICAL	D114\n" +
+		"D118_A1B	T_DAPI_BIOLOGICAL	D118\n" +
+		"D126_A1B	T_DAPI_BIOLOGICAL	D126\n" +
+		"D129_A1B	T_DAPI_BIOLOGICAL	D129\n" +
+		"D132_A1B	T_DAPI_BIOLOGICAL	D132\n" +
+		"D136_A1B	T_DAPI_BIOLOGICAL	D136\n" +
+		"D142_A1B	T_DAPI_BIOLOGICAL	D142\n" +
+		"D143_A1B	T_DAPI_BIOLOGICAL	D143\n" +
+		"D145_A1B	T_DAPI_BIOLOGICAL	D145\n" +
+		"D147_A1B	T_DAPI_BIOLOGICAL	D147\n" +
+		"D148_A1B	T_DAPI_BIOLOGICAL	D148\n" +
+		"D152_A1B	T_DAPI_BIOLOGICAL	D152\n" +
+		"D154_A1B	T_DAPI_BIOLOGICAL	D154\n" +
+		"D155_A1B	T_DAPI_BIOLOGICAL	D155\n" +
+		"D161_A1B	T_DAPI_BIOLOGICAL	D160\n" +
+		"D165_A1B	T_DAPI_BIOLOGICAL	D164\n" +
+		"D169_A1B	T_DAPI_BIOLOGICAL	D169\n" +
+		"D170_A1B	T_DAPI_BIOLOGICAL	D170\n" +
+		"D172_A1B	T_DAPI_BIOLOGICAL	D171\n" +
+		"D175_A1B	T_DAPI_BIOLOGICAL	D175\n" +
+		"D178_A1B	T_DAPI_BIOLOGICAL	D178\n" +
+		"D181_A1B	T_DAPI_BIOLOGICAL	D181\n" +
+		"D184_A1B	T_DAPI_BIOLOGICAL	D184\n" +
+		"D190_A1B	T_DAPI_BIOLOGICAL	D188\n" +
+		"D193_A1B	T_DAPI_BIOLOGICAL	D193\n" +
+		"D196_A1B	T_DAPI_BIOLOGICAL	D196\n";
+
+	private String structB =
+		"image_number	T_ORF image_number\n" +
+		"cell_id	T_ORF	cell_id\n" +
+		"Cgroup	T_ORF	Cgroup\n" +
+		"Agroup	T_ORF	Agroup\n" +
+		"Dgroup	T_ORF	Dgroup\n" +
+		"C11-1_A1B	T_CONA_BASIC	C11-1\n" +
+		"C11-2_A1B	T_CONA_BASIC	C11-2\n" +
+		"C12-1_A1B	T_CONA_BASIC	C12-1\n" +
+		"C12-2_A1B	T_CONA_BASIC	C12-2\n" +
+		"C13_A1B	T_CONA_BASIC	C13\n" +
+		"C101_A1B	T_CONA_BIOLOGICAL	C101\n" +
+		"C102_A1B	T_CONA_BIOLOGICAL	C102\n" +
+		"C103_A1B	T_CONA_BIOLOGICAL	C103\n" +
+		"C104_A1B	T_CONA_BIOLOGICAL	C104\n" +
+		"C105_A1B	T_CONA_BIOLOGICAL	C105\n" +
+		"C106_A1B	T_CONA_BIOLOGICAL	C106\n" +
+		"C107_A1B	T_CONA_BIOLOGICAL	C107\n" +
+		"C108_A1B	T_CONA_BIOLOGICAL	C108\n" +
+		"C109_A1B	T_CONA_BIOLOGICAL	C109\n" +
+		"C110_A1B	T_CONA_BIOLOGICAL	C110\n" +
+		"C111_A1B	T_CONA_BIOLOGICAL	C111\n" +
+		"C112_A1B	T_CONA_BIOLOGICAL	C112\n" +
+		"C113_A1B	T_CONA_BIOLOGICAL	C113\n" +
+		"C114_A1B	T_CONA_BIOLOGICAL	C114\n" +
+		"C115_A1B	T_CONA_BIOLOGICAL	C115\n" +
+		"C116_A1B	T_CONA_BIOLOGICAL	C116\n" +
+		"C117_A1B	T_CONA_BIOLOGICAL	C117\n" +
+		"C118_A1B	T_CONA_BIOLOGICAL	C118\n" +
+		"C126_A1B	T_CONA_BIOLOGICAL	C126\n" +
+		"C127_A1B	T_CONA_BIOLOGICAL	C127\n" +
+		"C128_A1B	T_CONA_BIOLOGICAL	C128\n" +
+		"A7-1_A1B	T_ACTIN_BASIC	A7-1\n" +
+		"A7-2_A1B	T_ACTIN_BASIC	A7-2\n" +
+		"A8-1_A1B	T_ACTIN_BASIC	A8-1\n" +
+		"A8-2_A1B	T_ACTIN_BASIC	A8-2\n" +
+		"A9_A1B	T_ACTIN_BASIC	A9\n" +
+		"A101_A1B	T_ACTIN_BIOLOGICAL	A101\n" +
+		"A102_A1B	T_ACTIN_BIOLOGICAL	A102\n" +
+		"A103_A1B	T_ACTIN_BIOLOGICAL	A103\n" +
+		"A104_A1B	T_ACTIN_BIOLOGICAL	A104\n" +
+		"A120_A1B	T_ACTIN_BIOLOGICAL	A120\n" +
+		"A121_A1B	T_ACTIN_BIOLOGICAL	A121\n" +
+		"A122_A1B	T_ACTIN_BIOLOGICAL	A122\n" +
+		"A123_A1B	T_ACTIN_BIOLOGICAL	A123\n" +
+		"D14-3_A1B	T_DAPI_BASIC	D14-3\n" +
+		"D15-3_A1B	T_DAPI_BASIC	D15-3\n" +
+		"D16-3_A1B	T_DAPI_BASIC	D16-3\n" +
+		"D17-3_A1B	T_DAPI_BASIC	D17-3\n" +
+		"D104_A1B	T_DAPI_BIOLOGICAL	D104\n" +
+		"D107_A1B	T_DAPI_BIOLOGICAL	D107\n" +
+		"D110_A1B	T_DAPI_BIOLOGICAL	D110\n" +
+		"D114_A1B	T_DAPI_BIOLOGICAL	D114\n" +
+		"D118_A1B	T_DAPI_BIOLOGICAL	D118\n" +
+		"D126_A1B	T_DAPI_BIOLOGICAL	D126\n" +
+		"D129_A1B	T_DAPI_BIOLOGICAL	D129\n" +
+		"D132_A1B	T_DAPI_BIOLOGICAL	D132\n" +
+		"D136_A1B	T_DAPI_BIOLOGICAL	D136\n" +
+		"D142_A1B	T_DAPI_BIOLOGICAL	D142\n" +
+		"D143_A1B	T_DAPI_BIOLOGICAL	D143\n" +
+		"D145_A1B	T_DAPI_BIOLOGICAL	D145\n" +
+		"D147_A1B	T_DAPI_BIOLOGICAL	D147\n" +
+		"D148_A1B	T_DAPI_BIOLOGICAL	D148\n" +
+		"D152_A1B	T_DAPI_BIOLOGICAL	D152\n" +
+		"D154_A1B	T_DAPI_BIOLOGICAL	D154\n" +
+		"D155_A1B	T_DAPI_BIOLOGICAL	D155\n" +
+		"D161_A1B	T_DAPI_BIOLOGICAL	D161\n" +
+		"D165_A1B	T_DAPI_BIOLOGICAL	D165\n" +
+		"D169_A1B	T_DAPI_BIOLOGICAL	D169\n" +
+		"D170_A1B	T_DAPI_BIOLOGICAL	D170\n" +
+		"D172_A1B	T_DAPI_BIOLOGICAL	D172\n" +
+		"D175_A1B	T_DAPI_BIOLOGICAL	D175\n" +
+		"D178_A1B	T_DAPI_BIOLOGICAL	D178\n" +
+		"D181_A1B	T_DAPI_BIOLOGICAL	D181\n" +
+		"D184_A1B	T_DAPI_BIOLOGICAL	D184\n" +
+		"D190_A1B	T_DAPI_BIOLOGICAL	D190\n" +
+		"D193_A1B	T_DAPI_BIOLOGICAL	D193\n" +
+		"D196_A1B	T_DAPI_BIOLOGICAL	D196\n";
+		
+		private String structC = 
+"image_number	 T_ORF	 image_number	\n" +
+"cell_id	 T_ORF	 cell_id	\n" +
+"Cgroup	 T_ORF	 Cgroup	\n" +
+"Agroup	 T_ORF	 Agroup	\n" +
+"C11-1_C	 T_CONA_BASIC	 C11-1\n" +
+"C11-2_C	 T_CONA_BASIC	 C11-2\n" +
+"C12-1_C	 T_CONA_BASIC	 C12-1\n" +
+"C12-2_C	 T_CONA_BASIC	 C12-2\n" +
+"C13_C	 T_CONA_BASIC	 C13\n" +
+"C101_C	 T_CONA_BIOLOGICAL	 C101\n" +
+"C102_C	 T_CONA_BIOLOGICAL	 C102\n" +
+"C103_C	 T_CONA_BIOLOGICAL	 C103\n" +
+"C104_C	 T_CONA_BIOLOGICAL	 C104\n" +
+"C105_C	 T_CONA_BIOLOGICAL	 C105\n" +
+"C106_C	 T_CONA_BIOLOGICAL	 C106\n" +
+"C107_C	 T_CONA_BIOLOGICAL	 C107\n" +
+"C108_C	 T_CONA_BIOLOGICAL	 C108\n" +
+"C109_C	 T_CONA_BIOLOGICAL	 C109\n" +
+"C110_C	 T_CONA_BIOLOGICAL	 C110\n" +
+"C111_C	 T_CONA_BIOLOGICAL	 C111\n" +
+"C112_C	 T_CONA_BIOLOGICAL	 C112\n" +
+"C113_C	 T_CONA_BIOLOGICAL	 C113\n" +
+"C114_C	 T_CONA_BIOLOGICAL	 C114\n" +
+"C115_C	 T_CONA_BIOLOGICAL	 C115\n" +
+"C116_C	 T_CONA_BIOLOGICAL	 C116\n" +
+"C117_C	 T_CONA_BIOLOGICAL	 C117\n" +
+"C118_C	 T_CONA_BIOLOGICAL	 C118\n" +
+"C126_C	 T_CONA_BIOLOGICAL	 C126\n" +
+"C127_C	 T_CONA_BIOLOGICAL	 C127\n" +
+"C128_C	 T_CONA_BIOLOGICAL	 C128\n" +
+"A7-1_C	 T_ACTIN_BASIC	 A7-1\n" +
+"A7-2_C	 T_ACTIN_BASIC	 A7-2\n" +
+"A8-1_C	 T_ACTIN_BASIC	 A8-1\n" +
+"A8-2_C	 T_ACTIN_BASIC	 A8-2\n" +
+"A9_C	 T_ACTIN_BASIC	 A9\n" +
+"A101_C	 T_ACTIN_BIOLOGICAL	 A101\n" +
+"A102_C	 T_ACTIN_BIOLOGICAL	 A102\n" +
+"A103_C	 T_ACTIN_BIOLOGICAL	 A103\n" +
+"A104_C	 T_ACTIN_BIOLOGICAL	 A104\n" +
+"A120_C	 T_ACTIN_BIOLOGICAL	 A120\n" +
+"A121_C	 T_ACTIN_BIOLOGICAL	 A121\n" +
+"A122_C	 T_ACTIN_BIOLOGICAL	 A122\n" +
+"A123_C	 T_ACTIN_BIOLOGICAL	 A123\n" +
+"D14-1_C	 T_DAPI_BASIC	 D14-1\n" +
+"D14-2_C	 T_DAPI_BASIC	 D14-2\n" +
+"D14-3_C	 T_DAPI_BASIC	 D14-3\n" +
+"D15-1_C	 T_DAPI_BASIC	 D15-1\n" +
+"D15-2_C	 T_DAPI_BASIC	 D15-2\n" +
+"D15-3_C	 T_DAPI_BASIC	 D15-3\n" +
+"D16-1_C	 T_DAPI_BASIC	 D16-1\n" +
+"D16-2_C	 T_DAPI_BASIC	 D16-2\n" +
+"D16-3_C	 T_DAPI_BASIC	 D16-3\n" +
+"D17-1_C	 T_DAPI_BASIC	 D17-1\n" +
+"D17-2_C	 T_DAPI_BASIC	 D17-2\n" +
+"D103_C	 T_DAPI_BIOLOGICAL	 D103\n" +
+"D106_C	 T_DAPI_BIOLOGICAL	 D106\n" +
+"D108_C	 T_DAPI_BIOLOGICAL	 D108\n" +
+"D109_C	 T_DAPI_BIOLOGICAL	 D109\n" +
+"D112_C	 T_DAPI_BIOLOGICAL	 D112\n" +
+"D113_C	 T_DAPI_BIOLOGICAL	 D113\n" +
+"D116_C	 T_DAPI_BIOLOGICAL	 D116\n" +
+"D117_C	 T_DAPI_BIOLOGICAL	 D117\n" +
+"D119_C	 T_DAPI_BIOLOGICAL	 D119\n" +
+"D121_C	 T_DAPI_BIOLOGICAL	 D121\n" +
+"D123_C	 T_DAPI_BIOLOGICAL	 D123\n" +
+"D125_C	 T_DAPI_BIOLOGICAL	 D125\n" +
+"D128_C	 T_DAPI_BIOLOGICAL	 D128\n" +
+"D130_C	 T_DAPI_BIOLOGICAL	 D130\n" +
+"D131_C	 T_DAPI_BIOLOGICAL	 D131\n" +
+"D134_C	 T_DAPI_BIOLOGICAL	 D134\n" +
+"D135_C	 T_DAPI_BIOLOGICAL	 D135\n" +
+"D137_C	 T_DAPI_BIOLOGICAL	 D137\n" +
+"D139_C	 T_DAPI_BIOLOGICAL	 D139\n" +
+"D141_C	 T_DAPI_BIOLOGICAL	 D141\n" +
+"D143_C	 T_DAPI_BIOLOGICAL	 D143\n" +
+"D144_C	 T_DAPI_BIOLOGICAL	 D144\n" +
+"D145_C	 T_DAPI_BIOLOGICAL	 D145\n" +
+"D146_C	 T_DAPI_BIOLOGICAL	 D146\n" +
+"D147_C	 T_DAPI_BIOLOGICAL	 D147\n" +
+"D148_C	 T_DAPI_BIOLOGICAL	 D148\n" +
+"D149_C	 T_DAPI_BIOLOGICAL	 D149\n" +
+"D150_C	 T_DAPI_BIOLOGICAL	 D150\n" +
+"D151_C	 T_DAPI_BIOLOGICAL	 D151\n" +
+"D152_C	 T_DAPI_BIOLOGICAL	 D152\n" +
+"D153_C	 T_DAPI_BIOLOGICAL	 D153\n" +
+"D154_C	 T_DAPI_BIOLOGICAL	 D154\n" +
+"D155_C	 T_DAPI_BIOLOGICAL	 D155\n" +
+"D156_C	 T_DAPI_BIOLOGICAL	 D156\n" +
+"D157_C	 T_DAPI_BIOLOGICAL	 D157\n" +
+"D158_C	 T_DAPI_BIOLOGICAL	 D158\n" +
+"D159_C	 T_DAPI_BIOLOGICAL	 D159\n" +
+"D162_C	 T_DAPI_BIOLOGICAL	 D162\n" +
+"D163_C	 T_DAPI_BIOLOGICAL	 D163\n" +
+"D166_C	 T_DAPI_BIOLOGICAL	 D166\n" +
+"D167_C	 T_DAPI_BIOLOGICAL	 D167\n" +
+"D169_C	 T_DAPI_BIOLOGICAL	 D169\n" +
+"D170_C	 T_DAPI_BIOLOGICAL	 D170\n" +
+"D173_C	 T_DAPI_BIOLOGICAL	 D173\n" +
+"D174_C	 T_DAPI_BIOLOGICAL	 D174\n" +
+"D176_C	 T_DAPI_BIOLOGICAL	 D176\n" +
+"D177_C	 T_DAPI_BIOLOGICAL	 D177\n" +
+"D179_C	 T_DAPI_BIOLOGICAL	 D179\n" +
+"D180_C	 T_DAPI_BIOLOGICAL	 D180\n" +
+"D182_C	 T_DAPI_BIOLOGICAL	 D182\n" +
+"D183_C	 T_DAPI_BIOLOGICAL	 D183\n" +
+"D185_C	 T_DAPI_BIOLOGICAL	 D185\n" +
+"D186_C	 T_DAPI_BIOLOGICAL	 D186\n" +
+"D188_C	 T_DAPI_BIOLOGICAL	 D188\n" +
+"D189_C	 T_DAPI_BIOLOGICAL	 D189\n" +
+"D191_C	 T_DAPI_BIOLOGICAL	 D191\n" +
+"D192_C	 T_DAPI_BIOLOGICAL	 D192\n" +
+"D193_C	 T_DAPI_BIOLOGICAL	 D193\n" +
+"D194_C	 T_DAPI_BIOLOGICAL	 D194\n" +
+"D195_C	 T_DAPI_BIOLOGICAL	 D195\n" +
+"D196_C	 T_DAPI_BIOLOGICAL	 D196\n" +
+"D197_C	 T_DAPI_BIOLOGICAL	 D197\n" +
+"D198_C	 T_DAPI_BIOLOGICAL	 D198\n";
 }
 
 class ClassifierSetting extends Properties
