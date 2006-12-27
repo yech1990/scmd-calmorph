@@ -19,27 +19,31 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
+import javax.imageio.ImageIO;
+
 class CellImage {
-    int w,h,size;//画像の幅、高さ、pixel数
-    int number,Ddiff,Adiff,startid;//画像の番号、DAPI画像のずれ、actin画像のずれ、最初のcell番号
-    String name,path,outdir;//破壊株の名前、画像あるのdirectory、出力すべきdirectory
-    int[] CImage,DImage,AImage;//3種類の画像の輝度
-    int[] ci,ci2,di,ai;//処理途中の3種類の画像の輝度
-    int[] pixeltocell,pixeltocell2;//あるpixelがどの細胞の内部か
-    Cell[] cell;//画像内の細胞
-    boolean err,calD,calA;//errが起こったかどうか、DAPIの画像を処理するか、actinの画像を処理するか
-    boolean objectsave,outimage,outsheet;//objectの途中saveを行うか、画像の出力を行うか、basicおよびbiologicalシートを出力するか
-    int objectload;//何番目にsaveしたobjectを引き出すか
+	
+	private CellWallImage _cell_wall_image;
+	
+    int _width, _height, _size;                          //画像の幅、高さ、pixel数
+    int number, Ddiff, Adiff, startid;                   //画像の番号、DAPI画像のずれ、actin画像のずれ、最初のcell番号
+    String name, path, outdir;                           //破壊株の名前、画像あるのdirectory、出力すべきdirectory
+    int[] _cell_points, _nucleus_points, _actin_points;  //3種類の画像の輝度
+    int[] ci, ci2, di, ai;                               //処理途中の3種類の画像の輝度
+    int[] pixeltocell, pixeltocell2;                     //あるpixelがどの細胞の内部か
+    Cell[] cell;                                         //画像内の細胞
+    boolean err, calD, calA;                             //errが起こったかどうか、DAPIの画像を処理するか、actinの画像を処理するか
+    boolean objectsave, outimage, outsheet;              //objectの途中saveを行うか、画像の出力を行うか、basicおよびbiologicalシートを出力するか
+    int objectload;                                      //何番目にsaveしたobjectを引き出すか
     int maxdiff;
     boolean flag_tmp;
     String err_kind;
-    
     //int[] actindiv;//テスト
     
     public CellImage(String name,String path,int number,String outdir,int startid,boolean calD,boolean calA) {
-        w = 696;//とりあえず固定
-        h = 520;//とりあえず固定
-        size = w*h;//とりあえず固定
+        _width = 696;//とりあえず固定
+        _height = 520;//とりあえず固定
+        _size = _width*_height;//とりあえず固定
         maxdiff = 5;//とりあえず固定
         this.name = name;
         this.path = path;
@@ -55,17 +59,22 @@ class CellImage {
         DataBuffer db=null;
         if((f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
         else err = true;
+        
+        _cell_wall_image = new CellWallImage(name, bi, startid);
+        
+        
         if(!err) {
-            if(size == db.getSize()) {
-                CImage = new int[size];
-                for(int i=0;i<size;i++) {
-                    CImage[i] = db.getElem(i);
+            if(_size == db.getSize()) {
+                _cell_points = new int[_size];
+                for(int i=0;i<_size;i++) {
+                    _cell_points[i] = db.getElem(i);
                 }
             } else {
                 err = true;
                 err_kind = "incorrect size of image";
             }
         }
+        
         if(calD) {//DAPI画像の処理も行う
             if((f=new File(path+"-D"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-D"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
@@ -75,10 +84,10 @@ class CellImage {
                 err = true;
             }
             if(calD) {
-                if(size == db.getSize()) {
-                    DImage = new int[size];
-                    for(int i=0;i<size;i++) {
-                        DImage[i] = db.getElem(i);
+                if(_size == db.getSize()) {
+                    _nucleus_points = new int[_size];
+                    for(int i=0;i<_size;i++) {
+                        _nucleus_points[i] = db.getElem(i);
                     }
                 } else {
                     err = true;
@@ -86,6 +95,7 @@ class CellImage {
                 }
             }
         }
+        
         if(calA) {//actin画像の処理も行う
             if((f=new File(path+"-A"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-A"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
@@ -95,10 +105,10 @@ class CellImage {
                 calA = false;
             }
             if(calA) {
-                if(size == db.getSize()) {
-                    AImage = new int[size];
-                    for(int i=0;i<size;i++) {
-                        AImage[i] = db.getElem(i);
+                if(_size == db.getSize()) {
+                    _actin_points = new int[_size];
+                    for(int i=0;i<_size;i++) {
+                        _actin_points[i] = db.getElem(i);
                     }
                  } else {
                      err = true;
@@ -107,22 +117,38 @@ class CellImage {
              }
          }
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    //optionのセット
-    ////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Optionの設定
+     * @param objectsave
+     * @param objectload
+     * @param outimage
+     * @param outsheet
+     */
     public void setOptions(boolean objectsave,int objectload,boolean outimage,boolean outsheet) {
         this.objectsave = objectsave;
         this.objectload = objectload;
         this.outimage = outimage;
         this.outsheet = outsheet;
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    //すべての処理を行う
-    ////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * 全ての処理を行う
+     * @param pwbaseC
+     * @param pwexpandC
+     * @param pwbaseD
+     * @param pwexpandD
+     * @param pwbaseA
+     * @param pwexpandA
+     * @param pwpatchA
+     * @param pwvers
+     * @param pwxml
+     * @return
+     */
     public int process(PrintWriter pwbaseC,PrintWriter pwexpandC,PrintWriter pwbaseD,PrintWriter pwexpandD,PrintWriter pwbaseA,PrintWriter pwexpandA,PrintWriter pwpatchA,PrintWriter pwvers,PrintWriter pwxml) {
         err = false;
         if(objectload < 0) {
-            procCImage();
+            segmentCells();
         } else if(objectload == 0) load(0);
         if(objectsave) save(0);
         
@@ -162,11 +188,15 @@ class CellImage {
             return cell.length;
         } else return 0;
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    //conA画像の処理
-    ////////////////////////////////////////////////////////////////////////////////
-    public void procCImage() {
-        ci = (int[])CImage.clone();//元の画像はとっておく
+    
+    /**
+     * TODO
+     * his3_control_*-C*.jpg の処理
+     * morphological segmentation
+     */
+    public void segmentCells() {
+        ci = (int[])_cell_points.clone();//元の画像はとっておく
+        
         medianim(ci);
         ci2 = (int[])ci.clone();
         vivid(ci,3);
@@ -187,11 +217,11 @@ class CellImage {
         dilation2(ci);
         dilation2(ci);
         dilation2(ci);
-        edge(ci,CImage);
+        edge(ci,_cell_points);
         searchNeck();
         
-        serchbrightpoint(CImage);
-        serchwidepoint(CImage);
+        serchbrightpoint(_cell_points);
+        serchwidepoint(_cell_points);
         
         setEllipse();
         setCellData();
@@ -200,14 +230,14 @@ class CellImage {
     //DAPI画像の処理
     ////////////////////////////////////////////////////////////////////////////////
     public void procDImage() {
-        di = (int[])DImage.clone();//元の画像はとっておく
+        di = (int[])_nucleus_points.clone();//元の画像はとっておく
         if(isDifferentDImage()) {//DAPI画像が大きくずれていたら
             err = true;
             if(err_kind.equals("")) err_kind = "gap of dapi image to cell image";
             return;
         }
         
-        rethresh(di,DImage,Ddiff);
+        rethresh(di,_nucleus_points,Ddiff);
         depth(di);
         setDState();
     }
@@ -215,13 +245,13 @@ class CellImage {
     //actin画像の処理
     ////////////////////////////////////////////////////////////////////////////////
     public void procAImage() {
-        ai = (int[])AImage.clone();//元の画像はとっておく
+        ai = (int[])_actin_points.clone();//元の画像はとっておく
         if(isDifferentAImage()) {//actin画像が大きくずれていたら
             err = true;
 			if(err_kind.equals("")) err_kind = "gap of actin image to cell image";
             return;
         }
-        rethresh(ai,AImage,Adiff);
+        rethresh(ai,_actin_points,Adiff);
         searchActinRegion();
         searchActinPatch();
         setAState();
@@ -232,9 +262,10 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //画像ファイルをよみこむ
     ///////////////////////////////////////////////////////////////////////////
-    public BufferedImage getBufferedImage(String file) {
+    public BufferedImage getBufferedImage(String filename) {
         try {
-            return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
+        	return ImageIO.read(new File(filename));
+            //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
         } catch(IOException ioe) {
             //System.out.println("IOException:"+ioe);
             return null;
@@ -245,81 +276,81 @@ class CellImage {
     //メディアンフィルタによって画像のノイズを除く
     ///////////////////////////////////////////////////////////////////////////
     public void medianim(int[] Cim){
-    	int[] newci = new int[size];
-		for(int i=0;i<h;i++){
-			for(int j=0;j<w;j++){
-				if(i==0||i==h-1||j==0||j==w-1){
-					newci[i*w+j] = Cim[i*w+j];
+    	int[] newci = new int[_size];
+		for(int i=0;i<_height;i++){
+			for(int j=0;j<_width;j++){
+				if(i==0||i==_height-1||j==0||j==_width-1){
+					newci[i*_width+j] = Cim[i*_width+j];
 				}
 				else{
 					int[] brightness = new int[9];
-					brightness[0] = Cim[i*w+j-1-w];
-					brightness[1] = Cim[i*w+j-1];
-					brightness[2] = Cim[i*w+j-1+w];
-					brightness[3] = Cim[i*w+j-w];
-					brightness[4] = Cim[i*w+j];
-					brightness[5] = Cim[i*w+j+w];
-					brightness[6] = Cim[i*w+j+1-w];
-					brightness[7] = Cim[i*w+j+1];
-					brightness[8] = Cim[i*w+j+1+w];
+					brightness[0] = Cim[i*_width+j-1-_width];
+					brightness[1] = Cim[i*_width+j-1];
+					brightness[2] = Cim[i*_width+j-1+_width];
+					brightness[3] = Cim[i*_width+j-_width];
+					brightness[4] = Cim[i*_width+j];
+					brightness[5] = Cim[i*_width+j+_width];
+					brightness[6] = Cim[i*_width+j+1-_width];
+					brightness[7] = Cim[i*_width+j+1];
+					brightness[8] = Cim[i*_width+j+1+_width];
 					Arrays.sort(brightness);
-					newci[i*w+j] = brightness[4];
+					newci[i*_width+j] = brightness[4];
 				}
 			}
 		}
-		for(int i=0;i<size;i++) Cim[i] = newci[i];
+		for(int i=0;i<_size;i++) Cim[i] = newci[i];
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //おおまかに細胞部分と背景部分を分ける
     ///////////////////////////////////////////////////////////////////////////
     public void vivid(int[] Cim,int gradthresh){
-		int[] newci = new int[size];
-		for(int i=0;i<size;i++) newci[i] = Cim[i];
+		int[] newci = new int[_size];
+		for(int i=0;i<_size;i++) newci[i] = Cim[i];
 		int minbr = 255;
 		int minpo = -1;
-		for(int i=0;i<h;i++){
-			for(int j=0;j<w;j++){
-				if (!(i==0||i==h-1||j==0||j==w-1) && Cim[i*w+j] < minbr){
-					minbr = Cim[i*w+j];
-					minpo = i*w+j;
+		for(int i=0;i<_height;i++){
+			for(int j=0;j<_width;j++){
+				if (!(i==0||i==_height-1||j==0||j==_width-1) && Cim[i*_width+j] < minbr){
+					minbr = Cim[i*_width+j];
+					minpo = i*_width+j;
 				}
 			}
 		}
-		boolean[] check = new boolean[size];
+		boolean[] check = new boolean[_size];
 		Stack stk = new Stack();
 		stk.push(new Integer(minpo));
 		check[minpo] = true;
 		while(!stk.empty()){
 			int p = ((Integer)stk.pop()).intValue();
-			if(!((p-w<0 || Cim[p] - Cim[p-w] < gradthresh) && (p+w>=size || Cim[p] - Cim[p+w] < gradthresh) && (p%w == 0 || Cim[p] - Cim[p-1] < gradthresh) && (p%w == w-1 || Cim[p] - Cim[p+1] < gradthresh))) continue;
+			if(!((p-_width<0 || Cim[p] - Cim[p-_width] < gradthresh) && (p+_width>=_size || Cim[p] - Cim[p+_width] < gradthresh) && (p%_width == 0 || Cim[p] - Cim[p-1] < gradthresh) && (p%_width == _width-1 || Cim[p] - Cim[p+1] < gradthresh))) continue;
 			newci[p] = 0;
-			if(p-w>=0 && !check[p-w] && Cim[p-w] - Cim[p] < gradthresh){
-				 stk.push(new Integer(p-w));
+			if(p-_width>=0 && !check[p-_width] && Cim[p-_width] - Cim[p] < gradthresh){
+				 stk.push(new Integer(p-_width));
 			}
-			if(p-w>=0) check[p-w] = true;
-			if(p+w<size && !check[p+w] && Cim[p+w] - Cim[p] < gradthresh){
-				 stk.push(new Integer(p+w));
+			if(p-_width>=0) check[p-_width] = true;
+			if(p+_width<_size && !check[p+_width] && Cim[p+_width] - Cim[p] < gradthresh){
+				 stk.push(new Integer(p+_width));
 			}
-			if(p+w<size) check[p+w] = true;
-			if(p%w!=0 && !check[p-1] && Cim[p-1] - Cim[p] < gradthresh){
+			if(p+_width<_size) check[p+_width] = true;
+			if(p%_width!=0 && !check[p-1] && Cim[p-1] - Cim[p] < gradthresh){
 				 stk.push(new Integer(p-1));
 			}
-			if(p%w!=0) check[p-1] = true;
-			if(p%w!=w-1 && !check[p+1] && Cim[p+1] - Cim[p] < gradthresh){
+			if(p%_width!=0) check[p-1] = true;
+			if(p%_width!=_width-1 && !check[p+1] && Cim[p+1] - Cim[p] < gradthresh){
 				 stk.push(new Integer(p+1));
 			}
-			if(p%w!=w-1) check[p+1] = true;
+			if(p%_width!=_width-1) check[p+1] = true;
 		}
-		for(int i=0;i<size;i++) Cim[i] = newci[i];
+		for(int i=0;i<_size;i++) Cim[i] = newci[i];
     }
     
     ///////////////////////////////////////////////////////////////////////////
     //異なる閾値でvividをかけた二つの結果の差分をとる
     ///////////////////////////////////////////////////////////////////////////
     public int[] dif(int[] ci,int[] ci2){
-    	int[] difci = new int[size];
-    	for(int i=0;i<size;i++){
+    	int[] difci = new int[_size];
+    	for(int i=0;i<_size;i++){
     		if(ci[i] == ci2[i]) difci[i] = 255;
     		else difci[i] = 0;
     	}
@@ -331,14 +362,14 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     public void division(int[] ci,int[] ci2,int[] difci){
 		Vector[] vec = label(difci,0,10,true);
-		int[] thci = new int[size];
-		for(int i=0;i<size;i++)	{
+		int[] thci = new int[_size];
+		for(int i=0;i<_size;i++)	{
 			if(ci2[i] == 0) thci[i] = 255;
 			else thci[i] = 0;
 		}
 		Vector[] vec2 = label(thci,0,200,false);
-		int[] pixeltoarea = new int[size];
-		for(int i=0;i<size;i++) pixeltoarea[i] = -1;
+		int[] pixeltoarea = new int[_size];
+		for(int i=0;i<_size;i++) pixeltoarea[i] = -1;
 		for(int i=0;i<vec2.length;i++){
 			for(int j=0;j<vec2[i].size();j++){
 				pixeltoarea[((Integer)vec2[i].get(j)).intValue()] = i;
@@ -350,10 +381,10 @@ class CellImage {
 			for(int j=0;j<vec[i].size();j++){
 				int p = ((Integer)vec[i].get(j)).intValue();
 				int[] stk = new int[4];
-				stk[0] = p-w;
+				stk[0] = p-_width;
 				stk[1] = p-1;
 				stk[2] = p+1;
-				stk[3] = p+w;
+				stk[3] = p+_width;
 				for(int k=0;k<4;k++){
 					if(neighbor != -1 && pixeltoarea[stk[k]] != -1 && pixeltoarea[stk[k]] != neighbor){
 						check = true;
@@ -376,39 +407,39 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
 	public int[] gradim(int[] Cim){
 		int Cimage[] = (int[])Cim.clone();
-		for(int i=0;i<size;i++){
+		for(int i=0;i<_size;i++){
 			if(Cimage[i]<60 && Cimage[i] >= 10) Cimage[i] -= (60-Cimage[i])*(60-Cimage[i])/20;
 			else if(Cimage[i]<10) Cimage[i] -= 125;
 			else Cimage[i] = 60;
 		}
-		double gradmag[] = new double[size];
+		double gradmag[] = new double[_size];
 		double maxmag = 0;
-		for(int i=1;i<h-1;i++){
-			for(int j=1;j<w-1;j++){
-				if(Cimage[i*w+j] != -125 && Cimage[i*w+j-1] != -125 && Cimage[i*w+j+1] != -125 && Cimage[i*w+j-w] != -125 && Cimage[i*w+j+w] != -125 && Cimage[i*w+j-w-1] != -125 && Cimage[i*w+j+w+1] != -125 && Cimage[i*w+j+w-1] != -125 && Cimage[i*w+j-w+1] != -125){
-					gradmag[i*w+j] = Math.sqrt((2*(Cimage[i*w+j-1]-Cimage[i*w+j+1])+(Cimage[i*w+j-1+w]-Cimage[i*w+j+1+w])+(Cimage[i*w+j-1-w]-Cimage[i*w+j+1-w]))*(2*(Cimage[i*w+j-1]-Cimage[i*w+j+1])+(Cimage[i*w+j-1+w]-Cimage[i*w+j+1+w])+(Cimage[i*w+j-1-w]-Cimage[i*w+j+1-w])) + (2*(Cimage[i*w+j-w]-Cimage[i*w+j+w])+(Cimage[i*w+j-w+1]-Cimage[i*w+j+w+1])+(Cimage[i*w+j-w-1]-Cimage[i*w+j+w-1]))*(2*(Cimage[i*w+j-w]-Cimage[i*w+j+w])+(Cimage[i*w+j-w+1]-Cimage[i*w+j+w+1])+(Cimage[i*w+j-w-1]-Cimage[i*w+j+w-1])));
-					if(gradmag[i*w+j]>maxmag) maxmag = gradmag[i*w+j];
+		for(int i=1;i<_height-1;i++){
+			for(int j=1;j<_width-1;j++){
+				if(Cimage[i*_width+j] != -125 && Cimage[i*_width+j-1] != -125 && Cimage[i*_width+j+1] != -125 && Cimage[i*_width+j-_width] != -125 && Cimage[i*_width+j+_width] != -125 && Cimage[i*_width+j-_width-1] != -125 && Cimage[i*_width+j+_width+1] != -125 && Cimage[i*_width+j+_width-1] != -125 && Cimage[i*_width+j-_width+1] != -125){
+					gradmag[i*_width+j] = Math.sqrt((2*(Cimage[i*_width+j-1]-Cimage[i*_width+j+1])+(Cimage[i*_width+j-1+_width]-Cimage[i*_width+j+1+_width])+(Cimage[i*_width+j-1-_width]-Cimage[i*_width+j+1-_width]))*(2*(Cimage[i*_width+j-1]-Cimage[i*_width+j+1])+(Cimage[i*_width+j-1+_width]-Cimage[i*_width+j+1+_width])+(Cimage[i*_width+j-1-_width]-Cimage[i*_width+j+1-_width])) + (2*(Cimage[i*_width+j-_width]-Cimage[i*_width+j+_width])+(Cimage[i*_width+j-_width+1]-Cimage[i*_width+j+_width+1])+(Cimage[i*_width+j-_width-1]-Cimage[i*_width+j+_width-1]))*(2*(Cimage[i*_width+j-_width]-Cimage[i*_width+j+_width])+(Cimage[i*_width+j-_width+1]-Cimage[i*_width+j+_width+1])+(Cimage[i*_width+j-_width-1]-Cimage[i*_width+j+_width-1])));
+					if(gradmag[i*_width+j]>maxmag) maxmag = gradmag[i*_width+j];
 				}
 			}
 		}
-		for(int i=1;i<h-1;i++){
-			for(int j=1;j<w-1;j++){
-				if(Cimage[i*w+j] != -125 && (Cimage[i*w+j-1] == -125 || Cimage[i*w+j+1] == -125 || Cimage[i*w+j-w] == -125 || Cimage[i*w+j+w] == -125 || Cimage[i*w+j-w-1] == -125 || Cimage[i*w+j+w+1] == -125 || Cimage[i*w+j+w-1] == -125 || Cimage[i*w+j-w+1] == -125)){
-					gradmag[i*w+j] = maxmag/2;
+		for(int i=1;i<_height-1;i++){
+			for(int j=1;j<_width-1;j++){
+				if(Cimage[i*_width+j] != -125 && (Cimage[i*_width+j-1] == -125 || Cimage[i*_width+j+1] == -125 || Cimage[i*_width+j-_width] == -125 || Cimage[i*_width+j+_width] == -125 || Cimage[i*_width+j-_width-1] == -125 || Cimage[i*_width+j+_width+1] == -125 || Cimage[i*_width+j+_width-1] == -125 || Cimage[i*_width+j-_width+1] == -125)){
+					gradmag[i*_width+j] = maxmag/2;
 				}
 			}
 		}
-		for(int i=0;i<h;i++){
-			for(int j=0;j<w;j++){
-				if(i==0||i==h-1||j==0||j==w-1){
-					gradmag[i*w+j]=1;
+		for(int i=0;i<_height;i++){
+			for(int j=0;j<_width;j++){
+				if(i==0||i==_height-1||j==0||j==_width-1){
+					gradmag[i*_width+j]=1;
 					continue;
 				}
-				gradmag[i*w+j] = 1-gradmag[i*w+j]/maxmag;
+				gradmag[i*_width+j] = 1-gradmag[i*_width+j]/maxmag;
 			}
 		}
-		int[] test = new int[size];
-		for(int i = 0;i<size;i++) test[i] = 255 - Math.round((float)(gradmag[i]*255));
+		int[] test = new int[_size];
+		for(int i = 0;i<_size;i++) test[i] = 255 - Math.round((float)(gradmag[i]*255));
 		return test;
 	}
     
@@ -421,17 +452,17 @@ class CellImage {
             hg[i] = 0;
         }
         double ut=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(image[i] > 255) {
                 return false;
             }
             hg[image[i]]++;
         }
         for(int i=0;i<256;i++) {
-            ut += (double)(i)*(double)(hg[i])/(double)(size);
+            ut += (double)(i)*(double)(hg[i])/(double)(_size);
         }
         double maxv = 0;
-        double wk = (double)(hg[0])/(double)(size);
+        double wk = (double)(hg[0])/(double)(_size);
         double uk = 0;
         double sk = 0;
         int maxk=0;
@@ -443,10 +474,10 @@ class CellImage {
                 maxk = k-1;
             }
             }
-            uk += (double)(hg[k])*(double)(k)/(double)(size);
-            wk += (double)(hg[k])/(double)(size);
+            uk += (double)(hg[k])*(double)(k)/(double)(_size);
+            wk += (double)(hg[k])/(double)(_size);
         }
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(image[i] >= maxk) image[i] = 0;
             else image[i] = 255;
         }
@@ -475,7 +506,7 @@ class CellImage {
     }
 	public void beforecover(int[] biimage) {
 		Vector[] vec = label(biimage,255,0,true);
-		for(int i=0;i<size;i++) biimage[i] = 255;
+		for(int i=0;i<_size;i++) biimage[i] = 255;
 		for(int i=0;i<vec.length;i++) {
 			for(int j=0;j<vec[i].size();j++) {
 				int p=((Integer)vec[i].get(j)).intValue();
@@ -491,18 +522,18 @@ class CellImage {
     public Vector[] label(int[] biimage,int color,int minco,boolean cornercut) {
         Vector[] vec;
         Vector same;
-        int[] lab = new int[size];
+        int[] lab = new int[_size];
         
         int nlbl = 0;
         same = new Vector();
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             lab[i] = -1;
         }
         if(biimage[0] == color) {
             lab[0] = nlbl;
             same.add(new Integer(nlbl++));
         }
-        for(int j=1;j<w;j++) {
+        for(int j=1;j<_width;j++) {
             if(biimage[j] == color) {
                 if(lab[j-1] >= 0) {
                     lab[j] = lab[j-1];
@@ -512,34 +543,34 @@ class CellImage {
                 }
             }
         }
-        for(int i=1;i<h;i++) {
-            if(biimage[i*w] == color) {
-                if(lab[(i-1)*w] >= 0) {
-                    lab[i*w] = lab[(i-1)*w];
+        for(int i=1;i<_height;i++) {
+            if(biimage[i*_width] == color) {
+                if(lab[(i-1)*_width] >= 0) {
+                    lab[i*_width] = lab[(i-1)*_width];
                 } else {
-                    lab[i*w] = nlbl;
+                    lab[i*_width] = nlbl;
                     same.add(new Integer(nlbl++));
                 }
             }
-            for(int j=1;j<w;j++) {
-                if(biimage[i*w+j] == color) {
+            for(int j=1;j<_width;j++) {
+                if(biimage[i*_width+j] == color) {
                     int a1,a2;
-                    if(lab[i*w+j-1] >= 0) a1 = smallestlabel(same,lab[i*w+j-1]);
+                    if(lab[i*_width+j-1] >= 0) a1 = smallestlabel(same,lab[i*_width+j-1]);
                     else a1 = -1;
-                    if(lab[(i-1)*w+j] >= 0) a2 = smallestlabel(same,lab[(i-1)*w+j]);
+                    if(lab[(i-1)*_width+j] >= 0) a2 = smallestlabel(same,lab[(i-1)*_width+j]);
                     else a2 = -1;
                     if(a1 == -1 && a2 == -1) {
-                        lab[i*w+j] = nlbl;
+                        lab[i*_width+j] = nlbl;
                         same.add(new Integer(nlbl++));
                     } else if(a1 == -1) {
-                        lab[i*w+j] = a2;
+                        lab[i*_width+j] = a2;
                     } else if(a2 == -1) {
-                        lab[i*w+j] = a1;
+                        lab[i*_width+j] = a1;
                     } else if(a1 < a2) {
-                        lab[i*w+j] = a1;
+                        lab[i*_width+j] = a1;
                         same.set(a2,new Integer(a1));
                     } else {
-                        lab[i*w+j] = a2;
+                        lab[i*_width+j] = a2;
                         same.set(a1,new Integer(a2));
                     }
                 }
@@ -556,7 +587,7 @@ class CellImage {
         for(int i=0;i<nlbl+1;i++) {
             vec2[i] = new Vector();
         }
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(lab[i] < 0) {
             } else {
                 vec2[((Integer)same.get(lab[i])).intValue()].add(new Integer(i));
@@ -573,7 +604,7 @@ class CellImage {
                     flag[i]=true;
                     for(int j=0;j<vec2[i].size();j++) {
                         int p=((Integer)vec2[i].get(j)).intValue();
-                        if(p < w || p>w*(h-1) || p%w == 0 || p%w == w-1) {//壁に接するpixelが存在
+                        if(p < _width || p>_width*(_height-1) || p%_width == 0 || p%_width == _width-1) {//壁に接するpixelが存在
                             flag[i]=false;
                             break;
                         }
@@ -741,17 +772,17 @@ class CellImage {
     //binary imageの黒い領域を一枚けずる
     /////////////////////////////////////////////////////////////////////////////////////
     public void erosion(int[] biimage) {
-        int[] imagetemp = new int[w*h];
-        for(int i=0;i<size;i++) {
+        int[] imagetemp = new int[_width*_height];
+        for(int i=0;i<_size;i++) {
             imagetemp[i] = biimage[i];
         }
-        for(int i=0;i<size;i++) {
-            if(i%w-1 > 0) imagetemp[i] |= biimage[i-1];
-            if(i%w+1 < w) imagetemp[i] |= biimage[i+1];
-            if(i/w-1 > 0) imagetemp[i] |= biimage[i-w];
-            if(i/w+1 < h) imagetemp[i] |= biimage[i+w];
+        for(int i=0;i<_size;i++) {
+            if(i%_width-1 > 0) imagetemp[i] |= biimage[i-1];
+            if(i%_width+1 < _width) imagetemp[i] |= biimage[i+1];
+            if(i/_width-1 > 0) imagetemp[i] |= biimage[i-_width];
+            if(i/_width+1 < _height) imagetemp[i] |= biimage[i+_width];
         }
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
            biimage[i] = imagetemp[i];
         }
     }
@@ -759,44 +790,44 @@ class CellImage {
 	//黒い領域を一枚ふやす
 	/////////////////////////////////////////////////////////////////////////////////////
 	public void dilation(int[] biimage) {
-		int[] imagetemp = new int[w*h];
-		for(int i=0;i<w*h;i++) {
+		int[] imagetemp = new int[_width*_height];
+		for(int i=0;i<_width*_height;i++) {
 			imagetemp[i] = biimage[i];
 		}
-		for(int i=0;i<w*h;i++) {
-			if(i%w-1 > 0 && i%w+1<w) imagetemp[i] &= biimage[i-1];
-			if(i%w+1 < w && i%w-1>0) imagetemp[i] &= biimage[i+1];
-			if(i/w-1 > 0 && i/w+1<h) imagetemp[i] &= biimage[i-w];
-			if(i/w+1 < h && i/w-1>0) imagetemp[i] &= biimage[i+w];
+		for(int i=0;i<_width*_height;i++) {
+			if(i%_width-1 > 0 && i%_width+1<_width) imagetemp[i] &= biimage[i-1];
+			if(i%_width+1 < _width && i%_width-1>0) imagetemp[i] &= biimage[i+1];
+			if(i/_width-1 > 0 && i/_width+1<_height) imagetemp[i] &= biimage[i-_width];
+			if(i/_width+1 < _height && i/_width-1>0) imagetemp[i] &= biimage[i+_width];
 		}
-		for(int i=0;i<w*h;i++) {
+		for(int i=0;i<_width*_height;i++) {
 		   biimage[i] = imagetemp[i];
 		}
 	}
 	public void dilation2(int[] biimage) {
         Vector[] vec = label(biimage,0,0,false);
-		int[] group = new int[w*h];
-		for(int i=0;i<w*h;i++) group[i] = -1;
+		int[] group = new int[_width*_height];
+		for(int i=0;i<_width*_height;i++) group[i] = -1;
 		for(int i=0;i<vec.length;i++){
 			for(int j=0;j<vec[i].size();j++){
 				group[((Integer)vec[i].get(j)).intValue()]=i;
 			}
 		}
-		int[] group2 = new int[w*h];
-		for(int i=0;i<w*h;i++) group2[i] = -1;
-		for(int i=0;i<w*h;i++) {
-			if(i%w>0 && i%w<w-1 && i/w>0 && i/w<h-1){
+		int[] group2 = new int[_width*_height];
+		for(int i=0;i<_width*_height;i++) group2[i] = -1;
+		for(int i=0;i<_width*_height;i++) {
+			if(i%_width>0 && i%_width<_width-1 && i/_width>0 && i/_width<_height-1){
 				int gr=-1;
 				boolean check = true;
 				if(group[i-1]!=-1){gr = group[i-1];}
 				if(group[i+1]!=-1){check &= (gr==-1||group[i+1]==gr); gr = group[i+1];}
-				if(group[i-w]!=-1){check &= (gr==-1||group[i-w]==gr);gr = group[i-w];}
-				if(group[i+w]!=-1){check &= (gr==-1||group[i+w]==gr);gr = group[i+w];}
+				if(group[i-_width]!=-1){check &= (gr==-1||group[i-_width]==gr);gr = group[i-_width];}
+				if(group[i+_width]!=-1){check &= (gr==-1||group[i+_width]==gr);gr = group[i+_width];}
 				if(check) group2[i] = gr;
 			}
 		}
-		for(int i=0;i<w*h;i++){
-			if(group2[i] != -1 && (group2[i-1]==-1 || group2[i-1]==group2[i]) && (group2[i+1]==-1 || group2[i+1]==group2[i]) && (group2[i-w]==-1 || group2[i-w]==group2[i]) && (group2[i+w]==-1 || group2[i+w]==group2[i])){
+		for(int i=0;i<_width*_height;i++){
+			if(group2[i] != -1 && (group2[i-1]==-1 || group2[i-1]==group2[i]) && (group2[i+1]==-1 || group2[i+1]==group2[i]) && (group2[i-_width]==-1 || group2[i-_width]==group2[i]) && (group2[i+_width]==-1 || group2[i+_width]==group2[i])){
 				biimage[i] = 0;
 			}
 		}
@@ -805,29 +836,29 @@ class CellImage {
     //edgeを探す
     /////////////////////////////////////////////////////////////////////////////////////
 	public void edge(int[] image,int[] oriimage) {
-		int[] image2 = new int[size];
+		int[] image2 = new int[_size];
 		Vector[] vec = label(image,0,200,true);//２００以上の塊を細胞とみなす
 		Vector[] vec2 = new Vector[vec.length];
 		cell = new Cell[vec.length];
-		pixeltocell = new int[size];
-		pixeltocell2 = new int[size];
-		for(int i=0;i<size;i++) {
+		pixeltocell = new int[_size];
+		pixeltocell2 = new int[_size];
+		for(int i=0;i<_size;i++) {
 			pixeltocell[i] = -1;
 			pixeltocell2[i] = -1;
 		}
 		for(int i=0;i<vec.length;i++) {
-			cell[i] = new Cell(w,h,startid+i);
+			cell[i] = new Cell(_width,_height,startid+i);
 			cell[i].setGroup(1);
 			for(int j=0;j<vec[i].size();j++) {
 				int p=((Integer)vec[i].get(j)).intValue();
 				pixeltocell[p]=i;
-				if(image[p-w] == 0 && image[p-1] == 0 && image[p+1] == 0 && image[p+w] == 0) { //vecには細胞の部分のうちふちだけを記憶
+				if(image[p-_width] == 0 && image[p-1] == 0 && image[p+1] == 0 && image[p+_width] == 0) { //vecには細胞の部分のうちふちだけを記憶
 					vec[i].remove(j);
 					j--;
 				}
 			}
 		}
-		for(int i=0;i<size;i++) {
+		for(int i=0;i<_size;i++) {
 			image[i] = 255;
 		}
 		for(int i=0;i<vec.length;i++) { //imageを細胞のふち部分だけ黒で残りが白となるようにセット
@@ -838,8 +869,8 @@ class CellImage {
 		for(int i=0;i<vec.length;i++) {//細胞内部（輪郭より内側）に接していないものはすてる
 			for(int j=0;j<vec[i].size();j++) {
 				int p=((Integer)vec[i].get(j)).intValue();
-				if((image[p-w] == 0 || pixeltocell[p-w] != i) && (image[p-1] == 0 || pixeltocell[p-1] != i) &&
-				   (image[p+1] == 0 || pixeltocell[p+1] != i) && (image[p+w] == 0 || pixeltocell[p+w] != i)) {
+				if((image[p-_width] == 0 || pixeltocell[p-_width] != i) && (image[p-1] == 0 || pixeltocell[p-1] != i) &&
+				   (image[p+1] == 0 || pixeltocell[p+1] != i) && (image[p+_width] == 0 || pixeltocell[p+_width] != i)) {
 					vec[i].remove(j);
 					j--;
 					image[p] = 255;
@@ -847,7 +878,7 @@ class CellImage {
 				}
 			}
 		}
-		for(int j=0;j<size;j++) {
+		for(int j=0;j<_size;j++) {
 			pixeltocell2[j] = pixeltocell[j];
 			image2[j] = image[j];
 		}
@@ -859,13 +890,13 @@ class CellImage {
 			}
 		}
 		edgecorrect1(vec,image,oriimage);
-		for(int i=0;i<size;i++) {
+		for(int i=0;i<_size;i++) {
 			if(pixeltocell[i] != -1){
 				cell[pixeltocell[i]].cover.add(new Integer(i));
 			}
 		}
-		boolean[] check = new boolean[size];
-		for(int i=0;i<size;i++) {
+		boolean[] check = new boolean[_size];
+		for(int i=0;i<_size;i++) {
 			check[i] = true;
 		}
 		for(int i=0;i<cell.length;i++) {
@@ -908,12 +939,12 @@ class CellImage {
 			}
 		}
 		edgecorrect2(vec2,image2,oriimage);
-		for(int i=0;i<size;i++) {
+		for(int i=0;i<_size;i++) {
 			if(pixeltocell2[i] != -1){
 				cell[pixeltocell2[i]].cover_2.add(new Integer(i));
 			}
 		}
-		for(int i=0;i<size;i++) {
+		for(int i=0;i<_size;i++) {
 			check[i] = true;
 		}
 		for(int i=0;i<cell.length;i++) {
@@ -941,33 +972,33 @@ class CellImage {
                 return true;
             }
         }
-        if(grey[p-w] == 0 && pixeltocell[p-w] == i && check[p-w]) {
-            if(nextpoint(grey,i,p-w,check,start)) {
+        if(grey[p-_width] == 0 && pixeltocell[p-_width] == i && check[p-_width]) {
+            if(nextpoint(grey,i,p-_width,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w] == 0 && pixeltocell[p+w] == i && check[p+w]) {
-            if(nextpoint(grey,i,p+w,check,start)) {
+        if(grey[p+_width] == 0 && pixeltocell[p+_width] == i && check[p+_width]) {
+            if(nextpoint(grey,i,p+_width,check,start)) {
                 return true;
             }
         }
-        if(grey[p-w-1] == 0 && pixeltocell[p-w-1] == i && check[p-w-1]) {
-            if(nextpoint(grey,i,p-w-1,check,start)) {
+        if(grey[p-_width-1] == 0 && pixeltocell[p-_width-1] == i && check[p-_width-1]) {
+            if(nextpoint(grey,i,p-_width-1,check,start)) {
                 return true;
             }
         }
-        if(grey[p-w+1] == 0 && pixeltocell[p-w+1] == i && check[p-w+1]) {
-            if(nextpoint(grey,i,p-w+1,check,start)) {
+        if(grey[p-_width+1] == 0 && pixeltocell[p-_width+1] == i && check[p-_width+1]) {
+            if(nextpoint(grey,i,p-_width+1,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w-1] == 0 && pixeltocell[p+w-1] == i && check[p+w-1]) {
-            if(nextpoint(grey,i,p+w-1,check,start)) {
+        if(grey[p+_width-1] == 0 && pixeltocell[p+_width-1] == i && check[p+_width-1]) {
+            if(nextpoint(grey,i,p+_width-1,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w+1] == 0 && pixeltocell[p+w+1] == i && check[p+w+1]) {
-            if(nextpoint(grey,i,p+w+1,check,start)) {
+        if(grey[p+_width+1] == 0 && pixeltocell[p+_width+1] == i && check[p+_width+1]) {
+            if(nextpoint(grey,i,p+_width+1,check,start)) {
                 return true;
             }
         }
@@ -992,33 +1023,33 @@ class CellImage {
                 return true;
             }
         }
-        if(grey[p-w] == 0 && pixeltocell2[p-w] == i && check[p-w]) {
-            if(nextpoint2(grey,i,p-w,check,start)) {
+        if(grey[p-_width] == 0 && pixeltocell2[p-_width] == i && check[p-_width]) {
+            if(nextpoint2(grey,i,p-_width,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w] == 0 && pixeltocell2[p+w] == i && check[p+w]) {
-            if(nextpoint2(grey,i,p+w,check,start)) {
+        if(grey[p+_width] == 0 && pixeltocell2[p+_width] == i && check[p+_width]) {
+            if(nextpoint2(grey,i,p+_width,check,start)) {
                 return true;
             }
         }
-        if(grey[p-w-1] == 0 && pixeltocell2[p-w-1] == i && check[p-w-1]) {
-            if(nextpoint2(grey,i,p-w-1,check,start)) {
+        if(grey[p-_width-1] == 0 && pixeltocell2[p-_width-1] == i && check[p-_width-1]) {
+            if(nextpoint2(grey,i,p-_width-1,check,start)) {
                 return true;
             }
         }
-        if(grey[p-w+1] == 0 && pixeltocell2[p-w+1] == i && check[p-w+1]) {
-            if(nextpoint2(grey,i,p-w+1,check,start)) {
+        if(grey[p-_width+1] == 0 && pixeltocell2[p-_width+1] == i && check[p-_width+1]) {
+            if(nextpoint2(grey,i,p-_width+1,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w-1] == 0 && pixeltocell2[p+w-1] == i && check[p+w-1]) {
-            if(nextpoint2(grey,i,p+w-1,check,start)) {
+        if(grey[p+_width-1] == 0 && pixeltocell2[p+_width-1] == i && check[p+_width-1]) {
+            if(nextpoint2(grey,i,p+_width-1,check,start)) {
                 return true;
             }
         }
-        if(grey[p+w+1] == 0 && pixeltocell2[p+w+1] == i && check[p+w+1]) {
-            if(nextpoint2(grey,i,p+w+1,check,start)) {
+        if(grey[p+_width+1] == 0 && pixeltocell2[p+_width+1] == i && check[p+_width+1]) {
+            if(nextpoint2(grey,i,p+_width+1,check,start)) {
                 return true;
             }
         }
@@ -1033,7 +1064,7 @@ class CellImage {
     //隣り合う点ならtrue
     ///////////////////////////////////////////////////////////////////////////////
     public boolean nextTo(int p,int q) {
-        if(p == q-w-1 || p == q-w || p == q-w+1 || p == q-1 || p == q+1 || p == q+w-1 || p == q+w || p == q+w+1) return true;
+        if(p == q-_width-1 || p == q-_width || p == q-_width+1 || p == q-1 || p == q+1 || p == q+_width-1 || p == q+_width || p == q+_width+1) return true;
         else return false;
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -1043,7 +1074,7 @@ class CellImage {
 		int counter;
 		int brightness;
 		int x,n,m,k,flag,flag2,ori,mopoint;
-		boolean[] move = new boolean[size];
+		boolean[] move = new boolean[_size];
 		for(int i=0;i<vec.length;i++) {
 			int j=0;
 			ori=vec[i].size();
@@ -1054,7 +1085,7 @@ class CellImage {
 				n = vec[i].size();
 				m = j;
 				mopoint = 0;
-				for(int a=0;a<size;a++) move[a] = false;
+				for(int a=0;a<_size;a++) move[a] = false;
 				while(j<n){
 					int p=((Integer)vec[i].get(j)).intValue();
 					counter=0;
@@ -1062,15 +1093,15 @@ class CellImage {
 					x=0;
 					if(pixeltocell[p-1] == i && image[p-1] == 255) x -= 1;
 					if(pixeltocell[p+1] == i && image[p+1] == 255) x += 1;
-					if(pixeltocell[p-w] == i && image[p-w] == 255) x -= w;
-					if(pixeltocell[p+w] == i && image[p+w] == 255) x += w;
+					if(pixeltocell[p-_width] == i && image[p-_width] == 255) x -= _width;
+					if(pixeltocell[p+_width] == i && image[p+_width] == 255) x += _width;
 					if(pixeltocell[p+x] == i && image[p+x] == 255) {
 						brightness = oriimage[p+x];
 					}
-					if(p+x*2 >= 0 && p+x*2 < size && pixeltocell[p+x*2] == i && image[p+x*2] == 255 && brightness < oriimage[p+x*2]) {
+					if(p+x*2 >= 0 && p+x*2 < _size && pixeltocell[p+x*2] == i && image[p+x*2] == 255 && brightness < oriimage[p+x*2]) {
 						brightness = oriimage[p+x*2];
 					}
-					if(p+x*3 >= 0 && p+x*3 < size && pixeltocell[p+x*3] == i && image[p+x*3] == 255 && brightness < oriimage[p+x*3]) {
+					if(p+x*3 >= 0 && p+x*3 < _size && pixeltocell[p+x*3] == i && image[p+x*3] == 255 && brightness < oriimage[p+x*3]) {
 						brightness = oriimage[p+x*3];
 					}
 					if(oriimage[p] < brightness){
@@ -1080,7 +1111,7 @@ class CellImage {
 				}
 				while(m<n){
 					int p=((Integer)vec[i].get(m)).intValue();
-					if(move[p] && (move[p-w-1] || move[p-w] || move[p-w+1] || move[p-1] || move[p+1] || move[p+w-1] || move[p+w] || move[p+w+1])){
+					if(move[p] && (move[p-_width-1] || move[p-_width] || move[p-_width+1] || move[p-1] || move[p+1] || move[p+_width-1] || move[p+_width] || move[p+_width+1])){
 						pixeltocell[p] = -1;
 						image[p] = 255;
 						vec[i].remove(m);
@@ -1096,13 +1127,13 @@ class CellImage {
 							image[p+1] = 0;
 							vec[i].add(new Integer(p+1));
 						}
-						if(pixeltocell[p-w] == i && image[p-w] == 255){
-							image[p-w] = 0;
-							vec[i].add(new Integer(p-w));
+						if(pixeltocell[p-_width] == i && image[p-_width] == 255){
+							image[p-_width] = 0;
+							vec[i].add(new Integer(p-_width));
 						}
-						if(pixeltocell[p+w] == i && image[p+w] == 255){
-							image[p+w] = 0;
-							vec[i].add(new Integer(p+w));
+						if(pixeltocell[p+_width] == i && image[p+_width] == 255){
+							image[p+_width] = 0;
+							vec[i].add(new Integer(p+_width));
 						}
 					}
 					m++;
@@ -1112,7 +1143,7 @@ class CellImage {
 					change = false;
 					for(k=0;k<vec[i].size();k++){
 						int p=((Integer)vec[i].get(k)).intValue();
-						if(!((pixeltocell[p-w] == i && image[p-w] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+w] == i && image[p+w] == 255)) && (vec[i].size() > 1)){
+						if(!((pixeltocell[p-_width] == i && image[p-_width] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+_width] == i && image[p+_width] == 255)) && (vec[i].size() > 1)){
 							image[p] = 255;
 							vec[i].remove(k);
 							pixeltocell[p] = -1;
@@ -1124,10 +1155,10 @@ class CellImage {
 						int p=((Integer)vec[i].get(k)).intValue();
 						int c=0;
 						x=0;
-						if(pixeltocell[p-w] == -1) c++;
-						else x=-w;
-						if(pixeltocell[p+w] == -1) c++;
-						else x=w;
+						if(pixeltocell[p-_width] == -1) c++;
+						else x=-_width;
+						if(pixeltocell[p+_width] == -1) c++;
+						else x=_width;
 						if(pixeltocell[p-1] == -1) c++;
 						else x=-1;
 						if(pixeltocell[p+1] == -1) c++;
@@ -1151,31 +1182,31 @@ class CellImage {
 			n=vec[i].size();
 			for(k=0;k<n;k++){
 				int p=((Integer)vec[i].get(k)).intValue();
-					if(p%w>1 && pixeltocell[p-1] == -1 && image[p-1] == 255){
+					if(p%_width>1 && pixeltocell[p-1] == -1 && image[p-1] == 255){
 						pixeltocell[p-1] = i;
 						image[p-1] = 0;
 						vec[i].add(new Integer(p-1));
 					}
-					if(p%w < w-1 && pixeltocell[p+1] == -1 && image[p+1] == 255){
+					if(p%_width < _width-1 && pixeltocell[p+1] == -1 && image[p+1] == 255){
 						pixeltocell[p+1] = i;
 						image[p+1] = 0;
 						vec[i].add(new Integer(p+1));
 					}
-					if(p-w >= w && pixeltocell[p-w] == -1 && image[p-w] == 255){
-						pixeltocell[p-w] = i;
-						image[p-w] = 0;
-						vec[i].add(new Integer(p-w));
+					if(p-_width >= _width && pixeltocell[p-_width] == -1 && image[p-_width] == 255){
+						pixeltocell[p-_width] = i;
+						image[p-_width] = 0;
+						vec[i].add(new Integer(p-_width));
 					}
-					if(p+w < size-w && pixeltocell[p+w] == -1 && image[p+w] == 255){
-						pixeltocell[p+w] = i;
-						image[p+w] = 0;
-						vec[i].add(new Integer(p+w));
+					if(p+_width < _size-_width && pixeltocell[p+_width] == -1 && image[p+_width] == 255){
+						pixeltocell[p+_width] = i;
+						image[p+_width] = 0;
+						vec[i].add(new Integer(p+_width));
 					}
 			}
 			for(k=0;k<vec[i].size();k++){
 				int p=((Integer)vec[i].get(k)).intValue();
-				if(p-w >= 0 && p+w < size){
-				if((pixeltocell[p-w] == i) && (pixeltocell[p-1] == i) && (pixeltocell[p+1] == i) && (pixeltocell[p+w] == i) && (vec[i].size() > 1)){
+				if(p-_width >= 0 && p+_width < _size){
+				if((pixeltocell[p-_width] == i) && (pixeltocell[p-1] == i) && (pixeltocell[p+1] == i) && (pixeltocell[p+_width] == i) && (vec[i].size() > 1)){
 					image[p] = 255;
 					vec[i].remove(k);
 					k--;
@@ -1184,8 +1215,8 @@ class CellImage {
 			}
 			for(k=0;k<vec[i].size();k++){
 				int p=((Integer)vec[i].get(k)).intValue();
-				if(p-w >= 0 && p+w < size){
-				if(!((pixeltocell[p-w] == i && image[p-w] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+w] == i && image[p+w] == 255)) && (vec[i].size() > 1)){
+				if(p-_width >= 0 && p+_width < _size){
+				if(!((pixeltocell[p-_width] == i && image[p-_width] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+_width] == i && image[p+_width] == 255)) && (vec[i].size() > 1)){
 					image[p] = 255;
 					vec[i].remove(k);
 					pixeltocell[p] = -1;
@@ -1200,14 +1231,14 @@ class CellImage {
 	public void edgecorrect2(Vector[] vec,int[] image,int[] oriimage) {
 	    int brightness1,brightness2;
 		int x,n,m,k,flag,ori;
-		boolean[] move = new boolean[size];
+		boolean[] move = new boolean[_size];
 		double counter2 = 0;//ぼやけ画像除去のためのカウンタ　澤井追加部分
 	    for(int i=0;i<vec.length;i++) {
 	    	int j=0;
 	        while(j<vec[i].size()) {
 	        	n = vec[i].size();
 	        	m = j;
-	        	for(int a=0;a<size;a++) move[a] = false;
+	        	for(int a=0;a<_size;a++) move[a] = false;
 	        	while(j<n){
 	                int p=((Integer)vec[i].get(j)).intValue();
 	    	    	brightness1=-1;
@@ -1216,10 +1247,10 @@ class CellImage {
 	        		int xx=1;
 	                if(pixeltocell2[p-1] == i && image[p-1] == 255) x -= 1;
 		            if(pixeltocell2[p+1] == i && image[p+1] == 255) x += 1;
-	    	        if(pixeltocell2[p-w] == i && image[p-w] == 255) x -= w;
-	        	    if(pixeltocell2[p+w] == i && image[p+w] == 255) x += w;
-	        	    if(p+x*2 >= 0 && p+x*2 < size && pixeltocell2[p+x*2] == i && image[p+x*2] == 255
-	        	    && p-x*2 >= 0 && p-x*2 < size && pixeltocell2[p-x*2] == -1 && image[p+x*2] == 255) {
+	    	        if(pixeltocell2[p-_width] == i && image[p-_width] == 255) x -= _width;
+	        	    if(pixeltocell2[p+_width] == i && image[p+_width] == 255) x += _width;
+	        	    if(p+x*2 >= 0 && p+x*2 < _size && pixeltocell2[p+x*2] == i && image[p+x*2] == 255
+	        	    && p-x*2 >= 0 && p-x*2 < _size && pixeltocell2[p-x*2] == -1 && image[p+x*2] == 255) {
 	        		    brightness1 = oriimage[p+x*2] - oriimage[p];
 	        	    	brightness2 = oriimage[p] - oriimage[p-x*2];
 	        	    	xx = 2;
@@ -1236,7 +1267,7 @@ class CellImage {
 	        	}
 	        	while(m<n){
 	        		int p=((Integer)vec[i].get(m)).intValue();
-	        		if(move[p] && (move[p-w-1] || move[p-w] || move[p-w+1] || move[p-1] || move[p+1] || move[p+w-1] || move[p+w] || move[p+w+1])){
+	        		if(move[p] && (move[p-_width-1] || move[p-_width] || move[p-_width+1] || move[p-1] || move[p+1] || move[p+_width-1] || move[p+_width] || move[p+_width+1])){
 	        			pixeltocell2[p] = -1;
 	        			image[p] = 255;
 	                	vec[i].remove(m);
@@ -1251,13 +1282,13 @@ class CellImage {
 	                		image[p+1] = 0;
 	                		vec[i].add(new Integer(p+1));
 	                	}
-	                	if(pixeltocell2[p-w] == i && image[p-w] == 255){
-	                		image[p-w] = 0;
-	                		vec[i].add(new Integer(p-w));
+	                	if(pixeltocell2[p-_width] == i && image[p-_width] == 255){
+	                		image[p-_width] = 0;
+	                		vec[i].add(new Integer(p-_width));
 	                	}
-	                	if(pixeltocell2[p+w] == i && image[p+w] == 255){
-	                		image[p+w] = 0;
-	                		vec[i].add(new Integer(p+w));
+	                	if(pixeltocell2[p+_width] == i && image[p+_width] == 255){
+	                		image[p+_width] = 0;
+	                		vec[i].add(new Integer(p+_width));
 	                	}
 	        		}
 	        		m++;
@@ -1267,7 +1298,7 @@ class CellImage {
 	        		change = false;
 	        		for(k=0;k<vec[i].size();k++){
 	        			int p=((Integer)vec[i].get(k)).intValue();
-	        			if(!((pixeltocell2[p-w] == i && image[p-w] == 255) || (pixeltocell2[p-1] == i && image[p-1] == 255) || (pixeltocell2[p+1] == i && image[p+1] == 255) || (pixeltocell2[p+w] == i && image[p+w] == 255)) && (vec[i].size() > 1)){
+	        			if(!((pixeltocell2[p-_width] == i && image[p-_width] == 255) || (pixeltocell2[p-1] == i && image[p-1] == 255) || (pixeltocell2[p+1] == i && image[p+1] == 255) || (pixeltocell2[p+_width] == i && image[p+_width] == 255)) && (vec[i].size() > 1)){
 	        				image[p] = 255;
 	        				vec[i].remove(k);
 	        				pixeltocell2[p] = -1;
@@ -1279,10 +1310,10 @@ class CellImage {
 	        			int p=((Integer)vec[i].get(k)).intValue();
 	        			int c=0;
 	        			x=0;
-	        			if(pixeltocell2[p-w] == -1) c++;
-	        			else x=-w;
-	        			if(pixeltocell2[p+w] == -1) c++;
-	        			else x=w;
+	        			if(pixeltocell2[p-_width] == -1) c++;
+	        			else x=-_width;
+	        			if(pixeltocell2[p+_width] == -1) c++;
+	        			else x=_width;
 	        			if(pixeltocell2[p-1] == -1) c++;
 	        			else x=-1;
 	        			if(pixeltocell2[p+1] == -1) c++;
@@ -1306,9 +1337,9 @@ class CellImage {
 				x=0;
 				if(pixeltocell2[p-1] != i && image[p-1] == 255) x -= 1;
 				if(pixeltocell2[p+1] != i && image[p+1] == 255) x += 1;
-				if(pixeltocell2[p-w] != i && image[p-w] == 255) x -= w;
-				if(pixeltocell2[p+w] != i && image[p+w] == 255) x += w;
-				if(p+x*2 >= 0 && p+x*2 < size && p-x >= 0 && p-x < size && oriimage[p] - oriimage[p+x*2] > oriimage[p-x] - oriimage[p+x]) counter += (double)(oriimage[p] - oriimage[p+x*2]) / (double)oriimage[p];
+				if(pixeltocell2[p-_width] != i && image[p-_width] == 255) x -= _width;
+				if(pixeltocell2[p+_width] != i && image[p+_width] == 255) x += _width;
+				if(p+x*2 >= 0 && p+x*2 < _size && p-x >= 0 && p-x < _size && oriimage[p] - oriimage[p+x*2] > oriimage[p-x] - oriimage[p+x]) counter += (double)(oriimage[p] - oriimage[p+x*2]) / (double)oriimage[p];
 				else counter += (double)(oriimage[p-x] - oriimage[p+x]) / (double)oriimage[p-x];
 			}
 			counter /= (double)vec[i].size();
@@ -1341,7 +1372,7 @@ class CellImage {
                 while(true) {
 					if(cell[i].budcrush == 2 || cell[i].edge.size() < 10) {
 						cell[i].budcrush = 0;
-						for(int j=0;j<size;j++){
+						for(int j=0;j<_size;j++){
 							if(pixeltocell2[j]==i) pixeltocell[j]=i;
 							if(pixeltocell[j] ==i && pixeltocell2[j] == -1) pixeltocell[j] = -1;
 						}
@@ -1355,7 +1386,7 @@ class CellImage {
                         int p=((Integer)cell[i].edge.get(j)).intValue();
                         for(int x=-scorerad;x<=scorerad;x++) {//半径scorerad以内の細胞内pixelのカウント
                             for(int y=-scorerad;y<=scorerad;y++) {
-                                if(Math.sqrt(x*x+y*y) <= scorerad && p+y*w+x >= 0 && p+y*w+x < size && pixeltocell[p+y*w+x] == i) scoretmp[j]++;
+                                if(Math.sqrt(x*x+y*y) <= scorerad && p+y*_width+x >= 0 && p+y*_width+x < _size && pixeltocell[p+y*_width+x] == i) scoretmp[j]++;
                             }
                         }
                     }
@@ -1386,7 +1417,7 @@ class CellImage {
                     }
                     if(neck.size() < 2 && cell[i].budcrush == 1) {
                         cell[i].budcrush = 0;
-                        for(int j=0;j<size;j++){
+                        for(int j=0;j<_size;j++){
                             if(pixeltocell2[j]==i) pixeltocell[j]=i;
                             if(pixeltocell[j] ==i && pixeltocell2[j] == -1) pixeltocell[j] = -1;
                         }
@@ -1552,7 +1583,7 @@ class CellImage {
                             neck = tmp;
                             int n = ((Integer)neck.get(0)).intValue();
                             int np = ((Integer)cell[i].edge.get((n+jj+es)%es)).intValue();
-                            double mind = w*h;
+                            double mind = _width*_height;
                             int minj = 0;
                             //int nigrad = 10;
                             flag_tmp = false;
@@ -1560,7 +1591,7 @@ class CellImage {
                             for(int j=0;j<cell[i].edge.size();j++) {
                                 int p = ((Integer)cell[i].edge.get((n+j+jj+es)%es)).intValue();
                                 prev_d = d;
-                                d = Point2D.distance(np%w,np/w,p%w,p/w);
+                                d = Point2D.distance(np%_width,np/_width,p%_width,p/_width);
                                 if(flag_tmp) {
                                     if(prev_d < d) {
                                         if(mind > d) {
@@ -1647,16 +1678,16 @@ class CellImage {
     //２点間に直線を引いたときの塗られるピクセルをvectorにいれて返す
     //////////////////////////////////////////////////////////////////////////////
     public Vector getLinePixel(int s,int g) {
-        int dx = g%w-s%w;
-        int dy = g/w-s/w;
+        int dx = g%_width-s%_width;
+        int dy = g/_width-s/_width;
         int x,x_,y,y_,plusx,plusy,c1,c2,d;
         Vector line = new Vector();
         
         if(Math.abs(dx) >= Math.abs(dy)) {
             if(dx >= 0) {//始点と方向を決める
-                x = s%w;
-                x_ = g%w;
-                y = s/w;
+                x = s%_width;
+                x_ = g%_width;
+                y = s/_width;
                 if(dy >= 0) {//
                     plusy = 1;
                 } else {
@@ -1664,9 +1695,9 @@ class CellImage {
                     dy = -dy;
                 }
             } else {
-                x = g%w;
-                x_ = s%w;
-                y = g/w;
+                x = g%_width;
+                x_ = s%_width;
+                y = g/_width;
                 dx = -dx;
                 if(dy >= 0) {//
                     plusy = -1;
@@ -1678,7 +1709,7 @@ class CellImage {
             d = 2*dy-dx;
             c1 = 2*(dy-dx);
             c2 = 2*dy;
-            line.add(new Integer(y*w+x));
+            line.add(new Integer(y*_width+x));
             for(int i=x+1;i<=x_;i++) {
                 if(d > 0) {
                     y += plusy;
@@ -1686,13 +1717,13 @@ class CellImage {
                 } else {
                     d += c2;
                 }
-                line.add(new Integer(y*w+i));
+                line.add(new Integer(y*_width+i));
             }
         } else {
             if(dy >= 0) {//始点と方向を決める
-                y = s/w;
-                y_ = g/w;
-                x = s%w;
+                y = s/_width;
+                y_ = g/_width;
+                x = s%_width;
                 if(dx >= 0) {
                     plusx = 1;
                 } else {
@@ -1700,9 +1731,9 @@ class CellImage {
                     dx = -dx;
                 }
             } else {//goal、start入れ替え
-                y = g/w;
-                y_ = s/w;
-                x = g%w;
+                y = g/_width;
+                y_ = s/_width;
+                x = g%_width;
                 dy = -dy;
                 if(dx >= 0) {
                     plusx = -1;
@@ -1714,7 +1745,7 @@ class CellImage {
             d = 2*dx-dy;
             c1 = 2*(dx-dy);
             c2 = 2*dx;
-            line.add(new Integer(y*w+x));
+            line.add(new Integer(y*_width+x));
             for(int i=y+1;i<=y_;i++) {
                 if(d > 0) {
                     x += plusx;
@@ -1722,7 +1753,7 @@ class CellImage {
                 } else {
                     d += c2;
                 }
-                line.add(new Integer(i*w+x));
+                line.add(new Integer(i*_width+x));
             }
         }
         return line;
@@ -1731,27 +1762,27 @@ class CellImage {
     //芽の領域のピクセルを入れたVectorを返す
     //////////////////////////////////////////////////////////////////////////////
     public Vector getAreainBud(int c,Vector n,Vector m,Vector b) {
-        int top=h,bottom=0,left=w,right=0;//coverする長方形
+        int top=_height,bottom=0,left=_width,right=0;//coverする長方形
         for(int i=0;i<m.size();i++) {
             int p = ((Integer)m.get(i)).intValue();
-            if(top > p/w) top = p/w;
-            if(bottom < p/w) bottom = p/w;
-            if(left > p%w) left = p%w;
-            if(right < p%w) right = p%w;
+            if(top > p/_width) top = p/_width;
+            if(bottom < p/_width) bottom = p/_width;
+            if(left > p%_width) left = p%_width;
+            if(right < p%_width) right = p%_width;
         }
         for(int i=0;i<b.size();i++) {
             int p = ((Integer)b.get(i)).intValue();
-            if(top > p/w) top = p/w;
-            if(bottom < p/w) bottom = p/w;
-            if(left > p%w) left = p%w;
-            if(right < p%w) right = p%w;
+            if(top > p/_width) top = p/_width;
+            if(bottom < p/_width) bottom = p/_width;
+            if(left > p%_width) left = p%_width;
+            if(right < p%_width) right = p%_width;
         }
         for(int i=0;i<n.size();i++) {
             int p = ((Integer)n.get(i)).intValue();
-            if(top > p/w) top = p/w;
-            if(bottom < p/w) bottom = p/w;
-            if(left > p%w) left = p%w;
-            if(right < p%w) right = p%w;
+            if(top > p/_width) top = p/_width;
+            if(bottom < p/_width) bottom = p/_width;
+            if(left > p%_width) left = p%_width;
+            if(right < p%_width) right = p%_width;
         }
         int wid = right-left+3;
         int hei = bottom-top+3;
@@ -1765,14 +1796,14 @@ class CellImage {
         //neck、bud_edgeで囲んだ領域を作る
         for(int i=0;i<b.size();i++) {
             int p = ((Integer)b.get(i)).intValue();
-            int x = p%w-left;
-            int y = p/w-top;
+            int x = p%_width-left;
+            int y = p/_width-top;
             greytemp[y*wid+x+1+wid] = 0;//小さいほうの座標
         }
         for(int i=0;i<n.size();i++) {
             int p = ((Integer)n.get(i)).intValue();
-            int x = p%w-left;
-            int y = p/w-top;
+            int x = p%_width-left;
+            int y = p/_width-top;
             greytemp[y*wid+x+1+wid] = 0;//小さいほうの座標
         }
         Vector[] vec = label(greytemp,255,0,false,wid,hei);//小さいほうでラベル付け
@@ -1789,15 +1820,15 @@ class CellImage {
                 if(cell[c].cover.size()/2 >= vec[1].size()+b.size()) {//芽の領域確定
                     for(int i=0;i<cell[c].cover.size();i++) {
                         int p = ((Integer)cell[c].cover.get(i)).intValue();
-                        int x = p%w-left;
-                        int y = p/w-top;
+                        int x = p%_width-left;
+                        int y = p/_width-top;
                         if(y*wid+x+1+wid>=0 &&y*wid+x+1+wid < wid*hei) greytemp[y*wid+x+1+wid] = 0;//あとで修正・・・
                     }
                     for(int i=0;i<vec[1].size();i++) {
                         int p = ((Integer)vec[1].get(i)).intValue();//座標を戻す
                         int x = p%wid-1+left;
                         int y = p/wid-1+top;
-                        if(greytemp[p] == 0) ba.add(new Integer(y*w+x));
+                        if(greytemp[p] == 0) ba.add(new Integer(y*_width+x));
                     }
                     for(int i=0;i<b.size();i++) {//芽の輪郭部分も加える
                         int p = ((Integer)b.get(i)).intValue();
@@ -1810,8 +1841,8 @@ class CellImage {
                     }
                     for(int i=0;i<cell[c].cover.size();i++) {//cover領域でbudにされなかったものをいれる
                         int p = ((Integer)cell[c].cover.get(i)).intValue();
-                        int x = p%w-left;
-                        int y = p/w-top;
+                        int x = p%_width-left;
+                        int y = p/_width-top;
                         if(greytemp[y*wid+x+1+wid] == 255) ba.add(new Integer(p));
                     }
                     flag_tmp = true;
@@ -1820,15 +1851,15 @@ class CellImage {
                 if(cell[c].cover.size()/2 >= vec[0].size()+b.size()) {//芽の領域確定
                     for(int i=0;i<cell[c].cover.size();i++) {
                         int p = ((Integer)cell[c].cover.get(i)).intValue();
-                        int x = p%w-left;
-                        int y = p/w-top;
+                        int x = p%_width-left;
+                        int y = p/_width-top;
                         if(y*wid+x+1+wid > 0 && y*wid+x+1+wid < wid*hei) greytemp[y*wid+x+1+wid] = 0;
                     }
                     for(int i=0;i<vec[0].size();i++) {
                         int p = ((Integer)vec[0].get(i)).intValue();//座標を戻す
                         int x = p%wid-1+left;
                         int y = p%hei-1+top;
-                        if(greytemp[p] == 0) ba.add(new Integer(y*w+x));
+                        if(greytemp[p] == 0) ba.add(new Integer(y*_width+x));
                     }
                     for(int i=0;i<b.size();i++) {//芽の輪郭部分も加える
                         int p = ((Integer)b.get(i)).intValue();
@@ -1841,8 +1872,8 @@ class CellImage {
                     }
                     for(int i=0;i<cell[c].cover.size();i++) {//cover領域でbudにされなかったものをいれる
                         int p = ((Integer)cell[c].cover.get(i)).intValue();
-                        int x = p%w-left;
-                        int y = p/w-top;
+                        int x = p%_width-left;
+                        int y = p/_width-top;
                         if(greytemp[y*wid+x+1+wid] == 255) ba.add(new Integer(p));
                     }
                     flag_tmp = true;
@@ -1857,8 +1888,8 @@ class CellImage {
             if(cell[c].cover.size()/2 >= v+b.size()) {//芽の領域確定
                 for(int i=0;i<cell[c].cover.size();i++) {
                     int p = ((Integer)cell[c].cover.get(i)).intValue();
-                    int x = p%w-left;
-                    int y = p/w-top;
+                    int x = p%_width-left;
+                    int y = p/_width-top;
                     if(y*wid+x+1+wid > 0 && y*wid+x+1+wid < wid*hei) greytemp[y*wid+x+1+wid] = 0;//あとで修正いるかも・・・
                 }
                 for(int j=1;j<vec.length;j++) {
@@ -1866,7 +1897,7 @@ class CellImage {
                         int p = ((Integer)vec[j].get(i)).intValue();//座標を戻す
                         int x = p%wid-1+left;
                         int y = p/wid-1+top;
-                        if(greytemp[p] == 0) ba.add(new Integer(y*w+x));
+                        if(greytemp[p] == 0) ba.add(new Integer(y*_width+x));
                     }
                 }
                 for(int i=0;i<b.size();i++) {//芽の輪郭部分も加える
@@ -1882,8 +1913,8 @@ class CellImage {
                 }
                 for(int i=0;i<cell[c].cover.size();i++) {//cover領域でbudにされなかったものをいれる
                     int p = ((Integer)cell[c].cover.get(i)).intValue();
-                    int x = p%w-left;
-                    int y = p/w-top;
+                    int x = p%_width-left;
+                    int y = p/_width-top;
                     if(greytemp[y*wid+x+1+wid] == 255) ba.add(new Integer(p));
                 }
                 flag_tmp = true;
@@ -1925,8 +1956,8 @@ class CellImage {
 	//細胞壁の厚さの最高点、最低点を探す
 	//////////////////////////////////////////////////////////////////////////////
 	public void serchwidepoint(int[] CIm){
-		int image[] = new int[size];
-		for(int i=0;i<size;i++) image[i] = 255;
+		int image[] = new int[_size];
+		for(int i=0;i<_size;i++) image[i] = 255;
 		for(int i=0;i<cell.length;i++){
 			for(int j=0;j<cell[i].edge.size();j++){
 				int p=((Integer)cell[i].edge.get(j)).intValue();
@@ -1942,17 +1973,17 @@ class CellImage {
 				if(cell[i].getGroup() > 1){
 					int q1 = cell[i].neck[0];
 					int q2 = cell[i].neck[1];
-					if((Math.abs(p-q1)%w<=2 && Math.abs(p-q1)/w<=2) || (Math.abs(p-q2)%w<=2 && Math.abs(p-q2)/w<=2)) {width[j]=-1;continue;}
+					if((Math.abs(p-q1)%_width<=2 && Math.abs(p-q1)/_width<=2) || (Math.abs(p-q2)%_width<=2 && Math.abs(p-q2)/_width<=2)) {width[j]=-1;continue;}
 				}
 				int brightness1=-1;
 				int brightness2=0;
 				int x=0;
 				if(pixeltocell[p-1] == i && image[p-1] == 255) x -= 1;
 				if(pixeltocell[p+1] == i && image[p+1] == 255) x += 1;
-				if(pixeltocell[p-w] == i && image[p-w] == 255) x -= w;
-				if(pixeltocell[p+w] == i && image[p+w] == 255) x += w;
+				if(pixeltocell[p-_width] == i && image[p-_width] == 255) x -= _width;
+				if(pixeltocell[p+_width] == i && image[p+_width] == 255) x += _width;
 				double count = 0;
-				while(p+x*2>=0 && p+x*2<size && p%w < (p+x*2)%w + 2 && p%w > (p+x*2)%w - 2){
+				while(p+x*2>=0 && p+x*2<_size && p%_width < (p+x*2)%_width + 2 && p%_width > (p+x*2)%_width - 2){
 					brightness1 = CIm[p+x*2] - CIm[p+x];
 					brightness2 = CIm[p+x] - CIm[p];
 					if(CIm[p]<CIm[p+x] || brightness1 < brightness2){
@@ -1961,7 +1992,7 @@ class CellImage {
 					else break;
 					p+=x;
 				}
-				if(!(x==1 || x==-1 || x==w || x==-w)) count*=1.4;
+				if(!(x==1 || x==-1 || x==_width || x==-_width)) count*=1.4;
 				width[j] = count;
 			}
 			for(int j=0;j<cell[i].edge.size();j++){
@@ -2008,13 +2039,13 @@ class CellImage {
     //画像の出力
     /////////////////////////////////////////////////////////////////////////////
     public void outCImage() {
-        int[] pixel = new int[size];
-        for(int i=0;i<size;i++) {
-            pixel[i] = 0xff000000 | (CImage[i] << 16) | (CImage[i] << 8) | CImage[i];
+        int[] pixel = new int[_size];
+        for(int i=0;i<_size;i++) {
+            pixel[i] = 0xff000000 | (_cell_points[i] << 16) | (_cell_points[i] << 8) | _cell_points[i];
         }
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image im = toolkit.createImage(new MemoryImageSource(w,h,pixel,0,w));
-        BufferedImage bi = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Image im = toolkit.createImage(new MemoryImageSource(_width,_height,pixel,0,_width));
+        BufferedImage bi = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
         g.setColor(Color.red);
         while(!g.drawImage(im,0,0,null)){}
@@ -2029,17 +2060,17 @@ class CellImage {
     //少しずれていたら直してfalse
     /////////////////////////////////////////////////////////////////////////////
     public boolean isDifferentDImage() {
-        int[] ci_tmp = (int[])CImage.clone();
+        int[] ci_tmp = (int[])_cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ci_tmp[i] == 0) countcarea++;
         }
         int[] hg = new int[256];
         for(int i=0;i<256;i++) {
             hg[i] = 0;
         }
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(di[i] < 256 && di[i] >= 0) hg[di[i]]++;
             else {
             	err_kind = "incorrect colorspace of dapi image";
@@ -2051,7 +2082,7 @@ class CellImage {
             countdarea += hg[i];
             if(countdarea > countcarea) {
             	countdarea-=hg[i];
-                for(int j=0;j<size;j++) {
+                for(int j=0;j<_size;j++) {
                     if(di[j] >= i+1) di[j] = 0;
                     else di[j] = 255;
                 }
@@ -2069,7 +2100,7 @@ class CellImage {
         	}
         }
         int count=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(di[i] == 0) {
                 if(ci_tmp[i] == 255) {//セル領域の外のものがあれば
                     count++;
@@ -2080,9 +2111,9 @@ class CellImage {
         	return true;
         }
         int countdiff=0;
-      for(int i=0;i<size;i++) {
+      for(int i=0;i<_size;i++) {
             if(di[i] == 0) {//アクチン領域で
-                if(i%w < k || ci_tmp[i-k] == 255) {//k個左にずらしてセル領域の外のものがあれば
+                if(i%_width < k || ci_tmp[i-k] == 255) {//k個左にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2092,9 +2123,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(di[i] == 0) {
-                if(i%w >= w-k || ci_tmp[i+k] == 255) {//k個右にずらしてセル領域の外のものがあれば
+                if(i%_width >= _width-k || ci_tmp[i+k] == 255) {//k個右にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2104,9 +2135,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(di[i] == 0) {
-                if(i/w < k || ci_tmp[i-k*w] == 255) {//k個上にずらしてセル領域の外のものがあれば
+                if(i/_width < k || ci_tmp[i-k*_width] == 255) {//k個上にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2116,9 +2147,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(di[i] == 0) {
-                if(i/w >= h-k || ci_tmp[i+k*w] == 255) {//k個下にずらしてセル領域の外のものがあれば
+                if(i/_width >= _height-k || ci_tmp[i+k*_width] == 255) {//k個下にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2128,13 +2159,13 @@ class CellImage {
             return true;
         }
         //以下大きくずれてない場合少し修正
-        int[] dep = new int[size];
+        int[] dep = new int[_size];
         cover(di);
         Vector[] vec = label(di,0,20,true);
         k=0;
         int mink=0;
         Vector[] partedge = new Vector[4];
-        boolean[] pixelofactin = new boolean[size];
+        boolean[] pixelofactin = new boolean[_size];
         for(int i=0;i<4;i++) partedge[i] = new Vector();
         for(int i=0;i<cell.length;i++)
         {
@@ -2143,11 +2174,11 @@ class CellImage {
 				int p = ((Integer)cell[i].cover.elementAt(j)).intValue();
 				if(pixeltocell[p-1] < 0) partedge[0].add(new Integer(p));
 				if(pixeltocell[p+1] < 0) partedge[1].add(new Integer(p));
-				if(pixeltocell[p-w] < 0) partedge[2].add(new Integer(p));
-				if(pixeltocell[p+w] < 0) partedge[3].add(new Integer(p));
+				if(pixeltocell[p-_width] < 0) partedge[2].add(new Integer(p));
+				if(pixeltocell[p+_width] < 0) partedge[3].add(new Integer(p));
         	}
         }
-        for(int i=0;i<size;i++) pixelofactin[i] = false;
+        for(int i=0;i<_size;i++) pixelofactin[i] = false;
 		for(int i=0;i<vec.length;i++) {
 			for(int j=0;j<vec[i].size();j++) {
 				pixelofactin[((Integer)vec[i].elementAt(j)).intValue()] = true;
@@ -2162,8 +2193,8 @@ class CellImage {
                 if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i;j++) {
-				value = countOutActin2(partedge[2],partedge[3],pixelofactin,value,k,k-w);
-				k -= w;
+				value = countOutActin2(partedge[2],partedge[3],pixelofactin,value,k,k-_width);
+				k -= _width;
 				if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i+1;j++) {
@@ -2172,8 +2203,8 @@ class CellImage {
 				if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i+1;j++) {
-				value = countOutActin2(partedge[3],partedge[2],pixelofactin,value,k,k+w);
-				k += w;
+				value = countOutActin2(partedge[3],partedge[2],pixelofactin,value,k,k+_width);
+				k += _width;
 				if(min > value) {min = value;mink = k;}
             }
         }
@@ -2189,7 +2220,7 @@ class CellImage {
         for(int i=0;i<v.length;i++) {
             for(int j=0;j<v[i].size();j++) {
                 int p = ((Integer)v[i].elementAt(j)).intValue()+diff;
-                if(p < 0 || p>=size || pixeltocell[p] < 0) count++;
+                if(p < 0 || p>=_size || pixeltocell[p] < 0) count++;
             }
         }
         //System.out.println(count);
@@ -2200,12 +2231,12 @@ class CellImage {
     	for(int i=0;i<partedge1.size();i++)
     	{
 			int p = ((Integer)partedge1.elementAt(i)).intValue()-prediff;
-			if(p >= 0 && p < size && pixelofactin[p]) previous++;
+			if(p >= 0 && p < _size && pixelofactin[p]) previous++;
     	}    		
 		for(int i=0;i<partedge2.size();i++)
 		{
 			int p = ((Integer)partedge2.elementAt(i)).intValue()-diff;
-			if(p >= 0 && p < size && pixelofactin[p]) previous--;
+			if(p >= 0 && p < _size && pixelofactin[p]) previous--;
 		}
 		return previous;
     }
@@ -2213,23 +2244,23 @@ class CellImage {
     //imageをcell.coverの範囲で２値化,diffのずれがある
     ///////////////////////////////////////////////////////////////////////////////
     public void rethresh(int[] image,int[] oriimage,int diff) {
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             image[i] = 255;
         }
-        int diffx = diff % w;
-        if(diffx >= w/2) diffx -= w;
-        else if(diffx <= -w/2) diffx += w;
+        int diffx = diff % _width;
+        if(diffx >= _width/2) diffx -= _width;
+        else if(diffx <= -_width/2) diffx += _width;
         for(int i=0;i<cell.length;i++) {
             int[] cellarea=new int[cell[i].cover.size()];
             for(int j=0;j<cell[i].cover.size();j++) {
                 int p=((Integer)cell[i].cover.get(j)).intValue()-diff;
-                if(p<size && p>=0 && p/w==(p+diffx)/w) cellarea[j] = oriimage[p];
+                if(p<_size && p>=0 && p/_width==(p+diffx)/_width) cellarea[j] = oriimage[p];
                 else cellarea[j] = 0;
             }
             blockthreshold(cellarea);
             for(int j=0;j<cell[i].cover.size();j++) {
                 int p=((Integer)cell[i].cover.get(j)).intValue()-diff;
-                if(p<size && p>=0 && p/w==(p+diffx)/w) image[p] = cellarea[j];
+                if(p<_size && p>=0 && p/_width==(p+diffx)/_width) image[p] = cellarea[j];
             }
         }
     }
@@ -2309,15 +2340,15 @@ class CellImage {
 						r *= k;
 						d += k;
 					}
-					pointx += pconA%w;
-					pointy += pconA/w;
+					pointx += pconA%_width;
+					pointy += pconA/_width;
 					s++;
-					if(DImage[pdapi]>maxbr) maxbr = DImage[pdapi];
+					if(_nucleus_points[pdapi]>maxbr) maxbr = _nucleus_points[pdapi];
 				}
 			}
 			pointx /= s;
 			pointy /= s;
-			if(maxbr > 30) mpoint[i] = pointy*w+pointx;//暗すぎる核は除く
+			if(maxbr > 30) mpoint[i] = pointy*_width+pointx;//暗すぎる核は除く
 			else mpoint[i] = 0;
 			if(pixeltocell[mpoint[i]] >= 0 && r == 0 && d > 0){//核が母細胞と芽の両方にかかっている……分裂中の核
 				cell[pixeltocell[mpoint[i]]].setFlagUD(true);
@@ -2332,13 +2363,13 @@ class CellImage {
 					int pdapi=((Integer)vec[i].get(j)).intValue();//DAPI画像の位置にする
 					if(pixeltocell[pconA] >= 0) {
 						if(cell[pixeltocell[pconA]].inmother(pconA)) {
-							pointx1 += pconA%w;
-							pointy1 += pconA/w;
+							pointx1 += pconA%_width;
+							pointy1 += pconA/_width;
 							s1++;
 						}
 						else {
-							pointx2 += pconA%w;
-							pointy2 += pconA/w;
+							pointx2 += pconA%_width;
+							pointy2 += pconA/_width;
 							s2++;
 						}
 					}
@@ -2347,8 +2378,8 @@ class CellImage {
 				pointy1 /= s1;
 				pointx2 /= s2;
 				pointy2 /= s2;
-				mpointB[i][0] = pointy1*w+pointx1;
-				mpointB[i][1] = pointy2*w+pointx2;
+				mpointB[i][0] = pointy1*_width+pointx1;
+				mpointB[i][1] = pointy2*_width+pointx2;
 			}
 		}
 		for(int i=0;i<cell.length;i++) {
@@ -2360,19 +2391,19 @@ class CellImage {
 		for(int i=0;i<vec.length;i++) {//母細胞中の核から先に記録
 			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].inmother(mpoint[i])) {
 				MafterB.add(new Integer(i));
-				cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i]%w,mpoint[i]/w));
+				cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i]%_width,mpoint[i]/_width));
 			}
 		}
 		for(int i=0;i<vec.length;i++) {//芽中の核は母細胞中の核の後に記録
 			if(pixeltocell[mpoint[i]] >= 0 && !cell[pixeltocell[mpoint[i]]].inmother(mpoint[i])) {
 				MafterB.add(new Integer(i));
-				cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i]%w,mpoint[i]/w));
+				cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i]%_width,mpoint[i]/_width));
 			}
 		}
 		for(int i=0;i<vec.length;i++) {
 			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
-				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][0]%w,mpointB[i][0]/w));
-				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][1]%w,mpointB[i][1]/w));
+				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][0]%_width,mpointB[i][0]/_width));
+				cell[pixeltocell[mpoint[i]]].DpointB.add(new Point(mpointB[i][1]%_width,mpointB[i][1]/_width));
 			}
 		}
 		
@@ -2385,12 +2416,12 @@ class CellImage {
 			for(int j=0;j<vec[i].size();j++){
 				int p=((Integer)vec[i].get(j)).intValue();
 				if(pixeltocell[p+Ddiff] >= 0) {
-					if(DImage[p] > brightness){
-						brightness = DImage[p];
+					if(_nucleus_points[p] > brightness){
+						brightness = _nucleus_points[p];
 						bpoint = new Vector();
 						bpoint.add(new Integer(p));
 					}
-					else if(DImage[p] == brightness) bpoint.add(new Integer(p));
+					else if(_nucleus_points[p] == brightness) bpoint.add(new Integer(p));
 				}
 			}
 			if(bpoint.size() > 1){//最大輝点が複数点あった場合、それらの重心を使う
@@ -2399,13 +2430,13 @@ class CellImage {
 				int pointy=0;
 				for(int j=0;j<bpoint.size();j++) {
 					int pconA=((Integer)bpoint.get(j)).intValue()+Ddiff;
-					pointx += pconA%w;
-					pointy += pconA/w;
+					pointx += pconA%_width;
+					pointy += pconA/_width;
 					s++;
 				}
 				pointx /= s;
 				pointy /= s;
-				brightpoint[i] = pointy*w+pointx;
+				brightpoint[i] = pointy*_width+pointx;
 			}
 			else {
 				int pconA=((Integer)bpoint.get(0)).intValue()+Ddiff;
@@ -2421,20 +2452,20 @@ class CellImage {
 					int p=((Integer)vec[i].get(j)).intValue();
 					if(pixeltocell[p+Ddiff] >= 0){
 						if(cell[pixeltocell[p+Ddiff]].inmother(p+Ddiff)){
-							if(DImage[p] > brightness1){
-								brightness1 = DImage[p];
+							if(_nucleus_points[p] > brightness1){
+								brightness1 = _nucleus_points[p];
 								bpoint1 = new Vector();
 								bpoint1.add(new Integer(p));
 							}
-							else if(DImage[p] == brightness1) bpoint1.add(new Integer(p));
+							else if(_nucleus_points[p] == brightness1) bpoint1.add(new Integer(p));
 						}
 						else{
-							if(DImage[p] > brightness2){
-								brightness2 = DImage[p];
+							if(_nucleus_points[p] > brightness2){
+								brightness2 = _nucleus_points[p];
 								bpoint2 = new Vector();
 								bpoint2.add(new Integer(p));
 							}
-							else if(DImage[p] == brightness2) bpoint2.add(new Integer(p));
+							else if(_nucleus_points[p] == brightness2) bpoint2.add(new Integer(p));
 						}
 					}
 				}
@@ -2446,13 +2477,13 @@ class CellImage {
 					int pointy=0;
 					for(int j=0;j<bpoint1.size();j++) {
 						int pconA=((Integer)bpoint1.get(j)).intValue()+Ddiff;
-						pointx += pconA%w;
-						pointy += pconA/w;
+						pointx += pconA%_width;
+						pointy += pconA/_width;
 						s++;
 					}
 					pointx /= s;
 					pointy /= s;
-					brightpointB[i][0] = pointy*w+pointx;
+					brightpointB[i][0] = pointy*_width+pointx;
 				}
 				else {
 					int pconA=((Integer)bpoint1.get(0)).intValue()+Ddiff;
@@ -2466,13 +2497,13 @@ class CellImage {
 					int pointy=0;
 					for(int j=0;j<bpoint2.size();j++) {
 						int pconA=((Integer)bpoint2.get(j)).intValue()+Ddiff;
-						pointx += pconA%w;
-						pointy += pconA/w;
+						pointx += pconA%_width;
+						pointy += pconA/_width;
 						s++;
 					}
 					pointx /= s;
 					pointy /= s;
-					brightpointB[i][1] = pointy*w+pointx;
+					brightpointB[i][1] = pointy*_width+pointx;
 				}
 				else {
 					int pconA=((Integer)bpoint2.get(0)).intValue()+Ddiff;
@@ -2489,21 +2520,21 @@ class CellImage {
 		for(int ii=0;ii<MafterB.size();ii++) {
 			int i = ((Integer)MafterB.get(ii)).intValue();
 			if(pixeltocell[mpoint[i]] >= 0) {
-				cell[pixeltocell[mpoint[i]]].Dbrightpoint.add(new Point(brightpoint[i]%w,brightpoint[i]/w));
-				cell[pixeltocell[mpoint[i]]].Dmaxbright.add(new Integer(DImage[brightpoint[i]]));
+				cell[pixeltocell[mpoint[i]]].Dbrightpoint.add(new Point(brightpoint[i]%_width,brightpoint[i]/_width));
+				cell[pixeltocell[mpoint[i]]].Dmaxbright.add(new Integer(_nucleus_points[brightpoint[i]]));
 			}
 		}
 		for(int i=0;i<vec.length;i++) {
 			if(pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
-				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][0]%w,brightpointB[i][0]/w));
-				cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(DImage[brightpointB[i][0]]));
-				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][1]%w,brightpointB[i][1]/w));
-				cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(DImage[brightpointB[i][1]]));
+				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][0]%_width,brightpointB[i][0]/_width));
+				cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(_nucleus_points[brightpointB[i][0]]));
+				cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][1]%_width,brightpointB[i][1]/_width));
+				cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(_nucleus_points[brightpointB[i][1]]));
 			}
 		}
 		
 		//ここから核領域と核の輝度合計を求める処理
-		boolean[] Dcov = new boolean[size];//核の外縁を求める際に使用
+		boolean[] Dcov = new boolean[_size];//核の外縁を求める際に使用
 		for(int i=0;i<cell.length;i++) cell[i].Dcover = new Vector();
 		for(int i=0;i<cell.length;i++) cell[i].Dtotalbright = new Vector();
 		for(int i=0;i<cell.length;i++) cell[i].DcoverB = new Vector();
@@ -2517,7 +2548,7 @@ class CellImage {
 					int pconA=((Integer)vec[i].get(j)).intValue()+Ddiff;
 					Dc.add(new Integer(pconA));
 					Dcov[pconA] = true;
-					totalbr+=DImage[pconA-Ddiff];
+					totalbr+=_nucleus_points[pconA-Ddiff];
 				}
 				cell[pixeltocell[mpoint[i]]].Dcover.add(Dc);
 				cell[pixeltocell[mpoint[i]]].Dtotalbright.add(new Integer(totalbr));
@@ -2530,11 +2561,11 @@ class CellImage {
 						int pconA=((Integer)vec[i].get(j)).intValue()+Ddiff;
 						if(cell[pixeltocell[mpoint[i]]].inmother(pconA)){
 							Dc1.add(new Integer(pconA));
-							totalbr1+=DImage[pconA-Ddiff];
+							totalbr1+=_nucleus_points[pconA-Ddiff];
 						}
 						else {
 							Dc2.add(new Integer(pconA));
-							totalbr2+=DImage[pconA-Ddiff];
+							totalbr2+=_nucleus_points[pconA-Ddiff];
 						}
 					}
 					cell[pixeltocell[mpoint[i]]].DcoverB.add(Dc1);
@@ -2554,7 +2585,7 @@ class CellImage {
 				De[i] = new Vector();
 				for(int j=0;j<vec[i].size();j++) {
 					int pconA=((Integer)vec[i].get(j)).intValue()+Ddiff;
-					if(!Dcov[pconA-w] || !Dcov[pconA-1] || !Dcov[pconA+1] || !Dcov[pconA+w]) De[i].add(new Integer(pconA));
+					if(!Dcov[pconA-_width] || !Dcov[pconA-1] || !Dcov[pconA+1] || !Dcov[pconA+_width]) De[i].add(new Integer(pconA));
 				}
 				cell[pixeltocell[mpoint[i]]].Dedge.add(De[i]);
 			}
@@ -2578,7 +2609,7 @@ class CellImage {
 					maxpoint = pconA;
 				}
 			}
-			if(pixeltocell[maxpoint] >= 0) cell[pixeltocell[maxpoint]].D345point[0].add(new Point((maxpoint)%w,(maxpoint)/w));//D3の記録
+			if(pixeltocell[maxpoint] >= 0) cell[pixeltocell[maxpoint]].D345point[0].add(new Point((maxpoint)%_width,(maxpoint)/_width));//D3の記録
 			int maxpoint2 = -1;
 			maxdist = -1;
 			for(int j=0;j<vec[i].size();j++){
@@ -2589,14 +2620,14 @@ class CellImage {
 					maxpoint2 = pconA;
 				}
 			}
-			if(pixeltocell[maxpoint2] >= 0) cell[pixeltocell[maxpoint2]].D345point[1].add(new Point((maxpoint2)%w,(maxpoint2)/w));//D4の記録
-			if(maxpoint2/w != maxpoint/w){ 
+			if(pixeltocell[maxpoint2] >= 0) cell[pixeltocell[maxpoint2]].D345point[1].add(new Point((maxpoint2)%_width,(maxpoint2)/_width));//D4の記録
+			if(maxpoint2/_width != maxpoint/_width){ 
 				int maxpoint3 = -1;
 				double mindist = 1000;
 				for(int j=0;j<De[i].size();j++){//一つ目の交点を求める
 					int pconA=((Integer)De[i].get(j)).intValue();
-					if(Line2D.ptLineDist((double)(mpoint[i]%w),(double)(mpoint[i]/w),(double)(mpoint[i]%w+maxpoint2/w-maxpoint/w),(double)(mpoint[i]/w-maxpoint2%w+maxpoint%w),(double)(pconA%w),(double)(pconA/w)) < mindist){
-						mindist = Line2D.ptLineDist((double)(mpoint[i]%w),(double)(mpoint[i]/w),(double)(mpoint[i]%w+maxpoint2/w-maxpoint/w),(double)(mpoint[i]/w-maxpoint2%w+maxpoint%w),(double)(pconA%w),(double)(pconA/w));
+					if(Line2D.ptLineDist((double)(mpoint[i]%_width),(double)(mpoint[i]/_width),(double)(mpoint[i]%_width+maxpoint2/_width-maxpoint/_width),(double)(mpoint[i]/_width-maxpoint2%_width+maxpoint%_width),(double)(pconA%_width),(double)(pconA/_width)) < mindist){
+						mindist = Line2D.ptLineDist((double)(mpoint[i]%_width),(double)(mpoint[i]/_width),(double)(mpoint[i]%_width+maxpoint2/_width-maxpoint/_width),(double)(mpoint[i]/_width-maxpoint2%_width+maxpoint%_width),(double)(pconA%_width),(double)(pconA/_width));
 						maxpoint3 = pconA;
 					}
 				}
@@ -2604,32 +2635,32 @@ class CellImage {
 				int maxpoint3_2 = -1;
 				for(int j=0;j<De[i].size();j++){//二つ目の交点を求める
 					int pconA=((Integer)De[i].get(j)).intValue();
-					if(distance(pconA,maxpoint3) > 1 && Line2D.ptLineDist((double)(mpoint[i]%w),(double)(mpoint[i]/w),(double)(mpoint[i]%w+maxpoint2/w-maxpoint/w),(double)(mpoint[i]/w-maxpoint2%w+maxpoint%w),(double)(pconA%w),(double)(pconA/w)) < mindist){
-						mindist = Line2D.ptLineDist((double)(mpoint[i]%w),(double)(mpoint[i]/w),(double)(mpoint[i]%w+maxpoint2/w-maxpoint/w),(double)(mpoint[i]/w-maxpoint2%w+maxpoint%w),(double)(pconA%w),(double)(pconA/w));
+					if(distance(pconA,maxpoint3) > 1 && Line2D.ptLineDist((double)(mpoint[i]%_width),(double)(mpoint[i]/_width),(double)(mpoint[i]%_width+maxpoint2/_width-maxpoint/_width),(double)(mpoint[i]/_width-maxpoint2%_width+maxpoint%_width),(double)(pconA%_width),(double)(pconA/_width)) < mindist){
+						mindist = Line2D.ptLineDist((double)(mpoint[i]%_width),(double)(mpoint[i]/_width),(double)(mpoint[i]%_width+maxpoint2/_width-maxpoint/_width),(double)(mpoint[i]/_width-maxpoint2%_width+maxpoint%_width),(double)(pconA%_width),(double)(pconA/_width));
 						maxpoint3_2 = pconA;
 					}
 				}
 				if(mindist < 1 && distance(maxpoint3,mpoint[i]) < distance(maxpoint3_2,mpoint[i])) maxpoint3 = maxpoint3_2;//より重心から遠い交点を採用
-				if(pixeltocell[maxpoint3] >= 0) cell[pixeltocell[maxpoint3]].D345point[2].add(new Point((maxpoint3)%w,(maxpoint3)/w));//D5の記録
+				if(pixeltocell[maxpoint3] >= 0) cell[pixeltocell[maxpoint3]].D345point[2].add(new Point((maxpoint3)%_width,(maxpoint3)/_width));//D5の記録
 			}
 			else{
 				int maxpoint3 = -1;
 				maxdist = -1;
 				for(int j=0;j<vec[i].size();j++){
 					int pconA=((Integer)vec[i].get(j)).intValue() + Ddiff;
-					if((pconA - mpoint[i])%w == 0 && (pconA - mpoint[i])/w > maxdist){
-						maxdist = (pconA - mpoint[i])/w;
+					if((pconA - mpoint[i])%_width == 0 && (pconA - mpoint[i])/_width > maxdist){
+						maxdist = (pconA - mpoint[i])/_width;
 						maxpoint3 = pconA;
 					}
 				}
-				if(pixeltocell[maxpoint3] >= 0) cell[pixeltocell[maxpoint3]].D345point[2].add(new Point((maxpoint3)%w,(maxpoint3)/w));//D5の記録
+				if(pixeltocell[maxpoint3] >= 0) cell[pixeltocell[maxpoint3]].D345point[2].add(new Point((maxpoint3)%_width,(maxpoint3)/_width));//D5の記録
 			}
 			}
 		}
 	}
 
     public double distance(int a,int b){
-    	return Math.sqrt((a/w-b/w)*(a/w-b/w)+(a%w-b%w)*(a%w-b%w));
+    	return Math.sqrt((a/_width-b/_width)*(a/_width-b/_width)+(a%_width-b%_width)*(a%_width-b%_width));
     }
     /////////////////////////////////////////////////////////////////////////////////
     //核に関するデータをセット
@@ -2643,19 +2674,19 @@ class CellImage {
     //DAPI画像出力
     /////////////////////////////////////////////////////////////////////////////////
     public void outDImage() {
-        int[] pixel = new int[size];
-        for(int i=0;i<size;i++) {
-            pixel[i] = 0xff000000 | (DImage[i] << 16) | (DImage[i] << 8) | DImage[i];
+        int[] pixel = new int[_size];
+        for(int i=0;i<_size;i++) {
+            pixel[i] = 0xff000000 | (_nucleus_points[i] << 16) | (_nucleus_points[i] << 8) | _nucleus_points[i];
         }
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image im = toolkit.createImage(new MemoryImageSource(w,h,pixel,0,w));
-        BufferedImage bi = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Image im = toolkit.createImage(new MemoryImageSource(_width,_height,pixel,0,_width));
+        BufferedImage bi = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
         Point p = calDiffPoint(Ddiff);
         if(p.x >= 0 && p.y >= 0) while(!g.drawImage(im,p.x,p.y,null)){}
-        if(p.x >= 0 && p.y < 0) while(!g.drawImage(im,p.x,0,w,h+p.y,0,-p.y,w,h,null)){}
-        if(p.x < 0 && p.y >= 0) while(!g.drawImage(im,0,p.y,w+p.x,h,-p.x,0,w,h,null)){}
-        if(p.x < 0 && p.y < 0) while(!g.drawImage(im,p.x,p.y,w+p.x,h+p.y,-p.x,-p.y,w,h,null)){}
+        if(p.x >= 0 && p.y < 0) while(!g.drawImage(im,p.x,0,_width,_height+p.y,0,-p.y,_width,_height,null)){}
+        if(p.x < 0 && p.y >= 0) while(!g.drawImage(im,0,p.y,_width+p.x,_height,-p.x,0,_width,_height,null)){}
+        if(p.x < 0 && p.y < 0) while(!g.drawImage(im,p.x,p.y,_width+p.x,_height+p.y,-p.x,-p.y,_width,_height,null)){}
         //while(!g.drawImage(im,0,0,null)){}
         g.setFont(new Font("Courier",Font.PLAIN,15));
         for(int i=0;i<cell.length;i++) {
@@ -2668,17 +2699,17 @@ class CellImage {
     //少しずれていたら直してfalse
     /////////////////////////////////////////////////////////////////////////////
     public boolean isDifferentAImage() {
-        int[] ci_tmp = (int[])CImage.clone();
+        int[] ci_tmp = (int[])_cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ci_tmp[i] == 0) countcarea++;
         }
         int[] hg = new int[256];
         for(int i=0;i<256;i++) {
             hg[i] = 0;
         }
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] < 256 && ai[i] >= 0) hg[ai[i]]++;
 			else {
 				err_kind = "incorrect colorspace of actin image";
@@ -2690,7 +2721,7 @@ class CellImage {
             countdarea += hg[i];
             if(countdarea > countcarea) {
             	countdarea-=hg[i];
-                for(int j=0;j<size;j++) {
+                for(int j=0;j<_size;j++) {
                     if(ai[j] >= i+1) ai[j] = 0;
                     else ai[j] = 255;
                 }
@@ -2708,7 +2739,7 @@ class CellImage {
         	}
         }
         int count=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] == 0) {
                 if(ci_tmp[i] == 255) {//セル領域の外のものがあれば
                     count++;
@@ -2719,9 +2750,9 @@ class CellImage {
         	return true;
         }
         int countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] == 0) {//アクチン領域で
-                if(i%w < k || ci_tmp[i-k] == 255) {//k個左にずらしてセル領域の外のものがあれば
+                if(i%_width < k || ci_tmp[i-k] == 255) {//k個左にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2731,9 +2762,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] == 0) {
-                if(i%w >= w-k || ci_tmp[i+k] == 255) {//k個右にずらしてセル領域の外のものがあれば
+                if(i%_width >= _width-k || ci_tmp[i+k] == 255) {//k個右にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2743,9 +2774,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] == 0) {
-                if(i/w < k || ci_tmp[i-k*w] == 255) {//k個上にずらしてセル領域の外のものがあれば
+                if(i/_width < k || ci_tmp[i-k*_width] == 255) {//k個上にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2755,9 +2786,9 @@ class CellImage {
             return true;
         }
         countdiff=0;
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             if(ai[i] == 0) {
-                if(i/w >= h-k || ci_tmp[i+k*w] == 255) {//k個下にずらしてセル領域の外のものがあれば
+                if(i/_width >= _height-k || ci_tmp[i+k*_width] == 255) {//k個下にずらしてセル領域の外のものがあれば
                     countdiff++;
                 }
             }
@@ -2767,13 +2798,13 @@ class CellImage {
             return true;
         }
         //以下大きくずれてない場合少し修正
-        int[] dep = new int[size];
+        int[] dep = new int[_size];
         cover(ai);
         Vector[] vec = label(ai,0,20,true);
         k=0;
         int mink=0;
         Vector[] partedge = new Vector[4];
-        boolean[] pixelofactin = new boolean[size];
+        boolean[] pixelofactin = new boolean[_size];
         for(int i=0;i<4;i++) partedge[i] = new Vector();
         for(int i=0;i<cell.length;i++)
         {
@@ -2782,11 +2813,11 @@ class CellImage {
 				int p = ((Integer)cell[i].cover.elementAt(j)).intValue();
 				if(pixeltocell[p-1] < 0) partedge[0].add(new Integer(p));
 				if(pixeltocell[p+1] < 0) partedge[1].add(new Integer(p));
-				if(pixeltocell[p-w] < 0) partedge[2].add(new Integer(p));
-				if(pixeltocell[p+w] < 0) partedge[3].add(new Integer(p));
+				if(pixeltocell[p-_width] < 0) partedge[2].add(new Integer(p));
+				if(pixeltocell[p+_width] < 0) partedge[3].add(new Integer(p));
         	}
         }
-        for(int i=0;i<size;i++) pixelofactin[i] = false;
+        for(int i=0;i<_size;i++) pixelofactin[i] = false;
 		for(int i=0;i<vec.length;i++) {
 			for(int j=0;j<vec[i].size();j++) {
 				pixelofactin[((Integer)vec[i].elementAt(j)).intValue()] = true;
@@ -2801,8 +2832,8 @@ class CellImage {
                 if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i;j++) {
-				value = countOutActin2(partedge[2],partedge[3],pixelofactin,value,k,k-w);
-				k -= w;
+				value = countOutActin2(partedge[2],partedge[3],pixelofactin,value,k,k-_width);
+				k -= _width;
 				if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i+1;j++) {
@@ -2811,8 +2842,8 @@ class CellImage {
 				if(min > value) {min = value;mink = k;}
             }
             for(int j=1;j<i+1;j++) {
-				value = countOutActin2(partedge[3],partedge[2],pixelofactin,value,k,k+w);
-				k += w;
+				value = countOutActin2(partedge[3],partedge[2],pixelofactin,value,k,k+_width);
+				k += _width;
 				if(min > value) {min = value;mink = k;}
             }
         }
@@ -2824,9 +2855,9 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     public void searchActinRegion() {
         //アクチンの消えたセルを探す
-		int diffx = Adiff % w;
-		if(diffx >= w/2) diffx -= w;
-		else if(diffx <= -w/2) diffx += w;
+		int diffx = Adiff % _width;
+		if(diffx >= _width/2) diffx -= _width;
+		else if(diffx <= -_width/2) diffx += _width;
         for(int i=0;i<cell.length;i++) {
             boolean flag_tmp=true;
             cell[i].Aregionsize = new int[2];
@@ -2851,26 +2882,26 @@ class CellImage {
             long total4 = 0;
             for(int j=0;j<cell[i].cover.size();j++) {
                 int p=((Integer)cell[i].cover.get(j)).intValue();
-                if(p-Adiff>=0 && p-Adiff<size && p/w==(p-diffx)/w && ai[p-Adiff] == 0){
+                if(p-Adiff>=0 && p-Adiff<_size && p/_width==(p-diffx)/_width && ai[p-Adiff] == 0){
                 	cell[i].Acover.add(new Integer(p));
                 	flag_tmp = false;
                 	regionsize++;
-                	long br = (long)AImage[p-Adiff];
-                	x+=p%w;
-                	y+=p/w;
-                	brx+=p%w*br;
-                	bry+=p/w*br;
-                	brxx+=p%w*br*br;
-                	bryy+=p/w*br*br;
-                	brx3+=p%w*br*br*br;
-                	bry3+=p/w*br*br*br;
-                	brx4+=p%w*br*br*br*br;
-                	bry4+=p/w*br*br*br*br;
+                	long br = (long)_actin_points[p-Adiff];
+                	x+=p%_width;
+                	y+=p/_width;
+                	brx+=p%_width*br;
+                	bry+=p/_width*br;
+                	brxx+=p%_width*br*br;
+                	bryy+=p/_width*br*br;
+                	brx3+=p%_width*br*br*br;
+                	bry3+=p/_width*br*br*br;
+                	brx4+=p%_width*br*br*br*br;
+                	bry4+=p/_width*br*br*br*br;
                 	totalbright += br;
                 	total2 += br*br;
                 	total3 += br*br*br;
                 	total4 += br*br*br*br;
-                	if(maxbright < AImage[p-Adiff]) maxbright = AImage[p-Adiff];
+                	if(maxbright < _actin_points[p-Adiff]) maxbright = _actin_points[p-Adiff];
                 }
             }
             if(regionsize!=0) {
@@ -2948,37 +2979,37 @@ class CellImage {
             		long btotal4 = 0;
             	    for(int j=0;j<cell[i].cover.size();j++) {
                 	    int p=((Integer)cell[i].cover.get(j)).intValue();
-                    	if(p-Adiff >= 0 && p-Adiff < size && p/w==(p-diffx)/w && ai[p-Adiff] == 0) {
-	                	long br = (long)AImage[p-Adiff];
+                    	if(p-Adiff >= 0 && p-Adiff < _size && p/_width==(p-diffx)/_width && ai[p-Adiff] == 0) {
+	                	long br = (long)_actin_points[p-Adiff];
                     	    if(cell[i].inmother(p)) {
                     	        mregionsize++;
-                    	        mtotalbright+=AImage[p-Adiff];
-			                	mx+=p%w;
-            			    	my+=p/w;
-                				mbrx+=p%w*br;
-                				mbry+=p/w*br;
-                				mbrxx+=p%w*br*br;
-                				mbryy+=p/w*br*br;
-                				mbrx3+=p%w*br*br*br;
-                				mbry3+=p/w*br*br*br;
-                				mbrx4+=p%w*br*br*br*br;
-                				mbry4+=p/w*br*br*br*br;
+                    	        mtotalbright+=_actin_points[p-Adiff];
+			                	mx+=p%_width;
+            			    	my+=p/_width;
+                				mbrx+=p%_width*br;
+                				mbry+=p/_width*br;
+                				mbrxx+=p%_width*br*br;
+                				mbryy+=p/_width*br*br;
+                				mbrx3+=p%_width*br*br*br;
+                				mbry3+=p/_width*br*br*br;
+                				mbrx4+=p%_width*br*br*br*br;
+                				mbry4+=p/_width*br*br*br*br;
                 				mtotal2 += br*br;
                 				mtotal3 += br*br*br;
                 				mtotal4 += br*br*br*br;
                     	    } else {
                     	        bregionsize++;
                     	        btotalbright+=br;
-                				bx+=p%w;
-                				by+=p/w;
-                				bbrx+=p%w*br;
-                				bbry+=p/w*br;
-                				bbrxx+=p%w*br*br;
-                				bbryy+=p/w*br*br;
-                				bbrx3+=p%w*br*br*br;
-                				bbry3+=p/w*br*br*br;
-                				bbrx4+=p%w*br*br*br*br;
-                				bbry4+=p/w*br*br*br*br;
+                				bx+=p%_width;
+                				by+=p/_width;
+                				bbrx+=p%_width*br;
+                				bbry+=p/_width*br;
+                				bbrxx+=p%_width*br*br;
+                				bbryy+=p/_width*br*br;
+                				bbrx3+=p%_width*br*br*br;
+                				bbry3+=p/_width*br*br*br;
+                				bbrx4+=p%_width*br*br*br*br;
+                				bbry4+=p/_width*br*br*br*br;
                 				btotal2 += br*br;
                 				btotal3 += br*br*br;
                 				btotal4 += br*br*br*br;
@@ -3050,30 +3081,30 @@ class CellImage {
             	}
             }
             if(cell[i].getGroup()>=2){//ネックライン上に乗っているアクチン領域のネックライン全体に対する割合を求める
-            	if(Math.abs(cell[i].neck[0]%w-cell[i].neck[1]%w)>Math.abs(cell[i].neck[0]/w-cell[i].neck[1]/w)){
+            	if(Math.abs(cell[i].neck[0]%_width-cell[i].neck[1]%_width)>Math.abs(cell[i].neck[0]/_width-cell[i].neck[1]/_width)){
             		int min = 0;
-            		if(cell[i].neck[0]%w>cell[i].neck[1]%w) min = 1;
-            		int minx = cell[i].neck[min]%w;
-            		int maxx = cell[i].neck[(1+min)%2]%w;
-            		int miny = cell[i].neck[min]/w;
-            		int maxy = cell[i].neck[(1+min)%2]/w;
+            		if(cell[i].neck[0]%_width>cell[i].neck[1]%_width) min = 1;
+            		int minx = cell[i].neck[min]%_width;
+            		int maxx = cell[i].neck[(1+min)%2]%_width;
+            		int miny = cell[i].neck[min]/_width;
+            		int maxy = cell[i].neck[(1+min)%2]/_width;
             		int count = 0;
             		for(int j=0;j<=maxx-minx;j++){
-            			int p = minx+j+(miny+((maxy-miny)*j)/(maxx-minx))*w;
+            			int p = minx+j+(miny+((maxy-miny)*j)/(maxx-minx))*_width;
             			if(ai[p-Adiff]==0) count++;
             		}
             		cell[i].actinonneckline = (double)count / (double)(maxx-minx+1);
             	}
             	else{
             		int min = 0;
-            		if(cell[i].neck[0]/w>cell[i].neck[1]/w) min = 1;
-            		int minx = cell[i].neck[min]%w;
-            		int maxx = cell[i].neck[(1+min)%2]%w;
-            		int miny = cell[i].neck[min]/w;
-            		int maxy = cell[i].neck[(1+min)%2]/w;
+            		if(cell[i].neck[0]/_width>cell[i].neck[1]/_width) min = 1;
+            		int minx = cell[i].neck[min]%_width;
+            		int maxx = cell[i].neck[(1+min)%2]%_width;
+            		int miny = cell[i].neck[min]/_width;
+            		int maxy = cell[i].neck[(1+min)%2]/_width;
             		int count = 0;
             		for(int j=0;j<=maxy-miny;j++){
-            			int p = (miny+j)*w+minx+((maxx-minx)*j)/(maxy-miny);
+            			int p = (miny+j)*_width+minx+((maxx-minx)*j)/(maxy-miny);
             			if(ai[p-Adiff]==0) count++;
             		}
             		cell[i].actinonneckline = (double)count / (double)(maxy-miny+1);
@@ -3087,36 +3118,36 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
 	public void searchActinPatch() {
 		Vector same;
-		int[] lab = new int[size];
+		int[] lab = new int[_size];
         
 		same = new Vector();
-		ai = (int[])AImage.clone();
-		for(int i=0;i<size;i++) {//全てラベルがついてない状態に
+		ai = (int[])_actin_points.clone();
+		for(int i=0;i<_size;i++) {//全てラベルがついてない状態に
 			lab[i] = -1;
 			if(ai[i] < 60) ai[i] = 0;
 			else {
 				ai[i] = (ai[i]-60)/8+1;
 			}
 		}
-	   for(int i=0;i<size;i++) {//上で振られた値が極大になっている領域を求める
+	   for(int i=0;i<_size;i++) {//上で振られた値が極大になっている領域を求める
 			//if(i%w-1 >= 0 && i/w-1 >= 0) {//画像の左端or上端でなければ
 			if(pixeltocell[i] >= 0) {//細胞内部の点について
-				if(bright(ai,i-1,i) && bright(ai,i-w,i)) {//左、上の両方より暗いとき
+				if(bright(ai,i-1,i) && bright(ai,i-_width,i)) {//左、上の両方より暗いとき
 					//何もしない
-				} else if(bright(ai,i,i-1) && bright(ai,i,i-w)) {//左、上の両方より明るいとき
+				} else if(bright(ai,i,i-1) && bright(ai,i,i-_width)) {//左、上の両方より明るいとき
 					removeActinLabel(same,lab,i-1);//左のラベルを消す
-					removeActinLabel(same,lab,i-w);//上のラベルを消す
+					removeActinLabel(same,lab,i-_width);//上のラベルを消す
 					lab[i] = same.size();//新しいラベルをつけて
 					same.add(new ActinLabel(same.size(),true));//自分を指すラベルを登録
-				} else if((bright(ai,i,i-1) || equal(ai,i,i-1)) && bright(ai,i-w,i)) {//左と同じか明るいが上より暗い
+				} else if((bright(ai,i,i-1) || equal(ai,i,i-1)) && bright(ai,i-_width,i)) {//左と同じか明るいが上より暗い
 					removeActinLabel(same,lab,i-1);//左のラベルを消す
-				} else if(bright(ai,i-1,i) && (bright(ai,i,i-w) || equal(ai,i,i-w))) {//左より暗いが上と同じか明るい
-					removeActinLabel(same,lab,i-w);//上のラベルを消す
-				} else if(equal(ai,i,i-1) && equal(ai,i,i-w)) {//左とも上とも同じ明るさ
+				} else if(bright(ai,i-1,i) && (bright(ai,i,i-_width) || equal(ai,i,i-_width))) {//左より暗いが上と同じか明るい
+					removeActinLabel(same,lab,i-_width);//上のラベルを消す
+				} else if(equal(ai,i,i-1) && equal(ai,i,i-_width)) {//左とも上とも同じ明るさ
 					int a1 = smallestActinLabel(same,lab,i-1);
-					int a2 = smallestActinLabel(same,lab,i-w);
+					int a2 = smallestActinLabel(same,lab,i-_width);
 					if(a1 == -1) {//左のラベルがなかったら
-						removeActinLabel(same,lab,i-w);//上のラベルを消す
+						removeActinLabel(same,lab,i-_width);//上のラベルを消す
 					} else if(a2 == -1) {//上のラベルがなかったら
 						removeActinLabel(same,lab,i-1);//左のラベルを消す
 					} else {//両方のラベルがあれば
@@ -3128,23 +3159,23 @@ class CellImage {
 							lab[i] = a2;
 						}
 					}
-				} else if(equal(ai,i,i-1) && bright(ai,i,i-w)) {//左とおなじで上が暗い
-					removeActinLabel(same,lab,i-w);//上のラベルを消して
+				} else if(equal(ai,i,i-1) && bright(ai,i,i-_width)) {//左とおなじで上が暗い
+					removeActinLabel(same,lab,i-_width);//上のラベルを消して
 					lab[i] = smallestActinLabel(same,lab,i-1);//左のsmallestラベルにする
-				} else if(bright(ai,i,i-1) && equal(ai,i,i-w)) {//上とおなじで左が暗い
+				} else if(bright(ai,i,i-1) && equal(ai,i,i-_width)) {//上とおなじで左が暗い
 					removeActinLabel(same,lab,i-1);//左のラベルを消して
-					lab[i] = smallestActinLabel(same,lab,i-w);//上のsmallestラベルにする
+					lab[i] = smallestActinLabel(same,lab,i-_width);//上のsmallestラベルにする
 				}
 			}
 		}
-		for(int i=0;i<size;i++) {
+		for(int i=0;i<_size;i++) {
 			lab[i] = smallestActinLabel(same,lab,i);//一番小さいラベルをつける
 			if(lab[i] < 0) lab[i] = 255;
 			else lab[i] = 0;
 		}
-		int diffx = Adiff % w;
-		if(diffx >= w/2) diffx -= w;
-		else if(diffx <= -w/2) diffx += w;
+		int diffx = Adiff % _width;
+		if(diffx >= _width/2) diffx -= _width;
+		else if(diffx <= -_width/2) diffx += _width;
 		Vector[] vec = label(lab,0,0,true);
 		Vector[] brhist = new Vector[256];
 		int[] patchp = new int[vec.length];
@@ -3154,14 +3185,14 @@ class CellImage {
 			int y = 0;
 			for(int j=0;j<vec[i].size();j++) {
 				int p = ((Integer)vec[i].get(j)).intValue();
-				x += p%w;
-				y += p/w;
+				x += p%_width;
+				y += p/_width;
 			}
 			x /= vec[i].size();
 			y /= vec[i].size();
-			int p1 = x+y*w;
-			if(p1+Adiff>0 && p1+Adiff<size && p1/w==(p1+diffx)/w && pixeltocell[p1+Adiff] >= 0) {
-				brhist[AImage[p1]].add(new Integer(i));
+			int p1 = x+y*_width;
+			if(p1+Adiff>0 && p1+Adiff<_size && p1/_width==(p1+diffx)/_width && pixeltocell[p1+Adiff] >= 0) {
+				brhist[_actin_points[p1]].add(new Integer(i));
 				patchp[i] = p1;
 			}
 		}
@@ -3177,7 +3208,7 @@ class CellImage {
 			int p = patchp[i];
 			if(p==0) continue;
 			patchnumofcell[pixeltocell[p+Adiff]]++;
-			patchbrightofcell[pixeltocell[p+Adiff]] += AImage[p];
+			patchbrightofcell[pixeltocell[p+Adiff]] += _actin_points[p];
 		}
 		for(int i=0;i<cell.length;i++){
 			if(patchnumofcell[i]>0) patchbrightofcell[i]/=patchnumofcell[i];
@@ -3189,20 +3220,20 @@ class CellImage {
 			int count = 0;
 			for(int j=0;j<cell[i].cover.size();j++){
 				int p = ((Integer)cell[i].cover.get(j)).intValue();
-				if(p-Adiff>=0 && p-Adiff<size && p/w==(p-diffx)/w){
-					actinbrightofcell[i] += AImage[p-Adiff];
+				if(p-Adiff>=0 && p-Adiff<_size && p/_width==(p-diffx)/_width){
+					actinbrightofcell[i] += _actin_points[p-Adiff];
 					count++;
 				}
 			}
 			actinbrightofcell[i]/=count;
 		}
-        boolean[] ingroup = new boolean[size];//あるピクセルがアクチンパッチ領域に含まれたかどうか
+        boolean[] ingroup = new boolean[_size];//あるピクセルがアクチンパッチ領域に含まれたかどうか
         for(int i=255;i>=30;i--){
         	for(int j=0;j<brhist[i].size();j++){
 				int ii = ((Integer)brhist[i].get(j)).intValue();
 				int p = patchp[ii];
 				int cellnum = pixeltocell[p+Adiff];
-				int bright = AImage[p];
+				int bright = _actin_points[p];
 				Vector group = new Vector();
 				for(int k=0;k<vec[ii].size();k++){
 					p = ((Integer)vec[ii].get(k)).intValue();
@@ -3211,28 +3242,28 @@ class CellImage {
 				}
 				for(int k=0;k<group.size();k++){
 					p = ((Integer)group.get(k)).intValue();
-					if(p+Adiff>=0 && p+Adiff<size && p/w==(p+diffx)/w){
+					if(p+Adiff>=0 && p+Adiff<_size && p/_width==(p+diffx)/_width){
 						int maxneighbor = 0;
-						if(p-w >= 0) maxneighbor = AImage[p-w];
-						if(p%w != 0 && maxneighbor < AImage[p-1]) maxneighbor = AImage[p-1];
-						if(p%w != w-1 && maxneighbor < AImage[p+1]) maxneighbor = AImage[p+1];
-						if(p+w < size && maxneighbor < AImage[p+w]) maxneighbor = AImage[p+w];
+						if(p-_width >= 0) maxneighbor = _actin_points[p-_width];
+						if(p%_width != 0 && maxneighbor < _actin_points[p-1]) maxneighbor = _actin_points[p-1];
+						if(p%_width != _width-1 && maxneighbor < _actin_points[p+1]) maxneighbor = _actin_points[p+1];
+						if(p+_width < _size && maxneighbor < _actin_points[p+_width]) maxneighbor = _actin_points[p+_width];
 						
-						if(p-w >= 0 && p+Adiff-w >= 0 && pixeltocell[p+Adiff-w] >= 0 && !ingroup[p-w] && AImage[p-w] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && AImage[p-w] <= AImage[p] && (maxneighbor-AImage[p]<AImage[p]-AImage[p-w] || maxneighbor < AImage[p] + 5 || AImage[p] > 150)){
-							ingroup[p-w] = true;
-							group.add(new Integer(p-w));
+						if(p-_width >= 0 && p+Adiff-_width >= 0 && pixeltocell[p+Adiff-_width] >= 0 && !ingroup[p-_width] && _actin_points[p-_width] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && _actin_points[p-_width] <= _actin_points[p] && (maxneighbor-_actin_points[p]<_actin_points[p]-_actin_points[p-_width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)){
+							ingroup[p-_width] = true;
+							group.add(new Integer(p-_width));
 						}
-						if(p%w != 0 && (p+Adiff)%w != 0 && pixeltocell[p+Adiff-1] >= 0 && !ingroup[p-1] && AImage[p-1] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && AImage[p-1] <= AImage[p] && (maxneighbor-AImage[p]<AImage[p]-AImage[p-1] || maxneighbor < AImage[p] + 5 || AImage[p] > 150)){
+						if(p%_width != 0 && (p+Adiff)%_width != 0 && pixeltocell[p+Adiff-1] >= 0 && !ingroup[p-1] && _actin_points[p-1] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && _actin_points[p-1] <= _actin_points[p] && (maxneighbor-_actin_points[p]<_actin_points[p]-_actin_points[p-1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)){
 							ingroup[p-1] = true;
 							group.add(new Integer(p-1));
 						}
-						if(p%w != w-1 && (p+Adiff)%w != w-1 && pixeltocell[p+Adiff+1] >= 0 && !ingroup[p+1] && AImage[p+1] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && AImage[p+1] <= AImage[p] && (maxneighbor-AImage[p]<AImage[p]-AImage[p+1] || maxneighbor < AImage[p] + 5 || AImage[p] > 150)){
+						if(p%_width != _width-1 && (p+Adiff)%_width != _width-1 && pixeltocell[p+Adiff+1] >= 0 && !ingroup[p+1] && _actin_points[p+1] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && _actin_points[p+1] <= _actin_points[p] && (maxneighbor-_actin_points[p]<_actin_points[p]-_actin_points[p+1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)){
 							ingroup[p+1] = true;
 							group.add(new Integer(p+1));
 						}
-						if(p+w < size && p+Adiff+w < size && pixeltocell[p+Adiff+w] >= 0 && !ingroup[p+w] && AImage[p+w] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && AImage[p+w] <= AImage[p] && (maxneighbor-AImage[p]<AImage[p]-AImage[p+w] || maxneighbor < AImage[p] + 5 || AImage[p] > 150)){
-							ingroup[p+w] = true;
-							group.add(new Integer(p+w));
+						if(p+_width < _size && p+Adiff+_width < _size && pixeltocell[p+Adiff+_width] >= 0 && !ingroup[p+_width] && _actin_points[p+_width] > Math.max(bright*1/2,actinbrightofcell[cellnum]) && _actin_points[p+_width] <= _actin_points[p] && (maxneighbor-_actin_points[p]<_actin_points[p]-_actin_points[p+_width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)){
+							ingroup[p+_width] = true;
+							group.add(new Integer(p+_width));
 						}
 					}
 				}
@@ -3240,7 +3271,7 @@ class CellImage {
 					p = ((Integer)group.get(k)).intValue();
 					alab[p] = cell[cellnum].actinpatchpoint.size();
 				}*/
-				if(AImage[patchp[ii]] < patchbrightofcell[cellnum] && group.size() > 30){//暗くて領域が広がりすぎたアクチンパッチは除く
+				if(_actin_points[patchp[ii]] < patchbrightofcell[cellnum] && group.size() > 30){//暗くて領域が広がりすぎたアクチンパッチは除く
 					/*for(int k=0;k<group.size();k++){
 						p = ((Integer)group.get(k)).intValue();
 						alab[p] = -1;
@@ -3248,7 +3279,7 @@ class CellImage {
 				}
 				else{
 					cell[cellnum].actinpatchpoint.add(new Integer(patchp[ii]+Adiff));
-					cell[cellnum].actinpatchbright.add(new Integer(AImage[patchp[ii]]));
+					cell[cellnum].actinpatchbright.add(new Integer(_actin_points[patchp[ii]]));
 					cell[cellnum].actinpatchsize.add(new Integer(group.size()));
 					cell[cellnum].totalpatchsize+=group.size();
 				}
@@ -3312,17 +3343,17 @@ class CellImage {
             long btotal4 = 0;
             for(int j=0;j<cell[i].actinpatchpoint.size();j++) {
                 int p=((Integer)cell[i].actinpatchpoint.get(j)).intValue();
-                long br = (long)AImage[p-Adiff];
-                x+=p%w;
-                y+=p/w;
-                brx+=p%w*br;
-                bry+=p/w*br;
-                brxx+=p%w*br*br;
-                bryy+=p/w*br*br;
-                brx3+=p%w*br*br*br;
-                bry3+=p/w*br*br*br;
-                brx4+=p%w*br*br*br*br;
-                bry4+=p/w*br*br*br*br;
+                long br = (long)_actin_points[p-Adiff];
+                x+=p%_width;
+                y+=p/_width;
+                brx+=p%_width*br;
+                bry+=p/_width*br;
+                brxx+=p%_width*br*br;
+                bryy+=p/_width*br*br;
+                brx3+=p%_width*br*br*br;
+                bry3+=p/_width*br*br*br;
+                brx4+=p%_width*br*br*br*br;
+                bry4+=p/_width*br*br*br*br;
                 total += br;
                 total2 += br*br;
                 total3 += br*br*br;
@@ -3331,32 +3362,32 @@ class CellImage {
                     if(cell[i].inmother(p)) {
                         mpatchsize++;
                         mtotal+=br;
-			           	mx+=p%w;
-            	    	my+=p/w;
-                		mbrx+=p%w*br;
-                		mbry+=p/w*br;
-                		mbrxx+=p%w*br*br;
-                		mbryy+=p/w*br*br;
-                		mbrx3+=p%w*br*br*br;
-                		mbry3+=p/w*br*br*br;
-                		mbrx4+=p%w*br*br*br*br;
-                		mbry4+=p/w*br*br*br*br;
+			           	mx+=p%_width;
+            	    	my+=p/_width;
+                		mbrx+=p%_width*br;
+                		mbry+=p/_width*br;
+                		mbrxx+=p%_width*br*br;
+                		mbryy+=p/_width*br*br;
+                		mbrx3+=p%_width*br*br*br;
+                		mbry3+=p/_width*br*br*br;
+                		mbrx4+=p%_width*br*br*br*br;
+                		mbry4+=p/_width*br*br*br*br;
                 		mtotal2 += br*br;
                 		mtotal3 += br*br*br;
                 		mtotal4 += br*br*br*br;
                     } else {
                         bpatchsize++;
                         btotal+=br;
-                		bx+=p%w;
-                		by+=p/w;
-                		bbrx+=p%w*br;
-                		bbry+=p/w*br;
-                		bbrxx+=p%w*br*br;
-                		bbryy+=p/w*br*br;
-                		bbrx3+=p%w*br*br*br;
-                		bbry3+=p/w*br*br*br;
-                		bbrx4+=p%w*br*br*br*br;
-                		bbry4+=p/w*br*br*br*br;
+                		bx+=p%_width;
+                		by+=p/_width;
+                		bbrx+=p%_width*br;
+                		bbry+=p/_width*br;
+                		bbrxx+=p%_width*br*br;
+                		bbryy+=p/_width*br*br;
+                		bbrx3+=p%_width*br*br*br;
+                		bbry3+=p/_width*br*br*br;
+                		bbrx4+=p%_width*br*br*br*br;
+                		bbry4+=p/_width*br*br*br*br;
                 		btotal2 += br*br;
                 		btotal3 += br*br*br;
                 		btotal4 += br*br*br*br;
@@ -3536,26 +3567,26 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     public void setAState() {
         for(int i=0;i<cell.length;i++) {
-            cell[i].setAState(Adiff,AImage);
+            cell[i].setAState(Adiff,_actin_points);
         }
     }
     /////////////////////////////////////////////////////////////////////////////////
     //actin画像出力
     /////////////////////////////////////////////////////////////////////////////////
     public void outAImage() {
-        int[] pixel = new int[size];
-        for(int i=0;i<size;i++) {
-            pixel[i] = 0xff000000 | (AImage[i] << 16) | (AImage[i] << 8) | AImage[i];
+        int[] pixel = new int[_size];
+        for(int i=0;i<_size;i++) {
+            pixel[i] = 0xff000000 | (_actin_points[i] << 16) | (_actin_points[i] << 8) | _actin_points[i];
         }
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image im = toolkit.createImage(new MemoryImageSource(w,h,pixel,0,w));
-        BufferedImage bi = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Image im = toolkit.createImage(new MemoryImageSource(_width,_height,pixel,0,_width));
+        BufferedImage bi = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_RGB);
         Graphics g = bi.createGraphics();
         Point p = calDiffPoint(Adiff);
         if(p.x >= 0 && p.y >= 0) while(!g.drawImage(im,p.x,p.y,null)){}
-        if(p.x >= 0 && p.y < 0) while(!g.drawImage(im,p.x,0,w,h+p.y,0,-p.y,w,h,null)){}
-        if(p.x < 0 && p.y >= 0) while(!g.drawImage(im,0,p.y,w+p.x,h,-p.x,0,w,h,null)){}
-        if(p.x < 0 && p.y < 0) while(!g.drawImage(im,p.x,p.y,w+p.x,h+p.y,-p.x,-p.y,w,h,null)){}
+        if(p.x >= 0 && p.y < 0) while(!g.drawImage(im,p.x,0,_width,_height+p.y,0,-p.y,_width,_height,null)){}
+        if(p.x < 0 && p.y >= 0) while(!g.drawImage(im,0,p.y,_width+p.x,_height,-p.x,0,_width,_height,null)){}
+        if(p.x < 0 && p.y < 0) while(!g.drawImage(im,p.x,p.y,_width+p.x,_height+p.y,-p.x,-p.y,_width,_height,null)){}
         g.setFont(new Font("Courier",Font.PLAIN,15));
         g.setColor(new Color(0xff8888ff));
         for(int i=0;i<cell.length;i++) {
@@ -3640,11 +3671,11 @@ class CellImage {
     //imageの中身を出力
     //////////////////////////////////////////////////////////////////////////
     public void writeimage(int[] image, String filename) {
-        BufferedImage bi = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        BufferedImage bi = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        for(int i=0;i<size;i++) {
+        for(int i=0;i<_size;i++) {
             g.setColor(new Color(image[i],image[i],image[i]));
-            g.drawLine(i%w,i/w,i%w,i/w);
+            g.drawLine(i%_width,i/_width,i%_width,i/_width);
         }
         writeJPEG(bi,outdir+"/"+this.name+"/"+this.name+"-"+filename+""+number+".jpg");
     }
@@ -3654,20 +3685,20 @@ class CellImage {
     public Point calDiffPoint(int diff) {
         Point p = new Point();
         if(diff >= 0) {
-            if(diff%w < w/2) {
-                p.x = diff%w;
-                p.y = diff/w;
+            if(diff%_width < _width/2) {
+                p.x = diff%_width;
+                p.y = diff/_width;
             } else  {
-                p.x = diff%w-w;
-                p.y = diff/w+1;
+                p.x = diff%_width-_width;
+                p.y = diff/_width+1;
             }
         } else {
-            if((-diff)%w < w/2) {
-                p.x = -((-diff)%w);
-                p.y = -((-diff)/w);
+            if((-diff)%_width < _width/2) {
+                p.x = -((-diff)%_width);
+                p.y = -((-diff)/_width);
             } else {
-                p.x = w-((-diff)%w);
-                p.y = -((-diff)/w)-1;
+                p.x = _width-((-diff)%_width);
+                p.y = -((-diff)/_width)-1;
             }
         }
         return p;
@@ -3683,7 +3714,7 @@ class CellImage {
             if(!sa.exists()) sa.mkdir();
             ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream((new FileOutputStream("objects/"+name+"/"+name+"-"+number+"-"+savenum+".dat"))));
             oos.writeObject(new Integer(number));oos.writeObject(new Integer(Ddiff));oos.writeObject(new Integer(Adiff));
-            oos.writeObject(CImage);oos.writeObject(DImage);oos.writeObject(AImage);
+            oos.writeObject(_cell_points);oos.writeObject(_nucleus_points);oos.writeObject(_actin_points);
             oos.writeObject(ci);oos.writeObject(di);oos.writeObject(ai);
             oos.writeObject(pixeltocell);oos.writeObject(pixeltocell2);
             oos.writeObject(cell);
@@ -3702,7 +3733,7 @@ class CellImage {
         try {
             ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream((new FileInputStream("objects/"+name+"/"+name+"-"+number+"-"+loadnum+".dat"))));
             number = ((Integer)ois.readObject()).intValue();Ddiff = ((Integer)ois.readObject()).intValue();Adiff = ((Integer)ois.readObject()).intValue();
-            CImage = (int[])ois.readObject();DImage = (int[])ois.readObject();AImage = (int[])ois.readObject();
+            _cell_points = (int[])ois.readObject();_nucleus_points = (int[])ois.readObject();_actin_points = (int[])ois.readObject();
             ci = (int[])ois.readObject();di = (int[])ois.readObject();ai = (int[])ois.readObject();
             pixeltocell = (int[])ois.readObject();pixeltocell2 = (int[])ois.readObject();
             cell = (Cell[])ois.readObject();

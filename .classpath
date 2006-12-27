@@ -3,11 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SWT_LIB"/>
-	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
-	<classpathentry kind="lib" path="lib/commons-httpclient.jar"/>
-	<classpathentry kind="lib" path="lib/webdavlib.jar"/>
-	<classpathentry kind="lib" path="lib/commons-dbutils-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SWT_LIB"/>
+	<classpathentry exported="true" kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/webdavlib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-dbutils-1.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Phenome Commons"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
