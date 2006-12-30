@@ -14,7 +14,7 @@ public class Segmentation {
 	private final static int _size_threshold_1 = 10;
 	private final static int _size_threshold_2 = 200;
 	
-	public void segment(CellWallImage image) {
+	public void segment(YeastImage image) {
 		boolean err = false;
 		String err_kind = "";
 		
@@ -24,33 +24,35 @@ public class Segmentation {
         Segmentation.segmentRoughly(ci, 3, image.getWidth());
         Segmentation.segmentRoughly(ci2, 7, image.getWidth());
         
-        /*
+        // TODO 12/30
         boolean[] difci = Segmentation.differentiate(ci,ci2);
-        Segmentation.division(ci,ci2,difci, _image.getWidth());
-		ci = Segmentation.gradim(ci, _image.getWidth());
+        
+        /*
+        Segmentation.division(ci,ci2,difci, image.getWidth());
+		ci = Segmentation.gradim(ci, image.getWidth());
         if(!Segmentation.threshold(ci)) {//画像の色が255を超えたら
             err = true;
             err_kind = "incorrect colerspace of image";
             return;
         }
-        Segmentation.beforecover(ci, _image.getWidth());
-		Segmentation.dilation(ci, _image.getWidth());
-		Segmentation.cover(ci, _image.getWidth());
-		Segmentation.erosion(ci, _image.getWidth());
-        Segmentation.erosion(ci, _image.getWidth());
-        Segmentation.dilation2(ci, _image.getWidth());
-        Segmentation.dilation2(ci, _image.getWidth());
-        Segmentation.dilation2(ci, _image.getWidth());
+        Segmentation.beforecover(ci, image.getWidth());
+		Segmentation.dilation(ci, image.getWidth());
+		Segmentation.cover(ci, image.getWidth());
+		Segmentation.erosion(ci, image.getWidth());
+        Segmentation.erosion(ci, image.getWidth());
+        Segmentation.dilation2(ci, image.getWidth());
+        Segmentation.dilation2(ci, image.getWidth());
+        Segmentation.dilation2(ci, image.getWidth());
         
-        EdgeDetection ed = new EdgeDetection(_image.getSize());
-        ed.edge(ci,_image.getOriginalPoints(), _image.getWidth(), 0);
+        EdgeDetection ed = new EdgeDetection(image.getSize());
+        ed.edge(ci,image.getOriginalPoints(), image.getWidth(), 0);
         
         NeckDetection nd = new NeckDetection();
-        nd.searchNeck(_image.getWidth(), _image.getSize(), ed.getCell(), ed.getPixelToCell(), ed.getPixelToCell2());
+        nd.searchNeck(image.getWidth(), image.getSize(), ed.getCell(), ed.getPixelToCell(), ed.getPixelToCell2());
         
         //_image.ploEdgePoints(ed.getCell());
-        _image.plotNeckPoints(ed.getCell());
-		_image.drawImage("yeast_test.jpg");
+        image.plotNeckPoints(ed.getCell());
+		image.drawImage("yeast_test.jpg");
 		*/
 	}
 	
@@ -109,7 +111,7 @@ public class Segmentation {
 		for ( int i = 0; i < result.length; i++ ) { result[i] = points[i]; }
 		
 		int most_black_point = pickOutMostBlackPoint(points, width);
-		result = determineBlackHomogeneityFromTheMostBlackPoint(most_black_point, threshold, width, points, result);
+		result = setIntenseBlackByBlackHomogeneityFromArg1Pixel(most_black_point, threshold, width, points, result);
 		
 		return result;
     }
@@ -136,7 +138,17 @@ public class Segmentation {
 		return result;
     }
     
-    protected static int[] determineBlackHomogeneityFromTheMostBlackPoint(final int most_black_point, final int threshold, 
+    /**
+     * 最も黒い点から、黒さの一様性が保たれる範囲（急に白くなる点で終了）を、真っ黒（value==0）にする。
+     * Backgroundを真っ黒にする。
+     * @param most_black_point
+     * @param threshold
+     * @param width
+     * @param points
+     * @param result
+     * @return
+     */
+    protected static int[] setIntenseBlackByBlackHomogeneityFromArg1Pixel(final int most_black_point, final int threshold, 
     		final int width, final int[] points, int[] result) {
     	Stack<Integer> stk = new Stack<Integer>();
 		stk.push(most_black_point);
@@ -147,48 +159,92 @@ public class Segmentation {
 		while( !stk.empty() ) {
 			int p = ((Integer)stk.pop()).intValue();
 			
-			if ( difsBetweenNeighboringPixelsAreSmallerThanThreshold(p, width, points, threshold) ) { continue; }
+			if ( oneOfFourNeighboringPixelsIsThresholdBlacker(p, width, points, threshold) ) { continue; }
 			result[p] = 0;
 			
-			if ( difOfUpperPixelIsSmallerThanThreshold(p, width, points, check, threshold) ) { stk.push(new Integer(p - width)); }
+			if ( upperPixelIsNotThresholdWhiter(p, width, points, check, threshold) ) { stk.push(new Integer(p - width)); }
 			if ( p - width >= 0 ) { check[p - width] = true; }
 			
-			if ( difOfLowerPixelIsSmallerThanThreshold(p, width, points, check, threshold) ) { stk.push(new Integer(p + width)); }
+			if ( lowerPixelIsNotThresholdWhiter(p, width, points, check, threshold) ) { stk.push(new Integer(p + width)); }
 			if ( p + width < points.length) { check[p + width] = true; }
 			
-			if ( difOfLeftPixelIsSmallerThanThreshold(p, width, points, check, threshold) )  { stk.push(new Integer(p - 1)); }
+			if ( leftPixelIsNotThresholdWhiter(p, width, points, check, threshold) )  { stk.push(new Integer(p - 1)); }
 			if ( p % width != 0 ) { check[p-1] = true; }
 			
-			if ( difOfRightPixelIsSmallerThanThreshold(p, width, points, check, threshold) ) { stk.push(new Integer(p + 1)); }
+			if ( rightPixelIsNotThresholdWhiter(p, width, points, check, threshold) ) { stk.push(new Integer(p + 1)); }
 			if ( p % width != width - 1 ) { check[p + 1] = true; }
 		}
 		return result;
     }
     
-    protected static boolean difsBetweenNeighboringPixelsAreSmallerThanThreshold(int p, int width, int[] points, int threshold) {
-    	if ( !( ( p - width < 0 || points[p] - points[p - width] < threshold ) && 
-			    ( p + width >= points.length || points[p] - points[p + width] < threshold ) && 
-			    ( p % width == 0 || points[p] - points[p - 1] < threshold ) && 
-			    ( p % width == width - 1 || points[p] - points[p + 1] < threshold ) ) ) { return true; }
-    	return false;
+    /**
+     * 4近傍点のどれか1つが、閾値以上黒い場合TRUEを返す。
+     * @param p
+     * @param width
+     * @param points
+     * @param threshold
+     * @return
+     */
+    protected static boolean oneOfFourNeighboringPixelsIsThresholdBlacker(int p, int width, int[] points, int threshold) {
+    	if ( ( p - width < 0              || points[p] - points[p - width] < threshold ) && 
+			 ( p + width >= points.length || points[p] - points[p + width] < threshold ) && 
+			 ( p % width <= 0             || points[p] - points[p - 1]     < threshold ) && 
+			 ( p % width >= width - 1     || points[p] - points[p + 1]     < threshold ) ) { return false; }
+    	return true;
     }
     
-    protected static boolean difOfUpperPixelIsSmallerThanThreshold(int p, int width, int[] points, boolean[] check, int threshold) {
+    /**
+     * 上隣接点が、閾値以上白くない場合TRUEを返す。 （上隣接点の白さはせいぜい閾値程度）
+     * @param p
+     * @param width
+     * @param points
+     * @param check
+     * @param threshold
+     * @return
+     */
+    protected static boolean upperPixelIsNotThresholdWhiter(int p, int width, int[] points, boolean[] check, int threshold) {
     	if ( p - width >= 0 && !check[p - width] && points[p - width] - points[p] < threshold ) { return true; }
     	return false;
     }
     
-    protected static boolean difOfLowerPixelIsSmallerThanThreshold(int p, int width, int[] points, boolean[] check, int threshold) {
+    /**
+     * 下隣接点が、閾値以上白くない場合TRUEを返す。 （下隣接点の白さはせいぜい閾値程度）
+     * @param p
+     * @param width
+     * @param points
+     * @param check
+     * @param threshold
+     * @return
+     */
+    protected static boolean lowerPixelIsNotThresholdWhiter(int p, int width, int[] points, boolean[] check, int threshold) {
     	if ( p + width < points.length && !check[p + width] && points[p + width] - points[p] < threshold ) { return true; }
     	return false;
     }
     
-    protected static boolean difOfLeftPixelIsSmallerThanThreshold(int p, int width, int[] points, boolean[] check, int threshold) {
+    /**
+     * 左隣接点が、閾値以上白くない場合TRUEを返す。 （左隣接点の白さはせいぜい閾値程度）
+     * @param p
+     * @param width
+     * @param points
+     * @param check
+     * @param threshold
+     * @return
+     */
+    protected static boolean leftPixelIsNotThresholdWhiter(int p, int width, int[] points, boolean[] check, int threshold) {
     	if ( p % width != 0 && !check[p - 1] && points[p - 1] - points[p] < threshold ) { return true; }
     	return false;
     }
     
-    protected static boolean difOfRightPixelIsSmallerThanThreshold(int p, int width, int[] points, boolean[] check, int threshold) {
+    /**
+     * 右隣接点が、閾値以上白くない場合TRUEを返す。 （右隣接点の白さはせいぜい閾値程度）
+     * @param p
+     * @param width
+     * @param points
+     * @param check
+     * @param threshold
+     * @return
+     */
+    protected static boolean rightPixelIsNotThresholdWhiter(int p, int width, int[] points, boolean[] check, int threshold) {
     	if ( p % width != width - 1 && !check[p + 1] && points[p + 1] - points[p] < threshold ) { return true; }
     	return false;
     }    
