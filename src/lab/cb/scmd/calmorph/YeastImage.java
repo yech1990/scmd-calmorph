@@ -5,13 +5,16 @@ import java.awt.image.DataBuffer;
 
 import lab.cb.scmd.calmorph2.CalmorphCommon;
 
-public class CellWallImage {
+public class YeastImage {
 	
 	int _width, _height, _size, _satrt_id;
 	int[] _points, _original_points;
+	String _image_type;
 	Cell[] _cell;
 	
-	public CellWallImage(String name, BufferedImage bi, int start_id) {
+	public YeastImage(String name, String image_type, BufferedImage bi, int start_id) {
+		_image_type = image_type;
+		
 		_width = bi.getWidth();
 		_height = bi.getHeight();
 		DataBuffer db = bi.getRaster().getDataBuffer();

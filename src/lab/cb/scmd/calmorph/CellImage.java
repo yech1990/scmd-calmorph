@@ -23,7 +23,7 @@ import javax.imageio.ImageIO;
 
 class CellImage {
 	
-	private CellWallImage _cell_wall_image;
+	private YeastImage _cell_wall_image;
 	
     int _width, _height, _size;                          //画像の幅、高さ、pixel数
     int number, Ddiff, Adiff, startid;                   //画像の番号、DAPI画像のずれ、actin画像のずれ、最初のcell番号
@@ -39,6 +39,10 @@ class CellImage {
     boolean flag_tmp;
     String err_kind;
     //int[] actindiv;//テスト
+    
+    private static final String _cell_wall = "cell_wall";
+    private static final String _nucleus = "nucleus";
+    private static final String _actin = "actin";
     
     public CellImage(String name,String path,int number,String outdir,int startid,boolean calD,boolean calA) {
         _width = 696;//とりあえず固定
@@ -60,7 +64,7 @@ class CellImage {
         if((f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
         else err = true;
         
-        _cell_wall_image = new CellWallImage(name, bi, startid);
+        _cell_wall_image = new YeastImage(name, _cell_wall, bi, startid);
         
         
         if(!err) {
