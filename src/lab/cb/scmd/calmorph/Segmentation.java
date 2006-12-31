@@ -5,6 +5,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import lab.cb.scmd.calmorph2.CalmorphCommon;
+import lab.cb.scmd.calmorph2.Labeling;
 
 public class Segmentation {
 	
@@ -14,21 +15,21 @@ public class Segmentation {
 	private final static int _size_threshold_1 = 10;
 	private final static int _size_threshold_2 = 200;
 	
+	// TODO
 	public void segment(YeastImage image) {
-		boolean err = false;
-		String err_kind = "";
+		//boolean err = false;
+		//String err_kind = "";
 		
 		image.setPoints(Segmentation.medianFilter(image.getOriginalPoints(), image.getWidth()));
 		int[] ci = image.getPoints();
 		int[] ci2 = (int[])ci.clone();
-        Segmentation.segmentRoughly(ci, 3, image.getWidth());
-        Segmentation.segmentRoughly(ci2, 7, image.getWidth());
+        ci  = Segmentation.segmentRoughly(ci, 3, image.getWidth());
+        ci2 = Segmentation.segmentRoughly(ci2, 7, image.getWidth());
         
-        // TODO 12/30
-        boolean[] difci = Segmentation.differentiate(ci,ci2);
+        boolean[] boundary_TRUE_points = Segmentation.makeDifferentPointsBetweenArg1AndArg2TRUE(ci,ci2);
+        Segmentation.division(ci, ci2, boundary_TRUE_points, image.getWidth());
         
         /*
-        Segmentation.division(ci,ci2,difci, image.getWidth());
 		ci = Segmentation.gradim(ci, image.getWidth());
         if(!Segmentation.threshold(ci)) {//画像の色が255を超えたら
             err = true;
@@ -250,32 +251,40 @@ public class Segmentation {
     }    
     
     /**
-     * （旧 dif() ）
-     * @param points1
-     * @param points2
+     * 2つの配列の各要素を比較し、同じなら白（FALSE）、異なるなら黒（TRUE）とする。 （旧 dif() ）
+     * 異なる閾値でsegmentRoughly()を実行した結果を比較する。 == yeast と Background の境界を黒（TRUE）とする配列に変換する。
+     * Background に偽境界はないが、yeast　側には偽境界があるのでは？
+     * @param points_1
+     * @param points_2
      * @return
      */
-    public static boolean[] differentiate(int[] points1, int[] points2) {
-    	assert points1.length == points2.length;
-    	boolean[] result = new boolean[points1.length];
-    	for ( int i = 0 ; i < points1.length; i++ ) {
-    		if   ( points1[i] == points2[i] ) { result[i] = _white; }
+    public static boolean[] makeDifferentPointsBetweenArg1AndArg2TRUE(final int[] points_1, final int[] points_2) {
+    	if ( points_1.length != points_2.length ) {
+    		CalmorphCommon.errorExit("Segmentation.differentiate()", "points_1.length != points_2.length");
+    	}
+    	boolean[] result = new boolean[points_1.length];
+    	for ( int i = 0 ; i < points_1.length; i++ ) {
+    		if   ( points_1[i] == points_2[i] ) { result[i] = _white; }
     		else { result[i] = _black; }
     	}
     	return result;
     }
     
-    public static void division(int[] points_1, int[] points_2, boolean[] dif_binary, int width){
+    public static void division(int[] points_1, int[] points_2, boolean[] boundary_TRUE_points, int width){
     	int size = points_1.length;
 		
-    	Vector[] labeled_1 = label(dif_binary, _black, _size_threshold_1, width, size / width, true);
-		boolean[] thci = new boolean[size];
+    	Labeling label_1 = new Labeling();
+    	Vector[] labeled_1 = label_1.label(boundary_TRUE_points, _black, _size_threshold_1, width, size / width, true);
+		
+    	boolean[] thci = new boolean[size];
 		for ( int i = 0; i < size; i++ )	{
 			if ( points_2[i] == 0 ) { thci[i] = _white; }
 			else { thci[i] = _black; }
 		}
 		
-		Vector[] labeled_2 = label(thci,_black, _size_threshold_2, width, size / width, false);
+		Labeling label_2 = new Labeling();
+		Vector[] labeled_2 = label_2.label(thci,_black, _size_threshold_2, width, size / width, false);
+		
 		int[] pixeltoarea = new int[size];
 		for ( int i = 0; i < size; i++ ) { pixeltoarea[i] = -1; }
 		for ( int i = 0; i < labeled_2.length; i++ ) {
@@ -308,155 +317,6 @@ public class Segmentation {
 				}
 			}
 		}
-    }
-    
-    // TODO
-    public static Vector[] label(boolean[] binary_image, boolean color,int size_threshold, int width, int height, boolean corner_cut) {
-    	int size = binary_image.length;
-        Vector<Integer> same = new Vector<Integer>();
-        int[] label = new int[size];
-        
-        int label_number = numberLabeling(label, width, binary_image, color, same);
-        
-        // sameをセットし直す　（必要？）
-        int max_label = -1;
-        for ( int i = 0; i < same.size(); i++ ) {
-            int s = smallestlabel(same, i);
-            if ( max_label < s ) { max_label = s; }
-            same.set(i, new Integer(s));
-        }
-        
-        label_number = max_label;
-        Vector[] vec2 = new Vector[label_number + 1];
-        for ( int i = 0; i < label_number + 1; i++ ) {
-            vec2[i] = new Vector();
-        }
-        for ( int i = 0; i < size; i++ ) {
-            if ( label[i] < 0 ) { }
-            else { vec2[( (Integer)same.get(label[i]) ).intValue()].add(new Integer(i)); }
-        }
-        
-        int number = 0;
-        boolean[] flags = new boolean[label_number + 1];  //塊とみなすかどうか
-        for ( int i = 0 ; i < label_number + 1; i++ ) {
-            if ( vec2[i].size() > size_threshold ) {      //サイズ以上の塊について
-                if ( !corner_cut ) {               //corner_cutが指定されていなければ
-                    flags[i] = true;
-                    number++;
-                } else {                           //cornercutが指定されていれば
-                    flags[i]=true;
-                    for ( int j = 0; j < vec2[i].size(); j++ ) {
-                        int p = ( (Integer)vec2[i].get(j) ).intValue();
-                        if ( p < width || p > width * (height-1) || p % width == 0 || p % width == width - 1 ) {  //壁に接するpixelが存在
-                            flags[i] = false;
-                            break;
-                        }
-                    }
-                    if ( flags[i] ) { number++; }
-                }
-            } else { flags[i] = false; }
-        }
-        
-        Vector<Integer>[] result = new Vector[number];
-        int index = 0;
-        for ( int i = 0; i < result.length; i++ ) {
-            result[i] = new Vector<Integer>();
-            while ( index < label_number + 1 ) {
-                if ( flags[index] ) { break; }
-                index++;
-            }
-            if ( index < label_number + 1 ) {
-                for ( int k = 0; k < vec2[index].size(); k++ ) {
-                    result[i].add( (Integer)vec2[index].get(k) );
-                }
-                index++;
-            } else { break; }
-        }
-        
-        return result;
-    }
-    
-    /**
-     * 二値化画像を連結成分ごとにラベリング
-     * @param label
-     * @param width
-     * @param binary_image
-     * @param color
-     * @param same
-     * @return
-     */
-    private static int numberLabeling(int[] label, int width, boolean[] binary_image, boolean color, Vector<Integer> same) {
-    	int label_number = 0;
-    	int size = label.length;
-    	int height = label.length / width;
-        for ( int i = 0; i < size; i++ ) { label[i] = -1; }
-        
-        if ( binary_image[0] == color ) {
-            label[0] = label_number;
-            same.add(new Integer(label_number++));
-        }
-        for ( int j = 1; j < width; j++ ) {
-            if ( binary_image[j] == color ) {
-                if ( label[j-1] >= 0 ) {
-                    label[j] = label[j-1];
-                } else {
-                    label[j] = label_number;
-                    same.add(new Integer(label_number++));
-                }
-            }
-        }
-        for (int i = 1; i < height; i++ ) {
-            if ( binary_image[i * width] == color ) {
-                if ( label[(i-1) * width] >= 0 ) {
-                    label[i * width] = label[(i-1) * width];
-                } else {
-                    label[i * width] = label_number;
-                    same.add(new Integer(label_number++));
-                }
-            }
-            for ( int j = 1; j < width; j++ ) {
-                if ( binary_image[i * width + j] == color ) {
-                    int left_label, upper_label;
-                    if ( label[i * width + j - 1] >= 0) { left_label = smallestlabel(same, label[i * width + j - 1]); }
-                    else left_label = -1;
-                    if ( label[(i-1) * width + j] >= 0) { upper_label = smallestlabel(same, label[(i-1) * width + j]); }
-                    else upper_label = -1;
-                    
-                    if ( left_label == -1 && upper_label == -1 ) {
-                        label[i * width + j] = label_number;
-                        same.add(new Integer(label_number++));
-                    } else if ( left_label == -1 ) {
-                        label[i * width + j] = upper_label;
-                    } else if ( upper_label == -1 ) {
-                        label[i * width + j] = left_label;
-                    } else if ( left_label < upper_label ) {
-                        label[i * width + j] = left_label;
-                        same.set(upper_label, new Integer(left_label));
-                    } else {
-                        label[i * width + j] = upper_label;
-                        same.set(left_label, new Integer(upper_label));
-                    }
-                }
-            }
-        }
-        return label_number;
-    }
-    
-    
-    public static int smallestlabel(Vector<Integer> same, int label_number) {
-        int result = label_number;
-        Vector<Integer> temp = new Vector<Integer>();
-        while (true) {
-            if ( ((Integer)same.get(result)).intValue() == result ) {
-                for ( int i = 0; i < temp.size(); i++) {
-                    same.set( ((Integer)temp.elementAt(i) ).intValue(), new Integer(result) );   // 必要？
-                }
-                return result;
-            } else {
-                temp.add( new Integer(result) );
-                result = ( (Integer)same.get(result) ).intValue();
-            }
-        }
     }
     
 	public static int[] gradim(int[] points, int width){
@@ -573,7 +433,8 @@ public class Segmentation {
     }
     
     public static void beforecover(int[] binary_int_points, int width) {
-    	Vector[] vec = label(
+    	Labeling lab = new Labeling();
+    	Vector[] vec = lab.label(
     			convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white, 0, width, binary_int_points.length / width, true);
 		
     	for ( int i = 0; i < binary_int_points.length; i++ ) { binary_int_points[i] = 255; }
@@ -591,7 +452,8 @@ public class Segmentation {
      * @param width
      */
     public static void cover(int[] binary_int_points, int width) {
-        Vector[] vec = label(
+    	Labeling lab = new Labeling();
+        Vector[] vec = lab.label(
         		convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white, 0, width, binary_int_points.length / width, false);
         
         int max_size = 0;
@@ -639,7 +501,9 @@ public class Segmentation {
 	
 	public static void dilation2(int[] binary_int_points, int width) {
 		int height = binary_int_points.length / width;
-        Vector[] vec = label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _black, 0, width, height, false);
+		
+		Labeling lab = new Labeling();
+        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _black, 0, width, height, false);
 		
         int[] group = new int[binary_int_points.length];
 		for ( int i = 0; i < group.length; i++ ) { group[i] = -1; }
