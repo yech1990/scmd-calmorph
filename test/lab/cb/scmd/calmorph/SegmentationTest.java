@@ -117,4 +117,19 @@ public class SegmentationTest extends TestCase {
 		check[13] = true;
 		assertFalse(Segmentation.rightPixelIsNotThresholdWhiter(12, 5, points, check, 6));
 	}
+	
+	public void testMakeDifferentPointsBetweenArg1AndArg2TRUE() {
+		int[] points_1 = {0, 0, 0, 15, 20, 25, 30, 35};
+		int[] points_2 = {0, 0, 0, 0,  21, 25, 31, 35};
+		boolean[] result = Segmentation.makeDifferentPointsBetweenArg1AndArg2TRUE(points_1, points_2);
+		assertFalse(result[0]);
+		assertFalse(result[1]);
+		assertFalse(result[2]);
+		assertTrue(result[3]);
+		assertTrue(result[4]);
+		assertFalse(result[5]);
+		assertTrue(result[6]);
+		assertFalse(result[7]);
+	}
+	
 }
