@@ -4,76 +4,124 @@ import java.util.Vector;
 
 public class Labeling {
 	
-	public Labeling() {
-		
+	private int _width, _height, _size, _size_threshold;
+	private boolean _corner_cut;
+	
+	private Vector<Integer>[] _constituent_pixels_of_each_label;
+	private boolean[] _label_validity;
+	
+	public Labeling(int width, int size, int size_threshold, boolean corner_cut) {
+		_width = width;
+		_height = size / width;
+		_size = size;
+		_size_threshold = size_threshold;
+		_corner_cut = corner_cut;
 	}
     
-	// TODO
-	public Vector[] label(boolean[] binary_image, boolean color,int size_threshold, int width, int height, boolean corner_cut) {
-    	int size = binary_image.length;
-        Vector<Integer> same = new Vector<Integer>();
-        int[] label = new int[size];
-        
-        NumberLabeling num_label = new NumberLabeling(width, size); // arg3 same 削除
+	/**
+	 * 連結成分ごとに番号をラベリング
+	 * @param binary_image
+	 * @param color
+	 * @return : label番号ごとに、その全構成pixelを登録したVector、を要素に持つ配列を返す。
+	 */
+	public Vector<Integer>[] label(boolean[] binary_image, boolean color) {
+        NumberLabeling num_label = new NumberLabeling(_width, _size);
         num_label.executeNumberLabeling(binary_image, color);
-        int label_number = num_label.getLabelNumber();
         
-        // sameをセットし直す　（必要？）
-        int max_label = -1;
-        for ( int i = 0; i < same.size(); i++ ) {
-            int s = num_label.smallestlabel(i);
-            if ( max_label < s ) { max_label = s; }
-            same.set(i, new Integer(s));
-        }
+        int max_label = num_label.resetSameLabelsAndGetMaxLabel();
+        setConstituentPixelsOfEachLabel(max_label, num_label);
         
-        label_number = max_label;
-        Vector[] vec2 = new Vector[label_number + 1];
-        for ( int i = 0; i < label_number + 1; i++ ) {
-            vec2[i] = new Vector();
+        int number_of_valid_labels = eliminateLabelsOnImageCornerAndSmallLabels(max_label);
+        return getConstituentPixelsOfValidLabels(number_of_valid_labels, max_label);
+    }
+	
+	/**
+	 * label番号ごとに、その全構成pixelを登録。
+	 * 登録先 : Vector<Integer>[] _constituent_pixels_of_each_label
+	 * @param max_label
+	 * @param num_label
+	 */
+	protected void setConstituentPixelsOfEachLabel(int max_label, NumberLabeling num_label) {
+		_constituent_pixels_of_each_label = new Vector[max_label + 1];
+        for ( int i = 0; i < max_label + 1; i++ ) { _constituent_pixels_of_each_label[i] = new Vector<Integer>(); }
+        for ( int i = 0; i < _size; i++ ) {
+            if ( num_label.getLabeled()[i] >= 0 ) {
+            	_constituent_pixels_of_each_label[( (Integer)(num_label.getSameLabels().get( num_label.getLabeled()[i] )) ).intValue()].add(new Integer(i));
+            }
         }
-        for ( int i = 0; i < size; i++ ) {
-            if ( label[i] < 0 ) { }
-            else { vec2[( (Integer)same.get(label[i]) ).intValue()].add(new Integer(i)); }
-        }
-        
-        int number = 0;
-        boolean[] flags = new boolean[label_number + 1];  //塊とみなすかどうか
-        for ( int i = 0 ; i < label_number + 1; i++ ) {
-            if ( vec2[i].size() > size_threshold ) {      //サイズ以上の塊について
-                if ( !corner_cut ) {               //corner_cutが指定されていなければ
-                    flags[i] = true;
-                    number++;
-                } else {                           //cornercutが指定されていれば
-                    flags[i]=true;
-                    for ( int j = 0; j < vec2[i].size(); j++ ) {
-                        int p = ( (Integer)vec2[i].get(j) ).intValue();
-                        if ( p < width || p > width * (height-1) || p % width == 0 || p % width == width - 1 ) {  //壁に接するpixelが存在
-                            flags[i] = false;
-                            break;
-                        }
-                    }
-                    if ( flags[i] ) { number++; }
-                }
-            } else { flags[i] = false; }
-        }
-        
-        Vector<Integer>[] result = new Vector[number];
+	}
+	
+	/**
+	 * label番号ごとに、その全構成pixelを登録。（valid labels only version）
+	 * @param number_of_valid_labels
+	 * @param max_label
+	 * @return
+	 */
+	protected Vector<Integer>[] getConstituentPixelsOfValidLabels(int number_of_valid_labels, int max_label) {
+		Vector<Integer>[] result = new Vector[number_of_valid_labels];
         int index = 0;
+        
         for ( int i = 0; i < result.length; i++ ) {
             result[i] = new Vector<Integer>();
-            while ( index < label_number + 1 ) {
-                if ( flags[index] ) { break; }
+            while ( index <= max_label ) {
+                if ( _label_validity[index] ) { break; }
                 index++;
             }
-            if ( index < label_number + 1 ) {
-                for ( int k = 0; k < vec2[index].size(); k++ ) {
-                    result[i].add( (Integer)vec2[index].get(k) );
-                }
+            if ( index <= max_label ) {
+                for ( int p : _constituent_pixels_of_each_label[index] ) { result[i].add(p); }
                 index++;
             } else { break; }
         }
         
         return result;
-    }
+	}
 	
+	/**
+	 * ラベリングされた連結成分の内、画像の縁に接しているものと、サイズが閾値以下のものを削除する。
+	 * @param max_label
+	 * @return : 残った （画像の縁に接しておらず、サイズが閾値以上の） ラベリングされた連結成分の数
+	 */
+	protected int eliminateLabelsOnImageCornerAndSmallLabels(int max_label) {
+		int number_of_valid_labels = 0;
+        _label_validity = new boolean[max_label + 1];
+        
+        for ( int i = 0 ; i < max_label + 1; i++ ) {
+            if ( _constituent_pixels_of_each_label[i].size() > _size_threshold ) {
+                if ( !_corner_cut ) {
+                    _label_validity[i] = true;
+                    number_of_valid_labels++;
+                } else {
+                    if ( !eliminateLabelsOnImageCorner(i) ) { number_of_valid_labels++; }
+                }
+            } else { _label_validity[i] = false; }
+        }
+        return number_of_valid_labels;
+	}
+	
+	/**
+	 * あるラベリングされた連結成分が画像の縁に接している場合、その連結成分を除外する。
+	 * _label_validity[i] = false とする。
+	 * @param i
+	 * @return : 除外する場合、TRUEを返す。
+	 */
+	protected boolean eliminateLabelsOnImageCorner(int i) {
+		_label_validity[i] = true;
+        for ( int p : _constituent_pixels_of_each_label[i] ) {
+            if ( onImageCorner(p) ) {
+                _label_validity[i] = false;
+                return true;
+            }
+        }
+        return false;
+	}
+	
+	/**
+	 * あるラベリングされた連結成分が、画像の縁に接している場合TRUEを返す。
+	 * @param p
+	 * @return
+	 */
+	protected boolean onImageCorner(int p) {
+		if ( p < _width || p >= _width * (_height - 1) || p % _width <= 0 || p % _width >= _width - 1 ) { return true; }
+		else { return false; }
+	}
 }

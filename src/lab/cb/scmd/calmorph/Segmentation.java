@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.swing.text.Position.Bias;
+
 import lab.cb.scmd.calmorph2.CalmorphCommon;
 import lab.cb.scmd.calmorph2.Labeling;
 
@@ -273,8 +275,8 @@ public class Segmentation {
     public static void division(int[] points_1, int[] points_2, boolean[] boundary_TRUE_points, int width){
     	int size = points_1.length;
 		
-    	Labeling label_1 = new Labeling();
-    	Vector[] labeled_1 = label_1.label(boundary_TRUE_points, _black, _size_threshold_1, width, size / width, true);
+    	Labeling label_1 = new Labeling(width, size, _size_threshold_1, true);
+    	Vector[] labeled_1 = label_1.label(boundary_TRUE_points, _black);
 		
     	boolean[] thci = new boolean[size];
 		for ( int i = 0; i < size; i++ )	{
@@ -282,8 +284,8 @@ public class Segmentation {
 			else { thci[i] = _black; }
 		}
 		
-		Labeling label_2 = new Labeling();
-		Vector[] labeled_2 = label_2.label(thci,_black, _size_threshold_2, width, size / width, false);
+		Labeling label_2 = new Labeling(width, size, _size_threshold_2, false);
+		Vector[] labeled_2 = label_2.label(thci,_black);
 		
 		int[] pixeltoarea = new int[size];
 		for ( int i = 0; i < size; i++ ) { pixeltoarea[i] = -1; }
@@ -433,9 +435,8 @@ public class Segmentation {
     }
     
     public static void beforecover(int[] binary_int_points, int width) {
-    	Labeling lab = new Labeling();
-    	Vector[] vec = lab.label(
-    			convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white, 0, width, binary_int_points.length / width, true);
+    	Labeling lab = new Labeling(width, binary_int_points.length, 0, true);
+    	Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white);
 		
     	for ( int i = 0; i < binary_int_points.length; i++ ) { binary_int_points[i] = 255; }
 		for ( int i = 0; i < vec.length; i++ ) {
@@ -452,9 +453,8 @@ public class Segmentation {
      * @param width
      */
     public static void cover(int[] binary_int_points, int width) {
-    	Labeling lab = new Labeling();
-        Vector[] vec = lab.label(
-        		convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white, 0, width, binary_int_points.length / width, false);
+    	Labeling lab = new Labeling(width, binary_int_points.length, 0, false);
+        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white);
         
         int max_size = 0;
         int max_index = 0;
@@ -502,8 +502,8 @@ public class Segmentation {
 	public static void dilation2(int[] binary_int_points, int width) {
 		int height = binary_int_points.length / width;
 		
-		Labeling lab = new Labeling();
-        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _black, 0, width, height, false);
+		Labeling lab = new Labeling(width, binary_int_points.length, 0, false);
+        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _black);
 		
         int[] group = new int[binary_int_points.length];
 		for ( int i = 0; i < group.length; i++ ) { group[i] = -1; }

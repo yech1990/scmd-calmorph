@@ -115,4 +115,18 @@ public class NumberLabeling {
         }
     }
     
+    /**
+     * _same_labelsベクターを、同一連結成分の中の最小値を直接示す様に修正。
+     * 同時に、reset後のlabelの最大値を返す。
+     * @return : reset後のlabelの最大値
+     */
+    public int resetSameLabelsAndGetMaxLabel() {
+    	int result = -1;
+        for ( int i = 0; i < _same_labels.size(); i++ ) {
+            int smallest_label = smallestlabel(i);
+            if ( result < smallest_label ) { result = smallest_label; }
+            _same_labels.set(i, new Integer(smallest_label));
+        }
+        return result;
+    }
 }
