@@ -1,13 +1,17 @@
 package lab.cb.scmd.calmorph;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Stack;
 import java.util.Vector;
 
-import javax.swing.text.Position.Bias;
+import javax.imageio.ImageIO;
 
 import lab.cb.scmd.calmorph2.CalmorphCommon;
 import lab.cb.scmd.calmorph2.Labeling;
+import lab.cb.scmd.calmorph2.MorphologicalOperation;
+import lab.cb.scmd.calmorph2.Thresholding;
 
 public class Segmentation {
 	
@@ -17,10 +21,19 @@ public class Segmentation {
 	private final static int _size_threshold_1 = 10;
 	private final static int _size_threshold_2 = 200;
 	
+	public static void main(String[] args) throws IOException {
+		System.out.println("SCMD START");
+		Segmentation sm = new Segmentation();
+		
+		YeastImage yi = new YeastImage("temp", "cell_wall", ImageIO.read(new File(args[0])), 0);
+		sm.segment(yi);
+		System.out.println("SCMD END");
+	}
+	
 	// TODO
 	public void segment(YeastImage image) {
-		//boolean err = false;
-		//String err_kind = "";
+		boolean err = false;
+		String err_kind = "";
 		
 		image.setPoints(Segmentation.medianFilter(image.getOriginalPoints(), image.getWidth()));
 		int[] ci = image.getPoints();
@@ -29,36 +42,46 @@ public class Segmentation {
         ci2 = Segmentation.segmentRoughly(ci2, 7, image.getWidth());
         
         boolean[] boundary_TRUE_points = Segmentation.makeDifferentPointsBetweenArg1AndArg2TRUE(ci,ci2);
-        Segmentation.division(ci, ci2, boundary_TRUE_points, image.getWidth());
+        ci = Segmentation.division(ci, ci2, boundary_TRUE_points, image.getWidth());
         
-        /*
-		ci = Segmentation.gradim(ci, image.getWidth());
-        if(!Segmentation.threshold(ci)) {//画像の色が255を超えたら
+		ci = Segmentation.scaling(ci, image.getWidth()); // not yet read
+		
+		Thresholding thr = new Thresholding(ci);
+		if ( thr.executeThresholding() ) {
             err = true;
             err_kind = "incorrect colerspace of image";
             return;
         }
-        Segmentation.beforecover(ci, image.getWidth());
-		Segmentation.dilation(ci, image.getWidth());
-		Segmentation.cover(ci, image.getWidth());
-		Segmentation.erosion(ci, image.getWidth());
-        Segmentation.erosion(ci, image.getWidth());
-        Segmentation.dilation2(ci, image.getWidth());
-        Segmentation.dilation2(ci, image.getWidth());
-        Segmentation.dilation2(ci, image.getWidth());
+		ci = thr.getPoints();
+		
+		MorphologicalOperation mo = new MorphologicalOperation(image.getWidth(), ci);
+        mo.beforecover();
+		mo.dilation();
+		mo.cover();
+		mo.erosion();
+        mo.erosion();
+        mo.dilation2();
+        mo.dilation2();
+        mo.dilation2();
+        ci = mo.getPoints();
         
-        EdgeDetection ed = new EdgeDetection(image.getSize());
-        ed.edge(ci,image.getOriginalPoints(), image.getWidth(), 0);
+        EdgeDetection ed = new EdgeDetection(image.getWidth(), image.getSize(), ci, image.getOriginalPoints());
+        ed.edge(0);
         
-        NeckDetection nd = new NeckDetection();
-        nd.searchNeck(image.getWidth(), image.getSize(), ed.getCell(), ed.getPixelToCell(), ed.getPixelToCell2());
+        //NeckDetection nd = new NeckDetection();
+        //nd.searchNeck(image.getWidth(), image.getSize(), ed.getCell(), ed.getPixelToCell(), ed.getPixelToCell2());
         
-        //_image.ploEdgePoints(ed.getCell());
-        image.plotNeckPoints(ed.getCell());
-		image.drawImage("yeast_test.jpg");
-		*/
+        //image.ploEdgePoints(ed.getCell());
+        //image.plotNeckPoints(ed.getCell());
+		//image.drawImage("yeast_test.jpg");
 	}
 	
+	private void drawImageAndExit(YeastImage image, int[] points) {
+		YeastImage yi = new YeastImage(image.getWidth(), image.getHeight(), points);
+		yi.drawImage("temp.jpg");
+        System.out.println("drawImageTmp() END");
+		System.exit(0);
+	}
 	
 	/**
 	 * Median Filter (3×3)
@@ -272,56 +295,99 @@ public class Segmentation {
     	return result;
     }
     
-    public static void division(int[] points_1, int[] points_2, boolean[] boundary_TRUE_points, int width){
+    /**
+     * difで求めた差分のうち背景であると確定する部分とそうでない部分を分ける
+     * @param points_1 : Backgroundを真っ黒（=0）にしたint[]
+     * @param points_2 : Backgroundを真っ黒（=0）にしたint[] （points_1よりBackgroundは大きい）
+     * @param boundary_TRUE_points : yeast と Background の境界を黒（TRUE）としたBoolean配列
+     * @param width
+     */
+    public static int[] division(int[] points_1, int[] points_2, boolean[] boundary_TRUE_points, int width){
     	int size = points_1.length;
 		
-    	Labeling label_1 = new Labeling(width, size, _size_threshold_1, true);
-    	Vector[] labeled_1 = label_1.label(boundary_TRUE_points, _black);
-		
-    	boolean[] thci = new boolean[size];
-		for ( int i = 0; i < size; i++ )	{
-			if ( points_2[i] == 0 ) { thci[i] = _white; }
-			else { thci[i] = _black; }
-		}
-		
+    	Labeling label_b = new Labeling(width, size, _size_threshold_1, true);
+    	Vector<Integer>[] labeled_boundary = label_b.label(boundary_TRUE_points, _black);
+    	
 		Labeling label_2 = new Labeling(width, size, _size_threshold_2, false);
-		Vector[] labeled_2 = label_2.label(thci,_black);
+		Vector<Integer>[] labeled_2_cell = label_2.label(reverseBlackAndWhite(points_2), _black);
 		
-		int[] pixeltoarea = new int[size];
-		for ( int i = 0; i < size; i++ ) { pixeltoarea[i] = -1; }
-		for ( int i = 0; i < labeled_2.length; i++ ) {
-			for ( int j = 0; j < labeled_2[i].size(); j++ ) {
-				pixeltoarea[( (Integer)labeled_2[i].get(j) ).intValue()] = i;
-			}
+		int[] label_of_each_pixel_in_2_cell_black_image = setLabelInEachPixel(size, labeled_2_cell);
+		points_1 = eliminateDistinctLabelsWhichNeighbor(points_1, width, labeled_boundary, label_of_each_pixel_in_2_cell_black_image);
+		
+		return points_1;
+    }
+    
+    /**
+     * Backgroundを白（FALSE）、Cellを黒（TRUE）に逆転二値化
+     * @param points : segmentRoughly() でBackgroundを真っ黒（=0）にしたint[]
+     * @return
+     */
+    protected static boolean[] reverseBlackAndWhite(int[] points) {
+    	boolean[] result = new boolean[points.length];
+		for ( int i = 0; i < result.length; i++ ) {
+			if ( points[i] == 0 ) { result[i] = _white; }
+			else { result[i] = _black; }
 		}
-		for ( int i = 0; i < labeled_1.length; i++ ) {
-			int neighbor = -1;
+		return result;
+    }
+    
+    /**
+     * 全ピクセルのlabelを格納した配列を返す
+     * @param size
+     * @param labeled
+     * @return
+     */
+    protected static int[] setLabelInEachPixel(int size, Vector<Integer>[] labeled) {
+    	int[] label_of_each_pixel = new int[size];
+		for ( int i = 0; i < size; i++ ) { label_of_each_pixel[i] = -1; }
+		for ( int i = 0; i < labeled.length; i++ ) {
+			for ( int p : labeled[i] ) { label_of_each_pixel[p] = i; }
+		}
+		return label_of_each_pixel;
+    }
+    
+    /**
+     * labeledの連結成分間の距離が短い（4-近傍同士が接する）連結成分のpoints[]を、真っ黒（=0）にする。
+     * @param points : Background小さめのsegmentRoughly()の結果。
+     * @param width
+     * @param labeled : 境界を黒とした配列を基に、連結成分をラベリングした結果。
+     * @param label_of_each_pixel : Background大きめのsegmentRoughly()の結果を基に、Cellを黒として連結成分をラベリングした結果のint[]。
+     * @return
+     */
+    protected static int[] eliminateDistinctLabelsWhichNeighbor(int[] points, int width, 
+    		Vector<Integer>[] labeled, int[] label_of_each_pixel) {
+    	for ( int i = 0; i < labeled.length; i++ ) {
+			int neighbor_label = -1;
 			boolean check = false;
-			for(int j=0;j<labeled_1[i].size();j++){
-				int p = ((Integer)labeled_1[i].get(j)).intValue();
+			for ( int p : labeled[i] ) {
 				int[] stk = new int[4];
-				stk[0] = p-width;
-				stk[1] = p-1;
-				stk[2] = p+1;
-				stk[3] = p+width;
-				for(int k=0;k<4;k++){
-					if(neighbor != -1 && pixeltoarea[stk[k]] != -1 && pixeltoarea[stk[k]] != neighbor){
+				stk[0] = p - width;
+				stk[1] = p - 1;
+				stk[2] = p + 1;
+				stk[3] = p + width;
+				for ( int k = 0; k < 4; k++ ) {
+					if ( neighbor_label != -1 && label_of_each_pixel[stk[k]] != -1 && label_of_each_pixel[stk[k]] != neighbor_label ) {
 						check = true;
 						break;
 					}
-					else if(pixeltoarea[stk[k]] != -1) neighbor = pixeltoarea[stk[k]];
+					else if ( label_of_each_pixel[stk[k]] != -1 ) { neighbor_label = label_of_each_pixel[stk[k]]; }
 				}
-				if(check) break;
+				if ( check ) { break; }
 			}
-			if(check){
-				for(int j=0;j<labeled_1[i].size();j++){
-					points_1[((Integer)labeled_1[i].get(j)).intValue()] = 0;
-				}
+			if ( check ) {
+				for ( int p : labeled[i] ){ points[p] = 0; }
 			}
 		}
+    	return points;
     }
     
-	public static int[] gradim(int[] points, int width){
+    /**
+     * 重みつき輝度勾配を求めて0～255にスケーリングする （旧gradim()）
+     * @param points
+     * @param width
+     * @return
+     */
+	public static int[] scaling(int[] points, int width){
 		int size = points.length;
 		int height = size / width;
 		
@@ -378,7 +444,16 @@ public class Segmentation {
 		return result;
 	}
 	
-	private static boolean allNeighboringNinePixelsOfArg1and2InArg3AreNotEqualArg4(int i, int j, int[] points, int compare, int width) {
+	/**
+	 * 
+	 * @param i
+	 * @param j
+	 * @param points
+	 * @param compare
+	 * @param width
+	 * @return
+	 */
+	protected static boolean allNeighboringNinePixelsOfArg1and2InArg3AreNotEqualArg4(int i, int j, int[] points, int compare, int width){
 		if ( points[i * width + j - 1] != compare && points[i * width + j] != compare && 
 				points[i * width + j + 1] != compare && points[(i-1) * width + j - 1] != compare && 
 				points[(i-1) * width + j] != compare && points[(i-1) * width + j + 1] != compare && 
@@ -387,7 +462,16 @@ public class Segmentation {
 		else { return false; }
 	}
 	
-	private static boolean oneOrNeighboringEightPixelsOfArg1and2InArg3AreEqualArg4(int i, int j, int[] points, int compare, int width) {
+	/**
+	 * 
+	 * @param i
+	 * @param j
+	 * @param points
+	 * @param compare
+	 * @param width
+	 * @return
+	 */
+	protected static boolean oneOrNeighboringEightPixelsOfArg1and2InArg3AreEqualArg4(int i, int j, int[] points, int compare, int width){
 		if ( points[i * width + j] != compare && ( points[i * width + j - 1] == compare || 
 				points[i * width + j + 1] == compare || points[(i-1) * width + j - 1] == compare || 
 				points[(i-1) * width + j] == compare || points[(i-1) * width + j + 1] == compare || 
@@ -396,85 +480,11 @@ public class Segmentation {
 		else { return false; }
 	}
 	
-    public static boolean threshold(int[] image) {
-    	int size = image.length;
-    	
-    	int[] hg = new int[256];
-        for ( int i = 0; i < 256; i++ ) { hg[i] = 0; }
-        
-        double ut = 0;
-        for ( int i = 0; i < size; i++ ) {
-            if ( image[i] > 255 ) { return false; }
-            hg[image[i]]++;
-        }
-        
-        for ( int i = 0; i < 256; i++ ) { ut += (double)(i) * (double)(hg[i]) / (double)(size); }
-        
-        double maxv = 0;
-        double wk = (double)(hg[0]) / (double)(size);
-        double uk = 0;
-        double sk = 0;
-        int maxk=0;
-        for ( int k = 1; k < 255; k++ ) {
-            if ( wk > 0 && wk < 1 ) {
-            	sk = (ut * wk - uk) * (ut * wk - uk) / (wk * (1-wk));
-            	if ( maxv < sk ) {
-            		maxv = sk;
-            		maxk = k - 1;
-            	}
-            }
-            uk += (double)(hg[k]) * (double)(k) / (double)(size);
-            wk += (double)(hg[k]) / (double)(size);
-        }
-        // thresholding
-        for ( int i = 0; i < size; i++ ) {
-            if ( image[i] >= maxk ) { image[i] = 0; }
-            else { image[i] = 255; }
-        }
-        return true;
-    }
-    
-    public static void beforecover(int[] binary_int_points, int width) {
-    	Labeling lab = new Labeling(width, binary_int_points.length, 0, true);
-    	Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white);
-		
-    	for ( int i = 0; i < binary_int_points.length; i++ ) { binary_int_points[i] = 255; }
-		for ( int i = 0; i < vec.length; i++ ) {
-			for ( int j = 0; j < vec[i].size(); j++ ) {
-				int p = ((Integer)vec[i].get(j)).intValue();
-				binary_int_points[p] = 0;
-			}
-		}
-	}
-    
-    /**
-     * 穴埋め
-     * @param binary_int_points
-     * @param width
-     */
-    public static void cover(int[] binary_int_points, int width) {
-    	Labeling lab = new Labeling(width, binary_int_points.length, 0, false);
-        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _white);
-        
-        int max_size = 0;
-        int max_index = 0;
-        for ( int i = 0; i < vec.length; i++ ) {
-            if ( max_size < vec[i].size() ) {
-                 max_size = vec[i].size();
-                 max_index = i;
-             }
-        }
-        
-        for ( int i = 0; i < vec.length; i++ ) {
-            if ( i != max_index ) {
-                for ( int j = 0; j < vec[i].size(); j++ ) {
-                    int p = ((Integer)vec[i].get(j)).intValue();
-                    binary_int_points[p] = 0;
-                }
-            }
-        }
-    }
-    
+	/**
+	 * 
+	 * @param binary_int_points
+	 * @return
+	 */
     public static boolean[] convertBinaryIntPointsToBinaryBoolean(int[] binary_int_points) {
     	boolean[] result = new boolean[binary_int_points.length];
     	for ( int i = 0; i < binary_int_points.length; i++ ) {
@@ -483,66 +493,6 @@ public class Segmentation {
     		else { CalmorphCommon.errorExit("SCMD beforecover", "binary"); }
     	}
     	return result;
-    }
-    
-	public static void dilation(int[] binary_int_points, int width) {
-		int height = binary_int_points.length / width;
-		int[] temp = new int[binary_int_points.length];
-		for ( int i = 0; i < temp.length; i++ ) { temp[i] = binary_int_points[i]; }
-		
-		for ( int i = 0; i < temp.length; i++ ) {
-			if ( i % width - 1 > 0 && i % width + 1 < width ) { temp[i] &= binary_int_points[i - 1]; }
-			if ( i % width + 1 < width && i % width - 1 > 0 ) { temp[i] &= binary_int_points[i + 1]; }
-			if ( i / width - 1 > 0 && i / width + 1 < height ) { temp[i] &= binary_int_points[i - width]; }
-			if ( i / width + 1 < height && i / width - 1 > 0 ) { temp[i] &= binary_int_points[i + width]; }
-		}
-		for ( int i = 0; i < binary_int_points.length; i++ ) { binary_int_points[i] = temp[i]; }
-	}
-	
-	public static void dilation2(int[] binary_int_points, int width) {
-		int height = binary_int_points.length / width;
-		
-		Labeling lab = new Labeling(width, binary_int_points.length, 0, false);
-        Vector[] vec = lab.label(convertBinaryIntPointsToBinaryBoolean(binary_int_points), _black);
-		
-        int[] group = new int[binary_int_points.length];
-		for ( int i = 0; i < group.length; i++ ) { group[i] = -1; }
-		for ( int i = 0; i < vec.length; i++ ) {
-			for ( int j = 0; j < vec[i].size(); j++ ) { group[((Integer)vec[i].get(j)).intValue()] = i; }
-		}
-		int[] group2 = new int[width*height];
-		for(int i=0;i<width*height;i++) group2[i] = -1;
-		for(int i=0;i<width*height;i++) {
-			if(i%width>0 && i%width<width-1 && i/width>0 && i/width<height-1){
-				int gr=-1;
-				boolean check = true;
-				if(group[i-1]!=-1){gr = group[i-1];}
-				if(group[i+1]!=-1){check &= (gr==-1||group[i+1]==gr); gr = group[i+1];}
-				if(group[i-width]!=-1){check &= (gr==-1||group[i-width]==gr);gr = group[i-width];}
-				if(group[i+width]!=-1){check &= (gr==-1||group[i+width]==gr);gr = group[i+width];}
-				if(check) group2[i] = gr;
-			}
-		}
-		for(int i=0;i<width*height;i++){
-			if(group2[i] != -1 && (group2[i-1]==-1 || group2[i-1]==group2[i]) && (group2[i+1]==-1 || group2[i+1]==group2[i]) && 
-					(group2[i-width]==-1 || group2[i-width]==group2[i]) && (group2[i+width]==-1 || group2[i+width]==group2[i])){
-				binary_int_points[i] = 0;
-			}
-		}
-	}
-	
-    public static void erosion(int[] binary_int_points, int width) {
-    	int height = binary_int_points.length / width;
-        int[] temp = new int[binary_int_points.length];
-        for ( int i = 0; i < temp.length; i++ ) { temp[i] = binary_int_points[i]; }
-        
-        for ( int i = 0; i < temp.length; i++ ) {
-            if ( i % width - 1 > 0 )          { temp[i] |= binary_int_points[i - 1]; }
-            if ( i % width + 1 < width - 1 )  { temp[i] |= binary_int_points[i + 1]; }
-            if ( i / width - 1 > 0 )          { temp[i] |= binary_int_points[i - width]; }
-            if ( i / width + 1 < height - 1 ) { temp[i] |= binary_int_points[i + width]; }
-        }
-        for ( int i = 0; i < temp.length; i++ ) { binary_int_points[i] = temp[i]; }
     }
     
 }
