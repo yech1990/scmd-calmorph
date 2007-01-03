@@ -128,7 +128,7 @@ class DisruptantProcess {
 			}
 			catch(Exception e){
 				pw2.println(i + ": unexpected error");
-				System.out.println(name + " : " + i + ": unexpected error");
+				System.out.println(name + " : " + i + ": unexpected error [in DisruptantProcess.process()]");
 			}
         }
         ad.printDataXLS(calA,calD,outsheet);
