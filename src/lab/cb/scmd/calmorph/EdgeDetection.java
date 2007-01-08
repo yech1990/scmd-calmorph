@@ -7,12 +7,13 @@ import lab.cb.scmd.calmorph2.Labeling;
 public class EdgeDetection {
 	
 	private int _width, _height, _size;
-	private int[] _points, _original_points;
+	private int[] _points, _points_2, _original_points;
+	private Vector<Integer>[] _labeled, _labeled_2;
 	private final static boolean _black = true;
 	private final static boolean _white = false;
 	
-	Cell[] cell;
-	int[] pixeltocell, pixeltocell2;
+	Cell[] _cells;
+	int[] _labels_of_each_pixel, _labels_of_each_pixel_2;
 	
 	public EdgeDetection(int width, int size, int[] points, int[] original_points) {
 		_width = width;
@@ -22,116 +23,76 @@ public class EdgeDetection {
 		_points = new int[points.length];
 		for ( int i = 0; i < _points.length; i++ ) { _points[i] = points[i]; }
 		
+		_points_2 = new int[points.length];
+		
 		_original_points = new int[original_points.length];
 		for ( int i = 0; i < _original_points.length; i++ ) { _original_points[i] = original_points[i]; }
 		
-		pixeltocell = new int[size];
-		pixeltocell2 = new int[size];
+		_labels_of_each_pixel = new int[size];
+		_labels_of_each_pixel_2 = new int[size];
 	}
 	
-	public Cell[] getCell() {
-		return cell;
+	public Cell[] getCells() {
+		return _cells;
 	}
 	
-	public int[] getPixelToCell() {
-		return pixeltocell;
+	public int[] getLabelsOfEachPixel() {
+		return _labels_of_each_pixel;
 	}
 	
-	public int[] getPixelToCell2() {
-		return pixeltocell2;
+	public int[] getLabelsOfEachPixel2() {
+		return _labels_of_each_pixel_2;
 	}
 	
 	public void edge(int startid) {
-		int[] image2 = new int[_size];
-		
 		Labeling lab = new Labeling(_width, _size, 200, true);  //‚Q‚O‚OˆÈã‚Ì‰ò‚ð×–E‚Æ‚Ý‚È‚·
-		Vector<Integer>[] labeled = lab.label(Segmentation.convertBinaryIntPointsToBinaryBoolean(_points), _black);
+		_labeled = lab.label(Segmentation.convertBinaryIntPointsToBinaryBoolean(_points), _black);
 		
-		Vector[] vec2 = new Vector[labeled.length];
-		cell = new Cell[labeled.length];
+		initializeCellAndLabelsOfEachPixels(startid);
+		removeBlackSurroundedPixel();
+		resetPointsToBoundaryOnly();
+		
+		removeBlackSurroundedOrAnotherLabledPixel();
+		initializePoints2AndLabelsOfEachPixel2();
+		initializeLabeled2();
+		
+		correctEdge1();
+		
 		for(int i=0;i<_size;i++) {
-			pixeltocell[i] = -1;
-			pixeltocell2[i] = -1;
-		}
-		for(int i=0;i<labeled.length;i++) {
-			cell[i] = new Cell(_width,_height,startid+i);
-			cell[i].setGroup(1);
-			for(int j=0;j<labeled[i].size();j++) {
-				int p=((Integer)labeled[i].get(j)).intValue();
-				pixeltocell[p]=i;
-				if(_points[p-_width] == 0 && _points[p-1] == 0 && _points[p+1] == 0 && _points[p+_width] == 0) { //vec‚É‚Í×–E‚Ì•”•ª‚Ì‚¤‚¿‚Ó‚¿‚¾‚¯‚ð‹L‰¯
-					labeled[i].remove(j);
-					j--;
-				}
-			}
-		}
-		for(int i=0;i<_size;i++) {
-			_points[i] = 255;
-		}
-		for(int i=0;i<labeled.length;i++) { //image‚ð×–E‚Ì‚Ó‚¿•”•ª‚¾‚¯•‚ÅŽc‚è‚ª”’‚Æ‚È‚é‚æ‚¤‚ÉƒZƒbƒg
-			for(int j=0;j<labeled[i].size();j++) {
-				_points[((Integer)labeled[i].get(j)).intValue()] = 0;
-			}
-		}
-		for(int i=0;i<labeled.length;i++) {//×–E“à•”i—ÖŠs‚æ‚è“à‘¤j‚ÉÚ‚µ‚Ä‚¢‚È‚¢‚à‚Ì‚Í‚·‚Ä‚é
-			for(int j=0;j<labeled[i].size();j++) {
-				int p=((Integer)labeled[i].get(j)).intValue();
-				if((_points[p-_width] == 0 || pixeltocell[p-_width] != i) && (_points[p-1] == 0 || pixeltocell[p-1] != i) &&
-				   (_points[p+1] == 0 || pixeltocell[p+1] != i) && (_points[p+_width] == 0 || pixeltocell[p+_width] != i)) {
-					labeled[i].remove(j);
-					j--;
-					_points[p] = 255;
-					pixeltocell[p] = -1;
-				}
-			}
-		}
-		for(int j=0;j<_size;j++) {
-			pixeltocell2[j] = pixeltocell[j];
-			image2[j] = _points[j];
-		}
-		for(int i=0;i<labeled.length;i++){
-			vec2[i] = new Vector();
-			for(int j=0;j<labeled[i].size();j++) {
-				int p=((Integer)labeled[i].get(j)).intValue();
-				vec2[i].add(new Integer(p));
-			}
-		}
-		edgecorrect1(labeled,_points,_original_points, pixeltocell, cell, _width);
-		for(int i=0;i<_size;i++) {
-			if(pixeltocell[i] != -1){
-				cell[pixeltocell[i]].cover.add(new Integer(i));
+			if(_labels_of_each_pixel[i] != -1){
+				_cells[_labels_of_each_pixel[i]].cover.add(new Integer(i));
 			}
 		}
 		boolean[] check = new boolean[_size];
 		for(int i=0;i<_size;i++) {
 			check[i] = true;
 		}
-		for(int i=0;i<cell.length;i++) {
-			int p=((Integer)labeled[i].get(0)).intValue();
-			if(nextpoint(_points,i,p,check,p, pixeltocell, cell, _width) && labeled[i].size() == cell[i].edge.size()) {
+		for(int i=0;i<_cells.length;i++) {
+			int p=((Integer)_labeled[i].get(0)).intValue();
+			if(nextpoint(_points,i,p,check,p, _labels_of_each_pixel, _cells, _width) && _labeled[i].size() == _cells[i].edge.size()) {
 			} else {
-				cell[i].budcrush = 2;
+				_cells[i].budcrush = 2;
 			}
 		}
-		for(int i=0;i<cell.length;i++) {//ˆê“_‚¾‚¯‹É’[‚É–¾‚é‚¢×–E‚ðcomplex‚É àVˆä’Ç‰Á•”•ª
-			if(cell[i].edge.size()>0){
+		for(int i=0;i<_cells.length;i++) {//ˆê“_‚¾‚¯‹É’[‚É–¾‚é‚¢×–E‚ðcomplex‚É àVˆä’Ç‰Á•”•ª
+			if(_cells[i].edge.size()>0){
 				int[] br = new int[256];
 				for(int j=0;j<256;j++) br[j]=0;
-				for(int j=0;j<cell[i].edge.size();j++) {
-					int p=((Integer)cell[i].edge.get(j)).intValue();
+				for(int j=0;j<_cells[i].edge.size();j++) {
+					int p=((Integer)_cells[i].edge.get(j)).intValue();
 					br[_original_points[p]]++;
 				}
 				int r=0;
 				int s=255;
-				while(r<=cell[i].edge.size()/20){
+				while(r<=_cells[i].edge.size()/20){
 					r+=br[s];
 					s--;
 				}
 				int q=0;
 				r=0;
 				int t=0;
-				for(int j=0;j<cell[i].edge.size();j++) {
-					int p=((Integer)cell[i].edge.get(j)).intValue();
+				for(int j=0;j<_cells[i].edge.size();j++) {
+					int p=((Integer)_cells[i].edge.get(j)).intValue();
 					if(_original_points[p]<=s){
 						q+=_original_points[p];
 						t++;
@@ -141,95 +102,179 @@ public class EdgeDetection {
 					}
 				}
 				if(t>0) q=q/t;
-				if(r>0 && (cell[i].edge.size() - t > 0)) r=r/(cell[i].edge.size() - t);
-				if(q<50 && r>100 && r-q>70) cell[i].setGroup(0);
+				if(r>0 && (_cells[i].edge.size() - t > 0)) r=r/(_cells[i].edge.size() - t);
+				if(q<50 && r>100 && r-q>70) _cells[i].setGroup(0);
 			}
 		}
-		edgecorrect2(vec2,image2,_original_points, pixeltocell2, cell, _width);
+		edgecorrect2(_labeled_2,_points_2,_original_points, _labels_of_each_pixel_2, _cells, _width);
 		for(int i=0;i<_size;i++) {
-			if(pixeltocell2[i] != -1){
-				cell[pixeltocell2[i]].cover_2.add(new Integer(i));
+			if(_labels_of_each_pixel_2[i] != -1){
+				_cells[_labels_of_each_pixel_2[i]].cover_2.add(new Integer(i));
 			}
 		}
 		for(int i=0;i<_size;i++) {
 			check[i] = true;
 		}
-		for(int i=0;i<cell.length;i++) {
-			int p=((Integer)vec2[i].get(0)).intValue();
-			if ( nextpoint2(image2,i,p,check,p, pixeltocell2, cell, _width) && vec2[i].size() == cell[i].edge_2.size() ) {
+		for(int i=0;i<_cells.length;i++) {
+			int p=((Integer)_labeled_2[i].get(0)).intValue();
+			if ( nextpoint2(_points_2,i,p,check,p, _labels_of_each_pixel_2, _cells, _width) && _labeled_2[i].size() == _cells[i].edge_2.size() ) {
 			} else {
-				cell[i].setGroup(0);
+				_cells[i].setGroup(0);
 			}
 		}
 	}
 	
-	private static void edgecorrect1(Vector[] vec,int[] image,int[] oriimage, int[] pixeltocell, Cell[] cell, int width) {
-		int size = image.length;
-		int height = size / width;
+	/**
+	 * _cells[] ‚Æ _labels_of_each_pixel[] 2Ží ‚Ì‰Šú‰»
+	 * @param startid
+	 */
+	protected void initializeCellAndLabelsOfEachPixels(int startid) {
+		_cells = new Cell[_labeled.length];
+		for ( int i = 0; i < _labeled.length; i++ ) {
+			_cells[i] = new Cell(_width,_height,startid+i);
+			_cells[i].setGroup(1);
+		}
 		
+		for ( int i = 0; i < _size; i++ ) {
+			_labels_of_each_pixel[i] = -1;
+			_labels_of_each_pixel_2[i] = -1;
+		}
+	}
+	
+	/**
+	 * _labeled[]‚©‚ç ‚S‹ß–T‘S‚Ä•‚Ìpixel‚ðœ‚­B
+	 * _labeled[]‚ðACell‚Ì‹«ŠE‚ð\¬‚·‚épixel‚Ì‚Ý‚ðŠÜ‚Þ—l‚É‚·‚éB
+	 */
+	protected void removeBlackSurroundedPixel() {
+		for ( int i = 0; i < _labeled.length; i++ ) {
+			for ( int j = 0; j < _labeled[i].size(); j++ ) {
+				int p = ((Integer)_labeled[i].get(j)).intValue();
+				_labels_of_each_pixel[p] = i;
+				if ( _points[p - _width] == 0 && _points[p - 1] == 0 && _points[p + 1] == 0 && _points[p + _width] == 0) {
+					_labeled[i].remove(j);
+					j--;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Cell‚Ì‹«ŠE‚Ì‚Ý•A‘¼‚Í”’‚É _points[]‚ðƒŠƒZƒbƒgB
+	 *   _labeled : Cell‚Ì‹«ŠE‚ð\¬‚·‚épixel‚Ì‚ÝŠÜ‚ÞVector
+	 */
+	protected void resetPointsToBoundaryOnly() {
+		for ( int i = 0; i < _points.length; i++ ) { _points[i] = 255; }
+		for ( int i = 0; i < _labeled.length; i++ ) {
+			for(int p : _labeled[i] ) { _points[p] = 0; }
+		}
+	}
+	
+	/**
+	 * _labeled[]‚©‚çA4‹ß–T‘S‚Ä•or•Ê”Ô†labelA‚Ìpixel‚ðœ‚­B
+	 * _labeled[]‚ðACell“à•”i—ÖŠs‚æ‚è“à‘¤j‚ÉÚ‚µ‚Ä‚¢‚épixel‚Ì‚Ý‚ðŠÜ‚Þ—l‚É‚·‚éB
+	 */
+	protected void removeBlackSurroundedOrAnotherLabledPixel() {
+		for ( int i = 0; i < _labeled.length; i++ ) {
+			for ( int j = 0; j < _labeled[i].size(); j++ ) {
+				int p = ((Integer)_labeled[i].get(j)).intValue();
+				if ( ( _points[p - _width] == 0 || _labels_of_each_pixel[p - _width] != i ) && 
+					 ( _points[p - 1] == 0      || _labels_of_each_pixel[p - 1] != i ) && 
+				     ( _points[p + 1] == 0      || _labels_of_each_pixel[p + 1] != i ) && 
+				     ( _points[p + _width] == 0 || _labels_of_each_pixel[p + _width] != i ) ) {
+					_labeled[i].remove(j);
+					j--;
+					_points[p] = 255;
+					_labels_of_each_pixel[p] = -1;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * _points_2[] ‚Æ _labels_of_each_pixel_2[] ‚Ì‰Šú‰»
+	 */
+	protected void initializePoints2AndLabelsOfEachPixel2() {
+		for ( int j = 0; j < _size; j++ ) {
+			_points_2[j] = _points[j];
+			_labels_of_each_pixel_2[j] = _labels_of_each_pixel[j];
+		}
+	}
+	
+	/**
+	 * _labeled_2‚Ì‰Šú‰»
+	 */
+	protected void initializeLabeled2() {
+		_labeled_2 = new Vector[_labeled.length];
+		for ( int i = 0; i < _labeled.length; i++ ) {
+			_labeled_2[i] = new Vector<Integer>();
+			for ( int p : _labeled[i] ) { _labeled_2[i].add( new Integer(p) ); }
+		}
+	}
+	
+	protected void correctEdge1() {
 		int counter;
 		int brightness;
 		int x,n,m,k,flag,flag2,ori,mopoint;
-		boolean[] move = new boolean[size];
-		for(int i=0;i<vec.length;i++) {
+		boolean[] move = new boolean[_size];
+		for(int i=0;i<_labeled.length;i++) {
 			int j=0;
-			ori=vec[i].size();
+			ori=_labeled[i].size();
 			flag = 0;
 			flag2 = 0;
-			while(j<vec[i].size()) {
-				if((vec[i].size()-j)*4<ori) flag++;
-				n = vec[i].size();
+			while(j<_labeled[i].size()) {
+				if((_labeled[i].size()-j)*4<ori) flag++;
+				n = _labeled[i].size();
 				m = j;
 				mopoint = 0;
-				for(int a=0;a<size;a++) move[a] = false;
+				for(int a=0;a<_size;a++) move[a] = false;
 				while(j<n){
-					int p=((Integer)vec[i].get(j)).intValue();
+					int p=((Integer)_labeled[i].get(j)).intValue();
 					counter=0;
 					brightness=0;
 					x=0;
-					if(pixeltocell[p-1] == i && image[p-1] == 255) x -= 1;
-					if(pixeltocell[p+1] == i && image[p+1] == 255) x += 1;
-					if(pixeltocell[p-width] == i && image[p-width] == 255) x -= width;
-					if(pixeltocell[p+width] == i && image[p+width] == 255) x += width;
-					if(pixeltocell[p+x] == i && image[p+x] == 255) {
-						brightness = oriimage[p+x];
+					if(_labels_of_each_pixel[p-1] == i && _points[p-1] == 255) x -= 1;
+					if(_labels_of_each_pixel[p+1] == i && _points[p+1] == 255) x += 1;
+					if(_labels_of_each_pixel[p-_width] == i && _points[p-_width] == 255) x -= _width;
+					if(_labels_of_each_pixel[p+_width] == i && _points[p+_width] == 255) x += _width;
+					if(_labels_of_each_pixel[p+x] == i && _points[p+x] == 255) {
+						brightness = _original_points[p+x];
 					}
-					if(p+x*2 >= 0 && p+x*2 < size && pixeltocell[p+x*2] == i && image[p+x*2] == 255 && brightness < oriimage[p+x*2]) {
-						brightness = oriimage[p+x*2];
+					if(p+x*2 >= 0 && p+x*2 < _size && _labels_of_each_pixel[p+x*2] == i && _points[p+x*2] == 255 && brightness < _original_points[p+x*2]) {
+						brightness = _original_points[p+x*2];
 					}
-					if(p+x*3 >= 0 && p+x*3 < size && pixeltocell[p+x*3] == i && image[p+x*3] == 255 && brightness < oriimage[p+x*3]) {
-						brightness = oriimage[p+x*3];
+					if(p+x*3 >= 0 && p+x*3 < _size && _labels_of_each_pixel[p+x*3] == i && _points[p+x*3] == 255 && brightness < _original_points[p+x*3]) {
+						brightness = _original_points[p+x*3];
 					}
-					if(oriimage[p] < brightness){
+					if(_original_points[p] < brightness){
 					move[p] = true;
 					}
 					j++;
 				}
 				while(m<n){
-					int p=((Integer)vec[i].get(m)).intValue();
-					if(move[p] && (move[p-width-1] || move[p-width] || move[p-width+1] || move[p-1] || move[p+1] || move[p+width-1] || move[p+width] || move[p+width+1])){
-						pixeltocell[p] = -1;
-						image[p] = 255;
-						vec[i].remove(m);
+					int p=((Integer)_labeled[i].get(m)).intValue();
+					if(move[p] && (move[p-_width-1] || move[p-_width] || move[p-_width+1] || move[p-1] || move[p+1] || move[p+_width-1] || move[p+_width] || move[p+_width+1])){
+						_labels_of_each_pixel[p] = -1;
+						_points[p] = 255;
+						_labeled[i].remove(m);
 						m--;
 						j--;
 						n--;
 						mopoint++;
-						if(pixeltocell[p-1] == i && image[p-1] == 255){
-							image[p-1] = 0;
-							vec[i].add(new Integer(p-1));
+						if(_labels_of_each_pixel[p-1] == i && _points[p-1] == 255){
+							_points[p-1] = 0;
+							_labeled[i].add(new Integer(p-1));
 						}
-						if(pixeltocell[p+1] == i && image[p+1] == 255){
-							image[p+1] = 0;
-							vec[i].add(new Integer(p+1));
+						if(_labels_of_each_pixel[p+1] == i && _points[p+1] == 255){
+							_points[p+1] = 0;
+							_labeled[i].add(new Integer(p+1));
 						}
-						if(pixeltocell[p-width] == i && image[p-width] == 255){
-							image[p-width] = 0;
-							vec[i].add(new Integer(p-width));
+						if(_labels_of_each_pixel[p-_width] == i && _points[p-_width] == 255){
+							_points[p-_width] = 0;
+							_labeled[i].add(new Integer(p-_width));
 						}
-						if(pixeltocell[p+width] == i && image[p+width] == 255){
-							image[p+width] = 0;
-							vec[i].add(new Integer(p+width));
+						if(_labels_of_each_pixel[p+_width] == i && _points[p+_width] == 255){
+							_points[p+_width] = 0;
+							_labeled[i].add(new Integer(p+_width));
 						}
 					}
 					m++;
@@ -237,85 +282,85 @@ public class EdgeDetection {
 				boolean change = true;
 				while(change) {
 					change = false;
-					for(k=0;k<vec[i].size();k++){
-						int p=((Integer)vec[i].get(k)).intValue();
-						if(!((pixeltocell[p-width] == i && image[p-width] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+width] == i && image[p+width] == 255)) && (vec[i].size() > 1)){
-							image[p] = 255;
-							vec[i].remove(k);
-							pixeltocell[p] = -1;
+					for(k=0;k<_labeled[i].size();k++){
+						int p=((Integer)_labeled[i].get(k)).intValue();
+						if(!((_labels_of_each_pixel[p-_width] == i && _points[p-_width] == 255) || (_labels_of_each_pixel[p-1] == i && _points[p-1] == 255) || (_labels_of_each_pixel[p+1] == i && _points[p+1] == 255) || (_labels_of_each_pixel[p+_width] == i && _points[p+_width] == 255)) && (_labeled[i].size() > 1)){
+							_points[p] = 255;
+							_labeled[i].remove(k);
+							_labels_of_each_pixel[p] = -1;
 							if(k<j) j--;
 							k--;
 						}
 					}
-					for(k=0;k<vec[i].size();k++){
-						int p=((Integer)vec[i].get(k)).intValue();
+					for(k=0;k<_labeled[i].size();k++){
+						int p=((Integer)_labeled[i].get(k)).intValue();
 						int c=0;
 						x=0;
-						if(pixeltocell[p-width] == -1) c++;
-						else x=-width;
-						if(pixeltocell[p+width] == -1) c++;
-						else x=width;
-						if(pixeltocell[p-1] == -1) c++;
+						if(_labels_of_each_pixel[p-_width] == -1) c++;
+						else x=-_width;
+						if(_labels_of_each_pixel[p+_width] == -1) c++;
+						else x=_width;
+						if(_labels_of_each_pixel[p-1] == -1) c++;
 						else x=-1;
-						if(pixeltocell[p+1] == -1) c++;
+						if(_labels_of_each_pixel[p+1] == -1) c++;
 						else x=1;
 						if(c==3) {
-							image[p] = 255;
-							vec[i].remove(k);
-							pixeltocell[p] = -1;
+							_points[p] = 255;
+							_labeled[i].remove(k);
+							_labels_of_each_pixel[p] = -1;
 							if(k<j) j--;
 							k--;
-							image[p+x] = 0;
-							vec[i].add(new Integer(p+x));
+							_points[p+x] = 0;
+							_labeled[i].add(new Integer(p+x));
 							change = true;
 						}
 					}
 				}
 				if(mopoint<4) flag2++;
 			}
-			if(flag2>3) cell[i].budcrush = 2;
-			else if(flag>2) cell[i].budcrush = 1;
-			n=vec[i].size();
+			if(flag2>3) _cells[i].budcrush = 2;
+			else if(flag>2) _cells[i].budcrush = 1;
+			n=_labeled[i].size();
 			for(k=0;k<n;k++){
-				int p=((Integer)vec[i].get(k)).intValue();
-					if(p%width>1 && pixeltocell[p-1] == -1 && image[p-1] == 255){
-						pixeltocell[p-1] = i;
-						image[p-1] = 0;
-						vec[i].add(new Integer(p-1));
+				int p=((Integer)_labeled[i].get(k)).intValue();
+					if(p%_width>1 && _labels_of_each_pixel[p-1] == -1 && _points[p-1] == 255){
+						_labels_of_each_pixel[p-1] = i;
+						_points[p-1] = 0;
+						_labeled[i].add(new Integer(p-1));
 					}
-					if(p%width < width-1 && pixeltocell[p+1] == -1 && image[p+1] == 255){
-						pixeltocell[p+1] = i;
-						image[p+1] = 0;
-						vec[i].add(new Integer(p+1));
+					if(p%_width < _width-1 && _labels_of_each_pixel[p+1] == -1 && _points[p+1] == 255){
+						_labels_of_each_pixel[p+1] = i;
+						_points[p+1] = 0;
+						_labeled[i].add(new Integer(p+1));
 					}
-					if(p-width >= width && pixeltocell[p-width] == -1 && image[p-width] == 255){
-						pixeltocell[p-width] = i;
-						image[p-width] = 0;
-						vec[i].add(new Integer(p-width));
+					if(p-_width >= _width && _labels_of_each_pixel[p-_width] == -1 && _points[p-_width] == 255){
+						_labels_of_each_pixel[p-_width] = i;
+						_points[p-_width] = 0;
+						_labeled[i].add(new Integer(p-_width));
 					}
-					if(p+width < size-width && pixeltocell[p+width] == -1 && image[p+width] == 255){
-						pixeltocell[p+width] = i;
-						image[p+width] = 0;
-						vec[i].add(new Integer(p+width));
+					if(p+_width < _size-_width && _labels_of_each_pixel[p+_width] == -1 && _points[p+_width] == 255){
+						_labels_of_each_pixel[p+_width] = i;
+						_points[p+_width] = 0;
+						_labeled[i].add(new Integer(p+_width));
 					}
 			}
-			for(k=0;k<vec[i].size();k++){
-				int p=((Integer)vec[i].get(k)).intValue();
-				if(p-width >= 0 && p+width < size){
-				if((pixeltocell[p-width] == i) && (pixeltocell[p-1] == i) && (pixeltocell[p+1] == i) && (pixeltocell[p+width] == i) && (vec[i].size() > 1)){
-					image[p] = 255;
-					vec[i].remove(k);
+			for(k=0;k<_labeled[i].size();k++){
+				int p=((Integer)_labeled[i].get(k)).intValue();
+				if(p-_width >= 0 && p+_width < _size){
+				if((_labels_of_each_pixel[p-_width] == i) && (_labels_of_each_pixel[p-1] == i) && (_labels_of_each_pixel[p+1] == i) && (_labels_of_each_pixel[p+_width] == i) && (_labeled[i].size() > 1)){
+					_points[p] = 255;
+					_labeled[i].remove(k);
 					k--;
 				}
 				}
 			}
-			for(k=0;k<vec[i].size();k++){
-				int p=((Integer)vec[i].get(k)).intValue();
-				if(p-width >= 0 && p+width < size){
-				if(!((pixeltocell[p-width] == i && image[p-width] == 255) || (pixeltocell[p-1] == i && image[p-1] == 255) || (pixeltocell[p+1] == i && image[p+1] == 255) || (pixeltocell[p+width] == i && image[p+width] == 255)) && (vec[i].size() > 1)){
-					image[p] = 255;
-					vec[i].remove(k);
-					pixeltocell[p] = -1;
+			for(k=0;k<_labeled[i].size();k++){
+				int p=((Integer)_labeled[i].get(k)).intValue();
+				if(p-_width >= 0 && p+_width < _size){
+				if(!((_labels_of_each_pixel[p-_width] == i && _points[p-_width] == 255) || (_labels_of_each_pixel[p-1] == i && _points[p-1] == 255) || (_labels_of_each_pixel[p+1] == i && _points[p+1] == 255) || (_labels_of_each_pixel[p+_width] == i && _points[p+_width] == 255)) && (_labeled[i].size() > 1)){
+					_points[p] = 255;
+					_labeled[i].remove(k);
+					_labels_of_each_pixel[p] = -1;
 					k--;
 				}
 				}
