@@ -34,11 +34,11 @@ public class NumberLabelingTest extends TestCase {
 		nl.setSameLabels(3);
 		nl.setSameLabels(4);
 		
-		assertEquals(0, nl.smallestlabel(0));
-		assertEquals(0, nl.smallestlabel(1));
-		assertEquals(0, nl.smallestlabel(2));
-		assertEquals(3, nl.smallestlabel(3));
-		assertEquals(4, nl.smallestlabel(4));
+		assertEquals(0, NumberLabeling.smallestlabel(nl.getSameLabels(), 0));
+		assertEquals(0, NumberLabeling.smallestlabel(nl.getSameLabels(), 1));
+		assertEquals(0, NumberLabeling.smallestlabel(nl.getSameLabels(), 2));
+		assertEquals(3, NumberLabeling.smallestlabel(nl.getSameLabels(), 3));
+		assertEquals(4, NumberLabeling.smallestlabel(nl.getSameLabels(), 4));
 		
 		assertEquals(0, nl.getSameLabels().get(0).intValue());
 		assertEquals(0, nl.getSameLabels().get(1).intValue());
@@ -58,7 +58,7 @@ public class NumberLabelingTest extends TestCase {
 		nl.setSameLabels(4);
 		nl.setSameLabels(5);
 		
-		assertEquals(4, nl.resetSameLabelsAndGetMaxLabel());
+		assertEquals(4, NumberLabeling.resetSameLabelsAndGetMaxLabel(nl.getSameLabels()));
 		
 		assertEquals(0, nl.getSameLabels().get(0).intValue());
 		assertEquals(0, nl.getSameLabels().get(1).intValue());

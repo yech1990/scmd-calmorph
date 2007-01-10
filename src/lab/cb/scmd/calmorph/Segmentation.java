@@ -68,8 +68,8 @@ public class Segmentation {
         EdgeDetection ed = new EdgeDetection(image.getWidth(), image.getSize(), ci, image.getOriginalPoints());
         ed.edge(0);
         
-        //NeckDetection nd = new NeckDetection();
-        //nd.searchNeck(image.getWidth(), image.getSize(), ed.getCell(), ed.getPixelToCell(), ed.getPixelToCell2());
+        NeckDetection nd = new NeckDetection(image.getWidth(), image.getSize());
+        nd.searchNeck(ed.getCells(), ed.getLabelsOfEachPixel(), ed.getLabelsOfEachPixel2());
         
         //image.ploEdgePoints(ed.getCell());
         //image.plotNeckPoints(ed.getCell());
