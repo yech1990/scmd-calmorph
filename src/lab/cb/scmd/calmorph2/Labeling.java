@@ -28,7 +28,7 @@ public class Labeling {
         NumberLabeling num_label = new NumberLabeling(_width, _size);
         num_label.executeNumberLabeling(binary_image, color);
         
-        int max_label = num_label.resetSameLabelsAndGetMaxLabel();
+        int max_label = NumberLabeling.resetSameLabelsAndGetMaxLabel(num_label.getSameLabels());
         setConstituentPixelsOfEachLabel(max_label, num_label);
         
         int number_of_valid_labels = eliminateLabelsOnImageCornerAndSmallLabels(max_label);

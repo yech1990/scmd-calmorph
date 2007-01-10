@@ -19,7 +19,13 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+
+import sun.java2d.pipe.DrawImage;
 
 class CellImage {
 	
@@ -44,6 +50,85 @@ class CellImage {
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
     
+    // temporary methods START
+    /**
+     * 細胞壁の写真１枚を引数にして実行。（his3_control_1-C2.jpg の"C"の後の数字は一桁）
+     * ネック検出部分のみRefactoring＋コード追加（二倍体レモン型偽ネック回避）。
+     * ネック検出後、検出結果を画像に出力し強制終了。
+     * @param args
+     */
+    public static void main(String[] args) {
+    	String[] splited = args[0].split("-");
+    	CellImage ci = new CellImage(args[0], splited[0], Integer.valueOf(splited[1].substring(1,2)), "fake", 0, false, false);
+    	ci.segmentCells();
+    }
+    public void drawImage(int[] points, final Cell[] cells, final String filename) {
+    	for ( int i = 0; i < cells.length; i++ ) {
+    		if ( cell[i].neck != null ) {
+    			for ( int neck : cell[i].neck ) { drawPoint(neck, points, 0xff0000); }
+    		}/*
+    		for ( int j = 0; j < cells[i].mother_edge.size(); j++ ) {
+    			points[( (Integer)cells[i].mother_edge.get(j) ).intValue()] = 0xffffff;
+    		}
+    		for ( int j = 0; j < cells[i].bud_edge.size(); j++ ) {
+    			points[( (Integer)cells[i].bud_edge.get(j) ).intValue()] = 0xff0000;
+    		}*/
+    		if ( cells[i].bud_edge.size() > 1 ) {
+    			int length = cells[i].bud_edge.size(); // TODO bud_edgeの中心点　＝　ネックの中心から最も遠い点 --> その比で判定
+    			drawPoint(((Integer)cells[i].bud_edge.get((int)(length / 2))).intValue(), points, 0xff0000);
+    		}
+    	}
+        BufferedImage bi = makeBufferedImage(points);
+        Iterator writers = ImageIO.getImageWritersBySuffix(getSuffix(filename));
+        if ( writers.hasNext() ) {
+            ImageWriter writer = (ImageWriter) writers.next();
+            try {
+                ImageOutputStream stream = ImageIO.createImageOutputStream(new File(filename));
+                writer.setOutput(stream);
+                
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                if ( param.canWriteCompressed() ) {
+                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    param.setCompressionQuality(1.0f);
+                } else { System.out.println("Compression is not supported."); }
+                
+                writer.write(null, new IIOImage(bi, null, null), param);
+                stream.close();
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void drawPoint(int p, int[] points, int color) {
+    	points[p - _width - 1] = color;
+		points[p - _width]     = color;
+		points[p - _width + 1] = color;
+		points[p - 1]          = color;
+		points[p]              = color;
+		points[p + 1]          = color;
+		points[p + _width - 1] = color;
+		points[p + _width]     = color;
+		points[p + _width + 1] = color;
+    }
+    private BufferedImage makeBufferedImage(final int[] points) {
+		BufferedImage bi = new BufferedImage(_width, _height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = bi.createGraphics();
+		for( int i = 0; i < _size; i++ ) {
+			g.setColor(new Color((points[i] << 16) | (points[i] << 8) | points[i]));
+			g.drawLine(i % _width, i / _width, i % _width, i / _width);
+		}
+		return bi;
+    }
+    private String getSuffix(final String filename) {
+        if ( filename.length() < 3 ) {
+            System.err.println("getSuffix -- Error");
+            System.exit(1);
+        } else { return filename.substring(filename.length() - 3); }
+        return null;
+    }
+    // temporary methods END
+    
     public CellImage(String name,String path,int number,String outdir,int startid,boolean calD,boolean calA) {
         _width = 696;//とりあえず固定
         _height = 520;//とりあえず固定
@@ -61,13 +146,13 @@ class CellImage {
         File f=null;
         BufferedImage bi=null;
         DataBuffer db=null;
-        if((f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
-        else err = true;
+        if ( (f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null ) {
+        	db = bi.getRaster().getDataBuffer();
+        } else { err = true; }
         
-        _cell_wall_image = new YeastImage(name, _cell_wall, bi, startid);
+        //_cell_wall_image = new YeastImage(name, _cell_wall, bi, startid);
         
-        
-        if(!err) {
+        if ( !err ) {
             if(_size == db.getSize()) {
                 _cell_points = new int[_size];
                 for(int i=0;i<_size;i++) {
@@ -79,7 +164,7 @@ class CellImage {
             }
         }
         
-        if(calD) {//DAPI画像の処理も行う
+        if ( calD ) {//DAPI画像の処理も行う
             if((f=new File(path+"-D"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-D"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
                 else err = true;
@@ -100,7 +185,7 @@ class CellImage {
             }
         }
         
-        if(calA) {//actin画像の処理も行う
+        if ( calA ) {//actin画像の処理も行う
             if((f=new File(path+"-A"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-A"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
                 else err = true;
@@ -223,6 +308,13 @@ class CellImage {
         dilation2(ci);
         edge(ci,_cell_points);
         searchNeck();
+        
+        //temporary START
+        //cell = BudValidation.validation(cell, _width);
+        drawImage(_cell_points, cell, "yeast_neck.jpg");
+        System.out.println("Calmorph neck detection END");
+        System.exit(0);
+        //temporary END
         
         serchbrightpoint(_cell_points);
         serchwidepoint(_cell_points);

@@ -67,10 +67,10 @@ public class NumberLabeling {
                 if ( binary_image[i * _width + j] == color ) {
                     int left_label, upper_label;
                     
-                    if ( _labeled[i * _width + j - 1] >= 0 ) { left_label  = smallestlabel(_labeled[i * _width + j - 1]); }
+                    if ( _labeled[i * _width + j - 1] >= 0 ) { left_label  = smallestlabel(_same_labels, _labeled[i * _width + j - 1]); }
                     else left_label = -1;
                     
-                    if ( _labeled[(i-1) * _width + j] >= 0 ) { upper_label = smallestlabel(_labeled[(i-1) * _width + j]); }
+                    if ( _labeled[(i-1) * _width + j] >= 0 ) { upper_label = smallestlabel(_same_labels, _labeled[(i-1) * _width + j]); }
                     else upper_label = -1;
                     
                     if ( left_label == -1 && upper_label == -1 ) {
@@ -94,38 +94,40 @@ public class NumberLabeling {
     
     /**
      * 同一連結成分を表すlabel番号の中の最小値を返す。
-     * 同時に、_same_labelsベクターを、同一連結成分の中の最小値を直接示す様に修正。（削除）
+     * 同時に、same_labelsベクターを、同一連結成分の中の最小値を直接示す様に修正。（削除）
+     * @param same_labels
      * @param label_number
      * @return
      */
-    public int smallestlabel(int label_number) {
+    public static int smallestlabel(Vector<Integer> same_labels, int label_number) {
         int result = label_number;
         Vector<Integer> temp = new Vector<Integer>();
         while ( true ) {
-            if ( ((Integer)_same_labels.get(result)).intValue() == result ) {
-                /* _same_labelsの修正は、後で一括で行う。
+            if ( ((Integer)same_labels.get(result)).intValue() == result ) {
+                /* same_labelsの修正は、後で一括で行う。
             	for ( int i = 0; i < temp.size(); i++ ) {
-                    _same_labels.set( ((Integer)temp.elementAt(i) ).intValue(), new Integer(result) );
+                    same_labels.set( ((Integer)temp.elementAt(i) ).intValue(), new Integer(result) );
                 }*/
                 return result;
             } else {
                 temp.add( new Integer(result) );
-                result = ( (Integer)_same_labels.get(result) ).intValue();
+                result = ( (Integer)same_labels.get(result) ).intValue();
             }
         }
     }
     
     /**
-     * _same_labelsベクターを、同一連結成分の中の最小値を直接示す様に修正。
+     * same_labelsベクターを、同一連結成分の中の最小値を直接示す様に修正。
      * 同時に、reset後のlabelの最大値を返す。
+     * @param same_labels
      * @return : reset後のlabelの最大値
      */
-    public int resetSameLabelsAndGetMaxLabel() {
+    public static int resetSameLabelsAndGetMaxLabel(Vector<Integer> same_labels) {
     	int result = -1;
-        for ( int i = 0; i < _same_labels.size(); i++ ) {
-            int smallest_label = smallestlabel(i);
+        for ( int i = 0; i < same_labels.size(); i++ ) {
+            int smallest_label = smallestlabel(same_labels, i);
             if ( result < smallest_label ) { result = smallest_label; }
-            _same_labels.set(i, new Integer(smallest_label));
+            same_labels.set(i, new Integer(smallest_label));
         }
         return result;
     }
