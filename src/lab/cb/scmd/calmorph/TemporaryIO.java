@@ -53,29 +53,9 @@ public class TemporaryIO {
         return result;
     }
 	
-	public static void drawImage(int[] points, final int width, final Cell[] cells, final String filename, final String out_dir) {
-    	for ( int i = 0; i < cells.length; i++ ) {
-    		if ( cells[i].neck == null ) { continue; }
-    		if ( cells[i].neck.length == 2 ) {
-    			for ( int neck : cells[i].neck ) { drawPoint(neck, points, width, 0x00ffff); }
-    		}/*
-    		for ( int j = 0; j < cells[i].mother_edge.size(); j++ ) {
-    			points[( (Integer)cells[i].mother_edge.get(j) ).intValue()] = 0xffffff;
-    		}*/
-    		for ( int j = 0; j < cells[i].bud_edge.size(); j++ ) {
-    			points[( (Integer)cells[i].bud_edge.get(j) ).intValue()] = 0xff0000;
-    		}/*
-    		if ( cells[i].neck_and_bud_middle != null ) {
-    			drawPoint(cells[i].neck_and_bud_middle[0], points, width, 0x00ff00);
-    			drawPoint(cells[i].neck_and_bud_middle[2], points, width, 0x00ff00);
-    		}
-    		int x = (int)(cells[i].grad_cept_middle[2]) % width;
-    		for ( int j = x - 10; j < x + 11; j++ ) {
-    			int y = (int)( cells[i].grad_cept_middle[0] * j + cells[i].grad_cept_middle[1] );
-    			points[y * width + j] = 0xff0000;
-    		}*/
-    	}
-        BufferedImage bi = makeBufferedImage(points, width);
+	public static void drawImage(final int[] points, final int width, final Cell[] cells, final String filename, final String out_dir) {
+    	int[] imposed_points = getImposedImage(points, getImposeImage(points.length, width, cells));
+        BufferedImage bi = makeBufferedImage(imposed_points, width, true); // TODO
         Iterator writers = ImageIO.getImageWritersBySuffix(getSuffix(filename));
         if ( writers.hasNext() ) {
             ImageWriter writer = (ImageWriter) writers.next();
@@ -85,8 +65,8 @@ public class TemporaryIO {
                 
                 ImageWriteParam param = writer.getDefaultWriteParam();
                 if ( param.canWriteCompressed() ) {
-                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    param.setCompressionQuality(1.0f);
+                   // param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    //param.setCompressionQuality(1.0f);
                 } else { System.out.println("Compression is not supported."); }
                 
                 writer.write(null, new IIOImage(bi, null, null), param);
@@ -110,14 +90,19 @@ public class TemporaryIO {
 		points[p + width + 1] = color;
     }
     
-    private static BufferedImage makeBufferedImage(final int[] points, final int width) {
-		BufferedImage bi = new BufferedImage(width, (points.length / width), BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = bi.createGraphics();
+    private static BufferedImage makeBufferedImage(final int[] points, final int width, final boolean is_color) {
+		BufferedImage result = new BufferedImage(width, (points.length / width), BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = result.createGraphics();
 		for( int i = 0; i < points.length; i++ ) {
-			g.setColor(new Color((points[i] << 16) | (points[i] << 8) | points[i]));
-			g.drawLine(i % width, i / width, i % width, i / width);
+			if ( is_color ) { 
+		        g.setColor(new Color(points[i]));
+				g.drawLine(i % width, i / width, i % width, i / width);
+		    } else {
+				g.setColor(new Color((points[i] << 16) | (points[i] << 8) | points[i]));
+				g.drawLine(i % width, i / width, i % width, i / width);
+		    }
 		}
-		return bi;
+		return result;
     }
     
     private static String getSuffix(final String filename) {
@@ -126,6 +111,71 @@ public class TemporaryIO {
             System.exit(1);
         } else { return filename.substring(filename.length() - 3); }
         return null;
+    }
+    
+    /**
+     * 
+     * @param size
+     * @param width
+     * @param cells
+     * @return
+     */
+    private static int[] getImposeImage(final int size, final int width, final Cell[] cells) {
+    	int[] result = new int[size];
+    	for ( int i = 0; i < result.length; i++ ) { result[i] = 0xffffff; }
+    	
+    	final int red = 0xff0000;
+    	final int green = 0x00ff00;
+    	final int blue = 0x0000ff;
+    	
+    	for ( int i = 0; i < cells.length; i++ ) {
+    		// mother cell
+    		if ( cells[i].mother_edge == null ) { continue; }
+    		for ( int j = 0; j < cells[i].mother_edge.size(); j++ ) {
+    			//result[( (Integer)cells[i].mother_edge.get(j) ).intValue()] = blue;
+    		}
+    		
+    		// necks
+    		if ( cells[i].neck == null ) { continue; }
+    		if ( cells[i].neck.length == 2 ) {
+    			//for ( int neck : cells[i].neck ) { drawPoint(neck, result, width, green); }
+    		}
+    		
+    		// bud
+    		for ( int j = 0; j < cells[i].bud_edge.size(); j++ ) {
+    			//result[( (Integer)cells[i].bud_edge.get(j) ).intValue()] = red;
+    		}
+    		drawPoint(((Integer)cells[i].bud_edge.get(0)).intValue(), result, width, red);
+    		drawPoint(((Integer)cells[i].bud_edge.get(cells[i].bud_edge.size()-1)).intValue(), result, width, blue);
+    		/*
+    		//
+    		if ( cells[i].neck_and_bud_middle != null ) {
+    			drawPoint(cells[i].neck_and_bud_middle[0], result, width, 0x00ff00);
+    			drawPoint(cells[i].neck_and_bud_middle[2], result, width, 0x00ff00);
+    		}
+    		int x = (int)(cells[i].grad_cept_middle[2]) % width;
+    		for ( int j = x - 10; j < x + 11; j++ ) {
+    			int y = (int)( cells[i].grad_cept_middle[0] * j + cells[i].grad_cept_middle[1] );
+    			result[y * width + j] = 0xff0000;
+    		}*/
+    	}
+    	return result;
+    }
+    
+    /**
+     * 
+     * @param points : gray cell image
+     * @param impose_points : d‚Ë‡‚í‚¹‚éƒJƒ‰[‰æ‘œ
+     * @return : points of color cell image
+     */
+    private static int[] getImposedImage(final int[] points, final int[] impose_points) {
+        int[] result = new int[points.length];
+        for ( int i = 0; i < result.length; i++ ) { result[i] = 0xffffff; }
+        for ( int i = 0; i < result.length; i++ ) {
+            result[i] = ((points[i] << 16) | (points[i] << 8) | (points[i]));
+            if ( impose_points[i] != 0xffffff ) { result[i] = impose_points[i]; }
+        }
+        return result;
     }
     
 }
