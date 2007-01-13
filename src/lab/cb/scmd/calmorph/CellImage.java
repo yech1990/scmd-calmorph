@@ -69,7 +69,7 @@ class CellImage {
         DataBuffer db=null;
         if ( (f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null ) {
         	db = bi.getRaster().getDataBuffer();
-        } else { err = true; }
+        } else { err = true; System.out.println("ERR : image load"); }
         
         //_cell_wall_image = new YeastImage(name, _cell_wall, bi, startid);
         
@@ -82,16 +82,18 @@ class CellImage {
             } else {
                 err = true;
                 err_kind = "incorrect size of image";
+                System.out.println("ERR : Wall image size");
             }
         }
         
         if ( calD ) {//DAPIâÊëúÇÃèàóùÇ‡çsÇ§
             if((f=new File(path+"-D"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-D"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
-                else err = true;
+                else {err = true; System.out.println("ERR : DAPI image load"); }
             } else {
                 calD = false;
                 err = true;
+                System.out.println("ERR : DAPI image file does not exist");
             }
             if(calD) {
                 if(_size == db.getSize()) {
@@ -102,6 +104,7 @@ class CellImage {
                 } else {
                     err = true;
 					err_kind = "incorrect size of image";
+					System.out.println("ERR : DAPI image size");
                 }
             }
         }
@@ -109,10 +112,11 @@ class CellImage {
         if ( calA ) {//actinâÊëúÇÃèàóùÇ‡çsÇ§
             if((f=new File(path+"-A"+number+".jpg")).exists()) {
                 if((bi = getBufferedImage(path+"-A"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
-                else err = true;
+                else { err = true;  System.out.println("ERR : actin image load"); }
             } else {
                 err = true;
                 calA = false;
+                System.out.println("ERR : actin image does not exist");
             }
             if(calA) {
                 if(_size == db.getSize()) {
@@ -123,6 +127,7 @@ class CellImage {
                  } else {
                      err = true;
 					err_kind = "incorrect size of image";
+					System.out.println("ERR : actin image size");
                  }
              }
          }
@@ -156,7 +161,8 @@ class CellImage {
      * @return
      */
     public int process(PrintWriter pwbaseC,PrintWriter pwexpandC,PrintWriter pwbaseD,PrintWriter pwexpandD,PrintWriter pwbaseA,PrintWriter pwexpandA,PrintWriter pwpatchA,PrintWriter pwvers,PrintWriter pwxml) {
-        err = false;
+        System.out.println("CI.process");
+    	err = false;
         if(objectload < 0) {
             segmentCells();
         } else if(objectload == 0) load(0);
@@ -231,16 +237,15 @@ class CellImage {
         searchNeck();
         
         //temporary START
-        cell = BudValidation.validation(cell, _width);
+        cell = BudValidation.validation(cell, _size, _width);
         TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
         //temporary END
-        /*
+        
         serchbrightpoint(_cell_points);
         serchwidepoint(_cell_points);
         
         setEllipse();
         setCellData();
-        */
     }
     ////////////////////////////////////////////////////////////////////////////////
     //DAPIâÊëúÇÃèàóù

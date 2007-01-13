@@ -113,11 +113,13 @@ class DisruptantProcess {
 			{
             if(gui != null && gui.flag_reset) return;
             CellImage image = new CellImage(name,path,i,outdir,startid,calD,calA);
+            System.out.println("error = " + image.err);
             if(image.err){
             	if(!image.err_kind.equals("")) pw2.println(i + ": " + image.err_kind);
             	pw2.flush();
             	 continue; 
             }
+            System.out.println(objectsave + "/" + objectload + "/ "+ outimage + "/" + outsheet);
             image.setOptions(objectsave,objectload,outimage,outsheet);
             if(gui != null) gui.state_jtf.setText("proc:"+name+"-"+i+"...");
             else if(outstate) System.err.println("proc:"+name+"-"+i+"...");

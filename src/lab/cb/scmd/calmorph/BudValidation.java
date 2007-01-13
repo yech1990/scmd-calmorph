@@ -7,15 +7,26 @@ public class BudValidation {
 	private static final double _bud_length_threshold = 1.5;
 	private static final double _mother_length_threshold = 0.2;
 	private static final double _perpendicular_length_threshold = 0.5;
-	private static final double _circle_threshold = 6.0;
+	private static final double _circle_threshold = 6.0; // not used
 	
-	public static Cell[] validation(Cell[] cells, final int width) {
+	// TODO
+	// 1. mother edge length VS bud edge length
+	// 2. neck 補正
+	//     bud edge位置 を boolean[] に
+	//     2つの端点を見つける
+	//     端点から順にbud_edgeベクターに入れ直す
+	//     端点から一部だけ外積を計算し、本物のneckを見つける
+	// 3. neck length VS bud length だけで良いかも
+	public static Cell[] validation(Cell[] cells, final int size, final int width) {
 		for ( int i = 0; i < cells.length; i++ ) {
 			if ( cells[i].neck == null || cells[i].neck[0] == cells[i].neck[cells[i].neck.length - 1] || 
 					cells[i].bud_edge.size() <= 0 ) { continue; }
 			
 			int bud_edge_length = cells[i].bud_edge.size();
 			int mother_edge_length = cells[i].mother_edge.size();
+			if ( motherLengthValidation(mother_edge_length, bud_edge_length) ) { continue; }
+			
+			NeckCorrection.executeNeckCorrection(cells[i].bud_edge, size, width);
 			
 			double neck_length = Math.sqrt( getDistance(cells[i].neck[0], cells[i].neck[cells[i].neck.length - 1], width) );
 			int neck_middle = getMiddlePoint(cells[i].neck[0], cells[i].neck[cells[i].neck.length - 1], width);
@@ -29,9 +40,8 @@ public class BudValidation {
 			//double[] max_min = calculateMaxAndMinDistances(bud_center, width, cells[i].bud_edge);
 			setNeckAndBudMiddle(neck_middle, bud_middle, bud_center, cells, i);
 			
-			if ( motherLengthValidation(mother_edge_length, bud_edge_length) && 
-					( !budPerpendicularLengthValidation(neck_length, bud_perpendicular_length) || 
-					!budLengthValidation(neck_length, bud_edge_length) ) ) { deleteBudEdge(cells, i); }
+			if ( budPerpendicularLengthValidation(neck_length, bud_perpendicular_length) || 
+					!budLengthValidation(neck_length, bud_edge_length) ) { deleteBudEdge(cells, i); }
 		}
 		return cells;
 	}
@@ -90,7 +100,7 @@ public class BudValidation {
 	 * @return
 	 */
 	protected static boolean motherLengthValidation(double mother_edge_length, double bud_edge_length) {
-		if ( bud_edge_length > mother_edge_length * _mother_length_threshold ) { return true; }
+		if ( bud_edge_length < mother_edge_length * _mother_length_threshold ) { return true; }
 		return false;
 	}
 	

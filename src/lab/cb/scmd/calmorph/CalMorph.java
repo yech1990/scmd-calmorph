@@ -55,6 +55,7 @@ class CalMorph {
 		} else {
 			cm.CUI(args);
 		}
+        System.out.println("END");
 	}
     
     public void CUI(String args[]) {
@@ -130,6 +131,7 @@ class CalMorph {
 		} else {
 			//	.jpg‚Ì”‚ğ”‚¦‚é
 			String ls[] = in.list();
+			System.out.println("ls.length = " + ls.length);
 			for (int i = 0; i < ls.length; i++)
 			{
 				if(ls[i].substring(ls[i].length()-4,ls[i].length()).equals(".jpg")){
@@ -141,7 +143,6 @@ class CalMorph {
 					}
 				}
 			}
-
 			//	ŒvZ‚·‚é
 			DisruptantProcess dp = new DisruptantProcess(name,path,outdir,xmldir,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
 			dp.setPrintFile("CUI");
