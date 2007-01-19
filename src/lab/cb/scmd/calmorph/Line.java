@@ -23,9 +23,16 @@ public class Line {
 		return _intercept;
 	}
 	
-	public Line calculateLine(int start, int middle, int end, int width) {
+	public Line calculateLine(int start, int end, int width) {
 		int[] xy = calculateXY(start, end, width);
 		double gradient = calculateGradient(xy[0], xy[1], xy[2], xy[3]);
+		double intercept = calculateIntercept(gradient, start, width);
+		return new Line(gradient, intercept);
+	}
+	
+	public Line calculatePerpendicularLine(int start, int middle, int end, int width) {
+		int[] xy = calculateXY(start, end, width);
+		double gradient = calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]);
 		double intercept = calculateIntercept(gradient, middle, width);
 		return new Line(gradient, intercept);
 	}
@@ -52,9 +59,14 @@ public class Line {
 		return result;
 	}
 	
-	protected static double calculateGradient(double x1, double y1, double x2, double y2) {
+	protected static double calculateGradient(int x1, int y1, int x2, int y2) {
+		if ( x1 == x2 ) { return _vertical; }
+		return ( (double)( (y2 - y1) / (x2 - x1) ) );
+	}
+	
+	protected static double calculatePerpendicularGradient(int x1, int y1, int x2, int y2) {
 		if ( y1 == y2 ) { return _vertical; }
-		return ( (x1 - x2) / (y2 - y1) );
+		return ( (double)( (x1 - x2) / (y2 - y1) ) );
 	}
 	
 	protected static double calculateIntercept(double gradient, int middle, int width) {
@@ -62,13 +74,13 @@ public class Line {
 		return (double)( (middle / width) - gradient * (middle % width) );
 	}
 	
-	protected static double calculateLineDistance(Line line, int p, int width) {
+	public static double calculateLineDistance(Line line, int p, int width) {
 		double x = p % width;
 		double y = p / width;
 		double grad = line.getGradient();
 		double cept = line.getIntercept();
 		
-		if ( grad == Double.MAX_VALUE ) { return cept * cept; }
+		if ( grad == Double.MAX_VALUE ) { return (x - cept) * (x - cept); }
 		
 		return ( (y - grad * x - cept) * (y - grad * x - cept) / (1 + grad * grad) );
 	}

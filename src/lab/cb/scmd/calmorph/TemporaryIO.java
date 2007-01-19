@@ -15,7 +15,8 @@ import javax.imageio.stream.ImageOutputStream;
 
 public class TemporaryIO {
 	
-	private static final String _parameter = "len_05_moth_02_bud_15_";
+	private static final String _parameter = "M" + BudValidation._mother_length_threshold + "_P" + 
+	   BudValidation._perpendicular_length_threshold + "_B" + BudValidation._bud_length_threshold + "_";
 	
 	/**
 	 * temporary SCMD main method
@@ -132,31 +133,37 @@ public class TemporaryIO {
     		// mother cell
     		if ( cells[i].mother_edge == null ) { continue; }
     		for ( int j = 0; j < cells[i].mother_edge.size(); j++ ) {
-    			//result[( (Integer)cells[i].mother_edge.get(j) ).intValue()] = blue;
+    			result[( (Integer)cells[i].mother_edge.get(j) ).intValue()] = blue;
     		}
     		
     		// necks
     		if ( cells[i].neck == null ) { continue; }
     		if ( cells[i].neck.length == 2 ) {
-    			//for ( int neck : cells[i].neck ) { drawPoint(neck, result, width, green); }
+    			for ( int neck : cells[i].neck ) { drawPoint(neck, result, width, green); }
     		}
     		
     		// bud
     		for ( int j = 0; j < cells[i].bud_edge.size(); j++ ) {
-    			//result[( (Integer)cells[i].bud_edge.get(j) ).intValue()] = red;
+    			result[( (Integer)cells[i].bud_edge.get(j) ).intValue()] = red;
     		}
-    		drawPoint(((Integer)cells[i].bud_edge.get(0)).intValue(), result, width, red);
-    		drawPoint(((Integer)cells[i].bud_edge.get(cells[i].bud_edge.size()-1)).intValue(), result, width, blue);
+    		
     		/*
-    		//
     		if ( cells[i].neck_and_bud_middle != null ) {
     			drawPoint(cells[i].neck_and_bud_middle[0], result, width, 0x00ff00);
     			drawPoint(cells[i].neck_and_bud_middle[2], result, width, 0x00ff00);
     		}
+    		//if ( cells[i].grad_cept_middle == null ) { continue; }
     		int x = (int)(cells[i].grad_cept_middle[2]) % width;
-    		for ( int j = x - 10; j < x + 11; j++ ) {
-    			int y = (int)( cells[i].grad_cept_middle[0] * j + cells[i].grad_cept_middle[1] );
-    			result[y * width + j] = 0xff0000;
+    		if ( cells[i].grad_cept_middle[0] == Double.MAX_VALUE ) {
+    			int cy = (int)cells[i].grad_cept_middle[2] / width;
+    			for ( int y = cy - 10; y < cy + 11; y++ ) {
+        			result[y * width + (int)(cells[i].grad_cept_middle[2] % width)] = red;
+        		}
+    		} else {
+    			for ( int j = x - 10; j < x + 11; j++ ) {
+        			int y = (int)( cells[i].grad_cept_middle[0] * j + cells[i].grad_cept_middle[1] );
+        			result[y * width + j] = red;
+        		}
     		}*/
     	}
     	return result;

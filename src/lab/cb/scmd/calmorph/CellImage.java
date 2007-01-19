@@ -237,8 +237,9 @@ class CellImage {
         searchNeck();
         
         //temporary START
-        cell = BudValidation.validation(cell, _size, _width);
-        TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
+        cell = BudValidation.validation(cell, _cell_points.length, _width);
+        //System.out.println(name + " / DONE");
+        //TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
         //temporary END
         
         serchbrightpoint(_cell_points);

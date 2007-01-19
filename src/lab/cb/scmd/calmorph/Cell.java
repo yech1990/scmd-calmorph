@@ -18,6 +18,8 @@ import java.awt.geom.*;
 class Cell implements Serializable {
 	int[] neck_and_bud_middle; // temporary data for bud validation
 	double[] grad_cept_middle;
+	boolean neck_change;
+	
 	int w, h, size, id;// 画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
 
 	private int group;
