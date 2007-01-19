@@ -42,22 +42,22 @@ public class LineTest extends TestCase {
 
 	public void testCalculateGradient() {
 		int[] xy = Line.calculateXY(2, 46, 10);
-		assertEquals(-1.0, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(-1.0, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 		
 		xy = Line.calculateXY(42, 6, 10);
-		assertEquals(1.0, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(1.0, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 		
 		xy = Line.calculateXY(6, 42, 10);
-		assertEquals(1.0, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(1.0, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 		
 		xy = Line.calculateXY(46, 2, 10);
-		assertEquals(-1.0, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(-1.0, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 		
 		xy = Line.calculateXY(5, 35, 10);
-		assertEquals(0.0, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(0.0, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 		
 		xy = Line.calculateXY(32, 35, 10);
-		assertEquals(Double.MAX_VALUE, Line.calculateGradient(xy[0], xy[1], xy[2], xy[3]));
+		assertEquals(Double.MAX_VALUE, Line.calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]));
 	}
 
 	public void testCalculateIntercept() {
@@ -68,8 +68,8 @@ public class LineTest extends TestCase {
 	}
 
 	public void testCalculateLineDistance() {
-		double distance = 4.0 * 4.0;
-		double calculate = Line.calculateLineDistance(new Line(Double.MAX_VALUE, 4.0), 0, 10);
+		double distance = (2.0 - 4.0) * (2.0 - 4.0);
+		double calculate = Line.calculateLineDistance(new Line(Double.MAX_VALUE, 4.0), 2, 10);
 		System.out.println(distance + " == " + calculate);
 		assertEquals(distance, calculate);
 		
