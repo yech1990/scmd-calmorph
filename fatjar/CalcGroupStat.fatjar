@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Jan 22 14:36:38 GMT+09:00 2007
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=fatjar/CalcGroupStat.jar
+manifest.mergeall=true
+manifest.mainclass=lab.cb.scmd.autoanalysis.grouping.CalcGroupStat
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<jar|swt.jar>;<jar|junit.jar>;<jar|commons-httpclient.jar>;<jar|webdavlib.jar>;<jar|commons-dbutils-1.0.jar>
+includes=
