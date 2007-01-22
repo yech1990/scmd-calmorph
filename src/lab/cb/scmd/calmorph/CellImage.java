@@ -238,7 +238,6 @@ class CellImage {
         
         //temporary START
         cell = BudValidation.validation(cell, _cell_points.length, _width);
-        //System.out.println(name + " / DONE");
         //TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
         //temporary END
         
@@ -247,6 +246,7 @@ class CellImage {
         
         setEllipse();
         setCellData();
+        //System.out.println(name + " / DONE");
     }
     ////////////////////////////////////////////////////////////////////////////////
     //DAPIâÊëúÇÃèàóù

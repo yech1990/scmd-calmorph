@@ -50,6 +50,8 @@ public class BudValidation {
 		cells[i].mother_edge = budEdgeConcatinatesMotherEdge(cells[i].mother_edge, cells[i].bud_edge);
 		cells[i].bud_edge = new Vector();
 		cells[i].neck = null;
+		cells[i].bud_ratio = 0;
+		cells[i].setGroup(1);
 	}
 	
 	protected static void setNeckAndBudMiddle(int neck_middle, int bud_middle, int bud_center, Cell[] cells, int i) {
