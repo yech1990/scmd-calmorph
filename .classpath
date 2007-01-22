@@ -8,6 +8,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/webdavlib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-dbutils-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Phenome Commons"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
