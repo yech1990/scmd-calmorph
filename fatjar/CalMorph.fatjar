@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Jan 22 13:51:19 GMT+09:00 2007
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=SCMD-trunk_fat.jar
+manifest.mergeall=true
+manifest.mainclass=
+manifest.file=jardesc\\CalMorph.manifest
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=
