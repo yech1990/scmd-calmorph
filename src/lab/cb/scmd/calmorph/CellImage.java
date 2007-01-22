@@ -25,10 +25,14 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import org.apache.log4j.Logger;
+
 import sun.java2d.pipe.DrawImage;
 
 class CellImage {
 	
+    private Logger _logger = Logger.getLogger(this.getClass());
+    
 	private YeastImage _cell_wall_image;
 	
     int _width, _height, _size;                          //âÊëúÇÃïùÅAçÇÇ≥ÅApixelêî
@@ -67,6 +71,9 @@ class CellImage {
         File f=null;
         BufferedImage bi=null;
         DataBuffer db=null;
+        
+        _logger.debug("process a photo: " + number);
+        
         if ( (f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null ) {
         	db = bi.getRaster().getDataBuffer();
         } else { err = true; System.out.println("ERR : image load"); }
@@ -161,7 +168,7 @@ class CellImage {
      * @return
      */
     public int process(PrintWriter pwbaseC,PrintWriter pwexpandC,PrintWriter pwbaseD,PrintWriter pwexpandD,PrintWriter pwbaseA,PrintWriter pwexpandA,PrintWriter pwpatchA,PrintWriter pwvers,PrintWriter pwxml) {
-        System.out.println("CI.process");
+
     	err = false;
         if(objectload < 0) {
             segmentCells();
@@ -289,7 +296,7 @@ class CellImage {
         	return ImageIO.read(new File(filename));
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
         } catch(IOException ioe) {
-            //System.out.println("IOException:"+ioe);
+            _logger.error(ioe);
             return null;
         }
     }
