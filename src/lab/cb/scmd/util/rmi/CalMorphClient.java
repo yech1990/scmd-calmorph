@@ -11,7 +11,7 @@ import java.rmi.RMISecurityManager;
 
 public class CalMorphClient {
     private String _servername = "localhost";
-    private String cmd_prefix = "java -Xmx768m -Xms768m -jar CalMorph_1_1.jar ";
+    private String cmd_prefix = "java -Xmx768m -Xms768m -jar CalMorph.jar ";
     private String cmd_suffix = "";
     private String _inputdir = "";
     private CalMorphInterface obj = null;
