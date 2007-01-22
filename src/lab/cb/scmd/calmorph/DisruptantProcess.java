@@ -112,6 +112,7 @@ class DisruptantProcess {
 			try
 			{
             if(gui != null && gui.flag_reset) return;
+            
             CellImage image = new CellImage(name,path,i,outdir,startid,calD,calA);
             System.out.println("error = " + image.err);
             if(image.err){
@@ -124,13 +125,15 @@ class DisruptantProcess {
             if(gui != null) gui.state_jtf.setText("proc:"+name+"-"+i+"...");
             else if(outstate) System.err.println("proc:"+name+"-"+i+"...");
             //	‰æ‘œ‚©‚ç‰ğÍH
+            
+            
             startid += image.process(pwbaseC,pwexpandC,pwbaseD,pwexpandD,pwbaseA,pwexpandA,pwpatchA,pwvers,pwxml);
 			if(!image.err) ad.addCellData(image);
 			else pw2.println(i + ": " + image.err_kind);
 			}
 			catch(Exception e){
 				pw2.println(i + ": unexpected error");
-				System.out.println(name + " : " + i + ": unexpected error [in DisruptantProcess.process()]");
+				System.out.println(name + " : " + i + e.getMessage());
 			}
         }
         ad.printDataXLS(calA,calD,outsheet);
