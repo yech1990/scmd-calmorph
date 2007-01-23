@@ -19,15 +19,9 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 
 import org.apache.log4j.Logger;
-
-import sun.java2d.pipe.DrawImage;
 
 class CellImage {
 	
@@ -76,65 +70,57 @@ class CellImage {
         
         if ( (f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null ) {
         	db = bi.getRaster().getDataBuffer();
-        } else { err = true; System.out.println("ERR : image load"); }
-        
-        //_cell_wall_image = new YeastImage(name, _cell_wall, bi, startid);
+        } else { err = true;  _logger.warn("Cell wall image of " + name + " was not loaded."); }
         
         if ( !err ) {
-            if(_size == db.getSize()) {
+            if ( _size == db.getSize() ) {
                 _cell_points = new int[_size];
-                for(int i=0;i<_size;i++) {
-                    _cell_points[i] = db.getElem(i);
-                }
+                for ( int i = 0; i <_size; i++ ) { _cell_points[i] = db.getElem(i); }
             } else {
                 err = true;
                 err_kind = "incorrect size of image";
-                System.out.println("ERR : Wall image size");
+                _logger.warn("Size of " + name + "'s cell wall image is incorrect.");
             }
         }
         
         if ( calD ) {//DAPI‰æ‘œ‚Ìˆ—‚às‚¤
-            if((f=new File(path+"-D"+number+".jpg")).exists()) {
-                if((bi = getBufferedImage(path+"-D"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
-                else {err = true; System.out.println("ERR : DAPI image load"); }
+            if ( ( f = new File(path + "-D" + number + ".jpg") ).exists() ) {
+                if ( ( bi = getBufferedImage(path + "-D" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
+                else { err = true;  _logger.warn("Nucleus image of " + name + " was not loaded."); }
             } else {
                 calD = false;
                 err = true;
-                System.out.println("ERR : DAPI image file does not exist");
+                _logger.warn("Nucleus image of " + name + " was not loaded although Flag is true.");
             }
-            if(calD) {
-                if(_size == db.getSize()) {
+            if ( calD ) {
+                if ( _size == db.getSize() ) {
                     _nucleus_points = new int[_size];
-                    for(int i=0;i<_size;i++) {
-                        _nucleus_points[i] = db.getElem(i);
-                    }
+                    for ( int i = 0; i < _size; i++ ) { _nucleus_points[i] = db.getElem(i); }
                 } else {
                     err = true;
 					err_kind = "incorrect size of image";
-					System.out.println("ERR : DAPI image size");
+					_logger.warn("Size of " + name + "'s nucleus image is incorrect.");
                 }
             }
         }
         
-        if ( calA ) {//actin‰æ‘œ‚Ìˆ—‚às‚¤
-            if((f=new File(path+"-A"+number+".jpg")).exists()) {
-                if((bi = getBufferedImage(path+"-A"+number+".jpg")) != null) db = bi.getRaster().getDataBuffer();
-                else { err = true;  System.out.println("ERR : actin image load"); }
+        if ( calA ) { //actin‰æ‘œ‚Ìˆ—‚às‚¤
+            if ( ( f = new File(path + "-A" + number + ".jpg") ).exists() ) {
+                if ( ( bi = getBufferedImage(path + "-A" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
+                else { err = true;  _logger.warn("Actin image of " + name + " was not loaded."); }
             } else {
                 err = true;
                 calA = false;
-                System.out.println("ERR : actin image does not exist");
+                _logger.warn("Actin image of " + name + " was not loaded although Flag is true.");
             }
-            if(calA) {
-                if(_size == db.getSize()) {
+            if ( calA ) {
+                if ( _size == db.getSize() ) {
                     _actin_points = new int[_size];
-                    for(int i=0;i<_size;i++) {
-                        _actin_points[i] = db.getElem(i);
-                    }
+                    for ( int i = 0; i < _size; i++ ) { _actin_points[i] = db.getElem(i); }
                  } else {
-                     err = true;
-					err_kind = "incorrect size of image";
-					System.out.println("ERR : actin image size");
+                	 err = true;
+                	 err_kind = "incorrect size of image";
+                	 _logger.warn("Size of " + name + "'s actin image is incorrect.");
                  }
              }
          }
@@ -243,17 +229,14 @@ class CellImage {
         edge(ci,_cell_points);
         searchNeck();
         
-        //temporary START
         cell = BudValidation.validation(cell, _cell_points.length, _width);
         //TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
-        //temporary END
         
         serchbrightpoint(_cell_points);
         serchwidepoint(_cell_points);
         
         setEllipse();
         setCellData();
-        //System.out.println(name + " / DONE");
     }
     ////////////////////////////////////////////////////////////////////////////////
     //DAPI‰æ‘œ‚Ìˆ—

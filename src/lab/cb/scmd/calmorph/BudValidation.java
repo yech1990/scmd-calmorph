@@ -1,6 +1,7 @@
 package lab.cb.scmd.calmorph;
 
 import java.util.Vector;
+import org.apache.log4j.Logger;
 
 public class BudValidation {
 	
