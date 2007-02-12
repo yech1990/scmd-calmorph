@@ -26,8 +26,6 @@ import org.apache.log4j.Logger;
 class CellImage {
 	
     private Logger _logger = Logger.getLogger(this.getClass());
-    
-	private YeastImage _cell_wall_image;
 	
     int _width, _height, _size;                          //画像の幅、高さ、pixel数
     int number, Ddiff, Adiff, startid;                   //画像の番号、DAPI画像のずれ、actin画像のずれ、最初のcell番号
@@ -199,7 +197,6 @@ class CellImage {
     }
     
     /**
-     * TODO
      * his3_control_*-C*.jpg の処理
      * morphological segmentation
      */
@@ -230,7 +227,6 @@ class CellImage {
         searchNeck();
         
         cell = BudValidation.validation(cell, _cell_points.length, _width);
-        //TemporaryIO.drawImage(_cell_points, _width, cell, name, outdir);
         
         serchbrightpoint(_cell_points);
         serchwidepoint(_cell_points);
