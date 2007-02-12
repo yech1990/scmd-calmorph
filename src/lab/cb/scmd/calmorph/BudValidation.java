@@ -1,7 +1,6 @@
 package lab.cb.scmd.calmorph;
 
 import java.util.Vector;
-import org.apache.log4j.Logger;
 
 public class BudValidation {
 	
@@ -9,7 +8,6 @@ public class BudValidation {
 	public static final double _mother_length_threshold = 0.2;
 	public static final double _perpendicular_length_threshold = 0.4;
 	public static final double _perpendicular_length_threshold_primary = 0.2;
-	private static final double _circle_threshold = 6.0; // not used
 	
 	/**
 	 * 
@@ -118,21 +116,15 @@ public class BudValidation {
 		return false;
 	}
 	
+	/**
+	 * ‘Ã“–‚Èbud‚©”»’è 3-2
+	 * @param neck_length
+	 * @param bud_perpendicular_length
+	 * @return
+	 */
 	protected static boolean budPerpendicularLengthValidationPrimary(double neck_length, double bud_perpendicular_length) {
 		if ( neck_length * _perpendicular_length_threshold_primary > bud_perpendicular_length ) { return true; }
 		return false;
-	}
-	
-	/**
-	 * ‘Ã“–‚Èbud‚©”»’è 4 ibud‚Ì‰~Œ`j
-	 * @param max_min
-	 * @return
-	 */
-	protected static boolean budCircleValidation(double[] max_min) {
-		double max = max_min[0];
-		double min = max_min[1];
-		if ( max > _circle_threshold * min ) { return false; }
-		return true;
 	}
 	
 	protected static Vector budEdgeConcatinatesMotherEdge(Vector mother_edge, Vector bud_edge) {
