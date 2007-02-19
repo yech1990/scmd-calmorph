@@ -65,8 +65,11 @@ class CellImage {
         DataBuffer db=null;
         
         _logger.debug("process a photo: " + number);
+        _logger.debug("path: " + path);
         
-        if ( (f=new File(path+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(path+"-C"+number+".jpg")) != null ) {
+        String prefix = path + File.separator + new File(path).getName();
+                
+        if ( (f=new File(prefix+"-C"+number+".jpg")).exists() && (bi = getBufferedImage(prefix+"-C"+number+".jpg")) != null ) {
         	db = bi.getRaster().getDataBuffer();
         } else { err = true;  _logger.warn("Cell wall image of " + name + " was not loaded."); }
         
@@ -82,8 +85,8 @@ class CellImage {
         }
         
         if ( calD ) {//DAPI‰æ‘œ‚Ìˆ—‚às‚¤
-            if ( ( f = new File(path + "-D" + number + ".jpg") ).exists() ) {
-                if ( ( bi = getBufferedImage(path + "-D" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
+            if ( ( f = new File(prefix + "-D" + number + ".jpg") ).exists() ) {
+                if ( ( bi = getBufferedImage(prefix + "-D" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
                 else { err = true;  _logger.warn("Nucleus image of " + name + " was not loaded."); }
             } else {
                 calD = false;
@@ -103,8 +106,8 @@ class CellImage {
         }
         
         if ( calA ) { //actin‰æ‘œ‚Ìˆ—‚às‚¤
-            if ( ( f = new File(path + "-A" + number + ".jpg") ).exists() ) {
-                if ( ( bi = getBufferedImage(path + "-A" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
+            if ( ( f = new File(prefix + "-A" + number + ".jpg") ).exists() ) {
+                if ( ( bi = getBufferedImage(prefix + "-A" + number + ".jpg") ) != null ) { db = bi.getRaster().getDataBuffer(); }
                 else { err = true;  _logger.warn("Actin image of " + name + " was not loaded."); }
             } else {
                 err = true;

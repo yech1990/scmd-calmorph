@@ -1,6 +1,7 @@
 package lab.cb.scmd.calmorph;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JComponent;
 
@@ -38,7 +39,14 @@ class AllProcess extends Thread {
             String path = files[i].getAbsolutePath()+"/"+files[i].getName();
             DisruptantProcess dp = new DisruptantProcess(name,path,outdir,null,maximage,objectsave,objectload,gui,false,calD,calA,outimage,outsheet);
 			if(i==0) dp.setPrintFile("GUI");
-            dp.process();
+            try
+            {
+                dp.process();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
             if(gui.flag_reset) reset();
         }
         gui.state_jtf.setText("finish");
