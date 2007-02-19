@@ -65,7 +65,6 @@ class CellImage {
         DataBuffer db=null;
         
         _logger.debug("process a photo: " + number);
-        _logger.debug("path: " + path);
         
         String prefix = path + File.separator + new File(path).getName();
                 
