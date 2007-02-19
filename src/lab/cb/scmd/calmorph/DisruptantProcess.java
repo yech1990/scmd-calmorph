@@ -11,6 +11,8 @@ package lab.cb.scmd.calmorph;
 
 import java.io.*;
 
+import org.apache.log4j.Logger;
+
 /**
  * 
  * 画像解析後のファイルを吐き出す
@@ -47,11 +49,29 @@ class DisruptantProcess {
         this.outimage = outimage;
         this.outsheet = outsheet;
     }
-    public void process() {
-        File f = new File(outdir+"/"+name);
+    
+    public DisruptantProcess(CalMorphOption option) {
+        this.name = option.getOrfName();
+        this.path = option.getInputDirectory() ;
+        this.outdir = option.getOutputDirectory();
+        this.xmldir = option.getXmlOutputDirectory();
+        this.maximage = option.getMaxImageNumber();
+        this.objectsave = false;
+        this.objectload = -1;
+        this.gui = null;
+        this.outstate = false;
+        this.calD = true;
+        this.calA = true;
+        this.outimage = true;
+        this.outsheet = true;
+    }
+    public void process() throws IOException {
+        String resultFolderName = outdir + File.separator + name;
+        String xmlResultFolderName = xmldir;
+        File f = new File(resultFolderName);
         if(!f.exists()) f.mkdir();
         if(xmldir!=null){
-	        f = new File(xmldir+"/"+name);
+	        f = new File(xmlResultFolderName);
 			if(!f.exists()) f.mkdir();
         }
         PrintWriter pwbaseC = null;
@@ -65,28 +85,20 @@ class DisruptantProcess {
 		PrintWriter pw2 = null;
 		PrintWriter pwxml = null;
 		
+        
+        
 		//	ファイルに書き込むためのPrintWriterを作成する
-        try {
-        	pwvers = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+".xls")));
-        	if(outsheet){
-	            pwbaseC = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_conA_basic.xls")));
-    	        pwexpandC = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_conA_biological.xls")));
-            	if(calD) {
-            		pwbaseD = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_dapi_basic.xls")));
-            		pwexpandD = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_dapi_biological.xls")));
-            	}
-            	if(calA){
-	        	    pwbaseA = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_actin_basic.xls")));
-    	    	    pwexpandA = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_actin_biological.xls")));
-    	    	    pwpatchA = new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/"+name+"_actin_patch.xls")));
-            	}
-        	}
-			pw2 =  new PrintWriter(new BufferedWriter(new FileWriter(outdir+"/"+name+"/exclusion_log.txt")));
-			if(xmldir!=null) pwxml = new PrintWriter(new BufferedWriter(new FileWriter(xmldir+"/"+name+"/"+name+"_image.xml")));
+		pwvers = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+".xls")));
+		pwbaseC = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_conA_basic.xls")));
+		pwexpandC = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_conA_biological.xls")));
+		pwbaseD = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_dapi_basic.xls")));
+		pwexpandD = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_dapi_biological.xls")));
+		pwbaseA = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_actin_basic.xls")));
+		pwexpandA = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_actin_biological.xls")));
+		pwpatchA = new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + File.separator +name+"_actin_patch.xls")));
+		pw2 =  new PrintWriter(new BufferedWriter(new FileWriter(resultFolderName + "/exclusion_log.txt")));
+		if(xmldir!=null) pwxml = new PrintWriter(new BufferedWriter(new FileWriter(xmlResultFolderName + File.separator + name+"_image.xml")));
 
-        } catch (Exception e) {
-            System.err.println("DisruptantProcess.process():"+e);
-        }
         //	ファイルにヘッダー情報を書き込む
         setXLSHeaderVers(pwvers);
         if(outsheet){
@@ -105,6 +117,8 @@ class DisruptantProcess {
         if(pwxml!=null) setXMLHeader(pwxml);
         int startid = 0;
 
+        Logger _logger = Logger.getLogger(this.getClass());
+        
         //	平均値計算？
         AverageData ad = new AverageData(name,outdir);
         
@@ -114,13 +128,13 @@ class DisruptantProcess {
             if(gui != null && gui.flag_reset) return;
             
             CellImage image = new CellImage(name,path,i,outdir,startid,calD,calA);
-            System.out.println("error = " + image.err);
             if(image.err){
+                _logger.error("error = " + image.err);
             	if(!image.err_kind.equals("")) pw2.println(i + ": " + image.err_kind);
             	pw2.flush();
             	 continue; 
             }
-            System.out.println(objectsave + "/" + objectload + "/ "+ outimage + "/" + outsheet);
+            //System.out.println(objectsave + "/" + objectload + "/ "+ outimage + "/" + outsheet);
             image.setOptions(objectsave,objectload,outimage,outsheet);
             if(gui != null) gui.state_jtf.setText("proc:"+name+"-"+i+"...");
             else if(outstate) System.err.println("proc:"+name+"-"+i+"...");

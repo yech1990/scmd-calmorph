@@ -9,144 +9,124 @@
 //--------------------------------------
 
 package lab.cb.scmd.calmorph;
-import java.io.*;
+
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.xerial.util.cui.OptionParser;
+import org.xerial.util.cui.OptionParserException;
 
 class CalMorph {
-    boolean outstate,objectsave,outimage;
-    int maximage,objectload;
-    String name,path,outdir,xmldir;
-    
-    public static void main(String[] s) {
-        BasicConfigurator.configure();  // logger configuration
-        Logger logger = Logger.getLogger("CalMorph");
-        
-        CalMorph cm = new CalMorph();
-        File in=null,out=null,xml=null;
-        if(s.length == 1) {
-            System.err.println("CalMorph");
-            System.err.println("gui usage: java CalMorph");
-            System.err.println("cui usage: java CalMorph [OPTION] inputdir outputdir xmldir");
-            System.err.println("OPTION:");
-            System.err.println("  --outstate");
-            System.err.println("  --objectsave");
-            System.err.println("  --objectload=value");
-            System.err.println("  --outimage");
-            System.exit(1);
-        } else if(s.length == 0) {//引数0でGUI起動
-            GUIFrame gui = new GUIFrame();
-            gui.setVisible(true);
-		} else if(s[s.length-3].substring(0,1).equals("-")) {
-			System.err.println("directory name \""+s[s.length-3]+"\" is not allowed");
-			System.exit(1);
-        } else if(s[s.length-2].substring(0,1).equals("-")) {
-            System.err.println("directory name \""+s[s.length-2]+"\" is not allowed");
-            System.exit(1);
-        } else if(s[s.length-1].substring(0,1).equals("-")) {
-            System.err.println("directory name \""+s[s.length-1]+"\" is not allowed");
-            System.exit(1);
-        } else {
-            //optionのデフォルト値
-            cm.maximage = -1;
-            cm.outstate = false;
-            cm.objectsave = false;
-            cm.objectload = -1;
-            for(int i=0;i<s.length-3;i++) {
-                cm.optionSearch(s[i]);
-            }
-            in = new File(s[s.length-3]);
-            out = new File(s[s.length-2]);
-            xml = new File(s[s.length-1]);
-            if(in.exists()) {
-                cm.name = in.getName();
-                cm.path = in.getAbsolutePath()+"/"+in.getName();
-            } else {
-                System.err.println("error:"+in.getName()+" not exist");
-                System.exit(1);
-            }
-            if(out.exists()) {
-                cm.outdir = out.getAbsolutePath();
-            } else {
-                out.mkdir();
-                cm.outdir = out.getAbsolutePath();
-            }
-			if(xml.exists()) {
-				cm.xmldir = xml.getAbsolutePath();
-			} else {
-				xml.mkdir();
-				cm.xmldir = xml.getAbsolutePath();
+	String	name, path, outdir, xmldir;
+
+	public CalMorph() {
+	}
+
+	enum Opt {
+		HELP, GUI, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, LOG_CONFIG, ORF_NAME
+	}
+
+	/**
+	 * Usage > java -jar calmorph.jar [option] [image_number]
+	 */
+	public static void main(String[] args) {
+		OptionParser<Opt> parser = new OptionParser<Opt>();
+		BasicConfigurator.configure();
+		Logger _logger = Logger.getLogger(CalMorph.class);
+		try {
+			parser.addOption(Opt.HELP, "h", "help", "display hyelp message");
+			parser.addOption(Opt.GUI, "g", "gui", "run in GUI mode");
+			parser.addOptionWithArgument(Opt.OUTPUT_DIR_IMAGE_XMLDATA, "x", "xout", "DIR", "output directory of XML image data", "xml");
+			parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
+			parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
+			parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
+			parser.addOptionWithArgument(Opt.ORF_NAME, "n", "orf", "ORF_NAME", "specify the orf name");
+			parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
+
+			parser.parse(args); // read the command line arguments
+
+			if (parser.isSet(Opt.HELP)) {
+				System.out.println("> calmorph [option]");
+				System.out.println(parser.helpMessage());
+				return;
 			}
+
+			if (parser.isSet(Opt.GUI)) {
+				GUIFrame gui = new GUIFrame();
+				gui.setVisible(true);
+				return;
+			}
+
+            if (parser.isSet(Opt.VERBOSE))
+                Logger.getRootLogger().setLevel(Level.TRACE);
+            else
+                Logger.getRootLogger().setLevel(Level.INFO);
+
+            if (parser.isSet(Opt.LOG_CONFIG)) {
+				// configure the logger
+				PropertyConfigurator.configure(parser.getValue(Opt.LOG_CONFIG));
+			}
+
+
+						
+			// run in command line user interface (CUI) mode
+			String inputDirName = parser.getValue(Opt.INPUTDIR);
+			
+			CalMorphOption calMorphOption = new CalMorphOption();
+			calMorphOption.setInputDirectory(inputDirName);
+			calMorphOption.setOutputDirectory(parser.getValue(Opt.OUTPUTDIR));
+			calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
+			
+			String orfName = inputDirName;
+			if(parser.isSet(Opt.ORF_NAME))
+				orfName = parser.getValue(Opt.ORF_NAME);
+						
+			calMorphOption.setOrfName(orfName);
+			
             
-            Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\.jpg");
-			File ls[] = in.listFiles();
+			Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\.jpg");
+			File inputDir = new File(inputDirName);
+			File ls[] = inputDir.listFiles();
+			int maxImage = 0;
 			for (File f : ls)
 			{
                 String fileName = f.getName();
                 Matcher m = conAfileNamePattern.matcher(fileName);
                 if(!m.matches())
                     continue;
-                logger.debug("found a conA image file : " + fileName);
+                _logger.debug("found a conA image file : " + fileName);
                 
                 int photoNum = Integer.parseInt(m.group(1));
-                if(photoNum > cm.maximage)
-                    cm.maximage = photoNum;
+                if(photoNum > maxImage)
+                    maxImage = photoNum;
 			}
+            calMorphOption.setMaxImageNumber(maxImage);
             
-            logger.info("max image in the folder: " + cm.maximage);
-            cm.process();
-        }
-    }
-    public CalMorph() {
-    }
-    public void process() {
-        DisruptantProcess dp = new DisruptantProcess(name,path,outdir,xmldir,maximage,objectsave,objectload,null,outstate,true,true,outimage,true);
-		dp.setPrintFile("CUI");
-        dp.process();
-    }
-    public void optionSearch(String option) {
-        if(option.length() < 10) {
-            System.err.println("Unrecognized option:"+option);
-            System.exit(1);
-        } else if(option.substring(0,10).equals("--outstate")) {
-            outstate=true;
-            System.err.println("outstate");
-        } else if(option.length() == 12 && option.substring(0,12).equals("--objectsave")) {
-            objectsave=true;
-            System.err.println("objectsave");
-        } else if(option.length() >= 13 && option.substring(0,13).equals("--objectload=")) {
-            objectload = Integer.parseInt(option.substring(13));
-            System.err.println("objectload="+objectload);
-        } else if(option.length() == 10 && option.substring(0,10).equals("--outimage")) {
-            outimage=true;
-            System.err.println("outimage");
-        } else {
-            System.err.println("Unrecognized option:"+option);
-            System.exit(1);
-        }
-    }
-}
+            _logger.info("max image# in the folder: " + calMorphOption.getMaxImageNumber());
+			_logger.debug("orf name: " + calMorphOption.getOrfName());
+			_logger.debug("input directory: " + calMorphOption.getInputDirectory());
+			_logger.debug("output directory: " + calMorphOption.getOutputDirectory());
+			_logger.debug("XML output directory: " + calMorphOption.getXmlOutputDirectory());
 
-//--------------------------------------
-//$Log: CalMorph.java,v $
-//Revision 1.6  2004/09/06 13:44:06  sesejun
-//CalMorphのおそらく正しい1_0のソース
-//
-//Revision 1.5  2004/07/20 01:44:22  sesejun
-//利用していないimportを削除
-//
-//Revision 1.4  2004/07/01 10:23:29  sesejun
-//表示部と計算部をある程度分離
-//
-//Revision 1.3  2004/06/30 17:14:21  sesejun
-//計算部分と出力部分の分離。
-//エラーを吐く際の
-//
-//Revision 1.2  2004/06/25 01:42:05  sesejun
-//CalMorph_version_1.0相当へ変更
-//一部、変更が元にもどってしまっている可能性大
-//気がついたら、再度変更してください。
-//
+			DisruptantProcess dp = new DisruptantProcess(calMorphOption);
+			dp.process();
+		}
+
+		catch (OptionParserException e) {
+			System.err.println(e.getMessage());
+			_logger.error(e.getStackTrace());
+			return;
+		}
+		catch (Exception e)
+		{
+			System.err.println(e.getMessage());
+			_logger.error(e.getStackTrace());
+			return;
+		}
+	}
+
+}
