@@ -118,13 +118,13 @@ class CalMorph {
 
 		catch (OptionParserException e) {
 			System.err.println(e.getMessage());
-			_logger.error(e.getStackTrace());
+			_logger.error(e.getMessage());
 			return;
 		}
 		catch (Exception e)
 		{
 			System.err.println(e.getMessage());
-			_logger.error(e.getStackTrace());
+			_logger.error(e.getMessage());
 			return;
 		}
 	}
