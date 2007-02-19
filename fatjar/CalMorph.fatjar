@@ -1,14 +1,14 @@
 #Fat Jar Configuration File
-#Mon Jan 22 13:51:19 GMT+09:00 2007
+#Mon Feb 19 12:53:45 GMT+09:00 2007
 onejar.license.required=true
 manifest.classpath=
 manifest.removesigners=true
 onejar.checkbox=false
-jarname=SCMD-trunk_fat.jar
+jarname=CalMorph1.3_fat.jar
 manifest.mergeall=true
-manifest.mainclass=
-manifest.file=jardesc\\CalMorph.manifest
+manifest.mainclass=lab.cb.scmd.calmorph.CalMorph
+manifest.file=<createnew>
 jarname.isextern=false
 onejar.expand=
-excludes=
+excludes=<jar|swt.jar>;<jar|junit.jar>;<jar|commons-httpclient.jar>;<jar|webdavlib.jar>;<jar|commons-dbutils-1.0.jar>
 includes=
