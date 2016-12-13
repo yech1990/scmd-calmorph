@@ -17,13 +17,13 @@ import org.apache.commons.httpclient.*;
 /*
  * @author Leo
  * 
- * ‹@”\
- * 1. MetaMorph‚©‚ç¶¬‚³‚ê‚éŽÊ^‚ðA(ORF)-A1.jpg‚ÌŒ`Ž®‚Érename
- * 2. 3–‡‚ÌŽÊ^‚ð‚»‚ê‚¼‚êF’²‚ð•Ï‚¦‚Ä‡¬‚µ‚½‚à‚Ì‚Ì‰¡‚Éƒ`ƒFƒbƒNƒ{ƒbƒNƒX‚ð‚Â‚¯‚ÄA
- * 	  ‚±‚ÌŽÊ^‚ð‚Â‚©‚¤‚©‚Ç‚¤‚©‚ð“ü—Í‚µ‚Ä‚à‚ç‚¤B
- * 	  (ŽÊ^‚Ì‡¬‚É‚ÍImageMagick(ŠO•”ƒvƒƒOƒ‰ƒ€)‚ðŽg‚¤)
- * 3. WebDAVƒvƒƒgƒRƒ‹‚ð—p‚¢‚ÄAyeast‚ÉŽÊ^‚ðupload‚·‚éB
- * 	  (Slide http://jakarta.apache.org/ ‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚éWebDav cliant library‚ðŽg‚Á‚ÄŽÀŒ»)
+ * ï¿½@ï¿½\
+ * 1. MetaMorphï¿½ï¿½ï¿½ç¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê^ï¿½ï¿½ï¿½A(ORF)-A1.jpgï¿½ÌŒ`ï¿½ï¿½ï¿½ï¿½rename
+ * 2. 3ï¿½ï¿½ï¿½ÌŽÊ^ï¿½ï¿½ï¿½ï¿½ï¿½ê‚¼ï¿½ï¿½Fï¿½ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½Äï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì‰ï¿½ï¿½Éƒ`ï¿½Fï¿½bï¿½Nï¿½{ï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½Â‚ï¿½ï¿½ÄA
+ * 	  ï¿½ï¿½ï¿½ÌŽÊ^ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½Ä‚ï¿½ï¿½ç‚¤ï¿½B
+ * 	  (ï¿½Ê^ï¿½Ìï¿½ï¿½ï¿½ï¿½É‚ï¿½ImageMagick(ï¿½Oï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½gï¿½ï¿½)
+ * 3. WebDAVï¿½vï¿½ï¿½ï¿½gï¿½Rï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ÄAyeastï¿½ÉŽÊ^ï¿½ï¿½uploadï¿½ï¿½ï¿½ï¿½B
+ * 	  (Slide http://jakarta.apache.org/ ï¿½ÉŠÜ‚Ü‚ï¿½Ä‚ï¿½ï¿½ï¿½WebDav cliant libraryï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ÄŽï¿½ï¿½ï¿½)
  */
 
 
@@ -31,23 +31,23 @@ public class SCMDConverter extends JFrame implements ActionListener
 {
 
 	//--------------------------------------------------------------------------------
-	// ORF_QUERY: ORF‚ð“üŽè‚·‚éCGIƒy[ƒW
+	// ORF_QUERY: ORFï¿½ï¿½ï¿½ï¿½è‚·ï¿½ï¿½CGIï¿½yï¿½[ï¿½W
 	//
-	// http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi?name=his3 ‚ÉƒAƒNƒZƒX‚·‚é‚ÆA
-	// plain text‚ÅA
+	// http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi?name=his3 ï¿½ÉƒAï¿½Nï¿½Zï¿½Xï¿½ï¿½ï¿½ï¿½ÆA
+	// plain textï¿½ÅA
 	//
 	// yor203w	his3
 	//
-	// ‚Æ‚¢‚¤ˆês‚¾‚¯‚Ìƒy[ƒW‚ª•\Ž¦‚³‚ê‚é
-	// ORF‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍA
+	// ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½Ìƒyï¿½[ï¿½Wï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ORFï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ÍA
 	//
 	// none
 	//
-	// ORF‚ðˆêˆÓ‚É“Á’è‚Å‚«‚È‚¢ê‡‚ÍA
+	// ORFï¿½ï¿½ï¿½ï¿½Ó‚É“ï¿½ï¿½ï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ÍA
 	//
 	// multiple
 	//
-	// ‚ª•\Ž¦‚³‚ê‚éB
+	// ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
 	//--------------------------------------------------------------------------------
 	//static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
 	//static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
@@ -69,14 +69,14 @@ public class SCMDConverter extends JFrame implements ActionListener
 	final int MENU_FILE = 0;
 	final int MENU_CONVERT = 1;
 
-	// Actin, ConA, DAPI‚Ì‚½‚ß‚Ì”z—ñ
+	// Actin, ConA, DAPIï¿½Ì‚ï¿½ï¿½ß‚Ì”zï¿½ï¿½
 	public final String photoCategory[] = { "A", "C", "D" };
 	public final String photoClassifier[] = { "Rh", "FITC", "DAPI" };
 	public final int ACTINE = 0;
 	public final int CON_A = 1;
 	public final int DAPI = 2;
 
-	// Windows‚ÆLinux‚ÅƒpƒX‚Ì‹æØ‚è•¶Žš‚ªˆá‚¤‚Ì‚ÅAFile.separator‚ðŽg‚¤
+	// Windowsï¿½ï¿½Linuxï¿½Åƒpï¿½Xï¿½Ì‹ï¿½Ø‚è•¶ï¿½ï¿½ï¿½ï¿½ï¿½á‚¤ï¿½Ì‚ÅAFile.separatorï¿½ï¿½ï¿½gï¿½ï¿½
 	final String SLA = File.separator;
 	/*final String ROOTDIR =
 		"D:"
@@ -126,7 +126,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 	JButton budirSelectButton;
 
 
-	// GUI‚Åƒ{ƒ^ƒ“ƒNƒŠƒbƒN‚ª‹N‚±‚Á‚½‚Æ‚«‚ÌƒRƒ}ƒ“ƒh–¼
+	// GUIï¿½Åƒ{ï¿½^ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ÌƒRï¿½}ï¿½ï¿½ï¿½hï¿½ï¿½
 	final String EXIT = "exit";
 	final String DIR_SELECT = "dir select";
 	final String BUDIR_SELECT = "backupdir select";
@@ -139,8 +139,8 @@ public class SCMDConverter extends JFrame implements ActionListener
 	final String SUBMIT = "submit";
 
 	JButton selectButton, submitButton, renameButton; 
-	JTextField orfField; // ORF‚ÌƒeƒLƒXƒgƒ{ƒbƒNƒX
-	JTextField geneNameField; // Standard Name‚ÌƒeƒLƒXƒgƒ{ƒbƒNƒX
+	JTextField orfField; // ORFï¿½Ìƒeï¿½Lï¿½Xï¿½gï¿½{ï¿½bï¿½Nï¿½X
+	JTextField geneNameField; // Standard Nameï¿½Ìƒeï¿½Lï¿½Xï¿½gï¿½{ï¿½bï¿½Nï¿½X
 	JLabel orfMessage;
 	JButton orfGetButton;
 	JFrame confirmFrame;
@@ -163,7 +163,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 	PhotoGroup[] pgs;
 	PhotoGroup[] pgs2;
 
-	// Œ°”÷‹¾‚ÌŽÊ^ƒtƒ@ƒCƒ‹‚ðmatch‚·‚é‚½‚ß‚Ì³‹K•\Œ»
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌŽÊ^ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½matchï¿½ï¿½ï¿½é‚½ï¿½ß‚Ìï¿½ï¿½Kï¿½\ï¿½ï¿½
 	final String FILE_PATTERN =
 		"([1-9][0-9]*)_w[1-3](FITC|Rh|DAPI)"
 			+ "(_s([1-9][0-9]*))?"
@@ -173,7 +173,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 	final int FP_SECOND_PHOTO_NUM = 4;
 	final int FP_PHOTO_TYPE = 5;
 
-	boolean isReadyORF = false; // ORF‚ª‚í‚©‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©
+	boolean isReadyORF = false; // ORFï¿½ï¿½ï¿½í‚©ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚©ï¿½Ç‚ï¿½ï¿½ï¿½
 
 
 	int currentimage;
@@ -221,7 +221,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		mi2.setActionCommand(EXIT);
 		mi2.addActionListener(this);
 
-		help_submenu = new JMenuItem("Žg‚¢•û");
+		help_submenu = new JMenuItem("ï¿½gï¿½ï¿½ï¿½ï¿½");
 		help_submenu.setActionCommand(HELP);
 		help_submenu.addActionListener(this);
 
@@ -274,7 +274,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 
 
 		// ORF radio button
-		// -- ORF‚ð‚Ç‚Ì‚æ‚¤‚ÉŽæ“¾‚·‚é‚©‚ð‘I‘ð‚·‚éƒ{ƒ^ƒ“
+		// -- ORFï¿½ï¿½ï¿½Ç‚Ì‚æ‚¤ï¿½ÉŽæ“¾ï¿½ï¿½ï¿½é‚©ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½^ï¿½ï¿½
 		manipButton = new JRadioButton("manual");
 		autoButton = new JRadioButton("auto (from web)");
 		autoButton.setSelected(true);
@@ -289,7 +289,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		group.add(plateButton);
 		JLabel mLabel = new JLabel("ORF naming:");
 		
-		// Šeradio button‚ð‰Ÿ‚µ‚½‚Æ‚«‚ÌAction
+		// ï¿½eradio buttonï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½Action
 		manipButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -334,7 +334,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 				orfField.setEditable(false);
 				plateFrame = new JFrame("Position on plates");
 				JPanel platePane1 = new JPanel();
-				JLabel platelabel1 = new JLabel("Š”‚ÌƒvƒŒ[ƒgã‚ÌˆÊ’u‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢ ");
+				JLabel platelabel1 = new JLabel("ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½[ï¿½gï¿½ï¿½ÌˆÊ’uï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ");
 				platePane1.add(platelabel1);
 				JPanel platePane2 = new JPanel();
 				JLabel platelabel2 = new JLabel("plate");
@@ -429,7 +429,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		fnPane.add(firstNumberLabel);
 		fnPane.add(firstNumber);
 		
-		// RenameAselect file‚È‚Ç‚Ìbutton
+		// Renameï¿½Aselect fileï¿½È‚Ç‚ï¿½button
 		JPanel renamePanel = new JPanel();
 		renameButton = new JButton("rename files");
 		renameButton.setActionCommand(RENAME);
@@ -447,7 +447,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		renamePanel.add(selectButton);
 		renamePanel.add(submitButton);
 
-		// ƒpƒlƒ‹‚ð”z’u‚·‚é
+		// ï¿½pï¿½lï¿½ï¿½ï¿½ï¿½zï¿½uï¿½ï¿½ï¿½ï¿½
 		Container c = this.getContentPane();
 		c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 		c.add(directorySelectPane);
@@ -459,7 +459,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 
 		c.add(renamePanel);
 
-		// main‚Ìwindow‚ª•Â‚¶‚é‚ÆƒvƒƒOƒ‰ƒ€‚ðI—¹‚·‚é
+		// mainï¿½ï¿½windowï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½Æƒvï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		addWindowListener(new WindowAdapter()
 		{
 			public void windowClosing(WindowEvent e)
@@ -471,7 +471,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 	}
 	
 	
-	// GUI‚Åƒpƒlƒ‹‚ÌƒTƒCƒY‚ðŒÅ’è‚µ‚Ü‚¤‚½‚ß‚ÌŠÖ”
+	// GUIï¿½Åƒpï¿½lï¿½ï¿½ï¿½ÌƒTï¿½Cï¿½Yï¿½ï¿½ï¿½Å’è‚µï¿½Ü‚ï¿½ï¿½ï¿½ï¿½ß‚ÌŠÖï¿½
 	public void setPanelSize(JPanel pane, Dimension dim)
 	{
 		pane.setMaximumSize(dim);
@@ -479,7 +479,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		pane.setPreferredSize(dim);
 	}
 
-	// ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚Æ‚«‚Ìˆ—
+	// ï¿½{ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½Æ‚ï¿½ï¿½Ìï¿½ï¿½ï¿½
 	public void actionPerformed(ActionEvent e)
 	{
 		String command = e.getActionCommand();
@@ -530,42 +530,42 @@ public class SCMDConverter extends JFrame implements ActionListener
 			helpMessage.setWrapStyleWord(true);
 			helpMessage.setEditable(false);
 			helpMessage.setText(
-				"SCMD toolkit‚ÌŽg‚¢•û"
+				"SCMD toolkitï¿½ÌŽgï¿½ï¿½ï¿½ï¿½"
 					+ newline
 					+ newline
-					+ "1. ‰æ‘œƒtƒ@ƒCƒ‹‚Ì“ü‚Á‚Ä‚¢‚éƒtƒHƒ‹ƒ_‚ÆRenameŒã‚Ìƒtƒ@ƒCƒ‹‚ð“ü‚ê‚éƒoƒbƒNƒAƒbƒvƒtƒHƒ‹ƒ_‚ð‘I‘ð"
+					+ "1. ï¿½æ‘œï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì“ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½Renameï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½bï¿½Nï¿½Aï¿½bï¿½vï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½Iï¿½ï¿½"
 					+ newline
-					+ "2. ‰æ‘œƒtƒ@ƒCƒ‹‚Ì“ü‚Á‚Ä‚¢‚éƒtƒHƒ‹ƒ_–¼‚ªŠ”‚ÌStandard name‚à‚µ‚­‚ÍORF‚Å‚Í‚È‚¢ê‡AStandard name(or ORF)‚Ì€–Ú‚É“ü—Í"
+					+ "2. ï¿½æ‘œï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì“ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Standard nameï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ORFï¿½Å‚Í‚È‚ï¿½ï¿½ê‡ï¿½AStandard name(or ORF)ï¿½Ìï¿½ï¿½Ú‚É“ï¿½ï¿½ï¿½"
 					+ newline
-					+ "3. •t‚¯‘Ö‚¦‚é–¼‘O‚ÌŒŸõ•û–@‚ð‘I‘ðiƒlƒbƒg(yeastƒT[ƒo)‚©‚çŒŸõ or ƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹(orf_descriptions.tab)‚©‚çŒŸõ@or Žè“®‚Å“ü—Í)"
+					+ "3. ï¿½tï¿½ï¿½ï¿½Ö‚ï¿½ï¿½é–¼ï¿½Oï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½@ï¿½ï¿½Iï¿½ï¿½ï¿½iï¿½lï¿½bï¿½g(yeastï¿½Tï¿½[ï¿½o)ï¿½ï¿½ï¿½çŒŸï¿½ï¿½ or ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½(orf_descriptions.tab)ï¿½ï¿½ï¿½çŒŸï¿½ï¿½ï¿½@or ï¿½è“®ï¿½Å“ï¿½ï¿½ï¿½)"
 					+ newline
-					+ "4. –¼‘O‚ªŠm’è‚µ‚½‚çFirst number of new name‚É•t‚¯‘Ö‚¦‚éƒtƒ@ƒCƒ‹–¼‚Ì”Ô†‚ð‰½”Ô‚©‚ç‚É‚·‚é‚©‚ð“ü—Í‚µ‚Ärename files‚ð‘I‘ð"
+					+ "4. ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½mï¿½è‚µï¿½ï¿½ï¿½ï¿½First number of new nameï¿½É•tï¿½ï¿½ï¿½Ö‚ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Ì”Ôï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½ï¿½É‚ï¿½ï¿½é‚©ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ï¿½rename filesï¿½ï¿½Iï¿½ï¿½"
 					+ newline
-					+ "5. Žg—p‚µ‚È‚¢‰æ‘œ‚Ìƒ`ƒFƒbƒNƒ{ƒbƒNƒX‚ðŠO‚µ‚Ä‚©‚çRename‚ð‘I‘ð"
+					+ "5. ï¿½gï¿½pï¿½ï¿½ï¿½È‚ï¿½ï¿½æ‘œï¿½Ìƒ`ï¿½Fï¿½bï¿½Nï¿½{ï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Renameï¿½ï¿½Iï¿½ï¿½"
 					+ newline
-					+ "6. rename log‚ðŠm”F‚µ‚ÄA–â‘è‚ª‚È‚¯‚ê‚ÎRename Execute‚ð‘I‘ð"
+					+ "6. rename logï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½ÄAï¿½ï¿½è‚ªï¿½È‚ï¿½ï¿½ï¿½ï¿½Rename Executeï¿½ï¿½Iï¿½ï¿½"
 					+ newline
-					+ "7. ƒtƒ@ƒCƒ‹–¼‚ª•ÏŠ·‚³‚ê‚ÄƒoƒbƒNƒAƒbƒvƒtƒHƒ‹ƒ_‚É“ü‚ê‚ç‚êAŒ³‚ÌƒtƒHƒ‹ƒ_‚ªíœ‚³‚ê‚é"
+					+ "7. ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÏŠï¿½ï¿½ï¿½ï¿½ï¿½Äƒoï¿½bï¿½Nï¿½Aï¿½bï¿½vï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½íœï¿½ï¿½ï¿½ï¿½ï¿½"
 					+ newline
-					+ "8. Žg—p‚µ‚È‚¢‚Æ‚³‚ê‚½‰æ‘œ‚Íunusable‚Æ‚¢‚¤–¼‘O‚ÌƒtƒHƒ‹ƒ_‚Ì’†‚É“ü‚ê‚ç‚ê‚é"
+					+ "8. ï¿½gï¿½pï¿½ï¿½ï¿½È‚ï¿½ï¿½Æ‚ï¿½ï¿½ê‚½ï¿½æ‘œï¿½ï¿½unusableï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½Ì’ï¿½ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
 					+ newline
-					+ "9. ‚à‚µ•K—v‚È‚ç‚ÎA‚³‚ç‚Éselect photo‚Å‚»‚ê‚¼‚ê‚Ì‰æ‘œ‚ðŽg—p‚·‚é‚©‚Ç‚¤‚©‚ð‰æ‘œ‚ðŒ©‚Ä‘I‚Ô"
+					+ "9. ï¿½ï¿½ï¿½ï¿½ï¿½Kï¿½vï¿½È‚ï¿½ÎAï¿½ï¿½ï¿½ï¿½ï¿½select photoï¿½Å‚ï¿½ï¿½ê‚¼ï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½gï¿½pï¿½ï¿½ï¿½é‚©ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ‘œï¿½ï¿½ï¿½ï¿½ï¿½Ä‘Iï¿½ï¿½"
 					+ newline
-					+ "10. submit‚ð‘I‘ð"
+					+ "10. submitï¿½ï¿½Iï¿½ï¿½"
 					+ newline
-					+ "11. yeastƒT[ƒo[‚É‰æ‘œƒtƒ@ƒCƒ‹‚ÆƒƒOƒtƒ@ƒCƒ‹‚ª‘—‚ç‚ê‚é(unusable‚Æ‚»‚Ì’†g‚à)"
-					+ newline
-					+ newline
-					+ "’Fsubmit‚Å‘—‚ç‚ê‚éƒtƒ@ƒCƒ‹‚Í‘O‰ñ‚Ìrename‚Å–¼‘O‚ª•t‚¯‘Ö‚¦‚ç‚ê‚½ƒtƒ@ƒCƒ‹"
+					+ "11. yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½É‰æ‘œï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Æƒï¿½ï¿½Oï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(unusableï¿½Æ‚ï¿½ï¿½Ì’ï¿½ï¿½gï¿½ï¿½)"
 					+ newline
 					+ newline
-					+ "‚·‚Å‚É‘¶Ý‚·‚éƒtƒHƒ‹ƒ_‚É‰æ‘œ‚ð‘—‚é‚Æ‚«A‘—‚è‚½‚¢‰æ‘œ‚Æ“¯–¼‚Ì‰æ‘œ‚ª‘—‚èæ‚É‚·‚Å‚É‘¶Ý‚µ‚½ê‡‚ÍA‚»‚Ì‘—‚èæ‚Ì‰æ‘œ‚ªˆÈ‘O‚±‚ÌƒvƒƒOƒ‰ƒ€‚É‚æ‚Á‚ÄiƒGƒ‰[‚È‚µ‚Éj³í‚É‘—‚ç‚ê‚½‚à‚Ì‚È‚ç‚Îã‘‚«‚¹‚¸A‚»‚¤‚Å‚È‚¯‚ê‚Îã‘‚«‚·‚é"
+					+ "ï¿½ï¿½ï¿½Fsubmitï¿½Å‘ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Í‘Oï¿½ï¿½ï¿½renameï¿½Å–ï¿½ï¿½Oï¿½ï¿½ï¿½tï¿½ï¿½ï¿½Ö‚ï¿½ï¿½ï¿½ê‚½ï¿½tï¿½@ï¿½Cï¿½ï¿½"
 					+ newline
 					+ newline
-					+ "submitŽž‚Éƒlƒbƒgƒ[ƒN‚ÌƒGƒ‰[‚É‚æ‚Á‚Ä‘—M‚ª’†’f‚³‚ê‚½‚Æ‚«‚Í‚à‚¤ˆê“xsubmit‚·‚é"
+					+ "ï¿½ï¿½ï¿½Å‚É‘ï¿½ï¿½Ý‚ï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½É‰æ‘œï¿½ð‘—‚ï¿½Æ‚ï¿½ï¿½Aï¿½ï¿½ï¿½è‚½ï¿½ï¿½ï¿½æ‘œï¿½Æ“ï¿½ï¿½ï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Å‚É‘ï¿½ï¿½Ý‚ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÍAï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½È‘Oï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½Äiï¿½Gï¿½ï¿½ï¿½[ï¿½È‚ï¿½ï¿½Éjï¿½ï¿½ï¿½ï¿½É‘ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½Ì‚È‚ï¿½Îã‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Å‚È‚ï¿½ï¿½ï¿½Îã‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
 					+ newline
 					+ newline
-					+ "submitI—¹Žž‚É‚Í‰æ‘œƒtƒ@ƒCƒ‹‚ª“ü‚Á‚Ä‚¢‚é‚±‚¿‚ç‘¤‚ÌƒfƒBƒŒƒNƒgƒŠ‚É‚àƒT[ƒo[‘¤‚É‚ ‚élog‚ÌƒRƒs[‚ª‚Å‚«‚éBi–¼‘O‚Írename_logj‚±‚Ì“à—e‚ÍƒeƒLƒXƒgƒGƒfƒBƒ^‚ÅŠm”F‚Å‚«‚éBŒ`Ž®‚ÍuŒ³‚Ìƒtƒ@ƒCƒ‹–¼vu•t‚¯‘Ö‚¦‚½ƒtƒ@ƒCƒ‹–¼vuƒT[ƒo[‚ÉƒAƒbƒv‚³‚ê‚½ŽžŠÔv‚ÅA¡‚Ü‚ÅƒT[ƒo[‘¤‚Ì‚»‚ÌƒtƒHƒ‹ƒ_‚É‘—‚ç‚ê‚½‚·‚×‚Ä‚Ìƒtƒ@ƒCƒ‹‚Ì‹L˜^‚ª‘‚¢‚Ä‚ ‚é");
+					+ "submitï¿½ï¿½ï¿½Éƒlï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½ÌƒGï¿½ï¿½ï¿½[ï¿½É‚ï¿½ï¿½ï¿½Ä‘ï¿½ï¿½Mï¿½ï¿½ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ê‚½ï¿½Æ‚ï¿½ï¿½Í‚ï¿½ï¿½ï¿½ï¿½ï¿½xsubmitï¿½ï¿½ï¿½ï¿½"
+					+ newline
+					+ newline
+					+ "submitï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½É‚Í‰æ‘œï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚±ï¿½ï¿½ï¿½ç‘¤ï¿½Ìƒfï¿½Bï¿½ï¿½ï¿½Nï¿½gï¿½ï¿½ï¿½É‚ï¿½ï¿½Tï¿½[ï¿½oï¿½[ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½logï¿½ÌƒRï¿½sï¿½[ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½Bï¿½iï¿½ï¿½ï¿½Oï¿½ï¿½rename_logï¿½jï¿½ï¿½ï¿½Ì“ï¿½ï¿½eï¿½Íƒeï¿½Lï¿½Xï¿½gï¿½Gï¿½fï¿½Bï¿½^ï¿½ÅŠmï¿½Fï¿½Å‚ï¿½ï¿½ï¿½Bï¿½`ï¿½ï¿½ï¿½Íuï¿½ï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½vï¿½uï¿½tï¿½ï¿½ï¿½Ö‚ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½vï¿½uï¿½Tï¿½[ï¿½oï¿½[ï¿½ÉƒAï¿½bï¿½vï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½Ôvï¿½ÅAï¿½ï¿½ï¿½Ü‚ÅƒTï¿½[ï¿½oï¿½[ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½É‘ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½×‚Ä‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‹Lï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½");
 					
 			JScrollPane helpScrollPane = new JScrollPane(helpMessage);
 			helpScrollPane.setVerticalScrollBarPolicy(
@@ -577,7 +577,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 		else if (command.equals(ORF))
 		{
-			// ORF‚ðŽæ“¾‚·‚é
+			// ORFï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
 			isReadyORF = false;
 			//selectButton.setEnabled(false);
 			submitButton.setEnabled(false);
@@ -595,26 +595,26 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 		else if (command.equals(RENAME))
 		{
-			// file–¼‚ðrename‚·‚é
+			// fileï¿½ï¿½ï¿½ï¿½renameï¿½ï¿½ï¿½ï¿½
 			if (!retrieveORF())
 			{
 				// show an error dialog
 				JOptionPane.showMessageDialog(
 					this,
-					"ORF‚ðŒˆ’è‚µ‚Ä‚­‚¾‚³‚¢B",
+					"ORFï¿½ï¿½ï¿½ï¿½ï¿½è‚µï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B",
 					"Error",
 					JOptionPane.ERROR_MESSAGE);
 			}
 			else
 			{
-				// Œ°”÷‹¾‚Ìƒtƒ@ƒCƒ‹‚ðsort‚·‚é
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½sortï¿½ï¿½ï¿½ï¿½
 				File path = new File(inputDir.getText());
 				String ls[] = path.list();
 				Pattern p = Pattern.compile(FILE_PATTERN);
 				String newName[] = new String[ls.length];
 				
-				// PhotoNumComparetor‚Å’è‹`‚³‚ê‚é‡˜‚Åsort‚³‚ê‚½ 
-				// PhotoNumƒNƒ‰ƒX‚ÌW‡ -> PhotoGroup ‚Æ‚¢‚¤Map
+				// PhotoNumComparetorï¿½Å’ï¿½`ï¿½ï¿½ï¿½ï¿½é‡ï¿½ï¿½ï¿½ï¿½sortï¿½ï¿½ï¿½ê‚½ 
+				// PhotoNumï¿½Nï¿½ï¿½ï¿½Xï¿½ÌWï¿½ï¿½ -> PhotoGroup ï¿½Æ‚ï¿½ï¿½ï¿½Map
 				TreeMap fileMap = new TreeMap(new PhotoNumComparator());
 				imgfilenum = 0;
 				for (int i = 0; i < ls.length; i++)
@@ -623,14 +623,14 @@ public class SCMDConverter extends JFrame implements ActionListener
 					if (m.matches())
 					{
 						imgfilenum++;
-						// ƒtƒ@ƒCƒ‹‚ªMetaMorph‚Ìƒpƒ^[ƒ“‚Éƒ}ƒbƒ`‚µ‚Ä‚¢‚éê‡
+						// ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½MetaMorphï¿½Ìƒpï¿½^ï¿½[ï¿½ï¿½ï¿½Éƒ}ï¿½bï¿½`ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ê‡
 						for (int j = 1; j <= m.groupCount(); j++)
 						{
 							PhotoNum pn;	
-							// FP_FIRST_PHOTO_NUM‚Ì•”•ª‚ÆAFP_SECOND_PHOTO_NUM‚Ì‡¬”
+							// FP_FIRST_PHOTO_NUMï¿½Ì•ï¿½ï¿½ï¿½ï¿½ÆAFP_SECOND_PHOTO_NUMï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
 							if (m.group(FP_SECOND_PHOTO_NUM) == null)
 							{
-								// Žè“®‚ÌŒ°”÷‹¾‚Å‚Æ‚ç‚ê‚½ŽÊ^
+								// ï¿½è“®ï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Æ‚ï¿½ê‚½ï¿½Ê^
 								pn =
 									new PhotoNum(
 										new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
@@ -638,7 +638,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 							}
 							else
 							{
-								// Ž©“®Œ°”÷‹¾‚Å‚Æ‚ç‚ê‚½ŽÊ^
+								// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Æ‚ï¿½ê‚½ï¿½Ê^
 								pn =
 									new PhotoNum(
 										new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
@@ -648,7 +648,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 							PhotoGroup pg;
 							if (fileMap.containsKey(pn))
 							{
-								// Šù‚É“¯‚¶”Ô†‚ÌPhotoGroup‚ª‘¶Ý‚·‚éê‡
+								// ï¿½ï¿½ï¿½É“ï¿½ï¿½ï¿½ï¿½Ôï¿½ï¿½ï¿½PhotoGroupï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½ï¿½ê‡
 								pg = (PhotoGroup) fileMap.get(pn);
 								fileMap.remove(pn);
 							}
@@ -737,7 +737,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 						counter = 0;
 						oldfiles = new String[imgfilenum];
 						newfiles = new String[imgfilenum];
-						String renameText = "";		// file–¼‚ð‚Ç‚Ì‚æ‚¤‚É•ÏX‚·‚é‚©‚ð•\Ž¦‚·‚é‚½‚ß‚ÌHTML
+						String renameText = "";		// fileï¿½ï¿½ï¿½ï¿½ï¿½Ç‚Ì‚æ‚¤ï¿½É•ÏXï¿½ï¿½ï¿½é‚©ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ß‚ï¿½HTML
 						renameText += "<html><center>"
 							+ "rename log"
 							+ "<table>"
@@ -795,7 +795,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 						}
 						renameText += "</table></center></html>";
 
-						// ‚Ç‚Ì‚æ‚¤‚Érename‚³‚ê‚é‚©Šm”F‚·‚épane‚ðì¬
+						// ï¿½Ç‚Ì‚æ‚¤ï¿½ï¿½renameï¿½ï¿½ï¿½ï¿½é‚©ï¿½mï¿½Fï¿½ï¿½ï¿½ï¿½paneï¿½ï¿½ï¿½ì¬
 						JLabel renameListText = new JLabel(renameText);
 						//renameListText.setFont(new Font("Arial", Font.BOLD, 12));
 						JScrollPane js = new JScrollPane(renameListText);
@@ -884,7 +884,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 									File bufolder = new File(backupDir.getText() + SLA + orfField.getText());
 									if(bufolder.exists())
 									{
-										int ans = JOptionPane.showConfirmDialog(null, "‚·‚Å‚É“¯‚¶ORF–¼‚Ì‚Â‚¢‚½ƒoƒbƒNƒAƒbƒvƒtƒHƒ‹ƒ_‚ª‘¶Ý‚µ‚Ü‚·‚ªA‚±‚ÌƒtƒHƒ‹ƒ_ã‚É‘‚«ž‚Ý‚Ü‚·‚©H", "“¯ORF–¼‚ÌƒtƒHƒ‹ƒ_‚ª‘¶Ý‚µ‚Ü‚·", JOptionPane.YES_NO_OPTION);
+										int ans = JOptionPane.showConfirmDialog(null, "ï¿½ï¿½ï¿½Å‚É“ï¿½ï¿½ï¿½ORFï¿½ï¿½ï¿½Ì‚Â‚ï¿½ï¿½ï¿½ï¿½oï¿½bï¿½Nï¿½Aï¿½bï¿½vï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚Ü‚ï¿½ï¿½ï¿½ï¿½H", "ï¿½ï¿½ORFï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½", JOptionPane.YES_NO_OPTION);
 										if(ans == JOptionPane.NO_OPTION)
 										{
 											flag = false;
@@ -892,7 +892,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 									}
 									if(flag && max >= sNm.getNumber().intValue())
 									{
-										int ans = JOptionPane.showConfirmDialog(null, "ƒT[ƒo[ã‚Ì“¯ORF–¼‚ÌƒtƒHƒ‹ƒ_‚Ì’†‚Ìƒtƒ@ƒCƒ‹‚Æ”Ô†‚ªd‚È‚é‰Â”\«‚ª‚ ‚è‚Ü‚·BiƒT[ƒo[‚ÌƒtƒHƒ‹ƒ_’†‚ÌÅ‘å”Ô†@" + max + "j@‚æ‚ë‚µ‚¢‚Å‚·‚©H", "", JOptionPane.YES_NO_OPTION);
+										int ans = JOptionPane.showConfirmDialog(null, "ï¿½Tï¿½[ï¿½oï¿½[ï¿½ï¿½Ì“ï¿½ORFï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½Ì’ï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Æ”Ôï¿½ï¿½ï¿½ï¿½dï¿½È‚ï¿½Â”ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½iï¿½Tï¿½[ï¿½oï¿½[ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ÌÅ‘ï¿½Ôï¿½ï¿½@" + max + "ï¿½jï¿½@ï¿½ï¿½ë‚µï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½H", "", JOptionPane.YES_NO_OPTION);
 										if(ans == JOptionPane.NO_OPTION)
 										{
 											flag = false;
@@ -901,7 +901,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 									if(!flag)
 									{
 										confirmFrame.dispose();
-										JOptionPane.showMessageDialog(null, "rename‚ð’†Ž~‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+										JOptionPane.showMessageDialog(null, "renameï¿½ð’†Ž~ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 									}
 									else 
 									{
@@ -909,7 +909,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 										if(!bufolder.exists())
 									{
 										confirmFrame.dispose();
-										JOptionPane.showMessageDialog(null, "backup folder‚Ì¶¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "", JOptionPane.ERROR_MESSAGE);
+										JOptionPane.showMessageDialog(null, "backup folderï¿½Ìï¿½ï¿½ï¿½ï¿½ÉŽï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.ERROR_MESSAGE);
 									}
 									else
 									{
@@ -969,7 +969,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 										//new File(sourcedir).delete();
 										confirmFrame.dispose();
 										renamed = true;
-										JOptionPane.showMessageDialog(null, "ƒtƒ@ƒCƒ‹–¼‚Ì•t‚¯‘Ö‚¦‚ªŠ®—¹‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+										JOptionPane.showMessageDialog(null, "ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Ì•tï¿½ï¿½ï¿½Ö‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 										//selectButton.setEnabled(true);
 										if(online) submitButton.setEnabled(true);
 									}}
@@ -1011,7 +1011,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		{
 			boolean flg = true;
 			if (getORF2(orfField.getText()).status.equals(GeneName.ST_NONE)){
-					int ans = JOptionPane.showConfirmDialog(null, "orf_descriptions.tabã‚É“¯‚¶–¼‘O‚Ìorf‚ª‘¶Ý‚µ‚È‚¢ƒtƒHƒ‹ƒ_‚ð‘—M‚µ‚æ‚¤‚Æ‚µ‚Ä‚¢‚Ü‚·‚ªA‚æ‚ë‚µ‚¢‚Å‚·‚©H", "", JOptionPane.YES_NO_OPTION);
+					int ans = JOptionPane.showConfirmDialog(null, "orf_descriptions.tabï¿½ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½ï¿½orfï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½È‚ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ð‘—Mï¿½ï¿½ï¿½æ‚¤ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ë‚µï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½H", "", JOptionPane.YES_NO_OPTION);
 					if(ans == JOptionPane.NO_OPTION) flg = false;
 			}
 			if(flg){
@@ -1084,11 +1084,11 @@ public class SCMDConverter extends JFrame implements ActionListener
 							progress.update(progress.getGraphics());
 						}
 					}
-					JOptionPane.showMessageDialog(null, "yeastƒT[ƒo[‚Ö‚Ìƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒh‚ðŠ®—¹‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ÌƒAï¿½bï¿½vï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else
 				{
-					int ans = JOptionPane.showConfirmDialog(null, "‚·‚Å‚ÉƒT[ƒo[ã‚É“¯‚¶ORF–¼‚Ì‚Â‚¢‚½ƒtƒHƒ‹ƒ_‚ª‘¶Ý‚µ‚Ü‚·‚ªA‚±‚ÌƒtƒHƒ‹ƒ_ã‚É‘‚«ž‚Ý‚Ü‚·‚©H", "“¯ORF–¼‚ÌƒtƒHƒ‹ƒ_‚ª‘¶Ý‚µ‚Ü‚·", JOptionPane.YES_NO_OPTION);
+					int ans = JOptionPane.showConfirmDialog(null, "ï¿½ï¿½ï¿½Å‚ÉƒTï¿½[ï¿½oï¿½[ï¿½ï¿½É“ï¿½ï¿½ï¿½ORFï¿½ï¿½ï¿½Ì‚Â‚ï¿½ï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚Ü‚ï¿½ï¿½ï¿½ï¿½H", "ï¿½ï¿½ORFï¿½ï¿½ï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½", JOptionPane.YES_NO_OPTION);
 					if(ans == JOptionPane.YES_OPTION)
 					{
 						progressFrame.setVisible(true);
@@ -1134,7 +1134,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 									progress.update(progress.getGraphics());
 								}
 							}
-							JOptionPane.showMessageDialog(null, "yeastƒT[ƒo[‚Ö‚Ìƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒh‚ðŠ®—¹‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ÌƒAï¿½bï¿½vï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 						}
 						else
 						{
@@ -1216,12 +1216,12 @@ public class SCMDConverter extends JFrame implements ActionListener
 									progress.update(progress.getGraphics());
 								}
 							}
-							JOptionPane.showMessageDialog(null, "yeastƒT[ƒo[‚Ö‚Ìƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒh‚ðŠ®—¹‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ÌƒAï¿½bï¿½vï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 						}
 					}
 					else
 					{
-						JOptionPane.showMessageDialog(null, "ƒAƒbƒvƒ[ƒh‚ð’†Ž~‚µ‚Ü‚µ‚½", "", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "ï¿½Aï¿½bï¿½vï¿½ï¿½ï¿½[ï¿½hï¿½ð’†Ž~ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
 				progressFrame.dispose();
@@ -1230,15 +1230,15 @@ public class SCMDConverter extends JFrame implements ActionListener
 			}
 			catch (IOException e2)
 			{
-				// yeastƒT[ƒo[‚Ö‚Ì‘‚«ž‚ÝƒGƒ‰[
+				// yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝƒGï¿½ï¿½ï¿½[
 				System.out.println(e2.getMessage());
-				JOptionPane.showMessageDialog(null, "ƒT[ƒo[‚Ö‚Ìƒtƒ@ƒCƒ‹‚Ì‘‚«ž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "ƒGƒ‰[FƒT[ƒo[‚Ö‚Ì‘‚«ž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "ï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ÉŽï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "ï¿½Gï¿½ï¿½ï¿½[ï¿½Fï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ÉŽï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", JOptionPane.ERROR_MESSAGE);
 			} 
 			catch (HttpException e2)
 			{
-				//yeastƒT[ƒo[‚Ö‚ÌƒAƒNƒZƒXƒGƒ‰[
+				//yeastï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚ÌƒAï¿½Nï¿½Zï¿½Xï¿½Gï¿½ï¿½ï¿½[
 				System.out.println(e2.getMessage());
-				JOptionPane.showMessageDialog(null, "ƒT[ƒo[‚Ö‚Ìƒtƒ@ƒCƒ‹‚Ì‘‚«ž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½", "ƒGƒ‰[FƒT[ƒo[‚Ö‚Ì‘‚«ž‚Ý‚ÉŽ¸”s‚µ‚Ü‚µ‚½", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "ï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ÉŽï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "ï¿½Gï¿½ï¿½ï¿½[ï¿½Fï¿½Tï¿½[ï¿½oï¿½[ï¿½Ö‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ÉŽï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", JOptionPane.ERROR_MESSAGE);
 			}
 			}
 		}
@@ -1254,22 +1254,22 @@ public class SCMDConverter extends JFrame implements ActionListener
 				Pattern p = Pattern.compile(FILE_PATTERN);
 				String newName[] = new String[ls.length];
 				
-				// PhotoNumComparetor‚Å’è‹`‚³‚ê‚é‡˜‚Åsort‚³‚ê‚½ 
-				// PhotoNumƒNƒ‰ƒX‚ÌW‡ -> PhotoGroup ‚Æ‚¢‚¤Map
+				// PhotoNumComparetorï¿½Å’ï¿½`ï¿½ï¿½ï¿½ï¿½é‡ï¿½ï¿½ï¿½ï¿½sortï¿½ï¿½ï¿½ê‚½ 
+				// PhotoNumï¿½Nï¿½ï¿½ï¿½Xï¿½ÌWï¿½ï¿½ -> PhotoGroup ï¿½Æ‚ï¿½ï¿½ï¿½Map
 				TreeMap fileMap = new TreeMap(new PhotoNumComparator());
 				for (int i = 0; i < ls.length; i++)
 				{
 					Matcher m = p.matcher(ls[i]);
 					if (m.matches())
 					{
-						// ƒtƒ@ƒCƒ‹‚ªMetaMorph‚Ìƒpƒ^[ƒ“‚Éƒ}ƒbƒ`‚µ‚Ä‚¢‚éê‡
+						// ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½MetaMorphï¿½Ìƒpï¿½^ï¿½[ï¿½ï¿½ï¿½Éƒ}ï¿½bï¿½`ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ê‡
 						for (int j = 1; j <= m.groupCount(); j++)
 						{
 							PhotoNum pn;	
-							// FP_FIRST_PHOTO_NUM‚Ì•”•ª‚ÆAFP_SECOND_PHOTO_NUM‚Ì‡¬”
+							// FP_FIRST_PHOTO_NUMï¿½Ì•ï¿½ï¿½ï¿½ï¿½ÆAFP_SECOND_PHOTO_NUMï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
 							if (m.group(FP_SECOND_PHOTO_NUM) == null)
 							{
-								// Žè“®‚ÌŒ°”÷‹¾‚Å‚Æ‚ç‚ê‚½ŽÊ^
+								// ï¿½è“®ï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Æ‚ï¿½ê‚½ï¿½Ê^
 								pn =
 									new PhotoNum(
 										new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
@@ -1277,7 +1277,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 							}
 							else
 							{
-								// Ž©“®Œ°”÷‹¾‚Å‚Æ‚ç‚ê‚½ŽÊ^
+								// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Æ‚ï¿½ê‚½ï¿½Ê^
 								pn =
 									new PhotoNum(
 										new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
@@ -1287,7 +1287,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 							PhotoGroup pg;
 							if (fileMap.containsKey(pn))
 							{
-								// Šù‚É“¯‚¶”Ô†‚ÌPhotoGroup‚ª‘¶Ý‚·‚éê‡
+								// ï¿½ï¿½ï¿½É“ï¿½ï¿½ï¿½ï¿½Ôï¿½ï¿½ï¿½PhotoGroupï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½ï¿½ê‡
 								pg = (PhotoGroup) fileMap.get(pn);
 								fileMap.remove(pn);
 							}
@@ -1807,7 +1807,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		photocanvas.repaint(); 
 	} 
 
-	// MetaMorph‚ÌŽÊ^ƒtƒ@ƒCƒ‹–¼‚ÉŠÜ‚Ü‚ê‚é“ñ‚Â‚Ì”‚ð‡¬‚µ‚½‚à‚Ì
+	// MetaMorphï¿½ÌŽÊ^ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ÉŠÜ‚Ü‚ï¿½ï¿½ï¿½Â‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	class PhotoNum
 	{
 		public PhotoNum(int n1, int n2)
@@ -1819,7 +1819,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		public int sNum;
 	}
 
-	// A,C,D3–‡‚ÌŽÊ^‚ÌV‹Œ‚Ìƒtƒ@ƒCƒ‹–¼‚ð“ü‚ê‚Ä‚¨‚­ƒRƒ“ƒeƒi
+	// A,C,D3ï¿½ï¿½ï¿½ÌŽÊ^ï¿½ÌVï¿½ï¿½ï¿½Ìƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½eï¿½i
 	class PhotoGroup
 	{
 		public String origFile[];
@@ -1839,7 +1839,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 			return count;
 		}
 
-		// original‚ÌŽÊ^–¼‚ð‰Á‚¦‚é type‚ÍA{FITC, Rh, DAPI}‚Épattern match‚µ‚½•”•ª
+		// originalï¿½ÌŽÊ^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ typeï¿½ÍA{FITC, Rh, DAPI}ï¿½ï¿½pattern matchï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		public void add(String file, String type)
 		{
 			if (type.equals("FITC"))
@@ -1861,7 +1861,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 			}
 			count++;
 		}
-		// rename‚³‚ê‚½Œã‚ÌŽÊ^–¼‚ð‰Á‚¦‚é
+		// renameï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ÌŽÊ^ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		public void addNewFile(String file, String type)
 		{
 			if (type.equals("FITC"))
@@ -1879,8 +1879,8 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 	}
 
-	// 2‚Â‚ÌPhotoNumƒNƒ‰ƒX‚Ì‘å¬‚ð”äŠr‚·‚écomparator
-	// headerNum, sNum‚Ì‡‚Å”äŠr‚·‚é
+	// 2ï¿½Â‚ï¿½PhotoNumï¿½Nï¿½ï¿½ï¿½Xï¿½Ì‘å¬ï¿½ï¿½ï¿½rï¿½ï¿½ï¿½ï¿½comparator
+	// headerNum, sNumï¿½Ìï¿½ï¿½Å”ï¿½rï¿½ï¿½ï¿½ï¿½
 	class PhotoNumComparator implements Comparator
 	{
 		public int compare(Object a, Object b)
@@ -1904,7 +1904,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 	}
 
-	// ‚Æ‚è‚ ‚¦‚¸–¢Žg—p
+	// ï¿½Æ‚è‚ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½p
 	class JPEGFilter implements FilenameFilter
 	{
 		public boolean accept(File dir, String name)
@@ -1915,7 +1915,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 	}
 
-	// ORF‚ðweb(‚ ‚é‚¢‚ÍAlocal file)‚©‚çŽæ“¾‚·‚é
+	// ORFï¿½ï¿½web(ï¿½ï¿½ï¿½é‚¢ï¿½ÍAlocal file)ï¿½ï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½ï¿½
 	public boolean retrieveORF()
 	{
 		boolean flag = false;
@@ -2097,11 +2097,11 @@ public class SCMDConverter extends JFrame implements ActionListener
 				wr.close();
 				}
 				catch(IOException e2){
-					JOptionPane.showMessageDialog(null, "ƒpƒXƒ[ƒh‚ªˆá‚¤‚©ƒCƒ“ƒ^[ƒlƒbƒgÚ‘±‚ª³í‚Å‚ ‚è‚Ü‚¹‚ñ", "", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "ï¿½pï¿½Xï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½á‚¤ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½^ï¿½[ï¿½lï¿½bï¿½gï¿½Ú‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.ERROR_MESSAGE);
 					check = false;
 				}
 				catch(HttpException e2){
-					JOptionPane.showMessageDialog(null, "ƒpƒXƒ[ƒh‚ªˆá‚¤‚©ƒCƒ“ƒ^[ƒlƒbƒgÚ‘±‚ª³í‚Å‚ ‚è‚Ü‚¹‚ñ", "", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "ï¿½pï¿½Xï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½á‚¤ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½^ï¿½[ï¿½lï¿½bï¿½gï¿½Ú‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.ERROR_MESSAGE);
 					check = false;
 				}
 				}
@@ -2129,7 +2129,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		passFrame.setVisible(true);		
 	}
 
-	// Help‰æ–Ê
+	// Helpï¿½ï¿½ï¿½
 	class HelpFrame extends JFrame
 	{
 		public HelpFrame()
@@ -2140,7 +2140,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 	}
 
-	// Rename‰æ–Ê
+	// Renameï¿½ï¿½ï¿½
 	class RenameFrame extends JFrame
 	{
 		public RenameFrame()
@@ -2180,7 +2180,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 	}
 
-	// ORF‚ðSCMD(http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi" ‚©‚çŽæ“¾
+	// ORFï¿½ï¿½SCMD(http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi" ï¿½ï¿½ï¿½ï¿½æ“¾
 	public GeneName getORF(String name)
 	{
 		String orf = "";
@@ -2191,13 +2191,13 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 		try
 		{
-			// ‹ó”’‚ð%20‚É•ÏŠ·
+			// ï¿½ó”’‚ï¿½%20ï¿½É•ÏŠï¿½
 			String queryString = name.replaceAll(" ", "%20");
 			URL query = new URL(ORF_QUERY + queryString);
 			URLConnection con = query.openConnection();
 			BufferedReader in =
 				new BufferedReader(new InputStreamReader(con.getInputStream()));
-			// web‚©‚çORFî•ñ‚ðŽæ“¾
+			// webï¿½ï¿½ï¿½ï¿½ORFï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
 			StreamTokenizer st = new StreamTokenizer(in);
 			st.nextToken();
 			if (st.ttype == StreamTokenizer.TT_WORD)
@@ -2235,7 +2235,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		return new GeneName(orf, genename, GeneName.ST_DONE);
 	}
 	
-	//	ORF‚ðlocal file(orf_descriptions.tab)‚©‚çŽæ“¾
+	//	ORFï¿½ï¿½local file(orf_descriptions.tab)ï¿½ï¿½ï¿½ï¿½æ“¾
 	public GeneName getORF2(String name){
 		String orf = "";
 		String genename = "";
@@ -2302,14 +2302,14 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 		catch (FileNotFoundException e)
 		{
-			// orf_descriptions.tab‚ª‘¶Ý‚µ‚È‚¢
+			// orf_descriptions.tabï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½È‚ï¿½
 		    displayErrorDialog(e);
 			System.out.println(e.getMessage());
 			return new GeneName("", name, GeneName.ST_NOFILE_ERROR);
 		}
 		catch (IOException e)
 		{
-			// orf_descriptions.tab‚Ì“Ç‚Ýž‚ÝƒGƒ‰[
+			// orf_descriptions.tabï¿½Ì“Ç‚Ýï¿½ï¿½ÝƒGï¿½ï¿½ï¿½[
 		    displayErrorDialog(e);
 			System.out.println(e.getMessage());
 			return new GeneName("", name, GeneName.ST_FILEREAD_ERROR);
@@ -2349,7 +2349,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 					}
 					else
 					{
-						JOptionPane.showMessageDialog(null, "Š”‚ÌˆÊ’u‚ÌƒAƒ‹ƒtƒ@ƒxƒbƒg‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·iA‚©‚çH‚Ü‚Åj"," ", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½ÌˆÊ’uï¿½ÌƒAï¿½ï¿½ï¿½tï¿½@ï¿½xï¿½bï¿½gï¿½ï¿½ï¿½Ôˆï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½iAï¿½ï¿½ï¿½ï¿½Hï¿½Ü‚Åj"," ", JOptionPane.ERROR_MESSAGE);
 						break;
 					}
 					int num;
@@ -2358,7 +2358,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 					}
 					catch(NumberFormatException e)
 					{
-						JOptionPane.showMessageDialog(null, "Š”‚ÌˆÊ’u‚Ì”Ô†‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·i1‚©‚ç12‚Ü‚Åj", "", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½ÌˆÊ’uï¿½Ì”Ôï¿½ï¿½ï¿½ï¿½Ôˆï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½i1ï¿½ï¿½ï¿½ï¿½12ï¿½Ü‚Åj", "", JOptionPane.ERROR_MESSAGE);
 						break;						
 					}
 					if(num>0 && num<13)
@@ -2370,24 +2370,24 @@ public class SCMDConverter extends JFrame implements ActionListener
 						}
 						if((char)ch == '\n' && num != 1)
 						{
-							JOptionPane.showMessageDialog(null, "‚»‚ÌˆÊ’u‚É‚ÍŠ”‚ª‘¶Ý‚µ‚Ü‚¹‚ñ", "", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½ÌˆÊ’uï¿½É‚ÍŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.ERROR_MESSAGE);
 							break;	
 						}
 					}
 					else
 					{
-						JOptionPane.showMessageDialog(null, "Š”‚ÌˆÊ’u‚Ì”Ô†‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·i1‚©‚ç12‚Ü‚Åj", "", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½ÌˆÊ’uï¿½Ì”Ôï¿½ï¿½ï¿½ï¿½Ôˆï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½i1ï¿½ï¿½ï¿½ï¿½12ï¿½Ü‚Åj", "", JOptionPane.ERROR_MESSAGE);
 						break;
 					}
 					while((char)(ch = fr.read()) != '\t' && (char)ch != '\r') orf += (char)ch;
 					orf = orf.toLowerCase();
 					if(!orf.equals("")) flag = true;
-					else JOptionPane.showMessageDialog(null, "‚»‚ÌˆÊ’u‚É‚ÍŠ”‚ª‘¶Ý‚µ‚Ü‚¹‚ñ", "", JOptionPane.ERROR_MESSAGE);
+					else JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½ÌˆÊ’uï¿½É‚ÍŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½", "", JOptionPane.ERROR_MESSAGE);
 					break;
 				}
 				if(i == 64) 
 				{
-					JOptionPane.showMessageDialog(null, "ƒvƒŒ[ƒg–¼‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·", "", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "ï¿½vï¿½ï¿½ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½Ôˆï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½", "", JOptionPane.ERROR_MESSAGE);
 					break;
 				}
 				for(int j=0;j<10;j++)
@@ -2404,7 +2404,7 @@ public class SCMDConverter extends JFrame implements ActionListener
 		}
 		catch (IOException e)
 		{
-			// orf_descriptions.tab‚Ì“Ç‚Ýž‚ÝƒGƒ‰[
+			// orf_descriptions.tabï¿½Ì“Ç‚Ýï¿½ï¿½ÝƒGï¿½ï¿½ï¿½[
 		    displayErrorDialog(e);
 			System.out.println(e.getMessage());
 			return new GeneName("", "", GeneName.ST_FILEREAD_ERROR2);
