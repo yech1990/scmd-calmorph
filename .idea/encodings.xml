@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/lab/cb/scmd/util/staff/SCMDConverter.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$" charset="Shift_JIS" />
+    <file url="file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotCanvas.java" charset="Shift_JIS" />
+    <file url="file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotter.java" charset="Shift_JIS" />
   </component>
 </project>

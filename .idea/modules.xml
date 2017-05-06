@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SCMD.iml" filepath="$PROJECT_DIR$/SCMD.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scmd.iml" filepath="$PROJECT_DIR$/scmd.iml" />
     </modules>
   </component>
 </project>
