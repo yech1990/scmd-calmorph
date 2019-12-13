@@ -6,12 +6,13 @@
     <properties>
         <!--<project.build.sourceEncoding>shift_jis</project.build.sourceEncoding>-->
         <!--<maven.compiler.encoding>shift_jis</maven.compiler.encoding>-->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <groupId>more</groupId>
     <artifactId>scmd</artifactId>
     <version>0.1-HELAB</version>
     <packaging>jar</packaging>
-
 
     <dependencies>
         <dependency>

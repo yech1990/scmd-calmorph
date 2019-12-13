@@ -17,8 +17,8 @@ import lab.cb.scmd.util.cui.*;
 import lab.cb.scmd.util.io.NullPrintStream;
 
 /**
- * orf.xlsのDgroupの状態(A, A1, B, C)によって, A, {A1, B}, Cの３つのグループに
- * CalMorphで出力されるデータを振り分けるためのクラス
+ * Depending on the Dgroup status (A, A1, B, C) in orf.xls, the three groups A, {A1, B}, C
+ * Class for sorting data output by CalMorph
  *
  * @author leo
  *

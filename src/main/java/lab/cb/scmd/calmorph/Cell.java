@@ -674,11 +674,11 @@ class Cell implements Serializable {
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////
-	// conA画像の出力
+	// conA image output
 	// ///////////////////////////////////////////////////////////////////////////////
 	public void outCImage(Graphics g) {
-		g.setColor(Color.blue);
-		g.setFont(new Font("Courier", Font.PLAIN, 15));
+		g.setColor(Color.white);
+		g.setFont(new Font("Courier", Font.PLAIN, 20));
 		g.drawString(id + " " + Cgroup, point.x, point.y);
 		g.setColor(Color.green);
 		for (int j = 0; j < edge.size(); j++) {
@@ -1710,7 +1710,7 @@ class Cell implements Serializable {
 	// DAPI画像の出力
 	// ///////////////////////////////////////////////////////////////////////////////
 	public void outDImage(Graphics g) {
-		g.setColor(Color.blue);
+		g.setColor(Color.white);
 		g.drawString(id + " " + Cgroup, point.x, point.y);
 		g.setColor(Color.red);
 		g.drawString(Dgroup, point.x, point.y - 15);
@@ -1737,7 +1737,7 @@ class Cell implements Serializable {
 				g.fillRect(p % w, p / w, 1, 1);
 			}
 		}
-		g.setColor(Color.blue);
+		g.setColor(Color.white);
 		for (int j = 0; j < Dpoint.size(); j++) {
 			Point p = (Point) Dpoint.get(j);
 			g.fillOval(p.x - 1, p.y - 1, 3, 3);
@@ -2162,7 +2162,7 @@ class Cell implements Serializable {
 	// actin画像出力
 	// ///////////////////////////////////////////////////////////////////////////////////
 	public void outAImage(Graphics g) {
-		g.setColor(Color.blue);
+		g.setColor(Color.white);
 		g.drawString(id + " " + Cgroup, point.x, point.y);
 		g.setColor(Color.red);
 		g.drawString(Agroup, point.x, point.y - 15);
@@ -2208,11 +2208,11 @@ class Cell implements Serializable {
 				else if (!inmother(p))
 					g.setColor(Color.green);
 				else
-					g.setColor(Color.blue);
+					g.setColor(Color.white);
 				g.fillOval(p % w - 2, p / w - 2, 4, 4);
 			}
 		} else {
-			g.setColor(Color.blue);
+			g.setColor(Color.white);
 			for (int j = 0; j < actinpatchpoint.size(); j++) {
 				int p = ((Integer) actinpatchpoint.get(j)).intValue();
 				g.fillOval(p % w - 2, p / w - 2, 4, 4);

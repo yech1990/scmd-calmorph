@@ -9,8 +9,8 @@
         <module name="scmd" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="scmd" target="1.5" />
+    <bytecodeTargetLevel target="11">
+      <module name="scmd" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
