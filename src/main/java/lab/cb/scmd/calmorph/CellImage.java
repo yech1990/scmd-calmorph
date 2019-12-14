@@ -21,7 +21,13 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.MemoryImageSource;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Stack;
 import java.util.Vector;
@@ -71,8 +77,8 @@ class CellImage {
 
         _logger.debug("process a photo: " + number);
 
-//      //String prefix = path + File.separator + new File(path).getName();
-        String prefix = path;
+        String prefix = path + File.separator + new File(path).getName();
+//        String prefix = path;
 
         if ((f = new File(prefix + "-C" + number + ".jpg")).exists() && (bi = getBufferedImage(prefix + "-C" + number + ".jpg")) != null) {
             db = bi.getRaster().getDataBuffer();

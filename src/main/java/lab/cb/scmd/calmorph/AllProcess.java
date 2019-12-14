@@ -36,7 +36,7 @@ class AllProcess extends Thread {
     public void run() {
         for(int i=0;i<files.length;i++) {
             String name = files[i].getName();
-            String path = files[i].getAbsolutePath()+"/"+files[i].getName();
+            String path = files[i].getAbsolutePath();
             DisruptantProcess dp = new DisruptantProcess(name,path,outdir,null,maximage,objectsave,objectload,gui,false,calD,calA,outimage,outsheet);
 			if(i==0) dp.setPrintFile("GUI");
             try
