@@ -7,8 +7,8 @@ import javax.swing.JComponent;
 
 /**
  * 
- * CalMorphのDisruptantProcessの
- * ファイル複数指定できる版？
+ * CalMorph DisruptantProcess
+ * Version that can specify multiple files?
  * 
  * @author mattun
  *
