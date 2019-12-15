@@ -6,26 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b088c60-a70b-435d-bd02-b31a746fb250" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/test/sss_out/sss/sss-conA1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/sss_out/sss/sss-dapi1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/conA_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/conA_SD.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/conA_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/conA_data.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/dapi_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/dapi_SD.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/dapi_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/dapi_data.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_basic.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_biological.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_patch.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_patch.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_basic.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_biological.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_basic.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_biological.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/versatile.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/versatile.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sss_out/versatile_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/versatile_SD.xls" afterDir="false" />
-    </list>
+    <list default="true" id="6b088c60-a70b-435d-bd02-b31a746fb250" name="Default" comment="- add options (calA, calD, outimage) for CUI" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -388,8 +369,16 @@
       <workItem from="1576252586737" duration="544000" />
       <workItem from="1576307139152" duration="7006000" />
       <workItem from="1576402364618" duration="1164000" />
-      <workItem from="1576407115352" duration="1835000" />
+      <workItem from="1576407115352" duration="1983000" />
     </task>
+    <task id="LOCAL-00001" summary="- add options (calA, calD, outimage) for CUI">
+      <created>1576409077042</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1576409077042</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -424,7 +413,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix: fix conflict logic and update workspace&#10;&#10;1. fix conflict that find file&#10;2. add startup command with args" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix conflict logic and update workspace&#10;&#10;1. fix conflict that find file&#10;2. add startup command with args" />
+    <MESSAGE value="- add options (calA, calD, outimage) for CUI" />
+    <option name="LAST_COMMIT_MESSAGE" value="- add options (calA, calD, outimage) for CUI" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
