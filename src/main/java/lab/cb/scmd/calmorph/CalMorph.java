@@ -27,7 +27,7 @@ class CalMorph {
 	}
 
 	enum Opt {
-		HELP, GUI, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, LOG_CONFIG, ORF_NAME
+		HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, LOG_CONFIG, ORF_NAME, ACTIN, DAPI
 	}
 
 	/**
@@ -39,33 +39,21 @@ class CalMorph {
 		Logger _logger = Logger.getLogger(CalMorph.class);
 		try {
 			parser.addOption(Opt.HELP, "h", "help", "display hyelp message");
-			parser.addOption(Opt.GUI, "g", "gui", "run in GUI mode");
 			parser.addOptionWithArgument(Opt.OUTPUT_DIR_IMAGE_XMLDATA, "x", "xout", "DIR", "output directory of XML image data", "xml");
 			parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
 			parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
 			parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
 			parser.addOptionWithArgument(Opt.ORF_NAME, "n", "orf", "ORF_NAME", "specify the orf name");
 			parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
+			parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN", "actin mode, opt: [true / false], default false", "false");
+			parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "DAPI", "DAPI mode, opt: [true / false], default true", "true");
 
 			parser.parse(args); // read the command line arguments
-
-			//System.out.println(parser.isSet(Opt.HELP));
-			if (!parser.isSet(Opt.HELP) && !parser.isSet(Opt.INPUTDIR) && !parser.isSet(Opt.OUTPUTDIR)) {
-				GUIFrame gui = new GUIFrame();
-				gui.setVisible(true);
-				return;
-			}
 
 			if (parser.isSet(Opt.HELP)) {
 				System.out.println("> A forked version of calmorph in Helab by YC\n");
 				System.out.println("> [option]");
 				System.out.println(parser.helpMessage());
-				return;
-			}
-
-			if (parser.isSet(Opt.GUI)) {
-				GUIFrame gui = new GUIFrame();
-				gui.setVisible(true);
 				return;
 			}
 
@@ -95,6 +83,8 @@ class CalMorph {
 
 			calMorphOption.setOrfName(orfName);
 
+            calMorphOption.setCalA(parser.isSet(Opt.ACTIN) ? Boolean.valueOf(parser.getValue(Opt.ACTIN)) : false);
+            calMorphOption.setCalD(parser.isSet(Opt.DAPI) ? Boolean.valueOf(parser.getValue(Opt.DAPI)) : true);
 
 			Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\.jpg");
 			File inputDir = new File(inputDirName);

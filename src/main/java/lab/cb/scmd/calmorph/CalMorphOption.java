@@ -10,7 +10,7 @@
 package lab.cb.scmd.calmorph;
 
 /**
- * This class holds the information required to run CalMorph, 
+ * This class holds the information required to run CalMorph,
  * e.g. output directory, input photo directory, etc.
  *
  * @author leo
@@ -23,10 +23,12 @@ public class CalMorphOption
     String inputDirectory;
     String xmlOutputDirectory;
     int maxImageNumber = 0;
-    
+    boolean calD = true;
+    boolean calA = true;
+
     public CalMorphOption()
     {
-        
+
     }
 
     public String getInputDirectory()
@@ -64,7 +66,7 @@ public class CalMorphOption
         return maxImageNumber;
     }
 
-    
+
     public String getOrfName() {
 		return orfName;
 	}
@@ -77,9 +79,22 @@ public class CalMorphOption
     {
         this.maxImageNumber = maxImageNumber;
     }
-    
-    
-    
+
+    public boolean isCalD() {
+        return calD;
+    }
+
+    public void setCalD(boolean calD) {
+        this.calD = calD;
+    }
+
+    public boolean isCalA() {
+        return calA;
+    }
+
+    public void setCalA(boolean calA) {
+        this.calA = calA;
+    }
 }
 
 

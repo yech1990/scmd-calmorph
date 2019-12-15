@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
  */
 class DisruptantProcess {
 	String name,path,outdir,xmldir;
-	GUIFrame gui;
 	boolean objectsave,outstate,calD,calA,outimage,outsheet;
 	int maximage,objectload;
 
@@ -34,21 +33,6 @@ class DisruptantProcess {
 	String CONAFILE			= "conA";
 	String DAPIFILE			= "dapi";
 
-	public DisruptantProcess(String name,String path,String outdir,String xmldir,int maximage,boolean objectsave,int objectload,GUIFrame gui,boolean outstate,boolean calD,boolean calA,boolean outimage,boolean outsheet) {
-		this.name = name;
-		this.path = path;
-		this.outdir = outdir;
-		this.xmldir = xmldir;
-		this.maximage = maximage;
-		this.objectsave = objectsave;
-		this.objectload = objectload;
-		this.gui = gui;
-		this.outstate = outstate;
-		this.calD = calD;
-		this.calA = calA;
-		this.outimage = outimage;
-		this.outsheet = outsheet;
-	}
 
 	public DisruptantProcess(CalMorphOption option) {
 		this.name = option.getOrfName();
@@ -58,10 +42,9 @@ class DisruptantProcess {
 		this.maximage = option.getMaxImageNumber();
 		this.objectsave = false;
 		this.objectload = -1;
-		this.gui = null;
 		this.outstate = false;
-		this.calD = true;
-		this.calA = true;
+		this.calD = option.isCalD();
+		this.calA = option.isCalA();
 		this.outimage = true;
 		this.outsheet = true;
 	}
@@ -125,7 +108,6 @@ class DisruptantProcess {
 		for(int i=1;i<=maximage;i++) {
 			try
 			{
-				if(gui != null && gui.flag_reset) return;
 
 				CellImage image = new CellImage(name,path,i,outdir,startid,calD,calA);
 				if(image.err){
@@ -136,8 +118,7 @@ class DisruptantProcess {
 				}
 				//System.out.println(objectsave + "/" + objectload + "/ "+ outimage + "/" + outsheet);
 				image.setOptions(objectsave,objectload,outimage,outsheet);
-				if(gui != null) gui.state_jtf.setText("proc:"+name+"-"+i+"...");
-				else if(outstate) System.err.println("proc:"+name+"-"+i+"...");
+				if(outstate) System.err.println("proc:"+name+"-"+i+"...");
 				//	画像から解析？
 
 
