@@ -7,8 +7,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b088c60-a70b-435d-bd02-b31a746fb250" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/test/sss_out/sss/sss-conA1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/sss_out/sss/sss-dapi1.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/AllProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/AllProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/conA_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/conA_SD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/conA_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/conA_data.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/dapi_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/dapi_SD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/dapi_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/dapi_data.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_basic.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_biological.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_patch.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_actin_patch.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_basic.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_conA_biological.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_basic.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_basic.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_biological.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/sss/sss_dapi_biological.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/versatile.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/versatile.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sss_out/versatile_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/sss_out/versatile_SD.xls" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,11 +59,6 @@
   </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
-  </component>
-  <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="877" />
   </component>
   <component name="ProjectId" id="1T9WKw3cShuDXhVvrF8V5J0Yhdo" />
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -377,6 +388,7 @@
       <workItem from="1576252586737" duration="544000" />
       <workItem from="1576307139152" duration="7006000" />
       <workItem from="1576402364618" duration="1164000" />
+      <workItem from="1576407115352" duration="1835000" />
     </task>
     <servers />
   </component>
