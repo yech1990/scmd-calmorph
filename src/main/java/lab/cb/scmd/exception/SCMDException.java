@@ -14,28 +14,29 @@ import java.io.PrintStream;
 /**
  * SCMD Projectでのコードで使う例外クラスのベース。
  * このクラスをextendsして、好みの例外をlab.cb.scmd.exceptionパッケージ内に作成してください。
+ *
  * @author leo
  */
 public class SCMDException extends Exception {
 
-	/**
-	 * 
-	 */
-	public SCMDException() {
-		super();
-	}
+    /**
+     *
+     */
+    public SCMDException() {
+        super();
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public SCMDException(String arg0) {
-		super(arg0);
-	}
+    /**
+     * @param arg0
+     */
+    public SCMDException(String arg0) {
+        super(arg0);
+    }
 
-	/** 可変長の引数をとるconstructor. メッセージ間にはスペースが入る
-	 * @param message 
-	 * @TODO 可変長引数の使い方を調べてから実装
-	 */
+    /** 可変長の引数をとるconstructor. メッセージ間にはスペースが入る
+     * @param message
+     * @TODO 可変長引数の使い方を調べてから実装
+     */
 //	public SCMDException(String message1, String... message)
 //	{
 //	    super(message1 + )
@@ -49,40 +50,40 @@ public class SCMDException extends Exception {
 //	    return buffer.toString();
 //	}
 
-	
-	/**
-	 * @param arg0
-	 */
-	public SCMDException(Throwable arg0) {
-		super(arg0);
-	}
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public SCMDException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-	}
-	
-	/** 例外メッセージを出力する
-	 * @param outputStream 出力先 (System.errなど)
-	 */
-	public void what(PrintStream outputStream)
-	{
-		String m = this.getMessage();
-		if(m != null)
-		{
-			outputStream.println(m);
-		}
-	}
-	
-	/** 例外メッセージをSystem.errに出力する
-	 */
-	public void what()
-	{
-		what(System.err);
-	}
+    /**
+     * @param arg0
+     */
+    public SCMDException(Throwable arg0) {
+        super(arg0);
+    }
+
+    /**
+     * @param arg0
+     * @param arg1
+     */
+    public SCMDException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
+
+    /**
+     * 例外メッセージを出力する
+     *
+     * @param outputStream 出力先 (System.errなど)
+     */
+    public void what(PrintStream outputStream) {
+        String m = this.getMessage();
+        if (m != null) {
+            outputStream.println(m);
+        }
+    }
+
+    /**
+     * 例外メッセージをSystem.errに出力する
+     */
+    public void what() {
+        what(System.err);
+    }
 
 }
 

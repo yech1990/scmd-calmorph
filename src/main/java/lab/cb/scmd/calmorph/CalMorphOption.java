@@ -11,88 +11,96 @@ package lab.cb.scmd.calmorph;
 
 /**
  * This class holds the information required to run CalMorph,
- * e.g. output directory, input photo directory, etc.
+ * e.g. output d
+ * public void setInputDirectory(String inputDirectory) {
+ * this.inputDirectory = inputDirectory;
+ * }
+ * <p>
+ * public String getOutputDirectory() {
+ * return outputDirectory;
+ * }
+ * <p>
+ * public void setOutputDirectory(String outputDirectory) {
+ * this.outputDirectory = outputDirectory;
+ * }
+ * <p>
+ * public String getXmlOutputDirectory() {
+ * return xmlOutputDirectory;
+ * }
+ * <p>
+ * public void setXmlOutputDirectory(String xmlOutputDirectory) {
+ * this.xmlOutputDirectory = xmlOutputDirectory;
+ * }
+ * irectory, input photo directory, etc.
  *
  * @author leo
- *
  */
-public class CalMorphOption
-{
-	String orfName;
-    String outputDirectory;
-    String inputDirectory;
-    String xmlOutputDirectory;
-    int maxImageNumber = 0;
-    boolean calD = true;
-    boolean calA = true;
+class CalMorphOption {
+    private String strainName;
+    private String outputDirectory;
+    private String inputDirectory;
+    private String xmlOutputDirectory;
+    private int maxImageNumber = 0;
+    private boolean calD = true;
+    private boolean calA = true;
 
-    public CalMorphOption()
-    {
+    CalMorphOption() {
 
     }
 
-    public String getInputDirectory()
-    {
+    String getInputDirectory() {
         return inputDirectory;
     }
 
-    public void setInputDirectory(String inputDirectory)
-    {
+    void setInputDirectory(String inputDirectory) {
         this.inputDirectory = inputDirectory;
     }
 
-    public String getOutputDirectory()
-    {
+    String getOutputDirectory() {
         return outputDirectory;
     }
 
-    public void setOutputDirectory(String outputDirectory)
-    {
+    void setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
-    public String getXmlOutputDirectory()
-    {
+    String getXmlOutputDirectory() {
         return xmlOutputDirectory;
     }
 
-    public void setXmlOutputDirectory(String xmlOutputDirectory)
-    {
+    void setXmlOutputDirectory(String xmlOutputDirectory) {
         this.xmlOutputDirectory = xmlOutputDirectory;
     }
 
-    public int getMaxImageNumber()
-    {
+    int getMaxImageNumber() {
         return maxImageNumber;
     }
 
+    String getStrainName() {
+        return strainName;
+    }
 
-    public String getOrfName() {
-		return orfName;
-	}
+    void setStrainName(String strainName) {
+        this.strainName = strainName;
+    }
 
-	public void setOrfName(String orfName) {
-		this.orfName = orfName;
-	}
-
-	public void setMaxImageNumber(int maxImageNumber)
-    {
+    void setMaxImageNumber(int maxImageNumber) {
         this.maxImageNumber = maxImageNumber;
     }
 
-    public boolean isCalD() {
+    boolean isCalD() {
         return calD;
     }
 
-    public void setCalD(boolean calD) {
+    void setCalD(boolean calD) {
         this.calD = calD;
     }
 
-    public boolean isCalA() {
+    boolean isCalA() {
         return calA;
     }
 
-    public void setCalA(boolean calA) {
+    void setCalA(boolean calA) {
         this.calA = calA;
     }
 }

@@ -10,22 +10,21 @@
 
 package lab.cb.scmd.util.morphologicalarray;
 
+import lab.cb.scmd.autoanalysis.grouping.CalMorphTable;
+import lab.cb.scmd.exception.SCMDException;
+import lab.cb.scmd.util.table.TableIterator;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-//import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
-
+//import java.io.PrintStream;
 //import com.sun.image.codec.jpeg.ImageFormatException;
-
-import lab.cb.scmd.autoanalysis.grouping.CalMorphTable;
-import lab.cb.scmd.exception.SCMDException;
 //import lab.cb.scmd.util.table.Cell;
-import lab.cb.scmd.util.table.TableIterator;
 
 /**
  * @author nakatani
@@ -315,9 +314,9 @@ public class ArrayImage {
         } catch (SCMDException e) {
             e.printStackTrace();
             System.exit(-1);
-        //} catch (ImageFormatException e1) {
-        //    e1.printStackTrace();
-        //    System.exit(-1);
+            //} catch (ImageFormatException e1) {
+            //    e1.printStackTrace();
+            //    System.exit(-1);
         } catch (IOException e1) {
             e1.printStackTrace();
             System.exit(-1);

@@ -10,20 +10,22 @@
 
 package lab.cb.scmd.algorithm;
 
-/** Comparableの実装(Integer, Double, etc.) を与えて、
- * たとえば、 Integer と Integer同士の比較を行うための functor 
- * @author leo
+/**
+ * Comparableの実装(Integer, Double, etc.) を与えて、
+ * たとえば、 Integer と Integer同士の比較を行うための functor
  *
+ * @author leo
  */
-public abstract class ComparisonPredicate implements UnaryPredicate
-{
-	public ComparisonPredicate(Comparable comparisonTarget)
-	{
-		_comparisonTarget = comparisonTarget;
-	}
-	protected Comparable getComparisonTarget() { return _comparisonTarget; }
-	
-	Comparable _comparisonTarget;
+public abstract class ComparisonPredicate implements UnaryPredicate {
+    public ComparisonPredicate(Comparable comparisonTarget) {
+        _comparisonTarget = comparisonTarget;
+    }
+
+    protected Comparable getComparisonTarget() {
+        return _comparisonTarget;
+    }
+
+    Comparable _comparisonTarget;
 }
 
 

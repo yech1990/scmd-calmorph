@@ -10,13 +10,13 @@
 
 package lab.cb.scmd.algorithm;
 
-/** E型からF型に変換するtransformerのinterface
- * @author leo
+/**
+ * E型からF型に変換するtransformerのinterface
  *
+ * @author leo
  */
-public interface Transformer<E, F> 
-{
-	public F transform(E object);
+public interface Transformer<E, F> {
+    F transform(E object);
 }
 
 

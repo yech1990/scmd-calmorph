@@ -12,37 +12,33 @@ package lab.cb.scmd.util.stat;
 
 /**
  * 要素の数と、計算結果のペア
- * 
+ *
  * @author leo
  */
-public class NumElementAndStatValuePair
-{
+public class NumElementAndStatValuePair {
 
-	public NumElementAndStatValuePair(int numElement_, double value_)
-	{
-		numElement = numElement_;
-		value = value_;
-	}
-	
+    public NumElementAndStatValuePair(int numElement_, double value_) {
+        numElement = numElement_;
+        value = value_;
+    }
 
-	public int		numElement;
-	public double	value;
 
-	/**
-	 * @return Returns the numElement.
-	 */
-	public int getNumElement()
-	{
-		return numElement;
-	}
+    public int numElement;
+    public double value;
 
-	/**
-	 * @return Returns the value.
-	 */
-	public double getValue()
-	{
-		return value;
-	}
+    /**
+     * @return Returns the numElement.
+     */
+    public int getNumElement() {
+        return numElement;
+    }
+
+    /**
+     * @return Returns the value.
+     */
+    public double getValue() {
+        return value;
+    }
 }
 
 //--------------------------------------

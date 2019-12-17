@@ -13,88 +13,75 @@ package lab.cb.scmd.util.table;
 
 /**
  * @author leo
- *
  */
-public class Cell
-{
-	public Cell()
-	{
-		setValue("");
-	}
-	public Cell(String value)
-	{
-		setValue(value);
-	}
-	public Cell(Double dvalue)
-	{
-		setValue(dvalue); 
-	}
-	
-	
-	public boolean equals(Cell other)
-	{
-		return this.toString().equals(other.toString());
-	}
+public class Cell {
+    public Cell() {
+        setValue("");
+    }
 
-	public void setValue(String value)
-	{
-		_value = value;
-		_dvalue = Double.NaN;
-		_haveTriedToTransformToDouble = false;
-	}
-	public void setValue(Double value)
-	{
-		_dvalue = value.doubleValue();
-		_value = value.toString();
-		_haveTriedToTransformToDouble = true;
-	}
+    public Cell(String value) {
+        setValue(value);
+    }
 
-	public double doubleValue()
-	{
-		if (_haveTriedToTransformToDouble)
-			return _dvalue;
-		else
-			return transformToDouble();
-	}
-	public boolean isValidAsDouble()
-	{
-		if(_haveTriedToTransformToDouble)
-			return (Double.isNaN(_dvalue)==false)
-				&& (_dvalue != Double.NEGATIVE_INFINITY)
-				&& (_dvalue != Double.POSITIVE_INFINITY);
-		else
-		{
-			transformToDouble();
-			return isValidAsDouble();
-		}
-	}
+    public Cell(Double dvalue) {
+        setValue(dvalue);
+    }
 
-	public String toString()
-	{
-		return _value;
-	}
 
-	double transformToDouble()
-	{
-		try
-		{
-			if (!_haveTriedToTransformToDouble)
-			{
-				_haveTriedToTransformToDouble = true;
-				Double d = new Double(_value);
-				_dvalue = d.doubleValue();
-			}
-		}
-		catch (NumberFormatException e)
-		{
-			_dvalue = Double.NaN;
-		}
-		return _dvalue;
-	}
+    public boolean equals(Cell other) {
+        return this.toString().equals(other.toString());
+    }
 
-	String _value = "";
-	double _dvalue = Double.NaN;
-	boolean _haveTriedToTransformToDouble = false;
+    public void setValue(String value) {
+        _value = value;
+        _dvalue = Double.NaN;
+        _haveTriedToTransformToDouble = false;
+    }
+
+    public void setValue(Double value) {
+        _dvalue = value.doubleValue();
+        _value = value.toString();
+        _haveTriedToTransformToDouble = true;
+    }
+
+    public double doubleValue() {
+        if (_haveTriedToTransformToDouble)
+            return _dvalue;
+        else
+            return transformToDouble();
+    }
+
+    public boolean isValidAsDouble() {
+        if (_haveTriedToTransformToDouble)
+            return (Double.isNaN(_dvalue) == false)
+                    && (_dvalue != Double.NEGATIVE_INFINITY)
+                    && (_dvalue != Double.POSITIVE_INFINITY);
+        else {
+            transformToDouble();
+            return isValidAsDouble();
+        }
+    }
+
+    public String toString() {
+        return _value;
+    }
+
+    double transformToDouble() {
+        try {
+            if (!_haveTriedToTransformToDouble) {
+                _haveTriedToTransformToDouble = true;
+                Double d = new Double(_value);
+                _dvalue = d.doubleValue();
+            }
+        } catch (NumberFormatException e) {
+            _dvalue = Double.NaN;
+        }
+        return _dvalue;
+    }
+
+    String _value = "";
+    double _dvalue = Double.NaN;
+    boolean _haveTriedToTransformToDouble = false;
 
 }
 

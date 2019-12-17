@@ -7,30 +7,140 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b088c60-a70b-435d-bd02-b31a746fb250" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/test/zzz/zzz-C1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz/zzz-D1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/conA_SD.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/conA_data.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/dapi_SD.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/dapi_data.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/versatile.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/versatile_SD.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/exclusion_log.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz-conA1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz-dapi1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_basic.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_biological.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_patch.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_conA_basic.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_conA_biological.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_dapi_basic.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_dapi_biological.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scmd.iml" beforeDir="false" afterPath="$PROJECT_DIR$/scmd.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Algorithm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Algorithm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/BinaryPredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/BinaryPredicate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/ComparisonPredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/ComparisonPredicate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Equal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Equal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Functor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Functor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/GreaterThan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/GreaterThan.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/GreaterThanOrEqual.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/GreaterThanOrEqual.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/LessThan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/LessThan.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/LessThanOrEqual.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/LessThanOrEqual.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/NotEqual.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/NotEqual.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/RegexPredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/RegexPredicate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/SelectiveTransformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/SelectiveTransformer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Transformer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/Transformer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/UnaryPredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/algorithm/UnaryPredicate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/AttributePosition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/AttributePosition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalMorphTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalMorphTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalcGroupStat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalcGroupStat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalcORFStat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CalcORFStat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CellShapeStat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CellShapeStat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CountNumCells.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/CountNumCells.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/DataFileName.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/DataFileName.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/Makexls.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/Makexls.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/NucleusStageClassifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/NucleusStageClassifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableFileName.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableFileName.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableSchema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableSchema.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableTypeServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/TableTypeServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/ValidParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/grouping/ValidParameters.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/transform/EliminateMergedGenes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/transform/EliminateMergedGenes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/transform/ToSystematicParamName.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/transform/ToSystematicParamName.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/DPSRST.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/DPSRST.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/LabeledData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/LabeledData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/ParameterStatistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/ParameterStatistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/RankSumExactProbTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/RankSumExactProbTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/RankSumTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/RankSumTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/Summarize.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/autoanalysis/validparameter/Summarize.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/AverageData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/AverageData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/BudValidation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/BudValidation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorphOption.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellGroup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellGroup.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/Line.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/Line.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/MatOp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/MatOp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/ParameterStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/ParameterStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/InvalidParameterException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/InvalidParameterException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/OutOfRangeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/OutOfRangeException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/SCMDException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/SCMDException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/UnfinishedTaskException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/exception/UnfinishedTaskException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/ProcessRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/ProcessRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/ArrayStats.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/ArrayStats.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/ConnectedParams.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/ConnectedParams.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/CorrelationGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/CorrelationGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/MaximumCliques.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/MaximumCliques.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/AdjacencyListGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/AdjacencyListGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/GraphStructure.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/GraphStructure.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/VertexDescriptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/clique/graph/VertexDescriptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/DataMatrix.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/DataMatrix.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/LabelToValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/LabelToValue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/PlainTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/PlainTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/ValueToCount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/analysis/table/ValueToCount.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/LackOfArgumentException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/LackOfArgumentException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/Option.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/Option.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionComposite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionComposite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionGroup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionGroup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionWithArgument.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/cui/OptionWithArgument.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/BoundingRectangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/BoundingRectangle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/ImageConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/ImageConverter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/ImageResizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/image/ImageResizer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/FileUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/FileUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/NullOutputStream.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/NullOutputStream.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/NullPrintStream.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/io/NullPrintStream.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/ArrayImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/ArrayImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/BoxCox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/BoxCox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/ChiSquareGoodnessOfFitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/ChiSquareGoodnessOfFitTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/DownhillSimplexMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/DownhillSimplexMethod.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/OutlierTestForNormal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/OutlierTestForNormal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/PowerTransformation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/PowerTransformation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/StatisticalTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/morphologicalarray/StatisticalTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphDespatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphDespatcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/rmi/CalMorphInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/AxisCombo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/AxisCombo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotCanvas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/scatterplotter/ScatterPlotter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/staff/SCMDConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/staff/SCMDConverter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/staff/SCMDSubmitter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/staff/SCMDSubmitter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/DoNotFilterStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/DoNotFilterStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/EliminateOnePercentOfBothSidesStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/EliminateOnePercentOfBothSidesStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/NumElementAndStatValuePair.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/NumElementAndStatValuePair.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/SampleFilteringStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/SampleFilteringStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/Statistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/Statistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/StatisticsWithMissingValueSupport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/StatisticsWithMissingValueSupport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/TestsOfStatistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/TestsOfStatistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/tests/RankSum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/stat/tests/RankSum.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/SVGColor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/SVGColor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/SVGOutputter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/SVGOutputter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/StyleAttribute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/svg/StyleAttribute.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/AppendableTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/AppendableTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/BasicTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/BasicTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/FlatTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/FlatTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/HorisontalTableRangeIterator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/HorisontalTableRangeIterator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/TabFormatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/TabFormatter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/Table.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/Table.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/TableIterator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/TableIterator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/VerticalTableRangeIterator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/table/VerticalTableRangeIterator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropBGGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropBGGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropBackground.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropBackground.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropStatistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/teardrop/TeardropStatistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/time/StopWatch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/time/StopWatch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/BaseHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/BaseHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/DTDDeclaration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/DTDDeclaration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/HTMLFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/HTMLFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/InvalidXMLException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/InvalidXMLException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/TextContentFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/TextContentFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/ThroughFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/ThroughFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLAttribute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLAttribute.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLAttributeMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLAttributeMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLOutputter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLOutputter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/util/xml/XMLUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/conA_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/conA_SD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/conA_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/conA_data.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/dapi_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/dapi_SD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/dapi_data.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/dapi_data.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/versatile.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/versatile.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/zzz_out/versatile_SD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/test/zzz_out/versatile_SD.xls" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -106,6 +216,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.1614435" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="MavenSettings" />
   </component>
   <component name="RecentsManager">
@@ -401,6 +512,7 @@
       <workItem from="1576407115352" duration="1983000" />
       <workItem from="1576550249705" duration="2421000" />
       <workItem from="1576566296214" duration="4676000" />
+      <workItem from="1576578754306" duration="620000" />
     </task>
     <task id="LOCAL-00001" summary="- add options (calA, calD, outimage) for CUI">
       <created>1576409077042</created>
@@ -453,18 +565,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java</url>
-          <line>115</line>
+          <line>114</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java</url>
-          <line>51</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java</url>
-          <line>111</line>
-          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

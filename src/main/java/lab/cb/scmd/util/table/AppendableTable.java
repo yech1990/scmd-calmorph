@@ -1,19 +1,18 @@
 package lab.cb.scmd.util.table;
 
+import lab.cb.scmd.exception.SCMDException;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.AbstractCollection;
 import java.util.LinkedList;
 import java.util.Vector;
 
-import lab.cb.scmd.exception.SCMDException;
-
 public class AppendableTable extends BasicTable {
 
-    public AppendableTable(String tableName, String[] columnNames ) {
+    public AppendableTable(String tableName, String[] columnNames) {
         this(tableName, columnNames, false);
     }
 
@@ -24,8 +23,8 @@ public class AppendableTable extends BasicTable {
     }
 
     /**
-     * @param labelList
-     *            StringのCollection (Vector, LinkedList, etc.)
+     * @param tableName
+     * @param columnNames StringのCollection (Vector, LinkedList, etc.)
      */
     public AppendableTable(String tableName, AbstractCollection columnNames) {
         this(tableName, columnNames, false);
@@ -45,11 +44,11 @@ public class AppendableTable extends BasicTable {
     public void append(Object[] dataList) {
         Vector row = new Vector(_colSize);
         int columnno = 0;
-        if( hasRowLabel() == true ) {
+        if (hasRowLabel() == true) {
             addRowLabel(dataList[columnno++].toString());
         }
-        for( int i = columnno; i < dataList.length; i++ ) {
-            if( dataList[i] != null)
+        for (int i = columnno; i < dataList.length; i++) {
+            if (dataList[i] != null)
                 row.add(new Cell(dataList[i].toString()));
             else
                 row.add(new Cell());
@@ -59,35 +58,31 @@ public class AppendableTable extends BasicTable {
 
     public void appendFromFile(String fileName, boolean rowindex, boolean colindex) throws SCMDException {
         // load from tab-delimited file
-        try
-        {
+        try {
             BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
 
             String line = "";
             int curcolumn = 0;
             // read labels
             boolean columnSizeFlag = false;
-            if( colindex == true ) {
+            if (colindex == true) {
                 line = fileReader.readLine();
             } else {
             }
 
             // read data
             LinkedList rowLabelList = new LinkedList();
-            while ((line = fileReader.readLine()) != null)
-            {
-                if( columnSizeFlag == false ) {
+            while ((line = fileReader.readLine()) != null) {
+                if (columnSizeFlag == false) {
                     _colSize = line.split(DELIMITER).length;
                 }
                 readAndSetOneRow(rowindex, line, rowLabelList);
             }
-            if( rowindex == true ) {
+            if (rowindex == true) {
                 setRowLabel(rowLabelList);
             }
             fileReader.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new SCMDException("error occured while reading " + fileName
                     + "\n" + e.getMessage());
         }
@@ -105,36 +100,33 @@ public class AppendableTable extends BasicTable {
         String[] tokens = line.split(DELIMITER);
 
         int columnno = 0;
-        if( rowindex == true ) {
-            if( tokens.length > 0 ) {
+        if (rowindex == true) {
+            if (tokens.length > 0) {
                 String token = tokens[columnno++];
                 rowLabelList.add(trimDoubleQuotation(token));
             } else
-                throw new SCMDException ("invalid row labels");
+                throw new SCMDException("invalid row labels");
         }
-        for( int i = columnno; i < tokens.length; i++ ) {
+        for (int i = columnno; i < tokens.length; i++) {
             String token = tokens[i];
             row.add(new Cell(token));
         }
-        while (row.size() < _colSize)
-        {
+        while (row.size() < _colSize) {
             row.add(new Cell());
         }
         _rows.add(row);
     }
 
-    String trimDoubleQuotation(String str)
-    {
-        if(str.startsWith("\""))
-        {
-            if(str.endsWith("\""))
+    String trimDoubleQuotation(String str) {
+        if (str.startsWith("\"")) {
+            if (str.endsWith("\""))
                 return str.substring(1, str.length() - 1);
             else
                 return str;
-        }
-        else
+        } else
             return str;
     }
+
     public void addRowLabel(String label) {
         _rowLabelToRowIndexMap.put(label, new Integer(_rowLabel.size()));
         _rowLabel.add(label);
@@ -145,17 +137,17 @@ public class AppendableTable extends BasicTable {
      */
     public void print(PrintStream out) {
         out.print(_tableName);
-        for( int col = 0; col < getColSize(); col++ ) {
+        for (int col = 0; col < getColSize(); col++) {
             out.print("\t" + this.getColLabel(col));
         }
         out.println();
-        for( int row = 0; row < getRowSize(); row++ ) {
-            if( this.hasRowLabel() )
+        for (int row = 0; row < getRowSize(); row++) {
+            if (this.hasRowLabel())
                 out.print(this.getRowLabel(row) + "\t");
-            for( int col = 0; col < getColSize() - 1; col++) {
+            for (int col = 0; col < getColSize() - 1; col++) {
                 out.print(this.getCell(row, col).toString() + "\t");
             }
-            out.println(this.getCell(row, getColSize()-1));
+            out.println(this.getCell(row, getColSize() - 1));
         }
     }
 

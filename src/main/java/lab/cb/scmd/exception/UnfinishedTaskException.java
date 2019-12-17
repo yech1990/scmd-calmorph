@@ -12,32 +12,27 @@ package lab.cb.scmd.exception;
 
 /**
  * @author leo
- *
  */
-public class UnfinishedTaskException extends SCMDException
-{
+public class UnfinishedTaskException extends SCMDException {
 
     /**
-     * 
+     *
      */
-    public UnfinishedTaskException()
-    {
+    public UnfinishedTaskException() {
         super();
     }
 
     /**
      * @param arg0
      */
-    public UnfinishedTaskException(String arg0)
-    {
+    public UnfinishedTaskException(String arg0) {
         super(arg0);
     }
 
     /**
      * @param arg0
      */
-    public UnfinishedTaskException(Throwable arg0)
-    {
+    public UnfinishedTaskException(Throwable arg0) {
         super(arg0);
     }
 
@@ -45,8 +40,7 @@ public class UnfinishedTaskException extends SCMDException
      * @param arg0
      * @param arg1
      */
-    public UnfinishedTaskException(String arg0, Throwable arg1)
-    {
+    public UnfinishedTaskException(String arg0, Throwable arg1) {
         super(arg0, arg1);
     }
 

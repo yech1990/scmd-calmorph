@@ -14,15 +14,15 @@ import java.util.Iterator;
 
 /**
  * @author leo
- *
  */
-public interface TableIterator extends Cloneable, Iterator
-{
-	public Cell nextCell();
-	public Object clone();
-	
-	public int row();
-	public int col();
+public interface TableIterator extends Cloneable, Iterator {
+    Cell nextCell();
+
+    Object clone();
+
+    int row();
+
+    int col();
 }
 
 

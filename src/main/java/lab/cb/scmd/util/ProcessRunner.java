@@ -10,22 +10,20 @@
 
 package lab.cb.scmd.util;
 
+import lab.cb.scmd.exception.UnfinishedTaskException;
+
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 import java.util.Vector;
 
 //import java.io.InputStreamReader;
 
-import lab.cb.scmd.exception.UnfinishedTaskException;
-
 /**
  * @author leo
- *
  */
-public class ProcessRunner
-{
+public class ProcessRunner {
     static public String[] tokenize(String cmd) {
         Vector list = new Vector();
 
@@ -33,25 +31,23 @@ public class ProcessRunner
 
 
         StringBuffer token = new StringBuffer();
-        while (cursor < cmd.length())
-        {
+        while (cursor < cmd.length()) {
             int nextCursor = -1;
             char c = cmd.charAt(cursor);
-            switch (c)
-            {
+            switch (c) {
                 case '\"':
                     // cursorを次のdouble quoationまで進める
-                    nextCursor = cmd.indexOf('\"', cursor+1);
-                    if(nextCursor == -1)
-                        nextCursor = cmd.length()-2;
-                    list.add(cmd.substring(cursor+1, nextCursor));
+                    nextCursor = cmd.indexOf('\"', cursor + 1);
+                    if (nextCursor == -1)
+                        nextCursor = cmd.length() - 2;
+                    list.add(cmd.substring(cursor + 1, nextCursor));
                     cursor = nextCursor + 1;
                     break;
                 case '\'':
-                    nextCursor = cmd.indexOf('\'', cursor+1);
-                    if(nextCursor == -1)
-                        nextCursor = cmd.length()-2;
-                    list.add(cmd.substring(cursor+1, nextCursor));
+                    nextCursor = cmd.indexOf('\'', cursor + 1);
+                    if (nextCursor == -1)
+                        nextCursor = cmd.length() - 2;
+                    list.add(cmd.substring(cursor + 1, nextCursor));
                     cursor = nextCursor + 1;
                     break;
                 case ' ':
@@ -59,7 +55,7 @@ public class ProcessRunner
                 case '\r':
                 case '\n':
                 case '\f':
-                    if(token.length() > 0)
+                    if (token.length() > 0)
                         list.add(token.toString());
                     token = new StringBuffer();
                     break;
@@ -69,18 +65,17 @@ public class ProcessRunner
             }
             cursor++;
         }
-        if(token.length() > 0)
+        if (token.length() > 0)
             list.add(token.toString());
 
         String[] array = new String[list.size()];
-        for(int i=0; i<array.length; i++)
+        for (int i = 0; i < array.length; i++)
             array[i] = (String) list.get(i);
         return array;
     }
 
     static public void run(OutputStream out, String cmd) throws UnfinishedTaskException {
-        try
-        {
+        try {
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(tokenize(cmd));
             PipeWorker errLogger = new PipeWorker(p.getErrorStream(), System.out);
@@ -89,14 +84,10 @@ public class ProcessRunner
             (new PipeWorker(p.getInputStream(), out)).run();
             p.waitFor();
             logThread.join();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new UnfinishedTaskException(e);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             e.printStackTrace();
             throw new UnfinishedTaskException(e);
         }
@@ -106,16 +97,13 @@ public class ProcessRunner
      * コマンドラインに、 パイプで入力を渡して実行 (in.read() --> Process.out.write()) | Process |
      * (Process.in.read --> out.write())
      *
-     * @param in
-     *            入力
-     * @param out
-     *            コマンドラインの結果の出力先
+     * @param in  入力
+     * @param out コマンドラインの結果の出力先
      * @param cmd
      * @throws UnfinishedTaskException
      */
     static public void run(InputStream in, OutputStream out, String cmd) throws UnfinishedTaskException {
-        try
-        {
+        try {
             Process p = Runtime.getRuntime().exec(tokenize(cmd));
             PipeWorker errLogger = new PipeWorker(p.getErrorStream(), System.err);
             Thread logThread = new Thread(errLogger);
@@ -129,55 +117,45 @@ public class ProcessRunner
             p.waitFor();
             thread.join();
             logThread.join();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new UnfinishedTaskException(e);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             throw new UnfinishedTaskException(e);
         }
 
     }
 }
 
-class PipeWorker implements Runnable
-{
-    BufferedInputStream _in  = null;
-    OutputStream        _out = null;
+class PipeWorker implements Runnable {
+    BufferedInputStream _in = null;
+    OutputStream _out = null;
 
-    public PipeWorker(InputStream in, OutputStream out)
-    {
+    public PipeWorker(InputStream in, OutputStream out) {
         _in = new BufferedInputStream(in);
         _out = out;
     }
 
     protected void finalize() {
-    /*
-     * try { if(_in != null) { _in.close(); _in = null; } if(_out != null) {
-     * _out.close(); _out = null; } } catch (IOException e) {
-     * System.err.println("PipeWorkder(finalize):" + e); }
-     */
+        /*
+         * try { if(_in != null) { _in.close(); _in = null; } if(_out != null) {
+         * _out.close(); _out = null; } } catch (IOException e) {
+         * System.err.println("PipeWorkder(finalize):" + e); }
+         */
     }
 
     public void run() {
-        try
-        {
+        try {
             int readBytes = 0;
             byte[] buffer = new byte[1024];
-            while ((readBytes = _in.read(buffer)) != -1)
-            {
+            while ((readBytes = _in.read(buffer)) != -1) {
                 _out.write(buffer, 0, readBytes);
             }
             _out.flush();
             _in.close();
 
-            if(_out != System.out && _out != System.err)
+            if (_out != System.out && _out != System.err)
                 _out.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             System.err.println(e);
         }
     }

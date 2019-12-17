@@ -14,34 +14,32 @@ import java.io.File;
 
 /**
  * @author leo
- *
  */
-public interface DataFileName
-{
-	//有効パラメーター抽出プログラム（ValidParameters.java）で使用されるファイルの定義
-	String SEP = File.separator;
-	String GROUP_FILE_NAME[] =
-		{
-			"A_elim.xls",
-			"A1B_elim.xls",
-			"C_elim.xls",
-			"actin_data.xls",
-			"actin_SD.xls",
-			"conA_data.xls",
-			"conA_SD.xls",
-			"dapi_data.xls",
-			"dapi_SD.xls" 
-		};
-	//このファイルを全て開いてデータを集める。
-	String VERSATILE = "versatile.xls";
-	String NUM_FILE_NAME[] =
-		{ 
-			"A_num_elim.xls", 
-			"A1B_num_elim.xls", 
-			"C_num_elim.xls" 
-		};
-	String OUTPUT_FILE_NAME = "valid.xls"; //有効パラメーターだけを集めたデータファイル。
-	String PARAMETER_LIST = "valid_parameters.xls"; //有効パラメーターのリスト。（tab区切り）
+public interface DataFileName {
+    //有効パラメーター抽出プログラム（ValidParameters.java）で使用されるファイルの定義
+    String SEP = File.separator;
+    String[] GROUP_FILE_NAME =
+            {
+                    "A_elim.xls",
+                    "A1B_elim.xls",
+                    "C_elim.xls",
+                    "actin_data.xls",
+                    "actin_SD.xls",
+                    "conA_data.xls",
+                    "conA_SD.xls",
+                    "dapi_data.xls",
+                    "dapi_SD.xls"
+            };
+    //このファイルを全て開いてデータを集める。
+    String VERSATILE = "versatile.xls";
+    String[] NUM_FILE_NAME =
+            {
+                    "A_num_elim.xls",
+                    "A1B_num_elim.xls",
+                    "C_num_elim.xls"
+            };
+    String OUTPUT_FILE_NAME = "valid.xls"; //有効パラメーターだけを集めたデータファイル。
+    String PARAMETER_LIST = "valid_parameters.xls"; //有効パラメーターのリスト。（tab区切り）
 }
 
 

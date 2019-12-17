@@ -9,30 +9,33 @@
 //--------------------------------------
 package lab.cb.scmd.util.svg;
 
-import java.io.OutputStream;
-import java.io.Writer;
-
 import lab.cb.scmd.util.xml.InvalidXMLException;
 import lab.cb.scmd.util.xml.XMLAttribute;
 import lab.cb.scmd.util.xml.XMLOutputter;
+
+import java.io.OutputStream;
+import java.io.Writer;
 
 public class SVGOutputter extends XMLOutputter {
 
     SVGColor foregroundColor = new SVGColor();
     SVGColor backgroupndColor = new SVGColor();
     String fontsize = "12pt";
+
     /**
      *
      */
     public SVGOutputter() {
         super();
     }
+
     /**
      * @param outputStream
      */
     public SVGOutputter(OutputStream outputStream) {
         super(outputStream);
     }
+
     /**
      * @param writer
      */
@@ -41,11 +44,11 @@ public class SVGOutputter extends XMLOutputter {
     }
 
     public void header() {
-        header(300,300);
+        header(300, 300);
     }
 
     public void header(int width, int height) {
-        if(_isRootTag) {
+        if (_isRootTag) {
             _out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             outputDTD("svg PUBLIC '-//W3C//DTD SVG 1.0//EN' 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'");
             _isRootTag = false;
@@ -74,8 +77,8 @@ public class SVGOutputter extends XMLOutputter {
         style.add("image-rendering", "auto");
         att.add("xmlns", "http://www.w3.org/2000/svg");
         att.add("xmlns:xlink", "http://www.w3.org/1999/xlink");
-        att.add("width", width );
-        att.add("height", height );
+        att.add("width", width);
+        att.add("height", height);
         startTag("svg", att, style);
         startGroup();
     }

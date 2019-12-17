@@ -21,13 +21,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.MemoryImageSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Stack;
 import java.util.Vector;
@@ -234,10 +228,10 @@ class CellImage {
      * morphological segmentation
      */
     public void segmentCells() {
-        ci = (int[]) _cell_points.clone();//Keep the original image
+        ci = _cell_points.clone();//Keep the original image
 
         medianim(ci);
-        ci2 = (int[]) ci.clone();
+        ci2 = ci.clone();
         vivid(ci, 3);
         vivid(ci2, 7);
         int[] difci = dif(ci, ci2);
@@ -272,7 +266,7 @@ class CellImage {
     //DAPI画像の処理
     ////////////////////////////////////////////////////////////////////////////////
     public void procDImage() {
-        di = (int[]) _nucleus_points.clone();//元の画像はとっておく
+        di = _nucleus_points.clone();//元の画像はとっておく
         if (isDifferentDImage()) {//DAPI画像が大きくずれていたら
             err = true;
             if (err_kind.equals("")) err_kind = "gap of dapi image to cell image";
@@ -288,7 +282,7 @@ class CellImage {
     //actin image processing
     ////////////////////////////////////////////////////////////////////////////////
     public void procAImage() {
-        ai = (int[]) _actin_points.clone();//元の画像はとっておく
+        ai = _actin_points.clone();//元の画像はとっておく
         if (isDifferentAImage()) {//actin画像が大きくずれていたら
             err = true;
             if (err_kind.equals("")) err_kind = "gap of actin image to cell image";
@@ -448,13 +442,13 @@ class CellImage {
     //Find weighted brightness gradient and scale to 0-255
     ///////////////////////////////////////////////////////////////////////////
     public int[] gradim(int[] Cim) {
-        int Cimage[] = (int[]) Cim.clone();
+        int[] Cimage = Cim.clone();
         for (int i = 0; i < _size; i++) {
             if (Cimage[i] < 60 && Cimage[i] >= 10) Cimage[i] -= (60 - Cimage[i]) * (60 - Cimage[i]) / 20;
             else if (Cimage[i] < 10) Cimage[i] -= 125;
             else Cimage[i] = 60;
         }
-        double gradmag[] = new double[_size];
+        double[] gradmag = new double[_size];
         double maxmag = 0;
         for (int i = 1; i < _height - 1; i++) {
             for (int j = 1; j < _width - 1; j++) {
@@ -1128,9 +1122,7 @@ class CellImage {
     //True if adjacent points
     ///////////////////////////////////////////////////////////////////////////////
     public boolean nextTo(int p, int q) {
-        if (p == q - _width - 1 || p == q - _width || p == q - _width + 1 || p == q - 1 || p == q + 1 || p == q + _width - 1 || p == q + _width || p == q + _width + 1)
-            return true;
-        else return false;
+        return p == q - _width - 1 || p == q - _width || p == q - _width + 1 || p == q - 1 || p == q + 1 || p == q + _width - 1 || p == q + _width || p == q + _width + 1;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1408,7 +1400,7 @@ class CellImage {
                     counter += (double) (oriimage[p] - oriimage[p + x * 2]) / (double) oriimage[p];
                 else counter += (double) (oriimage[p - x] - oriimage[p + x]) / (double) oriimage[p - x];
             }
-            counter /= (double) vec[i].size();
+            counter /= vec[i].size();
             counter2 += counter;
         }
         if (counter2 / (double) vec.length < 0.046) {
@@ -2029,7 +2021,7 @@ class CellImage {
     //Find the highest and lowest cell wall thickness
     //////////////////////////////////////////////////////////////////////////////
     public void serchwidepoint(int[] CIm) {
-        int image[] = new int[_size];
+        int[] image = new int[_size];
         for (int i = 0; i < _size; i++) image[i] = 255;
         for (int i = 0; i < cell.length; i++) {
             for (int j = 0; j < cell[i].edge.size(); j++) {
@@ -2142,7 +2134,7 @@ class CellImage {
     // If it is slightly off, fix it and false
     /////////////////////////////////////////////////////////////////////////////
     public boolean isDifferentDImage() {
-        int[] ci_tmp = (int[]) _cell_points.clone();
+        int[] ci_tmp = _cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
         for (int i = 0; i < _size; i++) {
@@ -2237,7 +2229,7 @@ class CellImage {
             }
         }
         //System.out.println(count1);
-        if (countdiff < count * 0.9) {//動かしたほうがずれが少ない
+        if (countdiff < count * 0.9) {//Less shift when moved
             return true;
         }
         //以下大きくずれてない場合少し修正
@@ -2712,8 +2704,8 @@ class CellImage {
                     double mindist = 1000;
                     for (int j = 0; j < De[i].size(); j++) {//一つ目の交点を求める
                         int pconA = ((Integer) De[i].get(j)).intValue();
-                        if (Line2D.ptLineDist((double) (mpoint[i] % _width), (double) (mpoint[i] / _width), (double) (mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width), (double) (mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width), (double) (pconA % _width), (double) (pconA / _width)) < mindist) {
-                            mindist = Line2D.ptLineDist((double) (mpoint[i] % _width), (double) (mpoint[i] / _width), (double) (mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width), (double) (mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width), (double) (pconA % _width), (double) (pconA / _width));
+                        if (Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width) < mindist) {
+                            mindist = Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width);
                             maxpoint3 = pconA;
                         }
                     }
@@ -2721,8 +2713,8 @@ class CellImage {
                     int maxpoint3_2 = -1;
                     for (int j = 0; j < De[i].size(); j++) {//二つ目の交点を求める
                         int pconA = ((Integer) De[i].get(j)).intValue();
-                        if (distance(pconA, maxpoint3) > 1 && Line2D.ptLineDist((double) (mpoint[i] % _width), (double) (mpoint[i] / _width), (double) (mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width), (double) (mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width), (double) (pconA % _width), (double) (pconA / _width)) < mindist) {
-                            mindist = Line2D.ptLineDist((double) (mpoint[i] % _width), (double) (mpoint[i] / _width), (double) (mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width), (double) (mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width), (double) (pconA % _width), (double) (pconA / _width));
+                        if (distance(pconA, maxpoint3) > 1 && Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width) < mindist) {
+                            mindist = Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width);
                             maxpoint3_2 = pconA;
                         }
                     }
@@ -2797,7 +2789,7 @@ class CellImage {
     //少しずれていたら直してfalse
     /////////////////////////////////////////////////////////////////////////////
     public boolean isDifferentAImage() {
-        int[] ci_tmp = (int[]) _cell_points.clone();
+        int[] ci_tmp = _cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
         for (int i = 0; i < _size; i++) {
@@ -2995,7 +2987,7 @@ class CellImage {
                     cell[i].Acover.add(new Integer(p));
                     flag_tmp = false;
                     regionsize++;
-                    long br = (long) _actin_points[p - Adiff];
+                    long br = _actin_points[p - Adiff];
                     x += p % _width;
                     y += p / _width;
                     brx += p % _width * br;
@@ -3087,7 +3079,7 @@ class CellImage {
                     for (int j = 0; j < cell[i].cover.size(); j++) {
                         int p = ((Integer) cell[i].cover.get(j)).intValue();
                         if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width && ai[p - Adiff] == 0) {
-                            long br = (long) _actin_points[p - Adiff];
+                            long br = _actin_points[p - Adiff];
                             if (cell[i].inmother(p)) {
                                 mregionsize++;
                                 mtotalbright += _actin_points[p - Adiff];
@@ -3226,7 +3218,7 @@ class CellImage {
         int[] lab = new int[_size];
 
         same = new Vector();
-        ai = (int[]) _actin_points.clone();
+        ai = _actin_points.clone();
         for (int i = 0; i < _size; i++) {//全てラベルがついてない状態に
             lab[i] = -1;
             if (ai[i] < 60) ai[i] = 0;
@@ -3307,8 +3299,8 @@ class CellImage {
         //actindiv = new int[size];
         //for(int i=0;i<size;i++) actindiv[i]=-1;
 
-        int patchnumofcell[] = new int[cell.length];
-        int patchbrightofcell[] = new int[cell.length];
+        int[] patchnumofcell = new int[cell.length];
+        int[] patchbrightofcell = new int[cell.length];
         for (int i = 0; i < patchp.length; i++) {
             int p = patchp[i];
             if (p == 0) continue;
@@ -3319,7 +3311,7 @@ class CellImage {
             if (patchnumofcell[i] > 0) patchbrightofcell[i] /= patchnumofcell[i];
         }
 
-        int actinbrightofcell[] = new int[cell.length];
+        int[] actinbrightofcell = new int[cell.length];
         for (int i = 0; i < cell.length; i++) {
             actinbrightofcell[i] = 255;
             int count = 0;
@@ -3449,7 +3441,7 @@ class CellImage {
             long btotal4 = 0;
             for (int j = 0; j < cell[i].actinpatchpoint.size(); j++) {
                 int p = ((Integer) cell[i].actinpatchpoint.get(j)).intValue();
-                long br = (long) _actin_points[p - Adiff];
+                long br = _actin_points[p - Adiff];
                 x += p % _width;
                 y += p / _width;
                 brx += p % _width * br;
@@ -3600,13 +3592,11 @@ class CellImage {
 
 
     public boolean bright(int[] image, int p1, int p2) {
-        if (image[p1] > image[p2] + 0) return true;
-        else return false;
+        return image[p1] > image[p2] + 0;
     }
 
     public boolean equal(int[] image, int p1, int p2) {
-        if (image[p1] >= image[p2] - 0 && image[p1] <= image[p2] + 0) return true;
-        else return false;
+        return image[p1] >= image[p2] - 0 && image[p1] <= image[p2] + 0;
     }
 
     ///////////////////////////////////////////////////////////////////////////

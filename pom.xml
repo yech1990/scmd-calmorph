@@ -4,16 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <!--<project.build.sourceEncoding>shift_jis</project.build.sourceEncoding>-->
-        <!--<maven.compiler.encoding>shift_jis</maven.compiler.encoding>-->
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     </properties>
     <groupId>more</groupId>
-    <artifactId>scmd</artifactId>
-    <version>0.1-HELAB</version>
+    <artifactId>CalMorph</artifactId>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -76,6 +74,8 @@
                                     <mainClass>lab.cb.scmd.calmorph.CalMorph</mainClass>
                                 </transformer>
                             </transformers>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <shadedClassifierName></shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>

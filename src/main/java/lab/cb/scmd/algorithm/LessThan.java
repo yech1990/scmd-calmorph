@@ -10,22 +10,23 @@
 
 package lab.cb.scmd.algorithm;
 
-/** input < comparisonTarget なら isTrue() = true となる
- * @author leo
+/**
+ * input < comparisonTarget なら isTrue() = true となる
  *
+ * @author leo
  */
 public class LessThan extends ComparisonPredicate {
-	
-	public LessThan(Comparable comparisonTarget)
-	{
-		super(comparisonTarget);
-	}
-	/* (non-Javadoc)
-	 * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
-	 */
-	public boolean isTrue(Object input) {
-		return getComparisonTarget().compareTo(input) > 0;	
-	}
+
+    public LessThan(Comparable comparisonTarget) {
+        super(comparisonTarget);
+    }
+
+    /* (non-Javadoc)
+     * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
+     */
+    public boolean isTrue(Object input) {
+        return getComparisonTarget().compareTo(input) > 0;
+    }
 }
 
 

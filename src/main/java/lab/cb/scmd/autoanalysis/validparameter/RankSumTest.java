@@ -15,24 +15,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-
-
 public class RankSumTest {
 
-	int data_size1;
-	int data_size2;
-	java.util.Vector all=null;
-	double rank_sum1=0;
-	double rank_sum2=0;
+    int data_size1;
+    int data_size2;
+    java.util.Vector all = null;
+    double rank_sum1 = 0;
+    double rank_sum2 = 0;
 
-	double test_statistic_U;
-	double test_statistic_z;
+    double test_statistic_U;
+    double test_statistic_z;
 
-	ArrayList probTable;
-	int minRankSum;
-	static RankSumExactProbTable exact=new RankSumExactProbTable();
+    ArrayList probTable;
+    int minRankSum;
+    static RankSumExactProbTable exact = new RankSumExactProbTable();
 
-	//	public void readExactProbTable(String filename) throws IOException{
+    //	public void readExactProbTable(String filename) throws IOException{
 //		BufferedReader br=new BufferedReader(new FileReader(filename));
 //		String buf=br.readLine();
 //		if(buf==null){
@@ -54,114 +52,121 @@ public class RankSumTest {
 //		}
 //		probTable=table;
 //	}
-	public double getExactProb(double ranksum){
-		if(ranksum<minRankSum){
-			//System.out.println("wrong ranksum. ranksum="+ranksum+" minRankSum="+minRankSum);
-			return 0;
-		}
-		if(ranksum>=minRankSum+probTable.size()){
-			//System.out.println("wrong ranksum. ranksum="+ranksum+" maxRankSum="+(minRankSum+probTable.size()));
-			return 1;
-		}
-		int r=(int)Math.floor(ranksum);
-		double measure=((Double)probTable.get(r-minRankSum)).doubleValue();
-		return measure;
-	}
-	public double getProb() throws IOException{
-		//String filename=new String("./table/table"+data_size1+"_"+data_size2+".xls");
-		//readExactProbTable(filename);
-		if(Math.floor(rank_sum2)==rank_sum2){
-			double a=getExactProb(rank_sum2);
-			double b=1-getExactProb(rank_sum2-1);
-			if(a<b){
-				return a;
-			}else{
-				return 1-b;
-			}
-		}else{
-			return getExactProb(rank_sum2);
-		}
-		//return StatisticalTests.HastingsApproximationForStandardNormalDF(get_value());
-	}
+    public double getExactProb(double ranksum) {
+        if (ranksum < minRankSum) {
+            //System.out.println("wrong ranksum. ranksum="+ranksum+" minRankSum="+minRankSum);
+            return 0;
+        }
+        if (ranksum >= minRankSum + probTable.size()) {
+            //System.out.println("wrong ranksum. ranksum="+ranksum+" maxRankSum="+(minRankSum+probTable.size()));
+            return 1;
+        }
+        int r = (int) Math.floor(ranksum);
+        double measure = ((Double) probTable.get(r - minRankSum)).doubleValue();
+        return measure;
+    }
 
-	public RankSumTest(java.util.Vector f,java.util.Vector g) throws IOException{
-		data_size1=f.size();
-		data_size2=g.size();
-		if(data_size1<10 || data_size2<10){
-			//System.out.println("error. can not approx by normal.");
-		}
+    public double getProb() throws IOException {
+        //String filename=new String("./table/table"+data_size1+"_"+data_size2+".xls");
+        //readExactProbTable(filename);
+        if (Math.floor(rank_sum2) == rank_sum2) {
+            double a = getExactProb(rank_sum2);
+            double b = 1 - getExactProb(rank_sum2 - 1);
+            if (a < b) {
+                return a;
+            } else {
+                return 1 - b;
+            }
+        } else {
+            return getExactProb(rank_sum2);
+        }
+        //return StatisticalTests.HastingsApproximationForStandardNormalDF(get_value());
+    }
 
-		all=new java.util.Vector();//LabeledData[data_size1+data_size2];
-		for(int i=0;i<data_size1;++i){
-			all.add(new LabeledData((Double)f.get(i),-1));
-		}
-		for(int i=0;i<data_size2;++i){
-			all.add(new LabeledData((Double)g.get(i),1));
-		}
+    public RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
+        data_size1 = f.size();
+        data_size2 = g.size();
+        if (data_size1 < 10 || data_size2 < 10) {
+            //System.out.println("error. can not approx by normal.");
+        }
 
-		get_test_statistics();
+        all = new java.util.Vector();//LabeledData[data_size1+data_size2];
+        for (int i = 0; i < data_size1; ++i) {
+            all.add(new LabeledData((Double) f.get(i), -1));
+        }
+        for (int i = 0; i < data_size2; ++i) {
+            all.add(new LabeledData((Double) g.get(i), 1));
+        }
 
-		probTable=exact.getTable(data_size1,data_size2);
-		minRankSum=data_size2*(data_size2+1)/2;
-	}
-	public double get_value(){
-		return test_statistic_z;
-	}
-	private void get_test_statistics(){
-		java.util.List list=new java.util.LinkedList(all);
-		java.util.Collections.sort(list,new java.util.Comparator(){
-			public int compare(Object a, Object b){
-				LabeledData A=(LabeledData)a;
-				LabeledData B=(LabeledData)b;
-				if(A.get_value()<B.get_value()){
-					return -1;
-				}else
-				if(A.get_value()==B.get_value()){
-					return 0;
-				}else{
-					return 1;
-				}
-			}
-		});
-		all=new java.util.Vector(list);
-		rank_sum1=get_rank_sum(-1);
-		rank_sum2=get_rank_sum(1);
-		if(rank_sum1+rank_sum2!=(data_size1+data_size2)*(data_size1+data_size2+1)/2){System.out.println("Error. rank sum");}
-		//System.out.println(rank_sum1+rank_sum2+"\t"+(data_size1+data_size2)*(data_size1+data_size2+1)/2);
+        get_test_statistics();
 
-		test_statistic_U=rank_sum1-data_size1*(data_size1+1)/2;
-		test_statistic_z=get_normal_approx(test_statistic_U);
-	}
-	public double get_rank_sum(int label){
-		double tmp_rank_sum=0;
-		int partial_rank_sum=0;
-		int data_same_rank=0;
-		int num_of_target_data=0;
-		double previous_value=((LabeledData)all.get(0)).get_value();
-		for(int i=0;i<all.size();++i){
-			if(((LabeledData)all.get(i)).get_value()!=previous_value){
-				tmp_rank_sum += partial_rank_sum/(double)data_same_rank *num_of_target_data ;
-				partial_rank_sum=0;
-				data_same_rank=0;
-				num_of_target_data=0;
-			}
-			partial_rank_sum+=i+1;
-			data_same_rank++;
-			if(((LabeledData)all.get(i)).get_label()==label)num_of_target_data++;
-			previous_value=((LabeledData)all.get(i)).get_value();
-		}
-		tmp_rank_sum += partial_rank_sum/(double)data_same_rank *num_of_target_data ;
-		return tmp_rank_sum;
-	}
-	private double get_normal_approx(double U){
-		double exp=data_size1*data_size2/2.0;
-		double stddev=Math.sqrt(data_size1*data_size2*(data_size1+data_size2+1)/12.0);
-		return (U-exp)/stddev;
-	}
-	public double get_W(){
-		double W=rank_sum1-data_size1*(data_size1+1)/2;
-		return W;
-	}
+        probTable = exact.getTable(data_size1, data_size2);
+        minRankSum = data_size2 * (data_size2 + 1) / 2;
+    }
+
+    public double get_value() {
+        return test_statistic_z;
+    }
+
+    private void get_test_statistics() {
+        java.util.List list = new java.util.LinkedList(all);
+        java.util.Collections.sort(list, new java.util.Comparator() {
+            public int compare(Object a, Object b) {
+                LabeledData A = (LabeledData) a;
+                LabeledData B = (LabeledData) b;
+                if (A.get_value() < B.get_value()) {
+                    return -1;
+                } else if (A.get_value() == B.get_value()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        all = new java.util.Vector(list);
+        rank_sum1 = get_rank_sum(-1);
+        rank_sum2 = get_rank_sum(1);
+        if (rank_sum1 + rank_sum2 != (data_size1 + data_size2) * (data_size1 + data_size2 + 1) / 2) {
+            System.out.println("Error. rank sum");
+        }
+        //System.out.println(rank_sum1+rank_sum2+"\t"+(data_size1+data_size2)*(data_size1+data_size2+1)/2);
+
+        test_statistic_U = rank_sum1 - data_size1 * (data_size1 + 1) / 2;
+        test_statistic_z = get_normal_approx(test_statistic_U);
+    }
+
+    public double get_rank_sum(int label) {
+        double tmp_rank_sum = 0;
+        int partial_rank_sum = 0;
+        int data_same_rank = 0;
+        int num_of_target_data = 0;
+        double previous_value = ((LabeledData) all.get(0)).get_value();
+        for (int i = 0; i < all.size(); ++i) {
+            if (((LabeledData) all.get(i)).get_value() != previous_value) {
+                tmp_rank_sum += partial_rank_sum / (double) data_same_rank * num_of_target_data;
+                partial_rank_sum = 0;
+                data_same_rank = 0;
+                num_of_target_data = 0;
+            }
+            partial_rank_sum += i + 1;
+            data_same_rank++;
+            if (((LabeledData) all.get(i)).get_label() == label) num_of_target_data++;
+            previous_value = ((LabeledData) all.get(i)).get_value();
+        }
+        tmp_rank_sum += partial_rank_sum / (double) data_same_rank * num_of_target_data;
+        return tmp_rank_sum;
+    }
+
+    private double get_normal_approx(double U) {
+        double exp = data_size1 * data_size2 / 2.0;
+        double stddev = Math.sqrt(data_size1 * data_size2 * (data_size1 + data_size2 + 1) / 12.0);
+        return (U - exp) / stddev;
+    }
+
+    public double get_W() {
+        double W = rank_sum1 - data_size1 * (data_size1 + 1) / 2;
+        return W;
+    }
 }
 //--------------------------------------
 //$Log: RankSumTest.java,v $

@@ -11,47 +11,42 @@
 package lab.cb.scmd.util.xml;
 
 
-
-/** 不正なXMLが出力されたときに発生する例外
- * @author leo
+/**
+ * 不正なXMLが出力されたときに発生する例外
  *
+ * @author leo
  */
-public class InvalidXMLException extends XMLException
-{
+public class InvalidXMLException extends XMLException {
 
-	/**
-	 * 
-	 */
-	public InvalidXMLException()
-	{
-		super();
+    /**
+     *
+     */
+    public InvalidXMLException() {
+        super();
 
-	}
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public InvalidXMLException(String arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * @param arg0
+     */
+    public InvalidXMLException(String arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public InvalidXMLException(Throwable arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * @param arg0
+     */
+    public InvalidXMLException(Throwable arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public InvalidXMLException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-	}
+    /**
+     * @param arg0
+     * @param arg1
+     */
+    public InvalidXMLException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
 
 }
 

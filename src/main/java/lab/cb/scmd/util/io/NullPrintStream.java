@@ -12,22 +12,17 @@ package lab.cb.scmd.util.io;
 
 import java.io.PrintStream;
 
-/**  printしても何も実行しないクラス (verboseメッセージの出力切り替えに便利)
- * @author leo
+/**
+ * printしても何も実行しないクラス (verboseメッセージの出力切り替えに便利)
  *
+ * @author leo
  */
-public class NullPrintStream extends PrintStream
-{
+public class NullPrintStream extends PrintStream {
 
-    /**
-     * @param arg0
-     */
-    public NullPrintStream()
-    {
+    public NullPrintStream() {
         super(new NullOutputStream());
     }
-
-   
+    
 }
 
 

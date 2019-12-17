@@ -12,16 +12,13 @@ package lab.cb.scmd.exception;
 
 /**
  * @author leo
- *
  */
-public class InvalidParameterException extends SCMDException
-{
+public class InvalidParameterException extends SCMDException {
 
     /**
-     * 
+     *
      */
-    public InvalidParameterException()
-    {
+    public InvalidParameterException() {
         super();
 
     }
@@ -29,8 +26,7 @@ public class InvalidParameterException extends SCMDException
     /**
      * @param arg0
      */
-    public InvalidParameterException(String arg0)
-    {
+    public InvalidParameterException(String arg0) {
         super(arg0);
 
     }
@@ -38,8 +34,7 @@ public class InvalidParameterException extends SCMDException
     /**
      * @param arg0
      */
-    public InvalidParameterException(Throwable arg0)
-    {
+    public InvalidParameterException(Throwable arg0) {
         super(arg0);
 
     }
@@ -48,8 +43,7 @@ public class InvalidParameterException extends SCMDException
      * @param arg0
      * @param arg1
      */
-    public InvalidParameterException(String arg0, Throwable arg1)
-    {
+    public InvalidParameterException(String arg0, Throwable arg1) {
         super(arg0, arg1);
 
     }

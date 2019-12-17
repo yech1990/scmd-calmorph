@@ -12,20 +12,19 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
 public class LessThanOrEqual extends ComparisonPredicate {
-	
-	public LessThanOrEqual(Comparable compareTarget)
-	{
-		super(compareTarget);
-	}
-	/* (non-Javadoc)
-	 * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
-	 */
-	public boolean isTrue(Object input) {
-		return getComparisonTarget().compareTo(input) >= 0;	
-	}
+
+    public LessThanOrEqual(Comparable compareTarget) {
+        super(compareTarget);
+    }
+
+    /* (non-Javadoc)
+     * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
+     */
+    public boolean isTrue(Object input) {
+        return getComparisonTarget().compareTo(input) >= 0;
+    }
 }
 
 

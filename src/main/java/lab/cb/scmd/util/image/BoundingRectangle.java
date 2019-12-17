@@ -10,32 +10,28 @@
 
 package lab.cb.scmd.util.image;
 
+import lab.cb.scmd.exception.InvalidParameterException;
+
 import java.util.Map;
 import java.util.TreeMap;
 
-import lab.cb.scmd.exception.InvalidParameterException;
-
 /**
  * @author leo
- *  
  */
-public class BoundingRectangle
-{
+public class BoundingRectangle {
     /**
-     *  
+     *
      */
-    public BoundingRectangle()
-    {
-        
+    public BoundingRectangle() {
+
     }
-    
-    public BoundingRectangle(int x1, int x2, int y1, int y2) throws InvalidParameterException
-    {
+
+    public BoundingRectangle(int x1, int x2, int y1, int y2) throws InvalidParameterException {
         super();
 
-        if(x1 > x2 || y1 > y2)
-                throw new InvalidParameterException("invalid range: " + "[" + x1 + "-" + x2 + "] - [" + y1 + "-" + y2
-                        + "]");
+        if (x1 > x2 || y1 > y2)
+            throw new InvalidParameterException("invalid range: " + "[" + x1 + "-" + x2 + "] - [" + y1 + "-" + y2
+                    + "]");
 
         this.x1 = x1;
         this.x2 = x2;
@@ -46,46 +42,43 @@ public class BoundingRectangle
     public String getGeometry() {
         int xRange = x2 - x1;
         int yRange = y2 - y1;
-        return new String(xRange + "x" + yRange + "+" + x1 + "+" + y1);
+        return xRange + "x" + yRange + "+" + x1 + "+" + y1;
     }
 
     public String getGeometry(int borderSize) throws InvalidParameterException {
-        if(borderSize < 0) throw new InvalidParameterException("invalid border size: " + borderSize);
+        if (borderSize < 0) throw new InvalidParameterException("invalid border size: " + borderSize);
         int xRange = x2 - x1 + borderSize * 2;
         int yRange = y2 - y1 + borderSize * 2;
         int xBegin = x1 < borderSize ? 0 : x1 - borderSize;
         int yBegin = y1 < borderSize ? 0 : y1 - borderSize;
-        return new String(xRange + "x" + yRange + "+" + xBegin + "+" + yBegin);
-    }
-    public int[] getBox(int borderSize) throws InvalidParameterException
-    {
-        if(borderSize < 0) throw new InvalidParameterException("invalid border size: " + borderSize);
-        int xRange = x2 - x1 + borderSize * 2;
-        int yRange = y2 - y1 + borderSize * 2;
-        int xBegin = x1 < borderSize ? 0 : x1 - borderSize;
-        int yBegin = y1 < borderSize ? 0 : y1 - borderSize;
-        return new int[] { xBegin, yBegin, xRange, yRange };
+        return xRange + "x" + yRange + "+" + xBegin + "+" + yBegin;
     }
 
-    public String getAreaCoordinates(int magnification)
-    {
+    public int[] getBox(int borderSize) throws InvalidParameterException {
+        if (borderSize < 0) throw new InvalidParameterException("invalid border size: " + borderSize);
+        int xRange = x2 - x1 + borderSize * 2;
+        int yRange = y2 - y1 + borderSize * 2;
+        int xBegin = x1 < borderSize ? 0 : x1 - borderSize;
+        int yBegin = y1 < borderSize ? 0 : y1 - borderSize;
+        return new int[]{xBegin, yBegin, xRange, yRange};
+    }
+
+    public String getAreaCoordinates(int magnification) {
         int a_x1 = x1 * magnification / 100;
         int a_x2 = x2 * magnification / 100;
         int a_y1 = y1 * magnification / 100;
         int a_y2 = y2 * magnification / 100;
-        return new String(a_x1 + ", " + a_y1 + ", " + a_x2 + ", " + a_y2);
+        return a_x1 + ", " + a_y1 + ", " + a_x2 + ", " + a_y2;
     }
 
-    public String getCgiArgument()
-    {
-        return "x1=" + getX1() + 
-        "&x2=" + getX2() +
-        "&y1=" + getY1() +
-        "&y2=" + getY2();
+    public String getCgiArgument() {
+        return "x1=" + getX1() +
+                "&x2=" + getX2() +
+                "&y1=" + getY1() +
+                "&y2=" + getY2();
     }
-    
-    public Map getQueryMap()
-    {
+
+    public Map getQueryMap() {
         TreeMap map = new TreeMap();
         map.put("x1", Integer.toString(getX1()));
         map.put("x2", Integer.toString(getX2()));
@@ -125,6 +118,7 @@ public class BoundingRectangle
     public void setY2(int y2) {
         this.y2 = y2;
     }
+
     int x1 = 0;
     int x2 = 0;
     int y1 = 0;

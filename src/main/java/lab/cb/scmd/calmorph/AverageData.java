@@ -10,8 +10,10 @@
 
 package lab.cb.scmd.calmorph;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.Vector;
 
 class AverageData {
     Vector Cgroup, Agroup, Dgroup;
@@ -28,13 +30,13 @@ class AverageData {
     String outdir, name;
 
     double MISSINGVALUE = Double.NaN;
-    String DATAFILESUFFIX	= ".xls";
-    String SUMMARYFILE		= "_data";
-    String SDFILE			= "_SD";
-    String VERSATILEFILE 	= "versatile";
-    String ACTINFILE		= "actin";
-    String CONAFILE			= "conA";
-    String DAPIFILE			= "dapi";
+    String DATAFILESUFFIX = ".xls";
+    String SUMMARYFILE = "_data";
+    String SDFILE = "_SD";
+    String VERSATILEFILE = "versatile";
+    String ACTINFILE = "actin";
+    String CONAFILE = "conA";
+    String DAPIFILE = "dapi";
 
     public AverageData(String name, String outdir) {
         Cgroup = new Vector();
@@ -416,7 +418,7 @@ class AverageData {
                 count++;
             }
         }
-        if( count <= 0 ) {
+        if (count <= 0) {
             return MISSINGVALUE;
         }
         return r / count;
@@ -435,7 +437,7 @@ class AverageData {
                 count++;
             }
         }
-        if( count <= 0 ) {
+        if (count <= 0) {
             return MISSINGVALUE;
         }
         return Math.sqrt(r / count);

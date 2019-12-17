@@ -12,16 +12,13 @@ package lab.cb.scmd.util.xml;
 
 /**
  * @author leo
- *
  */
-public class ThroughFilter implements TextContentFilter
-{
+public class ThroughFilter implements TextContentFilter {
 
     /**
-     * 
+     *
      */
-    public ThroughFilter()
-    {
+    public ThroughFilter() {
     }
 
     public String filter(String textContent) {

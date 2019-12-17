@@ -14,8 +14,8 @@ import lab.cb.scmd.exception.SCMDException;
 
 /**
  * （テーブル、パラメータ名）という情報を持つ
- * @author leo
  *
+ * @author leo
  */
 public class AttributePosition {
 

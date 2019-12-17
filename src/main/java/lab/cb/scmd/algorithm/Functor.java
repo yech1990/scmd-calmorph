@@ -12,11 +12,9 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
-public interface Functor<E>
-{
-    public void apply(E input);
+public interface Functor<E> {
+    void apply(E input);
 }
 
 

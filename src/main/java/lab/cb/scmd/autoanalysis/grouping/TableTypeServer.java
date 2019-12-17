@@ -10,17 +10,15 @@
 
 package lab.cb.scmd.autoanalysis.grouping;
 
-import java.util.*;
+import java.util.HashMap;
 
 /**
  * TableTypeServer内で使用
- * 
+ *
  * @author leo
  */
-class TableElement
-{
-    public TableElement(String tableTypeName, String fileSuffix)
-    {
+class TableElement {
+    public TableElement(String tableTypeName, String fileSuffix) {
         _tableTypeName = tableTypeName;
         _fileSuffix = fileSuffix;
     }
@@ -47,13 +45,11 @@ class TableElement
 /**
  * Tableのタイプ名(T_ORF, T_CONA_BASIC, etc.) と、実際のファイル名のsuffixとの
  * 対応を与えるクラス。グローバルからアクセスできるようにSingletonパターンを使用 使用前には必ずInitialize()しておくこと
- * 
+ *
  * @author leo
- *  
  */
 
-public class TableTypeServer implements TableFileName
-{
+public class TableTypeServer implements TableFileName {
 
     static public void Initialize() {
         _instance = new TableTypeServer();
@@ -61,7 +57,7 @@ public class TableTypeServer implements TableFileName
 
     static public int getTableType(String tableName) {
         Integer tableTypeID = (Integer) _tableNameToTableType.get(tableName);
-        if(tableTypeID == null)
+        if (tableTypeID == null)
             return -1;
         else
             return tableTypeID.intValue();
@@ -72,7 +68,7 @@ public class TableTypeServer implements TableFileName
     }
 
     static public String getTableTypeName(int tableType) {
-        if(tableType >= tableElement.length || tableType < 0)
+        if (tableType >= tableElement.length || tableType < 0)
             return tableElement[tableElement.length - 1].getTableTypeName();
         else
             return tableElement[tableType].getTableTypeName();
@@ -86,15 +82,13 @@ public class TableTypeServer implements TableFileName
         return tableElement[tableType].getFileSuffix();
     }
 
-    private TableTypeServer()
-    {
-        for (int i = 0; i < tableElement.length; i++)
-        {
+    private TableTypeServer() {
+        for (int i = 0; i < tableElement.length; i++) {
             _tableNameToTableType.put(tableElement[i].getTableTypeName(), new Integer(i));
         }
     }
 
-    static final TableElement[]    tableElement          = { new TableElement("T_ORF", ".xls"),
+    static final TableElement[] tableElement = {new TableElement("T_ORF", ".xls"),
             new TableElement("T_CONA_BASIC", "_conA_basic.xls"),
             new TableElement("T_CONA_BIOLOGICAL", "_conA_biological.xls"),
             new TableElement("T_ACTIN_BASIC", "_actin_basic.xls"),
@@ -102,8 +96,8 @@ public class TableTypeServer implements TableFileName
             new TableElement("T_DAPI_BASIC", "_dapi_basic.xls"),
             new TableElement("T_DAPI_BIOLOGICAL", "_dapi_biological.xls"), new TableElement("T_UNDEFINED", ""),};
 
-    static private TableTypeServer _instance             = null;
-    static HashMap                 _tableNameToTableType = new HashMap();
+    static private TableTypeServer _instance = null;
+    static HashMap _tableNameToTableType = new HashMap();
 }
 
 //--------------------------------------

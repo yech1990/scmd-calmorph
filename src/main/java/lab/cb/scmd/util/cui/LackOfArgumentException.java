@@ -13,49 +13,45 @@ package lab.cb.scmd.util.cui;
 import lab.cb.scmd.exception.SCMDException;
 
 
-/** コマンドライン引数が足りないときに発生するException
- * @author leo
+/**
+ * コマンドライン引数が足りないときに発生するException
  *
+ * @author leo
  */
-public class LackOfArgumentException extends SCMDException
-{
+public class LackOfArgumentException extends SCMDException {
 
-	/**
-	 * 
-	 */
-	public LackOfArgumentException()
-	{
-		super();
+    /**
+     *
+     */
+    public LackOfArgumentException() {
+        super();
 
-	}
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public LackOfArgumentException(String arg0)
-	{
-		super(arg0);
+    /**
+     * @param arg0
+     */
+    public LackOfArgumentException(String arg0) {
+        super(arg0);
 
-	}
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public LackOfArgumentException(Throwable arg0)
-	{
-		super(arg0);
+    /**
+     * @param arg0
+     */
+    public LackOfArgumentException(Throwable arg0) {
+        super(arg0);
 
-	}
+    }
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public LackOfArgumentException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
+    /**
+     * @param arg0
+     * @param arg1
+     */
+    public LackOfArgumentException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
 
-	}
+    }
 
 }
 

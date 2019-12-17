@@ -12,24 +12,22 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
-public class NotEqual extends ComparisonPredicate
-{
+public class NotEqual extends ComparisonPredicate {
 
-    /**f
+    /**
+     * f
+     *
      * @param comparisonTarget
      */
-    public NotEqual(Comparable comparisonTarget)
-    {
+    public NotEqual(Comparable comparisonTarget) {
         super(comparisonTarget);
     }
 
     /* (non-Javadoc)
      * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
      */
-    public boolean isTrue(Object input)
-    {
+    public boolean isTrue(Object input) {
         return getComparisonTarget().compareTo(input) != 0;
     }
 

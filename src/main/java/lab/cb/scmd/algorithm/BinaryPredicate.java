@@ -12,11 +12,9 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
-public interface BinaryPredicate<E, F> 
-{
-	public boolean isTrue(E o1, F o2);
+public interface BinaryPredicate<E, F> {
+    boolean isTrue(E o1, F o2);
 }
 
 

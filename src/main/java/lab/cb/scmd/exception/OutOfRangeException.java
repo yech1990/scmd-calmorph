@@ -13,43 +13,37 @@ package lab.cb.scmd.exception;
 
 /**
  * @author leo
- *
  */
-public class OutOfRangeException extends SCMDException
-{
+public class OutOfRangeException extends SCMDException {
 
-	/**
-	 * 
-	 */
-	public OutOfRangeException()
-	{
-		super();
-	}
+    /**
+     *
+     */
+    public OutOfRangeException() {
+        super();
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public OutOfRangeException(String arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * @param arg0
+     */
+    public OutOfRangeException(String arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * @param arg0
-	 */
-	public OutOfRangeException(Throwable arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * @param arg0
+     */
+    public OutOfRangeException(Throwable arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public OutOfRangeException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-	}
+    /**
+     * @param arg0
+     * @param arg1
+     */
+    public OutOfRangeException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
 
 }
 

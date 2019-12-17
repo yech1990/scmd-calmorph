@@ -10,27 +10,24 @@
 
 package lab.cb.scmd.util.io;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 
 /**
  * @author leo
- *
  */
-public class FileUtil
-{
+public class FileUtil {
 
     /**
-     * 
+     *
      */
-    static public void testExistence(File file) throws FileNotFoundException
-    {
-        if(!file.exists())
-            throw new FileNotFoundException("file:" + file + " doesn't exist");            
+    static public void testExistence(File file) throws FileNotFoundException {
+        if (!file.exists())
+            throw new FileNotFoundException("file:" + file + " doesn't exist");
     }
-    
-    static public void testExistence(String filePath) throws FileNotFoundException
-    {
+
+    static public void testExistence(String filePath) throws FileNotFoundException {
         testExistence(new File(filePath));
     }
 }

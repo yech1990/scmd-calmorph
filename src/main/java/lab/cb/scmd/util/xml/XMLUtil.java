@@ -12,20 +12,19 @@ package lab.cb.scmd.util.xml;
 
 /**
  * @author leo
- *
  */
-public class XMLUtil
-{
-	
-	
-	/** contentをCDATAセクションで囲んで返す
-	 * @param content
-	 * @return
-	 */
-	public static String createCDATA(String content)
-	{
-	    return "<![CDATA[" + content + "]]>";
-	}
+public class XMLUtil {
+
+
+    /**
+     * contentをCDATAセクションで囲んで返す
+     *
+     * @param content
+     * @return
+     */
+    public static String createCDATA(String content) {
+        return "<![CDATA[" + content + "]]>";
+    }
 
 }
 

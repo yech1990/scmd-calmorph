@@ -10,62 +10,58 @@
 
 package lab.cb.scmd.util.stat;
 
+import lab.cb.scmd.util.table.Cell;
+
 import java.util.HashSet;
 
-
-import lab.cb.scmd.util.table.*;
-
-/** 欠損値のStringを無視できるように拡張したStatisticsクラス
+/**
+ * 欠損値のStringを無視できるように拡張したStatisticsクラス
  * StatisticsWithMissingValueSuport({"-1", "."}) など
- * 欠損値は、Double(-1).toString != "-1" なので注意 
- * @author leo
+ * 欠損値は、Double(-1).toString != "-1" なので注意
  *
+ * @author leo
  */
-public class StatisticsWithMissingValueSupport extends Statistics
-{
-	/**
-	 * @param missingValueList 欠損値として扱う文字列のリスト
-	 */
-	public StatisticsWithMissingValueSupport(String[] missingValueList) 
-	{
-		super();
-		setMissingValues(missingValueList);
-	}
-	/** ユーザーが定義したfilterがサンプルにかかるようになる
-	 * @param missingValueList  欠損値として扱う文字列のリスト
-	 * @param filteringStrategy filterの種類
-	 */
-	public StatisticsWithMissingValueSupport(String [] missingValueList, SampleFilteringStrategy filteringStrategy)
-	{
-		super(filteringStrategy);		
-		setMissingValues(missingValueList);
-	}
-	
-	protected void setMissingValues(String[] missingValueList)
-	{
-		for(int i=0; i<missingValueList.length; i++)
-			_missingValueSet.add(missingValueList[i]);		
-	}
-	
-	protected boolean isValidAsString(Cell cell)
-	{
-	    boolean isValid = super.isValidAsString(cell);
-	    return isValid ? !(isMissingValue(cell)) : false;
-	}
+public class StatisticsWithMissingValueSupport extends Statistics {
+    /**
+     * @param missingValueList 欠損値として扱う文字列のリスト
+     */
+    public StatisticsWithMissingValueSupport(String[] missingValueList) {
+        super();
+        setMissingValues(missingValueList);
+    }
 
-	protected boolean isValidAsDouble(Cell cell)
-	{
-		boolean isValid = super.isValidAsDouble(cell);
-		return isValid ? !(isMissingValue(cell)) : false;			
-	}
-	
-	protected boolean isMissingValue(Cell cell)
-	{
-		String stringValue = cell.toString();
-		return _missingValueSet.contains(stringValue);
-	}
-	
-	HashSet _missingValueSet = new HashSet();
+    /**
+     * ユーザーが定義したfilterがサンプルにかかるようになる
+     *
+     * @param missingValueList  欠損値として扱う文字列のリスト
+     * @param filteringStrategy filterの種類
+     */
+    public StatisticsWithMissingValueSupport(String[] missingValueList, SampleFilteringStrategy filteringStrategy) {
+        super(filteringStrategy);
+        setMissingValues(missingValueList);
+    }
+
+    protected void setMissingValues(String[] missingValueList) {
+        for (int i = 0; i < missingValueList.length; i++)
+            _missingValueSet.add(missingValueList[i]);
+    }
+
+    protected boolean isValidAsString(Cell cell) {
+        boolean isValid = super.isValidAsString(cell);
+        return isValid && !(isMissingValue(cell));
+    }
+
+    protected boolean isValidAsDouble(Cell cell) {
+        boolean isValid = super.isValidAsDouble(cell);
+        return isValid && !(isMissingValue(cell));
+    }
+
+    protected boolean isMissingValue(Cell cell) {
+        String stringValue = cell.toString();
+        return _missingValueSet.contains(stringValue);
+    }
+
+    HashSet _missingValueSet = new HashSet();
 }
 
 

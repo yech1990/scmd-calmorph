@@ -10,181 +10,162 @@
 
 package lab.cb.scmd.util.stat;
 
+import lab.cb.scmd.util.table.Cell;
+import lab.cb.scmd.util.table.TableIterator;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import lab.cb.scmd.util.table.*;
 
 /**
  * TableIteratorを入力するメソッドは全て、SampleFilteringStrategyで、サンプルにfilter（１％除去など）が掛けられ、
  * Collectionを入力とするメソッドで統計値が計算される。
  * Collectionを入力とするメソッドではfilterはかからない
+ *
  * @author leo
- *  
  */
-public class Statistics
-{
+public class Statistics {
 
-	protected SampleFilteringStrategy	_sampleFilteringStrategy	= new DoNotFilterStrategy();
+    protected SampleFilteringStrategy _sampleFilteringStrategy = new DoNotFilterStrategy();
 
-	/**
-	 * デフォルト （サンプルにフィルターはかからない）
-	 */
-	public Statistics()
-	{
-		getFilteringStrategy().setStatClass(this);
-	}
+    /**
+     * デフォルト （サンプルにフィルターはかからない）
+     */
+    public Statistics() {
+        getFilteringStrategy().setStatClass(this);
+    }
 
-	/**
-	 * ユーザーが定義したfilterがサンプルにかかるようになる
-	 * 
-	 * @param filteringStrategy
-	 */
-	public Statistics(SampleFilteringStrategy filteringStrategy)
-	{
-		_sampleFilteringStrategy = filteringStrategy;
-		getFilteringStrategy().setStatClass(this);
-	}
+    /**
+     * ユーザーが定義したfilterがサンプルにかかるようになる
+     *
+     * @param filteringStrategy
+     */
+    public Statistics(SampleFilteringStrategy filteringStrategy) {
+        _sampleFilteringStrategy = filteringStrategy;
+        getFilteringStrategy().setStatClass(this);
+    }
 
-	public SampleFilteringStrategy getFilteringStrategy()
-	{
-		return _sampleFilteringStrategy;
-	}
+    public SampleFilteringStrategy getFilteringStrategy() {
+        return _sampleFilteringStrategy;
+    }
 
-	/**
-	 * そのセルでdouble値が有効かどうかをチェックする
-	 * 
-	 * @param cell
-	 *            チェックするCell
-	 * @return
-	 */
-	protected boolean isValidAsDouble(Cell cell)
-	{
-		return cell.isValidAsDouble();
-	}
+    /**
+     * そのセルでdouble値が有効かどうかをチェックする
+     *
+     * @param cell チェックするCell
+     * @return
+     */
+    protected boolean isValidAsDouble(Cell cell) {
+        return cell.isValidAsDouble();
+    }
 
-	protected boolean isValidAsString(Cell cell)
-	{
-		return (cell.toString() != null);
-	}
+    protected boolean isValidAsString(Cell cell) {
+        return (cell.toString() != null);
+    }
 
-	
-	
-	public double calcAverage(TableIterator ti)
-	{
-		return calcMean(ti);
-	}
 
-	public double calcMean(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return calcMean(sampleCollection);
-		//		NumElementAndValuePair numElementAndMean = calcMean_internal(ti);
-		//		return numElementAndMean.value;
-	}
+    public double calcAverage(TableIterator ti) {
+        return calcMean(ti);
+    }
 
-	public NumElementAndStatValuePair calcMeanAndNumSample(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return new NumElementAndStatValuePair(sampleCollection.size(), calcMean(sampleCollection));
-	}
-	
-    public Collection filter(TableIterator ti)
-    {
+    public double calcMean(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return calcMean(sampleCollection);
+        //		NumElementAndValuePair numElementAndMean = calcMean_internal(ti);
+        //		return numElementAndMean.value;
+    }
+
+    public NumElementAndStatValuePair calcMeanAndNumSample(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return new NumElementAndStatValuePair(sampleCollection.size(), calcMean(sampleCollection));
+    }
+
+    public Collection filter(TableIterator ti) {
         return getFilteringStrategy().filter(ti);
     }
 
-	/**
-	 * 不偏分散を返す
-	 * 
-	 * @param ti
-	 * @return
-	 */
-	public double calcVariance(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return calcVariance(sampleCollection);
+    /**
+     * 不偏分散を返す
+     *
+     * @param ti
+     * @return
+     */
+    public double calcVariance(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return calcVariance(sampleCollection);
 
-		//		NumElementAndValuePair numElementAndMean =
-		// calcMean_internal((TableIterator) ti.clone());
-		//		if(numElementAndMean.numElement < 2)
-		//			return -1; // unable to compute the variance
-		//		double diffSquare = calcDiffSquare((TableIterator) ti.clone(),
-		// numElementAndMean.value);
-		//		return diffSquare / (numElementAndMean.numElement - 1);
+        //		NumElementAndValuePair numElementAndMean =
+        // calcMean_internal((TableIterator) ti.clone());
+        //		if(numElementAndMean.numElement < 2)
+        //			return -1; // unable to compute the variance
+        //		double diffSquare = calcDiffSquare((TableIterator) ti.clone(),
+        // numElementAndMean.value);
+        //		return diffSquare / (numElementAndMean.numElement - 1);
 
-	}
-	public double calcSD(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return calcSD(sampleCollection);
-	}
+    }
 
-	/**
-	 * CV（変動係数）＝ 標準偏差 / 平均 を返す
-	 * 
-	 * @param ti
-	 * @return
-	 */
-	public double calcCV(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return calcCV(sampleCollection);
-		//		NumElementAndValuePair numElementAndMean =
-		// calcMean_internal((TableIterator) ti.clone());
-		//		if(numElementAndMean.numElement < 2)
-		//			return -1; // unable to compute the variance
-		//		double diffSquare = calcDiffSquare((TableIterator) ti.clone(),
-		// numElementAndMean.value);
-		//		double SD = Math.sqrt(diffSquare / numElementAndMean.numElement);
-		//		return SD / numElementAndMean.value;
-	}
+    public double calcSD(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return calcSD(sampleCollection);
+    }
 
-	public double getMaxValue(TableIterator ti) 
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return getMaxValue(sampleCollection);
-	}
+    /**
+     * CV（変動係数）＝ 標準偏差 / 平均 を返す
+     *
+     * @param ti
+     * @return
+     */
+    public double calcCV(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return calcCV(sampleCollection);
+        //		NumElementAndValuePair numElementAndMean =
+        // calcMean_internal((TableIterator) ti.clone());
+        //		if(numElementAndMean.numElement < 2)
+        //			return -1; // unable to compute the variance
+        //		double diffSquare = calcDiffSquare((TableIterator) ti.clone(),
+        // numElementAndMean.value);
+        //		double SD = Math.sqrt(diffSquare / numElementAndMean.numElement);
+        //		return SD / numElementAndMean.value;
+    }
 
-	public double getMinValue(TableIterator ti) 
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return getMinValue(sampleCollection);
-	}
+    public double getMaxValue(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return getMaxValue(sampleCollection);
+    }
 
-	public HashMap calcStats(TableIterator ti)
-	{
-		// calc mean, SD, CV, num_sample
-		// TODO implementbb
-		return null;
-	}
+    public double getMinValue(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return getMinValue(sampleCollection);
+    }
 
-	public int countValidDoubleCell(TableIterator ti)
-	{
-		Collection sampleCollection = getFilteringStrategy().filter(ti);
-		return sampleCollection.size();
-		//		int count = 0;
-		//		for(; ti.hasNext(); )
-		//		{
-		//			Cell c = ti.next();
-		//			if(isValidAsDouble(c))
-		//				count++;
-		//		}
-		//		return count;
-	}
+    public HashMap calcStats(TableIterator ti) {
+        // calc mean, SD, CV, num_sample
+        // TODO implementbb
+        return null;
+    }
 
-	public int countValidStringCell(TableIterator ti)
-	{
-		int count = 0;
-		for (; ti.hasNext();)
-		{
-			Cell c = ti.nextCell();
-			if(isValidAsString(c))
-				count++;
-		}
-		return count;
-	}
+    public int countValidDoubleCell(TableIterator ti) {
+        Collection sampleCollection = getFilteringStrategy().filter(ti);
+        return sampleCollection.size();
+        //		int count = 0;
+        //		for(; ti.hasNext(); )
+        //		{
+        //			Cell c = ti.next();
+        //			if(isValidAsDouble(c))
+        //				count++;
+        //		}
+        //		return count;
+    }
+
+    public int countValidStringCell(TableIterator ti) {
+        int count = 0;
+        for (; ti.hasNext(); ) {
+            Cell c = ti.nextCell();
+            if (isValidAsString(c))
+                count++;
+        }
+        return count;
+    }
 
 
 //	/**
@@ -228,91 +209,80 @@ public class Statistics
 //			return new NumElementAndValuePair(numElement, sum / numElement);
 //	}
 
-	/**
-	 * cの平均を返す
-	 * 
-	 * @param c
-	 *            Doubleのコレクション （nullを含まないことが前提)
-	 * @return 平均値
-	 */
-	static public double calcMean(Collection c)
-	{
-		int numElement = c.size();
-		if(numElement == 0)
-			return 0;
-		double sum = 0;
-		for (Iterator it = c.iterator(); it.hasNext();)
-		{
-			sum += ((Double) it.next()).doubleValue();
-		}
-		return sum / numElement;
-	}
+    /**
+     * cの平均を返す
+     *
+     * @param c Doubleのコレクション （nullを含まないことが前提)
+     * @return 平均値
+     */
+    static public double calcMean(Collection c) {
+        int numElement = c.size();
+        if (numElement == 0)
+            return 0;
+        double sum = 0;
+        for (Iterator it = c.iterator(); it.hasNext(); ) {
+            sum += ((Double) it.next()).doubleValue();
+        }
+        return sum / numElement;
+    }
 
-	static public double calcVariance(Collection c)
-	{
-		int numElement = c.size();
-		if(numElement < 2)
-			return -1; // unable to compute the variance
+    static public double calcVariance(Collection c) {
+        int numElement = c.size();
+        if (numElement < 2)
+            return -1; // unable to compute the variance
 
-		double squareSum = 0;
-		for (Iterator it = c.iterator(); it.hasNext();)
-		{
-			double v = ((Double) it.next()).doubleValue();
-			squareSum += v * v;
-		}
-		double sum = 0;
-		for (Iterator it = c.iterator(); it.hasNext();)
-			sum += ((Double) it.next()).doubleValue();
+        double squareSum = 0;
+        for (Iterator it = c.iterator(); it.hasNext(); ) {
+            double v = ((Double) it.next()).doubleValue();
+            squareSum += v * v;
+        }
+        double sum = 0;
+        for (Iterator it = c.iterator(); it.hasNext(); )
+            sum += ((Double) it.next()).doubleValue();
 
-		double variance = (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
-		return variance;
-	}
+        double variance = (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
+        return variance;
+    }
 
-	static public double calcSD(Collection c)
-	{
-		double variance = calcVariance(c);
-		if(variance < 0)
-			return -1; // unable to compute the standard deviation
+    static public double calcSD(Collection c) {
+        double variance = calcVariance(c);
+        if (variance < 0)
+            return -1; // unable to compute the standard deviation
 
-		return Math.sqrt(variance);
-	}
+        return Math.sqrt(variance);
+    }
 
-	static public double calcCV(Collection c)
-	{
-		double mean = calcMean(c);
-		if(mean == 0)
-			return -1; // unable to compute the CV
+    static public double calcCV(Collection c) {
+        double mean = calcMean(c);
+        if (mean == 0)
+            return -1; // unable to compute the CV
 
-		double SD = calcSD(c);
-		if(SD < 0)
-			return -1; // unable to compute SD
+        double SD = calcSD(c);
+        if (SD < 0)
+            return -1; // unable to compute SD
 
-		return SD / mean;
-	}
-	
-	static public double getMinValue(Collection c)
-	{
-		double min = Double.MAX_VALUE;
-		for (Iterator it = c.iterator(); it.hasNext();)
-		{
-			double v = ((Double) it.next()).doubleValue();
-			if( v < min )
-				min = v;
-		}
-		return min;
-	}
+        return SD / mean;
+    }
 
-	static public double getMaxValue(Collection c)
-	{
-		double max = - Double.MAX_VALUE;
-		for (Iterator it = c.iterator(); it.hasNext();)
-		{
-			double v = ((Double) it.next()).doubleValue();
-			if( v > max )
-				max = v;
-		}
-		return max;
-	}
+    static public double getMinValue(Collection c) {
+        double min = Double.MAX_VALUE;
+        for (Iterator it = c.iterator(); it.hasNext(); ) {
+            double v = ((Double) it.next()).doubleValue();
+            if (v < min)
+                min = v;
+        }
+        return min;
+    }
+
+    static public double getMaxValue(Collection c) {
+        double max = -Double.MAX_VALUE;
+        for (Iterator it = c.iterator(); it.hasNext(); ) {
+            double v = ((Double) it.next()).doubleValue();
+            if (v > max)
+                max = v;
+        }
+        return max;
+    }
 
 }
 

@@ -17,16 +17,13 @@ import java.util.TreeMap;
 
 /**
  * @author leo
- *
  */
-public class XMLAttributeMap extends TreeMap
-{
+public class XMLAttributeMap extends TreeMap {
 
     /**
-     * 
+     *
      */
-    public XMLAttributeMap()
-    {
+    public XMLAttributeMap() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -34,8 +31,7 @@ public class XMLAttributeMap extends TreeMap
     /**
      * @param arg0
      */
-    public XMLAttributeMap(Comparator arg0)
-    {
+    public XMLAttributeMap(Comparator arg0) {
         super(arg0);
         // TODO Auto-generated constructor stub
     }
@@ -43,8 +39,7 @@ public class XMLAttributeMap extends TreeMap
     /**
      * @param arg0
      */
-    public XMLAttributeMap(Map arg0)
-    {
+    public XMLAttributeMap(Map arg0) {
         super(arg0);
         // TODO Auto-generated constructor stub
     }
@@ -52,22 +47,20 @@ public class XMLAttributeMap extends TreeMap
     /**
      * @param arg0
      */
-    public XMLAttributeMap(SortedMap arg0)
-    {
+    public XMLAttributeMap(SortedMap arg0) {
         super(arg0);
         // TODO Auto-generated constructor stub
     }
 
-    
-    
-    
+
     public Object put(String key, int value) {
         return super.put(key, new Integer(value));
     }
+
     public Object put(String key, double value) {
         return super.put(key, new Double(value));
     }
-    
+
 }
 
 

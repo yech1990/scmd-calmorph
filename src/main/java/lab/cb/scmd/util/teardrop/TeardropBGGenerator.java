@@ -9,24 +9,17 @@
 //--------------------------------------
 package lab.cb.scmd.util.teardrop;
 
-import java.io.PrintStream;
-
-import lab.cb.scmd.exception.UnfinishedTaskException;
-import lab.cb.scmd.util.ProcessRunner;
-
 /**
  * @author leo
- *
  */
-public class TeardropBGGenerator
-{
+public class TeardropBGGenerator {
     // color table
-    private String BASE_COLOR               = "#8888FF";
+    private String BASE_COLOR = "#8888FF";
     //private String STANDARD_POSISION_COLOR    = "#8888FF";
-    private int IMAGEWIDTH                  = 70;
-    private int IMAGEHEIGHT                 = 300;
-    private int BARHEIGHT                   = 4;
-    private int MARGIN                      = 4;
+    private int IMAGEWIDTH = 70;
+    private int IMAGEHEIGHT = 300;
+    private int BARHEIGHT = 4;
+    private int MARGIN = 4;
     private String _converter = "/usr/local/bin/convert";
 
     /*

@@ -12,24 +12,20 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
-public class GreaterThanOrEqual extends ComparisonPredicate
-{
+public class GreaterThanOrEqual extends ComparisonPredicate {
 
     /**
      * @param comparisonTarget
      */
-    public GreaterThanOrEqual(Comparable comparisonTarget)
-    {
+    public GreaterThanOrEqual(Comparable comparisonTarget) {
         super(comparisonTarget);
     }
 
     /* (non-Javadoc)
      * @see lab.cb.scmd.algorithm.UnaryPredicate#isTrue(java.lang.Object)
      */
-    public boolean isTrue(Object input)
-    {
+    public boolean isTrue(Object input) {
         return getComparisonTarget().compareTo(input) <= 0;
     }
 

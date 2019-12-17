@@ -11,27 +11,25 @@ package lab.cb.scmd.autoanalysis.grouping;
 
 /**
  * グループの名前とファイル名のsuffixの定義
- * 
+ *
  * @author leo
- *  
  */
-public interface TableFileName
-{
-	int		GROUP_A				= 0;
-	int		GROUP_A1B			= 1;
-	int		GROUP_C				= 2;
-	String	GROUP_NAME[]		= {"A", "A1B", "C"};
-	String	GROUP_FILE_SUFFIX[]	= {"_A.xls", "_A1B.xls", "_C.xls"};
-	
-    public static final int T_ORF = 0;
-    public static final int T_CONA_BASIC = 1;
-    public static final int T_CONA_BIOLOGICAL = 2;
-    public static final int T_ACTIN_BASIC = 3;
-    public static final int T_ACTIN_BIOLOGICAL = 4;
-    public static final int T_DAPI_BASIC  = 5;
-    public static final int T_DAPI_BIOLOGICAL = 6;
-    public static final int T_MAX = 7;
-    public static final String[] TABLE_SUFFIX = new String[] { ".xls", "_conA_basic.xls", "_conA_biological.xls",
+public interface TableFileName {
+    int GROUP_A = 0;
+    int GROUP_A1B = 1;
+    int GROUP_C = 2;
+    String[] GROUP_NAME = {"A", "A1B", "C"};
+    String[] GROUP_FILE_SUFFIX = {"_A.xls", "_A1B.xls", "_C.xls"};
+
+    int T_ORF = 0;
+    int T_CONA_BASIC = 1;
+    int T_CONA_BIOLOGICAL = 2;
+    int T_ACTIN_BASIC = 3;
+    int T_ACTIN_BIOLOGICAL = 4;
+    int T_DAPI_BASIC = 5;
+    int T_DAPI_BIOLOGICAL = 6;
+    int T_MAX = 7;
+    String[] TABLE_SUFFIX = new String[]{".xls", "_conA_basic.xls", "_conA_biological.xls",
             "_actin_basic.xls", "_actin_biological.xls", "_dapi_basic.xls", "_dapi_biological.xls"};
 
 }

@@ -10,16 +10,15 @@
 
 package lab.cb.scmd.autoanalysis.grouping;
 
+import lab.cb.scmd.exception.SCMDException;
+
 import java.io.*;
 import java.util.*;
 
-import lab.cb.scmd.exception.SCMDException;
-
 /**
- *
  * schemaファイルは、以下の形式 （空白orTAB区切りで一行ずつ対応を記述する)
  * <pre>
- * # schema of	table A	
+ * # schema of	table A
  * # (attribute name, original	table, original attributename)
  * image_number	T_ORF	image_number
  * cell_	T_ORF	cell_id
@@ -33,101 +32,102 @@ import lab.cb.scmd.exception.SCMDException;
  * C126_A	T_CONA_BIOLOGICAL	C126
  * ...
  * </pre>
- * @author leo
  *
+ * @author leo
  */
 public class TableSchema {
-	public TableSchema(String schemaFile) throws SCMDException {
-		loadFromFile(schemaFile);
-	}
+    public TableSchema(String schemaFile) throws SCMDException {
+        loadFromFile(schemaFile);
+    }
 
-	public TableSchema(String schemaStr, boolean isFile ) throws SCMDException {
-		if( isFile ) {
-			loadFromFile(schemaStr);
-		} else {
-			loadSchema(schemaStr);
-		}
-	}
+    public TableSchema(String schemaStr, boolean isFile) throws SCMDException {
+        if (isFile) {
+            loadFromFile(schemaStr);
+        } else {
+            loadSchema(schemaStr);
+        }
+    }
 
-	public int numRule(){
-		return _labelList.size();
-	}
-	public AttributePosition getAttributePosition(int ruleIndex) throws SCMDException {
-		if(ruleIndex > _labelList.size())
-			throw new SCMDException("invalid rule index: " + ruleIndex + " out of " + _labelList.size());
-		return (AttributePosition) _labelToSourcePosition.get(_labelList.get(ruleIndex));
-	}
+    public int numRule() {
+        return _labelList.size();
+    }
 
-	public void outputContents(PrintStream out) {
-		for (Iterator li = _labelList.iterator(); li.hasNext();) {
-			String label = (String) li.next();
-			AttributePosition pos =
-					(AttributePosition) _labelToSourcePosition.get(label);
-			out.println(label + "\t" + pos.toString());
-		}
-	}
+    public AttributePosition getAttributePosition(int ruleIndex) throws SCMDException {
+        if (ruleIndex > _labelList.size())
+            throw new SCMDException("invalid rule index: " + ruleIndex + " out of " + _labelList.size());
+        return (AttributePosition) _labelToSourcePosition.get(_labelList.get(ruleIndex));
+    }
 
-	public void outputLabel(PrintWriter out) {
-		for (int i = 0; i < _labelList.size() - 1; i++) {
-			out.print((String) _labelList.get(i) + "\t");
-		}
-		out.println((String) _labelList.get(_labelList.size() - 1));
-	}
+    public void outputContents(PrintStream out) {
+        for (Iterator li = _labelList.iterator(); li.hasNext(); ) {
+            String label = (String) li.next();
+            AttributePosition pos =
+                    (AttributePosition) _labelToSourcePosition.get(label);
+            out.println(label + "\t" + pos.toString());
+        }
+    }
 
-	void loadFromFile(String schemaFile) throws SCMDException {
-		try {
-			Reader fileReader = new FileReader(schemaFile);
-			loadSchema(fileReader);
-		} catch (FileNotFoundException e) {
-			System.err.println(e.getMessage());
-			throw new SCMDException(
-					"error occured while loading " + schemaFile);
-		}
-	}
+    public void outputLabel(PrintWriter out) {
+        for (int i = 0; i < _labelList.size() - 1; i++) {
+            out.print(_labelList.get(i) + "\t");
+        }
+        out.println((String) _labelList.get(_labelList.size() - 1));
+    }
 
-	void loadSchema(String schemaStr) throws SCMDException {
-		Reader reader = new StringReader(schemaStr);
-		loadSchema(reader);
-	}
+    void loadFromFile(String schemaFile) throws SCMDException {
+        try {
+            Reader fileReader = new FileReader(schemaFile);
+            loadSchema(fileReader);
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+            throw new SCMDException(
+                    "error occured while loading " + schemaFile);
+        }
+    }
 
-	void loadSchema(Reader schema) throws SCMDException {
-		try {
-			BufferedReader fileReader =
-					new BufferedReader(schema);
-			// read labels
-			String line;
-			int lineCount = 0;
-			while ((line = fileReader.readLine()) != null) {
-				lineCount++;
-				if (line.startsWith("#"))
-					continue; // comment line
-				StringTokenizer tokenizer = new StringTokenizer(line, "\t ");
-				try {
-					String newAttributeName = tokenizer.nextToken();
-					String originalTableName = tokenizer.nextToken();
-					String originalAttributeName = tokenizer.nextToken();
-					_labelList.add(newAttributeName);
-					int tableType = TableTypeServer.getTableType(originalTableName);
-					if(tableType == -1)
-						throw new SCMDException(originalTableName + " is invalid data file type at line: " + lineCount);
-					_labelToSourcePosition.put(
-							newAttributeName,
-							new AttributePosition(tableType, originalAttributeName));
-				} catch (NoSuchElementException ne) {
-					// invalid row
-				}
-			}
-			fileReader.close();
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			throw new SCMDException(
-					"error occured while loading schema file");
-		}
-	}
-	Vector _labelList = new Vector();
-	HashMap _labelToSourcePosition = new HashMap();
+    void loadSchema(String schemaStr) throws SCMDException {
+        Reader reader = new StringReader(schemaStr);
+        loadSchema(reader);
+    }
+
+    void loadSchema(Reader schema) throws SCMDException {
+        try {
+            BufferedReader fileReader =
+                    new BufferedReader(schema);
+            // read labels
+            String line;
+            int lineCount = 0;
+            while ((line = fileReader.readLine()) != null) {
+                lineCount++;
+                if (line.startsWith("#"))
+                    continue; // comment line
+                StringTokenizer tokenizer = new StringTokenizer(line, "\t ");
+                try {
+                    String newAttributeName = tokenizer.nextToken();
+                    String originalTableName = tokenizer.nextToken();
+                    String originalAttributeName = tokenizer.nextToken();
+                    _labelList.add(newAttributeName);
+                    int tableType = TableTypeServer.getTableType(originalTableName);
+                    if (tableType == -1)
+                        throw new SCMDException(originalTableName + " is invalid data file type at line: " + lineCount);
+                    _labelToSourcePosition.put(
+                            newAttributeName,
+                            new AttributePosition(tableType, originalAttributeName));
+                } catch (NoSuchElementException ne) {
+                    // invalid row
+                }
+            }
+            fileReader.close();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            throw new SCMDException(
+                    "error occured while loading schema file");
+        }
+    }
+
+    Vector _labelList = new Vector();
+    HashMap _labelToSourcePosition = new HashMap();
 }
-
 
 
 //--------------------------------------

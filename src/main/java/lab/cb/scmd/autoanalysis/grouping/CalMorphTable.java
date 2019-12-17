@@ -11,50 +11,49 @@
 package lab.cb.scmd.autoanalysis.grouping;
 
 
-import java.io.*;
-import java.util.*;
-
 import lab.cb.scmd.exception.SCMDException;
-import lab.cb.scmd.util.table.Cell;
+
+import java.io.PrintStream;
+import java.util.Vector;
 
 /**
  * TAB区切りのテーブルを読み込むクラス
- * @author leo
  *
+ * @author leo
  */
 public class CalMorphTable extends lab.cb.scmd.util.table.FlatTable {
-	/**
-	 * @param fileName
-	 * @throws SCMDException
-	 */
-	public CalMorphTable(String fileName) throws SCMDException {
-		super(fileName);
-	}
+    /**
+     * @param fileName
+     * @throws SCMDException
+     */
+    public CalMorphTable(String fileName) throws SCMDException {
+        super(fileName);
+    }
 
 
-	/**
-	 * @param out
-	 */
-	public void outputTableLabels(PrintStream out) {
-		Vector labelNameList = getColLabelList();
-		for (int x = 0; x < getColSize() - 1; ++x) {
-			out.print(labelNameList.get(x) + TAB);
-		}
-		out.print(labelNameList.get(getColSize() - 1) + NEWLINE);
-	}
+    /**
+     * @param out
+     */
+    public void outputTableLabels(PrintStream out) {
+        Vector labelNameList = getColLabelList();
+        for (int x = 0; x < getColSize() - 1; ++x) {
+            out.print(labelNameList.get(x) + TAB);
+        }
+        out.print(labelNameList.get(getColSize() - 1) + NEWLINE);
+    }
 
-	public String getCellData(int row, String labelName) throws SCMDException {
-		if(row < 0 || row >= getRowSize())
-			throw new SCMDException("row " + row + " is out of range (max = " + getRowSize() + ")");
-		int col = getColIndex(labelName);
-		if(col == -1)
-			throw new SCMDException("col " + labelName + " does not exist");
-		return ((Cell) getCell(row, labelName)).toString();
-	}
+    public String getCellData(int row, String labelName) throws SCMDException {
+        if (row < 0 || row >= getRowSize())
+            throw new SCMDException("row " + row + " is out of range (max = " + getRowSize() + ")");
+        int col = getColIndex(labelName);
+        if (col == -1)
+            throw new SCMDException("col " + labelName + " does not exist");
+        return getCell(row, labelName).toString();
+    }
 
 
-	static final private String NEWLINE = System.getProperty("line.separator");
-	static final private String TAB = "\t";
+    static final private String NEWLINE = System.getProperty("line.separator");
+    static final private String TAB = "\t";
 
 }
 

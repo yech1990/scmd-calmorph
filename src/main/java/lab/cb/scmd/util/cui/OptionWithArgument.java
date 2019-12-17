@@ -14,40 +14,42 @@ import lab.cb.scmd.exception.SCMDException;
 
 /**
  * @author leo
- *
  */
 
-public class OptionWithArgument extends Option
-{
-	public OptionWithArgument(int optionID, String shortName, String longName, String argumentName, String description) throws SCMDException
-	{
-		super(optionID, shortName, longName, description);
-		_argumentName = argumentName;
-	}
+public class OptionWithArgument extends Option {
+    public OptionWithArgument(int optionID, String shortName, String longName, String argumentName, String description) throws SCMDException {
+        super(optionID, shortName, longName, description);
+        _argumentName = argumentName;
+    }
 
-	public String getShortName()
-	{
-		if(_shortOptionName.equals(""))
-			return "";
-		else
-			return "-" + _shortOptionName + (_longOptionName.equals("") ? " " + _argumentName : ", ");
-	}
-	
-	public String getLongName()
-	{
-		if(_longOptionName.equals(""))
-			return "";
-		else
-			return "--" + _longOptionName + "=" + _argumentName;
-	}
-	public boolean takeArgument() { return true; }
-	
-	public void setArgument(String value)
-	{ _argumentValue = value; }
-	
-	public String getArgumentValue() { return _argumentValue; }
-	private String _argumentName;
-	private String _argumentValue = "";
+    public String getShortName() {
+        if (_shortOptionName.equals(""))
+            return "";
+        else
+            return "-" + _shortOptionName + (_longOptionName.equals("") ? " " + _argumentName : ", ");
+    }
+
+    public String getLongName() {
+        if (_longOptionName.equals(""))
+            return "";
+        else
+            return "--" + _longOptionName + "=" + _argumentName;
+    }
+
+    public boolean takeArgument() {
+        return true;
+    }
+
+    public void setArgument(String value) {
+        _argumentValue = value;
+    }
+
+    public String getArgumentValue() {
+        return _argumentValue;
+    }
+
+    private String _argumentName;
+    private String _argumentValue = "";
 }
 
 

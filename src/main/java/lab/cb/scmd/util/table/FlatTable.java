@@ -10,19 +10,21 @@
 
 package lab.cb.scmd.util.table;
 
-import java.io.*;
-import java.util.*;
-
 import lab.cb.scmd.exception.SCMDException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.AbstractCollection;
+import java.util.LinkedList;
+import java.util.Vector;
 
 /**
  * @author leo
- *
  */
-public class FlatTable extends BasicTable
-{
-    public FlatTable(String fileName) throws SCMDException
-    {
+public class FlatTable extends BasicTable {
+    public FlatTable(String fileName) throws SCMDException {
         this(fileName, false, true);
     }
 
@@ -31,57 +33,49 @@ public class FlatTable extends BasicTable
     }
 
 
-    public FlatTable(File file) throws SCMDException
-    {
+    public FlatTable(File file) throws SCMDException {
         this(file, false, true);
     }
 
-    public FlatTable(File file, boolean rowindex, boolean colindex) throws SCMDException
-    {
+    public FlatTable(File file, boolean rowindex, boolean colindex) throws SCMDException {
         loadFromFile(file.getPath(), rowindex, colindex);
     }
 
     public void appendFromFile(String fileName, boolean rowindex, boolean colindex) throws SCMDException {
         // load from tab-delimited file
-        try
-        {
+        try {
             BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
 
             String line = "";
             int curcolumn = 0;
             // read labels
             boolean columnSizeFlag = false;
-            if( colindex == true ) {
+            if (colindex == true) {
                 line = fileReader.readLine();
             } else {
             }
 
             // read data
             LinkedList rowLabelList = new LinkedList();
-            while ((line = fileReader.readLine()) != null)
-            {
-                if( columnSizeFlag == false ) {
+            while ((line = fileReader.readLine()) != null) {
+                if (columnSizeFlag == false) {
                     _colSize = line.split(DELIMITER).length;
                 }
                 readAndSetOneRow(rowindex, line, rowLabelList);
             }
-            if( rowindex == true ) {
+            if (rowindex == true) {
                 setRowLabel(rowLabelList);
             }
             fileReader.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new SCMDException("error occured while reading " + fileName
                     + "\n" + e.getMessage());
         }
     }
 
-    protected void loadFromFile(String fileName, boolean rowindex, boolean colindex) throws SCMDException
-    {
+    protected void loadFromFile(String fileName, boolean rowindex, boolean colindex) throws SCMDException {
         // load from tab-delimited file
-        try
-        {
+        try {
             BufferedReader fileReader = new BufferedReader(new FileReader(
                     fileName));
 
@@ -89,7 +83,7 @@ public class FlatTable extends BasicTable
             int curcolumn = 0;
             // read labels
             boolean columnSizeFlag = false;
-            if( colindex == true ) {
+            if (colindex == true) {
                 line = fileReader.readLine();
                 loadAndSetColumnIndex(rowindex, line, curcolumn);
                 columnSizeFlag = true;
@@ -99,22 +93,19 @@ public class FlatTable extends BasicTable
 
             // read data
             LinkedList rowLabelList = new LinkedList();
-            while ((line = fileReader.readLine()) != null)
-            {
-                if( columnSizeFlag == false ) {
+            while ((line = fileReader.readLine()) != null) {
+                if (columnSizeFlag == false) {
                     _colSize = line.split(DELIMITER).length;
-                    if( rowindex == true )
+                    if (rowindex == true)
                         _colSize--;
                 }
                 readAndSetOneRow(rowindex, line, rowLabelList);
             }
-            if( rowindex == true ) {
+            if (rowindex == true) {
                 setRowLabel(rowLabelList);
             }
             fileReader.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new SCMDException("error occured while reading " + fileName
                     + "\n" + e.getMessage());
         }
@@ -132,19 +123,18 @@ public class FlatTable extends BasicTable
         String[] tokens = line.split(DELIMITER);
 
         int columnno = 0;
-        if( rowindex == true ) {
-            if( tokens.length > 0 ) {
+        if (rowindex == true) {
+            if (tokens.length > 0) {
                 String token = tokens[columnno++];
                 rowLabelList.add(trimDoubleQuotation(token));
             } else
-                throw new SCMDException ("invalid row labels");
+                throw new SCMDException("invalid row labels");
         }
-        for( int i = columnno; i < tokens.length; i++ ) {
+        for (int i = columnno; i < tokens.length; i++) {
             String token = tokens[i];
             row.add(new Cell(token));
         }
-        while (row.size() < _colSize)
-        {
+        while (row.size() < _colSize) {
             row.add(new Cell());
         }
         _rows.add(row);
@@ -157,15 +147,15 @@ public class FlatTable extends BasicTable
      * @throws SCMDException
      */
     private void loadAndSetColumnIndex(boolean rowindex, String line, int curcolumn) throws SCMDException {
-        if(line == null) throw new SCMDException("invalid column labels");
+        if (line == null) throw new SCMDException("invalid column labels");
         String[] tokens = line.split(DELIMITER);
-        if( rowindex == true ) {
-            if( tokens.length <= 0 )
-                throw new SCMDException ("invalid table name");
+        if (rowindex == true) {
+            if (tokens.length <= 0)
+                throw new SCMDException("invalid table name");
             setTableName(tokens[curcolumn++]);
         }
         LinkedList colLabelList = new LinkedList();
-        for( int i = curcolumn; i < tokens.length; i++ ) {
+        for (int i = curcolumn; i < tokens.length; i++) {
             String token = tokens[i];
             colLabelList.add(trimDoubleQuotation(token));
         }
@@ -173,24 +163,19 @@ public class FlatTable extends BasicTable
     }
 
     /**
-     * @param labelList
-     *            StringのCollection (Vector, LinkedList, etc.)
+     * @param labelList StringのCollection (Vector, LinkedList, etc.)
      */
-    public FlatTable(AbstractCollection labelList)
-    {
+    public FlatTable(AbstractCollection labelList) {
         setColLabel(labelList);
     }
 
-    String trimDoubleQuotation(String str)
-    {
-        if(str.startsWith("\""))
-        {
-            if(str.endsWith("\""))
+    String trimDoubleQuotation(String str) {
+        if (str.startsWith("\"")) {
+            if (str.endsWith("\""))
                 return str.substring(1, str.length() - 1);
             else
                 return str;
-        }
-        else
+        } else
             return str;
     }
 

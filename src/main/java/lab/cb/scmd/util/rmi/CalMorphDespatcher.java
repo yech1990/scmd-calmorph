@@ -1,6 +1,7 @@
 // Calmorph despatcher
 
 package lab.cb.scmd.util.rmi;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.rmi.Naming;
@@ -21,7 +22,7 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
 
     private PrintStream out = System.out;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         if (args.length > 1)
             System.exit(1);
         if (System.getSecurityManager() == null) {
@@ -48,7 +49,7 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
     }
 
     /**
-     *  
+     *
      */
     private void makeORFlist(String dir) {
         // search orf directories
@@ -65,7 +66,7 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
             String orfName = file[i].getName();
             inputORFList.add(orfName);
         }
-        System.out.println("ORF size:" + inputORFList.size() );
+        System.out.println("ORF size:" + inputORFList.size());
     }
 
     // ORFを返す
@@ -73,24 +74,24 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
         int step = 5;
         int endorf = currentorf + step;
         System.out.println("Request from :" + clientname);
-        if( currentorf >= inputORFList.size() ) {
+        if (currentorf >= inputORFList.size()) {
             clientidmap.remove(clientname);
             System.out.println("No more ORFs" + clientidmap.size());
-            return new String [0];
+            return new String[0];
         }
         clientidmap.add(clientname);
         System.out.println("Current ORF:" + currentorf);
-        if( endorf > inputORFList.size() ) {
+        if (endorf > inputORFList.size()) {
             endorf = inputORFList.size();
             step = endorf - currentorf;
         }
-        String[] ORFList = new String [step];
-        for( int i = 0; i < step; i++ ) {
+        String[] ORFList = new String[step];
+        for (int i = 0; i < step; i++) {
             ORFList[i] = inputORFList.get(i + currentorf).toString();
             System.out.println(ORFList[i]);
         }
         currentorf = endorf;
-        if( currentorf >= inputORFList.size() )
+        if (currentorf >= inputORFList.size())
             System.out.println("finished!!!!");
         return ORFList;
     }

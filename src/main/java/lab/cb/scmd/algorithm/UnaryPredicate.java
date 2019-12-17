@@ -12,11 +12,9 @@ package lab.cb.scmd.algorithm;
 
 /**
  * @author leo
- *
  */
-public interface UnaryPredicate<E> 
-{
-	public boolean isTrue(E input);
+public interface UnaryPredicate<E> {
+    boolean isTrue(E input);
 }
 
 

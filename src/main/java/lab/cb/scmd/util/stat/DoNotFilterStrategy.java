@@ -10,36 +10,34 @@
 
 package lab.cb.scmd.util.stat;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import lab.cb.scmd.util.table.Cell;
 import lab.cb.scmd.util.table.TableIterator;
 
+import java.util.Collection;
+import java.util.LinkedList;
 
-/** Validなdouble値を持つCellであれば、filterを掛けずにそのままDoubleのコレクションとして
+
+/**
+ * Validなdouble値を持つCellであれば、filterを掛けずにそのままDoubleのコレクションとして
  * 返す戦略
- * @author leo
  *
+ * @author leo
  */
-public class DoNotFilterStrategy extends SampleFilteringStrategy
-{
+public class DoNotFilterStrategy extends SampleFilteringStrategy {
 
-	/* (non-Javadoc)
-	 * @see lab.cb.scmd.util.stat.SampleFilteringStrategy#filter(lab.cb.scmd.util.table.TableIterator)
-	 */
-	public Collection filter(TableIterator ti)
-	{
-		LinkedList list = new LinkedList();
-		for(; ti.hasNext(); )
-		{
-			Cell c = (Cell) ti.nextCell();
-			if(!getStatClass().isValidAsDouble(c))
-				continue;			
-			list.add(new Double(c.doubleValue()));
-		}
-		return list;
-	}
+    /* (non-Javadoc)
+     * @see lab.cb.scmd.util.stat.SampleFilteringStrategy#filter(lab.cb.scmd.util.table.TableIterator)
+     */
+    public Collection filter(TableIterator ti) {
+        LinkedList list = new LinkedList();
+        for (; ti.hasNext(); ) {
+            Cell c = ti.nextCell();
+            if (!getStatClass().isValidAsDouble(c))
+                continue;
+            list.add(new Double(c.doubleValue()));
+        }
+        return list;
+    }
 
 }
 

@@ -16,267 +16,244 @@ import java.io.Writer;
 import java.util.Stack;
 
 
-
 /**
  * validなXML（タグがきちんと閉じているXML）を出力するのをサポートするクラス
  *
  * @author leo
- *
  */
 
-public class XMLOutputter
-{
+public class XMLOutputter {
 
-	/**
-	 * デフォルトでは、standard outに出力
-	 */
-	/**
-	 *
-	 */
-	public XMLOutputter()
-	{
-		setOutputStream(System.out);
-	}
+    /**
+     * デフォルトでは、standard outに出力
+     */
+    /**
+     *
+     */
+    public XMLOutputter() {
+        setOutputStream(System.out);
+    }
 
-	/**
-	 * @param outputStream
-	 *            XMLの出力先
-	 */
-	public XMLOutputter(OutputStream outputStream)
-	{
-		setOutputStream(outputStream);
-	}
+    /**
+     * @param outputStream XMLの出力先
+     */
+    public XMLOutputter(OutputStream outputStream) {
+        setOutputStream(outputStream);
+    }
 
-	public XMLOutputter(Writer writer)
-	{
-		_out = new PrintWriter(writer);
-	}
+    public XMLOutputter(Writer writer) {
+        _out = new PrintWriter(writer);
+    }
 
 
-	public void omitHeader()
-	{
-		_omitHeader = true;
-	}
+    public void omitHeader() {
+        _omitHeader = true;
+    }
 
 
-	public void setDTDDeclaration(DTDDeclaration dtdDeclaration) {
-		_dtdDeclaration = dtdDeclaration;
-	}
+    public void setDTDDeclaration(DTDDeclaration dtdDeclaration) {
+        _dtdDeclaration = dtdDeclaration;
+    }
 
-	public void setOutputStream(OutputStream outputStream) {
-		_out = new PrintWriter(outputStream);
-	}
+    public void setOutputStream(OutputStream outputStream) {
+        _out = new PrintWriter(outputStream);
+    }
 
-	protected void header() {
-		if(_omitHeader)
-			return;
-		_out.println("<?xml version=\"1.0\" ?>");
-	}
+    protected void header() {
+        if (_omitHeader)
+            return;
+        _out.println("<?xml version=\"1.0\" ?>");
+    }
 
-	protected void outputDTD(String rootTagName) {
-		if(_omitHeader)
-			return;
+    protected void outputDTD(String rootTagName) {
+        if (_omitHeader)
+            return;
 
-		if(_dtdDeclaration == null)
-		{
-			_out.println("<!DOCTYPE " + rootTagName + ">");
-		}
-		else
-		{
-			_out.println(_dtdDeclaration.toString());
-		}
-	}
+        if (_dtdDeclaration == null) {
+            _out.println("<!DOCTYPE " + rootTagName + ">");
+        } else {
+            _out.println(_dtdDeclaration.toString());
+        }
+    }
 
-	protected void startTagInit(String startTag) {
-		if(_isRootTag)
-		{
-			header();
-			outputDTD(startTag);
-			_isRootTag = false;
-		}
+    protected void startTagInit(String startTag) {
+        if (_isRootTag) {
+            header();
+            outputDTD(startTag);
+            _isRootTag = false;
+        }
 
-		if(_previousIsTag)
-		{
-			linefeed();
-		}
-		if(!_previousIsTextContent)
-			indent();
-	}
+        if (_previousIsTag) {
+            linefeed();
+        }
+        if (!_previousIsTextContent)
+            indent();
+    }
 
-	public XMLOutputter startTag(String tagName) {
-		startTagInit(tagName);
+    public XMLOutputter startTag(String tagName) {
+        startTagInit(tagName);
 
-		_out.print(L_BRACE + tagName + R_BRACE);
-		_tagNameStack.push(tagName);
-		_previousIsTag = true;
-		_previousIsTextContent = false;
-		return this;
-	}
+        _out.print(L_BRACE + tagName + R_BRACE);
+        _tagNameStack.push(tagName);
+        _previousIsTag = true;
+        _previousIsTextContent = false;
+        return this;
+    }
 
-	public XMLOutputter element(String tagName, XMLAttribute attributes, String textContent) throws InvalidXMLException
-	{
-		startTag(tagName, attributes);
-		textContent(textContent);
-		closeTag();
-		return this;
-	}
+    public XMLOutputter element(String tagName, XMLAttribute attributes, String textContent) throws InvalidXMLException {
+        startTag(tagName, attributes);
+        textContent(textContent);
+        closeTag();
+        return this;
+    }
 
-	public XMLOutputter element(String tagName, String textContent) throws InvalidXMLException
-	{
-		startTag(tagName);
-		textContent(textContent);
-		closeTag();
-		return this;
-	}
+    public XMLOutputter element(String tagName, String textContent) throws InvalidXMLException {
+        startTag(tagName);
+        textContent(textContent);
+        closeTag();
+        return this;
+    }
 
 
-	/**
-	 * @param tagName
-	 * @param attributes
-	 * @return
-	 */
-	public XMLOutputter startTag(String tagName, XMLAttribute attributes) {
-		startTagInit(tagName);
+    /**
+     * @param tagName
+     * @param attributes
+     * @return
+     */
+    public XMLOutputter startTag(String tagName, XMLAttribute attributes) {
+        startTagInit(tagName);
 
-		_out.print(L_BRACE + tagName);
-		if(attributes != null)
-		{
-			if(attributes.length() > 0)
-				_out.print(" " + attributes.toString(_contentFilter));
-		}
-		_out.print(R_BRACE);
-		_tagNameStack.push(tagName);
-		_previousIsTag = true;
-		_previousIsTextContent = false;
+        _out.print(L_BRACE + tagName);
+        if (attributes != null) {
+            if (attributes.length() > 0)
+                _out.print(" " + attributes.toString(_contentFilter));
+        }
+        _out.print(R_BRACE);
+        _tagNameStack.push(tagName);
+        _previousIsTag = true;
+        _previousIsTextContent = false;
 
-		return this;
-	}
+        return this;
+    }
 
-	public XMLOutputter startTag(String tagName, XMLAttribute attributes, String textContent)
-			throws InvalidXMLException {
-		startTag(tagName, attributes);
-		textContent(textContent);
-		return this;
-	}
+    public XMLOutputter startTag(String tagName, XMLAttribute attributes, String textContent)
+            throws InvalidXMLException {
+        startTag(tagName, attributes);
+        textContent(textContent);
+        return this;
+    }
 
-	public XMLOutputter selfCloseTag(String tagName, XMLAttribute attributes) {
-		startTagInit(tagName);
-		_out.print(L_BRACE + tagName + " " + attributes.toString(_contentFilter) + ENDTAG_MARK + R_BRACE);
-		linefeed();
-		_previousIsTag = false;
-		_previousIsTextContent = false;
-		return this;
-	}
+    public XMLOutputter selfCloseTag(String tagName, XMLAttribute attributes) {
+        startTagInit(tagName);
+        _out.print(L_BRACE + tagName + " " + attributes.toString(_contentFilter) + ENDTAG_MARK + R_BRACE);
+        linefeed();
+        _previousIsTag = false;
+        _previousIsTextContent = false;
+        return this;
+    }
 
-	public XMLOutputter selfCloseTag(String tagName) {
-		startTagInit(tagName);
-		_out.print(L_BRACE + tagName + ENDTAG_MARK + R_BRACE);
-		linefeed();
-		_previousIsTag = true;
-		_previousIsTextContent = false;
-		return this;
-	}
+    public XMLOutputter selfCloseTag(String tagName) {
+        startTagInit(tagName);
+        _out.print(L_BRACE + tagName + ENDTAG_MARK + R_BRACE);
+        linefeed();
+        _previousIsTag = true;
+        _previousIsTextContent = false;
+        return this;
+    }
 
-	public XMLOutputter closeTag() throws InvalidXMLException {
-		if(_tagNameStack.empty())
-			throw new InvalidXMLException("too many closeTag invokation");
-		String closedTagName = (String) _tagNameStack.pop();
+    public XMLOutputter closeTag() throws InvalidXMLException {
+        if (_tagNameStack.empty())
+            throw new InvalidXMLException("too many closeTag invokation");
+        String closedTagName = (String) _tagNameStack.pop();
 
-		if(_previousIsTag)
-		{
-			linefeed();
-			indent();
-		}
-		if(!_previousIsTag && !_previousIsTextContent)
-			indent();
-		_out.print(L_BRACE + ENDTAG_MARK + closedTagName + R_BRACE);
-		//linefeed();
-		_previousIsTag = true;
-		_previousIsTextContent = false;
-		return this;
-	}
+        if (_previousIsTag) {
+            linefeed();
+            indent();
+        }
+        if (!_previousIsTag && !_previousIsTextContent)
+            indent();
+        _out.print(L_BRACE + ENDTAG_MARK + closedTagName + R_BRACE);
+        //linefeed();
+        _previousIsTag = true;
+        _previousIsTextContent = false;
+        return this;
+    }
 
-	public XMLOutputter textContent(String elementContent) throws InvalidXMLException {
-		boolean isLongContent = elementContent.length() > 40;
-		if(_previousIsTag && isLongContent)
-		{
-			linefeed();
-			indent();
-		}
-		if(_tagNameStack.empty())
-			throw new InvalidXMLException("text content must be enclosed in a tag");
-		_out.print(_contentFilter.filter(elementContent));
-		_previousIsTag = false;
-		_previousIsTextContent = true;
-		if(isLongContent)
-		{
-			_previousIsTag = true;
-			_previousIsTextContent = false;
-		}
-		return this;
-	}
+    public XMLOutputter textContent(String elementContent) throws InvalidXMLException {
+        boolean isLongContent = elementContent.length() > 40;
+        if (_previousIsTag && isLongContent) {
+            linefeed();
+            indent();
+        }
+        if (_tagNameStack.empty())
+            throw new InvalidXMLException("text content must be enclosed in a tag");
+        _out.print(_contentFilter.filter(elementContent));
+        _previousIsTag = false;
+        _previousIsTextContent = true;
+        if (isLongContent) {
+            _previousIsTag = true;
+            _previousIsTextContent = false;
+        }
+        return this;
+    }
 
-	public XMLOutputter cdata(String cdataContent)
-	{
-		_out.print(XMLUtil.createCDATA(cdataContent));
-		return this;
-	}
+    public XMLOutputter cdata(String cdataContent) {
+        _out.print(XMLUtil.createCDATA(cdataContent));
+        return this;
+    }
 
 
-	public XMLOutputter PI(String target, String content)
-	{
-		_out.print("<?");
-		_out.print(target);
-		_out.print(" ");
-		_out.print(content);
-		_out.print("?>");
-		return this;
-	}
+    public XMLOutputter PI(String target, String content) {
+        _out.print("<?");
+        _out.print(target);
+        _out.print(" ");
+        _out.print(content);
+        _out.print("?>");
+        return this;
+    }
 
-	/**
-	 * 最後にこのメソッドを呼ぶことで、自分でcloseTag()を呼ばなくても、 自動でスタック内の全てのタグを閉じてくれる
-	 */
-	public void endOutput() throws InvalidXMLException {
-		while (!_tagNameStack.empty())
-		{
-			closeTag();
-		}
-		_out.flush();
-	}
+    /**
+     * 最後にこのメソッドを呼ぶことで、自分でcloseTag()を呼ばなくても、 自動でスタック内の全てのタグを閉じてくれる
+     */
+    public void endOutput() throws InvalidXMLException {
+        while (!_tagNameStack.empty()) {
+            closeTag();
+        }
+        _out.flush();
+    }
 
-	public void closeStream() {
-		_out.close();
-	}
+    public void closeStream() {
+        _out.close();
+    }
 
-	void indent() {
-		int depth = _tagNameStack.size();
-		for(int i = 0; i < depth * 2; i++)
-			_out.print(" ");
-	}
+    void indent() {
+        int depth = _tagNameStack.size();
+        for (int i = 0; i < depth * 2; i++)
+            _out.print(" ");
+    }
 
-	void linefeed() {
-		_out.println();
-	}
+    void linefeed() {
+        _out.println();
+    }
 
-	public void setContentFilter(TextContentFilter filter)
-	{
-		_contentFilter = filter;
-	}
+    public void setContentFilter(TextContentFilter filter) {
+        _contentFilter = filter;
+    }
 
-	protected PrintWriter			_out;
-	Stack				_tagNameStack			= new Stack();
-	boolean				_previousIsTag			= false;
-	boolean				_previousIsTextContent	= false;
-	protected String	L_BRACE					= "<";
-	protected String	R_BRACE					= ">";
-	protected String	ENDTAG_MARK				= "/";
-	String				_DTDFile				= null;
-	protected boolean				_isRootTag				= true;
-	boolean				_omitHeader 			= false;
+    protected PrintWriter _out;
+    Stack _tagNameStack = new Stack();
+    boolean _previousIsTag = false;
+    boolean _previousIsTextContent = false;
+    protected String L_BRACE = "<";
+    protected String R_BRACE = ">";
+    protected String ENDTAG_MARK = "/";
+    String _DTDFile = null;
+    protected boolean _isRootTag = true;
+    boolean _omitHeader = false;
 
-	DTDDeclaration			_dtdDeclaration			= null;
+    DTDDeclaration _dtdDeclaration = null;
 
-	TextContentFilter 	_contentFilter = new HTMLFilter();
+    TextContentFilter _contentFilter = new HTMLFilter();
 }
 
 //--------------------------------------

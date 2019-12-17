@@ -10,35 +10,39 @@
 
 package lab.cb.scmd.util.stat;
 
-import java.util.Collection;
 import lab.cb.scmd.util.table.TableIterator;
 
+import java.util.Collection;
 
-/** テーブルを辿って得られるSampleの集合に、どのようにフィルターをかけるか
+
+/**
+ * テーブルを辿って得られるSampleの集合に、どのようにフィルターをかけるか
  * 定義するためのstrategy (StrategyPattern)
  * setStatClassで、個々の戦略を使うStatisticsクラスを定義しておく必要がある
- * @author leo
  *
+ * @author leo
  */
-abstract public class SampleFilteringStrategy
-{
-	/** 
-	 * @param statClass この戦略をつかうStatisticsクラス
-	 */
-	public void setStatClass(Statistics statClass)
-	{
-		_statClass = statClass;
-	}
-	
-	abstract public Collection filter(TableIterator ti);
-	
-	/**このstrategyを使っているStatisticsクラス本体の機能を使うためのクラス
-	 * isValidCellの判定など。
-	 * @return
-	 */
-	protected Statistics getStatClass() { return _statClass; }	
-	
-	Statistics _statClass;
+abstract public class SampleFilteringStrategy {
+    /**
+     * @param statClass この戦略をつかうStatisticsクラス
+     */
+    public void setStatClass(Statistics statClass) {
+        _statClass = statClass;
+    }
+
+    abstract public Collection filter(TableIterator ti);
+
+    /**
+     * このstrategyを使っているStatisticsクラス本体の機能を使うためのクラス
+     * isValidCellの判定など。
+     *
+     * @return
+     */
+    protected Statistics getStatClass() {
+        return _statClass;
+    }
+
+    Statistics _statClass;
 }
 
 

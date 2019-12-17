@@ -12,11 +12,9 @@ package lab.cb.scmd.util.xml;
 
 /**
  * @author leo
- *
  */
-public interface TextContentFilter
-{
-    public String filter(String textContent);
+public interface TextContentFilter {
+    String filter(String textContent);
 }
 
 

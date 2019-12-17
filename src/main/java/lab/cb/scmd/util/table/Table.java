@@ -14,23 +14,27 @@ import lab.cb.scmd.exception.OutOfRangeException;
 
 /**
  * @author leo
- * 
  */
-public interface Table
-{
-	abstract public String getTableName(); 
+public interface Table {
+    String getTableName();
 
-	public Cell getCell(int row, int col);
-	public void setCell(Cell cell, int row, int col) throws OutOfRangeException;
-	/** 行数の上限を返す
-	 * @return 行数の上限
-	 */
-	abstract public int getRowSize();
-	
-	/** 列数の上限を返す
-	 * @return 列数の上限
-	 */
-	abstract public int getColSize();
+    Cell getCell(int row, int col);
+
+    void setCell(Cell cell, int row, int col) throws OutOfRangeException;
+
+    /**
+     * 行数の上限を返す
+     *
+     * @return 行数の上限
+     */
+    int getRowSize();
+
+    /**
+     * 列数の上限を返す
+     *
+     * @return 列数の上限
+     */
+    int getColSize();
 }
 
 

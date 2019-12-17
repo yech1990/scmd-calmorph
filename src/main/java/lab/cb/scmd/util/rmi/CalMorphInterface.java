@@ -1,5 +1,5 @@
 package lab.cb.scmd.util.rmi;
-import java.io.PrintStream;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -12,7 +12,7 @@ import java.rmi.RemoteException;
 
 /**
  * @author sesejun
- *
+ * <p>
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */

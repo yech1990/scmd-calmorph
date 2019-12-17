@@ -13,18 +13,17 @@ package lab.cb.scmd.util.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/** NullPrintStreamで使用。 何も出力しないクラス
- * @author leo
+/**
+ * NullPrintStreamで使用。 何も出力しないクラス
  *
+ * @author leo
  */
-public class NullOutputStream extends OutputStream
-{
+public class NullOutputStream extends OutputStream {
 
     /**
-     * 
+     *
      */
-    public NullOutputStream()
-    {
+    public NullOutputStream() {
         super();
         // do nothing
     }
@@ -32,8 +31,7 @@ public class NullOutputStream extends OutputStream
     /* (non-Javadoc)
      * @see java.io.OutputStream#write(int)
      */
-    public void write(int arg0) throws IOException
-    {
+    public void write(int arg0) throws IOException {
         // do nothing
     }
 

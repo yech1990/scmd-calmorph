@@ -10,122 +10,102 @@
 
 package lab.cb.scmd.util.xml;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 
-
-/** XMLのelementのattribute（あるいはそのリスト）を表現するクラス
- * @author leo
+/**
+ * XMLのelementのattribute（あるいはそのリスト）を表現するクラス
  *
+ * @author leo
  */
-public class XMLAttribute
-{
-	static TextContentFilter _filter = new HTMLFilter();
+public class XMLAttribute {
+    static TextContentFilter _filter = new HTMLFilter();
 
-	public XMLAttribute(String attributeName, String attributeValue)
-	{
-		add(attributeName, attributeValue);
-	}
-	public XMLAttribute(String attributeName, int attributeValue)
-	{
-		add(attributeName, attributeValue);
-	}
-	public XMLAttribute(String attributeName, double attributeValue)
-	{
-		add(attributeName, attributeValue);
-	}
-	public XMLAttribute(String attributeName, Object attributeValue)
-	{
-		add(attributeName, attributeValue);
-	}
+    public XMLAttribute(String attributeName, String attributeValue) {
+        add(attributeName, attributeValue);
+    }
 
-	public XMLAttribute()
-	{
-	}
+    public XMLAttribute(String attributeName, int attributeValue) {
+        add(attributeName, attributeValue);
+    }
 
-	public XMLAttribute add(String attributeName, String attributeValue)
-	{
-		_attributeNameList.add(attributeName);
-		_attributeValue.put(attributeName, attributeValue);
-		return this;
-	}
+    public XMLAttribute(String attributeName, double attributeValue) {
+        add(attributeName, attributeValue);
+    }
 
-	public XMLAttribute add(String attributeName, int attributeValue)
-	{
-		return this.add(attributeName, Integer.toString(attributeValue));
-	}
-	public XMLAttribute add(String attributeName, double attributeValue)
-	{
-		return this.add(attributeName, Double.toString(attributeValue));
-	}
-	public XMLAttribute add(String attributeName, Object attributeValue)
-	{
-		return this.add(attributeName, attributeValue.toString());
-	}
+    public XMLAttribute(String attributeName, Object attributeValue) {
+        add(attributeName, attributeValue);
+    }
+
+    public XMLAttribute() {
+    }
+
+    public XMLAttribute add(String attributeName, String attributeValue) {
+        _attributeNameList.add(attributeName);
+        _attributeValue.put(attributeName, attributeValue);
+        return this;
+    }
+
+    public XMLAttribute add(String attributeName, int attributeValue) {
+        return this.add(attributeName, Integer.toString(attributeValue));
+    }
+
+    public XMLAttribute add(String attributeName, double attributeValue) {
+        return this.add(attributeName, Double.toString(attributeValue));
+    }
+
+    public XMLAttribute add(String attributeName, Object attributeValue) {
+        return this.add(attributeName, attributeValue.toString());
+    }
 
 
-	public XMLAttribute(Properties properties)
-	{
-		Set keySet = properties.keySet();
-		for(Iterator it = keySet.iterator(); it.hasNext(); )
-		{
-			String attribute = (String) it.next();
-			String value = properties.getProperty(attribute);
-			this.add(attribute, value);
-		}
-	}
-	public XMLAttribute(Map properties)
-	{
-		Set keySet = properties.keySet();
-		for(Iterator it = keySet.iterator(); it.hasNext(); )
-		{
-			String attribute = (String) it.next();
-			String value = properties.get(attribute).toString();
-			this.add(attribute, value);
-		}
-	}
+    public XMLAttribute(Properties properties) {
+        Set keySet = properties.keySet();
+        for (Iterator it = keySet.iterator(); it.hasNext(); ) {
+            String attribute = (String) it.next();
+            String value = properties.getProperty(attribute);
+            this.add(attribute, value);
+        }
+    }
 
-	public String getValue(String attributeName)
-	{
-		return (String) _attributeValue.get(attributeName);
-	}
+    public XMLAttribute(Map properties) {
+        Set keySet = properties.keySet();
+        for (Iterator it = keySet.iterator(); it.hasNext(); ) {
+            String attribute = (String) it.next();
+            String value = properties.get(attribute).toString();
+            this.add(attribute, value);
+        }
+    }
 
-	public int length()
-	{
-		return _attributeNameList.size();
-	}
+    public String getValue(String attributeName) {
+        return (String) _attributeValue.get(attributeName);
+    }
 
-	public String toString()
-	{
-		return toString(_filter);
-	}
+    public int length() {
+        return _attributeNameList.size();
+    }
 
-	public String toString(TextContentFilter filter)
-	{
-		String returnString = "";
-		Iterator ni = _attributeNameList.iterator();
-		for ( ; ni.hasNext();)
-		{
-			String attributeName = (String) ni.next();
-			String attributeValue = (String) _attributeValue.get(attributeName);
-			returnString += attributeName + "=\"" + filter.filter(attributeValue) + "\" ";
-		}
-		if(!returnString.equals(""))
-		{
-			// remove the unnecessary white space
-			return returnString.substring(0, returnString.length()-1);
-		}
-		else
-			return returnString;
-	}
+    public String toString() {
+        return toString(_filter);
+    }
 
-	protected LinkedList _attributeNameList = new LinkedList();
-	protected HashMap _attributeValue = new HashMap();
+    public String toString(TextContentFilter filter) {
+        String returnString = "";
+        Iterator ni = _attributeNameList.iterator();
+        for (; ni.hasNext(); ) {
+            String attributeName = (String) ni.next();
+            String attributeValue = (String) _attributeValue.get(attributeName);
+            returnString += attributeName + "=\"" + filter.filter(attributeValue) + "\" ";
+        }
+        if (!returnString.equals("")) {
+            // remove the unnecessary white space
+            return returnString.substring(0, returnString.length() - 1);
+        } else
+            return returnString;
+    }
+
+    protected LinkedList _attributeNameList = new LinkedList();
+    protected HashMap _attributeValue = new HashMap();
 }
 
 
