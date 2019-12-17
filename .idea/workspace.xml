@@ -7,11 +7,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b088c60-a70b-435d-bd02-b31a746fb250" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/test/zzz/zzz-C1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz/zzz-D1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/conA_SD.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/conA_data.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/dapi_SD.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/dapi_data.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/versatile.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/versatile_SD.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/exclusion_log.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz-conA1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz-dapi1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_basic.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_biological.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_actin_patch.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_conA_basic.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_conA_biological.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_dapi_basic.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/zzz_out/zzz/zzz_dapi_biological.xls" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scmd.iml" beforeDir="false" afterPath="$PROJECT_DIR$/scmd.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java" afterDir="false" />
     </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,12 +93,11 @@
       </profile-state>
     </entry>
   </component>
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
-    <option name="showLibraryContents" value="true" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1576314303582" />
@@ -86,7 +106,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.1614435" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.javacompiler" />
+    <property name="settings.editor.selected.configurable" value="MavenSettings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -97,6 +117,18 @@
     <option name="myCommands">
       <command value="mvn clean" />
       <command value="mvn compile" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
     </option>
   </component>
   <component name="RunManager" selected="Application.CalMorph">
@@ -240,7 +272,6 @@
       <setting name="vmparams" value="" />
       <setting name="cmdLine" value="run-app" />
       <setting name="passParentEnv" value="true" />
-      <setting name="grailsApplicationRoot" value="" />
       <setting name="launchBrowser" value="true" />
       <setting name="launchBrowserUrl" value="" />
       <setting name="depsClasspath" value="false" />
@@ -326,18 +357,6 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -378,7 +397,19 @@
       <workItem from="1575879922186" duration="13000" />
       <workItem from="1576252586737" duration="544000" />
       <workItem from="1576307139152" duration="7006000" />
+      <workItem from="1576402364618" duration="1164000" />
+      <workItem from="1576407115352" duration="1983000" />
+      <workItem from="1576550249705" duration="2421000" />
+      <workItem from="1576566296214" duration="4676000" />
     </task>
+    <task id="LOCAL-00001" summary="- add options (calA, calD, outimage) for CUI">
+      <created>1576409077042</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1576409077042</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -412,72 +443,28 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="fix: fix conflict logic and update workspace&#10;&#10;1. fix conflict that find file&#10;2. add startup command with args" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: fix conflict logic and update workspace&#10;&#10;1. fix conflict that find file&#10;2. add startup command with args" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="767" y="95" width="710" height="869" key="CommitChangelistDialog2" timestamp="1576434372845">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state x="767" y="95" width="710" height="869" key="CommitChangelistDialog2/0.0.1920.1037@0.0.1920.1037" timestamp="1576434372845" />
-    <state width="1356" height="257" key="GridCell.Tab.0.bottom" timestamp="1576434098026">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state width="1356" height="257" key="GridCell.Tab.0.bottom/0.0.1920.1037@0.0.1920.1037" timestamp="1576434098026" />
-    <state width="1356" height="257" key="GridCell.Tab.0.center" timestamp="1576434098025">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state width="1356" height="257" key="GridCell.Tab.0.center/0.0.1920.1037@0.0.1920.1037" timestamp="1576434098025" />
-    <state width="1356" height="257" key="GridCell.Tab.0.left" timestamp="1576434098024">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state width="1356" height="257" key="GridCell.Tab.0.left/0.0.1920.1037@0.0.1920.1037" timestamp="1576434098024" />
-    <state width="1356" height="257" key="GridCell.Tab.0.right" timestamp="1576434098026">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state width="1356" height="257" key="GridCell.Tab.0.right/0.0.1920.1037@0.0.1920.1037" timestamp="1576434098026" />
-    <state x="644" y="128" width="631" height="780" key="find.popup" timestamp="1576433590854">
-      <screen x="0" y="0" width="1920" height="1037" />
-    </state>
-    <state x="644" y="128" width="631" height="780" key="find.popup/0.0.1920.1037@0.0.1920.1037" timestamp="1576433590854" />
+    <MESSAGE value="- add options (calA, calD, outimage) for CUI" />
+    <option name="LAST_COMMIT_MESSAGE" value="- add options (calA, calD, outimage) for CUI" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CalMorph.java</url>
-          <line>119</line>
+          <line>115</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java</url>
-          <line>68</line>
+          <line>51</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java</url>
-          <line>78</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/DisruptantProcess.java</url>
-          <line>129</line>
+          <line>111</line>
           <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/AllProcess.java</url>
-          <line>36</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java</url>
-          <line>99</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/lab/cb/scmd/calmorph/CellImage.java</url>
-          <line>126</line>
-          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -44,8 +44,8 @@ class CellImage {
     private int[] _cell_points, _nucleus_points, _actin_points;  //3 types of metric points
     private int[] ci, ci2, di, ai;                               //Brightness of 3 types of images during processing
     private int[] pixeltocell, pixeltocell2;                     //which cell is inside a certain pixel
-    Cell[] cell;                                         //cells in the image
-    boolean err, calD, calA;                             //Whether err has occurred, whether to process DAPI images or actin images
+    Cell[] cell;                                                 //cells in the image
+    boolean err, calD, calA;                                     //Whether err has occurred, whether to process DAPI images or actin images
     private boolean objectsave, outimage, outsheet;              //Whether to save in the middle of an object, output an image, or output basic and biological sheets
     private int objectload;                                      //How to retrieve the saved object
     private int maxdiff;
@@ -58,10 +58,10 @@ class CellImage {
     private static final String _actin = "actin";
 
     public CellImage(String name, String path, int number, String outdir, int startid, boolean calD, boolean calA) {
-        _width = 2048;//とりあえず固定
-        _height = 2048;//とりあえず固定
-        _size = _width * _height;//とりあえず固定
-        maxdiff = 5;//とりあえず固定
+        _width = 2040;            //Fixed for the time being
+        _height = 2040;           //Fixed for the time being
+        _size = _width * _height; //Fixed for the time being
+        maxdiff = 5;              //Fixed for the time being
         this.name = name;
         this.path = path;
         this.number = number;
@@ -78,7 +78,7 @@ class CellImage {
         _logger.debug("process a photo: " + number);
 
         String prefix = path + File.separator + new File(path).getName();
-//        String prefix = path;
+        //String prefix = path;
 
         if ((f = new File(prefix + "-C" + number + ".jpg")).exists() && (bi = getBufferedImage(prefix + "-C" + number + ".jpg")) != null) {
             db = bi.getRaster().getDataBuffer();
@@ -234,7 +234,7 @@ class CellImage {
      * morphological segmentation
      */
     public void segmentCells() {
-        ci = (int[]) _cell_points.clone();//元の画像はとっておく
+        ci = (int[]) _cell_points.clone();//Keep the original image
 
         medianim(ci);
         ci2 = (int[]) ci.clone();
@@ -486,7 +486,7 @@ class CellImage {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    //引数の配列を２値化して引数の配列にいれる
+    //Binary array of arguments and put into argument array
     ///////////////////////////////////////////////////////////////////////////////////////////////
     public boolean threshold(int[] image) {
         int[] hg = new int[256];
@@ -527,7 +527,7 @@ class CellImage {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    //２値化された配列を引数にとって穴埋めして引数の配列にいれる
+    //Fill in the binarized array for the argument and put it in the argument array
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public void cover(int[] biimage) {
         Vector[] vec = label(biimage, 255, 0, false);
@@ -560,9 +560,9 @@ class CellImage {
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    //binary imageをうけとってcolor色をラベル付け
-    //minco--この値以下の大きさのものはすてる
-    //cornercut--trueなら画像の端についたものはすてる
+    // take binary image and label color color
+    // minco--use anything smaller than this value
+    // cornercut--true means everything on the edge of the image
     /////////////////////////////////////////////////////////////////////////////
     public Vector[] label(int[] biimage, int color, int minco, boolean cornercut) {
         Vector[] vec;
@@ -1125,7 +1125,7 @@ class CellImage {
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    //隣り合う点ならtrue
+    //True if adjacent points
     ///////////////////////////////////////////////////////////////////////////////
     public boolean nextTo(int p, int q) {
         if (p == q - _width - 1 || p == q - _width || p == q - _width + 1 || p == q - 1 || p == q + 1 || p == q + _width - 1 || p == q + _width || p == q + _width + 1)
@@ -1418,15 +1418,15 @@ class CellImage {
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    //ネックポイントを探す
-    //cell[i].mother_edgeのセット
-    //cell[i].bud_edgeのセット
-    //cell[i].neckのセット
+    //Find a neck point
+    //cell[i].mother_edge のセット
+    //cell[i].bud_edge    のセット
+    //cell[i].neck        のセット
     //////////////////////////////////////////////////////////////////////////////
     public void searchNeck() {
-        int scorerad = 10;
-        int scoremeanrad = 2;
-        int scorethr = 920;
+        int scorerad = 10;  //10
+        int scoremeanrad = 2; // 2
+        int scorethr = 920;  //920
         Vector tmp = new Vector();
         for (int i = 0; i < cell.length; i++) {
             int es;
@@ -1451,7 +1451,7 @@ class CellImage {
                     score = new int[es];
                     for (int j = 0; j < es; j++) {
                         int p = ((Integer) cell[i].edge.get(j)).intValue();
-                        for (int x = -scorerad; x <= scorerad; x++) {//半径scorerad以内の細胞内pixelのカウント
+                        for (int x = -scorerad; x <= scorerad; x++) {//Count of intracellular pixels within radius scorerad
                             for (int y = -scorerad; y <= scorerad; y++) {
                                 if (Math.sqrt(x * x + y * y) <= scorerad && p + y * _width + x >= 0 && p + y * _width + x < _size && pixeltocell[p + y * _width + x] == i)
                                     scoretmp[j]++;
@@ -1744,7 +1744,7 @@ class CellImage {
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    //２点間に直線を引いたときの塗られるピクセルをvectorにいれて返す
+    //Returns the pixel to be painted when drawing a straight line between two points in a vector
     //////////////////////////////////////////////////////////////////////////////
     public Vector getLinePixel(int s, int g) {
         int dx = g % _width - s % _width;
@@ -1829,7 +1829,7 @@ class CellImage {
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    //芽の領域のピクセルを入れたVectorを返す
+    //Returns a Vector containing the bud area pixels
     //////////////////////////////////////////////////////////////////////////////
     public Vector getAreainBud(int c, Vector n, Vector m, Vector b) {
         int top = _height, bottom = 0, left = _width, right = 0;//coverする長方形
@@ -1998,7 +1998,7 @@ class CellImage {
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    //細胞壁の輝度の最高点、最低点を探す
+    // Find the highest and lowest cell wall brightness
     //////////////////////////////////////////////////////////////////////////////
     public void serchbrightpoint(int[] Cim) {
         for (int i = 0; i < cell.length; i++) {
@@ -2026,7 +2026,7 @@ class CellImage {
 
 
     //////////////////////////////////////////////////////////////////////////////
-    //細胞壁の厚さの最高点、最低点を探す
+    //Find the highest and lowest cell wall thickness
     //////////////////////////////////////////////////////////////////////////////
     public void serchwidepoint(int[] CIm) {
         int image[] = new int[_size];

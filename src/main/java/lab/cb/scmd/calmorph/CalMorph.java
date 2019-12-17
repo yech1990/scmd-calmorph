@@ -50,9 +50,11 @@ class CalMorph {
 
 			parser.parse(args); // read the command line arguments
 
-			if (parser.isSet(Opt.HELP)) {
+			if (parser.isSet(Opt.HELP) || args.length == 0) {
+				System.out.println("CalMorph version 0.1");
 				System.out.println("> A forked version of calmorph in Helab by YC\n");
-				System.out.println("> [option]");
+				System.out.println("Usage: java -jar Calmorph.jar [options]");
+				System.out.println(">[options]");
 				System.out.println(parser.helpMessage());
 				return;
 			}
@@ -77,7 +79,8 @@ class CalMorph {
 			calMorphOption.setOutputDirectory(parser.getValue(Opt.OUTPUTDIR));
 			calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
-			String orfName = inputDirName;
+			// String orfName = inputDirName;
+			String orfName = new File(inputDirName).getName();
 			if(parser.isSet(Opt.ORF_NAME))
 				orfName = parser.getValue(Opt.ORF_NAME);
 

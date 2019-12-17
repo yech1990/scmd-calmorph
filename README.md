@@ -4,24 +4,15 @@
 
 ---
 
-### update
+### How to build?
 
-- change ant build to maven
-- fix SJIS encoding to UTF-8
-
----
-
-### todo
-
-- make the Japanese annotation in to English
-
-### how to build
 ```bash
 cd $PROJECT_PATH
 mvn package
 ```
 
-### usage
+### Usage
+
 #### args
 |parameter name|description|
 |--------------|-----------|
@@ -38,3 +29,12 @@ export $PATH=$PATH:$JAVA_HOME/bin
 cd $JAR_PATH
 java -jar scmd-0.1-HELAB.jar -o /Users/groza/Work/project/self/scmd-calmorph/data -i /Users/groza/Work/project/self/scmd-calmorph/test/sss -n sss -a false -d true
 ```
+
+### Update
+
+- change ant build to maven
+- fix SJIS encoding to UTF-8
+
+### TODO
+
+- make the Japanese annotation in to English
