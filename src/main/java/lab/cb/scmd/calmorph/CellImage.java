@@ -47,6 +47,7 @@ class CellImage {
     String err_kind;
     //int[] actindiv;//テスト
 
+    private static final String _image_suffix = ".tif";
     private static final String _cell_wall = "cell_wall";
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
@@ -74,7 +75,7 @@ class CellImage {
         String prefix = path + File.separator + new File(path).getName();
         //String prefix = path;
 
-        if ((f = new File(prefix + "-C" + number + ".jpg")).exists() && (bi = getBufferedImage(prefix + "-C" + number + ".jpg")) != null) {
+        if ((f = new File(prefix + "-C" + number + _image_suffix)).exists() && (bi = getBufferedImage(prefix + "-C" + number + _image_suffix)) != null) {
             db = bi.getRaster().getDataBuffer();
         } else {
             err = true;
@@ -95,8 +96,8 @@ class CellImage {
         }
 
         if (calD) {//DAPI画像の処理も行う
-            if ((f = new File(prefix + "-D" + number + ".jpg")).exists()) {
-                if ((bi = getBufferedImage(prefix + "-D" + number + ".jpg")) != null) {
+            if ((f = new File(prefix + "-D" + number + _image_suffix)).exists()) {
+                if ((bi = getBufferedImage(prefix + "-D" + number + _image_suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
                     err = true;
@@ -122,8 +123,8 @@ class CellImage {
         }
 
         if (calA) { //actin画像の処理も行う
-            if ((f = new File(prefix + "-A" + number + ".jpg")).exists()) {
-                if ((bi = getBufferedImage(prefix + "-A" + number + ".jpg")) != null) {
+            if ((f = new File(prefix + "-A" + number + _image_suffix)).exists()) {
+                if ((bi = getBufferedImage(prefix + "-A" + number + _image_suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
                     err = true;
@@ -228,7 +229,7 @@ class CellImage {
      * morphological segmentation
      */
     public void segmentCells() {
-        ci = _cell_points.clone();//Keep the original image
+        ci = _cell_points.clone(); //Keep the original image
 
         medianim(ci);
         ci2 = ci.clone();
@@ -301,8 +302,8 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     public BufferedImage getBufferedImage(String filename) {
         try {
-            return ImageIO.read(new File(filename));
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
+            return ImageIO.read(new File(filename));
         } catch (IOException ioe) {
             _logger.error(ioe);
             return null;
@@ -893,7 +894,8 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////////
     public void edge(int[] image, int[] oriimage) {
         int[] image2 = new int[_size];
-        Vector[] vec = label(image, 0, 200, true);//２００以上の塊を細胞とみなす
+        Vector[] vec = label(image, 0, 2000, true);
+        //Consider more than 200 clumps as cells (edited by yechang 200 -> 2000)
         Vector[] vec2 = new Vector[vec.length];
         cell = new Cell[vec.length];
         pixeltocell = new int[_size];
@@ -2147,6 +2149,7 @@ class CellImage {
         for (int i = 0; i < _size; i++) {
             if (di[i] < 256 && di[i] >= 0) hg[di[i]]++;
             else {
+                _logger.warn(di[i]);
                 err_kind = "incorrect colorspace of dapi image";
                 return true;
             } //画像の色がおかしい
