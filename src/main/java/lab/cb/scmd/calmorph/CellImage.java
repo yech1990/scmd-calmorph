@@ -47,7 +47,7 @@ class CellImage {
     String err_kind;
     //int[] actindiv;//テスト
 
-    private static final String _image_suffix = ".tif";
+    private static final String _image_suffix = ".jpg";
     private static final String _cell_wall = "cell_wall";
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
@@ -406,7 +406,8 @@ class CellImage {
             if (ci2[i] == 0) thci[i] = 255;
             else thci[i] = 0;
         }
-        Vector[] vec2 = label(thci, 0, 200, false);
+        Vector[] vec2 = label(thci, 0, 3000, false);
+        //(edited by yechang 200 -> 3000)
         int[] pixeltoarea = new int[_size];
         for (int i = 0; i < _size; i++) pixeltoarea[i] = -1;
         for (int i = 0; i < vec2.length; i++) {
@@ -894,8 +895,8 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////////
     public void edge(int[] image, int[] oriimage) {
         int[] image2 = new int[_size];
-        Vector[] vec = label(image, 0, 2000, true);
-        //Consider more than 200 clumps as cells (edited by yechang 200 -> 2000)
+        Vector[] vec = label(image, 0, 3000, true);
+        //Consider more than 200 clumps as cells (edited by yechang 200 -> 3000)
         Vector[] vec2 = new Vector[vec.length];
         cell = new Cell[vec.length];
         pixeltocell = new int[_size];
@@ -2238,7 +2239,8 @@ class CellImage {
         //以下大きくずれてない場合少し修正
         int[] dep = new int[_size];
         cover(di);
-        Vector[] vec = label(di, 0, 20, true);
+        Vector[] vec = label(di, 0, 200, true);
+        // (edited by yechang 20 -> 200)
         k = 0;
         int mink = 0;
         Vector[] partedge = new Vector[4];
@@ -2890,10 +2892,11 @@ class CellImage {
         if (countdiff < count * 0.9) {//動かしたほうがずれが少ない
             return true;
         }
-        //以下大きくずれてない場合少し修正
+        //Small correction if not significantly below
         int[] dep = new int[_size];
         cover(ai);
-        Vector[] vec = label(ai, 0, 20, true);
+        Vector[] vec = label(ai, 0, 200, true);
+        // (edited by yechang 20 -> 200)
         k = 0;
         int mink = 0;
         Vector[] partedge = new Vector[4];

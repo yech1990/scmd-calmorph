@@ -19,11 +19,5 @@
     <orderEntry type="library" name="Maven: org.xerial:xerial-core:1.0.10" level="project" />
     <orderEntry type="library" name="Maven: org.xerial.thirdparty:org.antlr.antlr3:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: xpp3:xpp3:1.1.4c" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-tiff:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-core:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.imageio:imageio-metadata:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.common:common-lang:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.common:common-io:3.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.twelvemonkeys.common:common-image:3.4.2" level="project" />
   </component>
 </module>

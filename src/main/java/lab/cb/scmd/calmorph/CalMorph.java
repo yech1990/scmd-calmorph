@@ -83,7 +83,7 @@ class CalMorph {
             // image suffix
             String _image_suffix;
             if (parser.isSet(Opt.IMAGE_SUFFIX)) _image_suffix = parser.getValue(Opt.IMAGE_SUFFIX);
-            else _image_suffix = "tif";
+            else _image_suffix = "jpg";
 
             // String strainName = inputDirName;
             String strainName = new File(inputDirName).getName();
