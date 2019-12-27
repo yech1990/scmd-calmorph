@@ -54,11 +54,11 @@ if __name__ == "__main__":
     normalized_img = (normalized_img / 256).astype("uint8")
 
     # show image
-    cv2.namedWindow("image", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("image", 800, 800)
-    cv2.imshow("image", normalized_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #  cv2.namedWindow("image", cv2.WINDOW_NORMAL)
+    #  cv2.resizeWindow("image", 800, 800)
+    #  cv2.imshow("image", normalized_img)
+    #  cv2.waitKey(0)
+    #  cv2.destroyAllWindows()
 
     # save image
     cv2.imwrite(sys.argv[2], normalized_img)
