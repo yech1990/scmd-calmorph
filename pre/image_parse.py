@@ -44,7 +44,7 @@ def deconvolve_image(img):
 if __name__ == "__main__":
     raw_img = cv2.imread(sys.argv[1], -1)
 
-    normalized_img = normalize_image(raw_img, 0.8, 0.999)
+    normalized_img = normalize_image(raw_img, 0.800, 0.999)
     #  normalize_image = deconvolve_image(normalized_img)
 
     #  kernel = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
@@ -53,12 +53,15 @@ if __name__ == "__main__":
     # 16 bits to 8 bits
     normalized_img = (normalized_img / 256).astype("uint8")
 
+    # hist normalize (only support 8 bits)
+    #  normalized_img = cv2.equalizeHist(normalized_img)
+
     # show image
-    #  cv2.namedWindow("image", cv2.WINDOW_NORMAL)
-    #  cv2.resizeWindow("image", 800, 800)
-    #  cv2.imshow("image", normalized_img)
-    #  cv2.waitKey(0)
-    #  cv2.destroyAllWindows()
+    cv2.namedWindow("image", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("image", 800, 800)
+    cv2.imshow("image", normalized_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # save image
     cv2.imwrite(sys.argv[2], normalized_img)
