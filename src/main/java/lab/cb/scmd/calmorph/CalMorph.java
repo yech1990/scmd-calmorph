@@ -28,7 +28,7 @@ class CalMorph {
     }
 
     enum Opt {
-        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
+        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
     }
 
     /**
@@ -44,6 +44,7 @@ class CalMorph {
             parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
             parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
             parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
+            parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX", "specify the suffix of input image file");
             parser.addOptionWithArgument(Opt.STRAIN_NAME, "n", "strain", "STRAIN_NAME", "specify the strain name");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
             parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN", "actin mode, opt: [true / false], default false", "false");
@@ -79,20 +80,25 @@ class CalMorph {
             calMorphOption.setOutputDirectory(parser.getValue(Opt.OUTPUTDIR));
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
+            // image suffix
+            String _image_suffix;
+            if (parser.isSet(Opt.IMAGE_SUFFIX)) _image_suffix = parser.getValue(Opt.IMAGE_SUFFIX);
+            else _image_suffix = "tif";
+
             // String strainName = inputDirName;
             String strainName = new File(inputDirName).getName();
             if (parser.isSet(Opt.STRAIN_NAME))
                 strainName = parser.getValue(Opt.STRAIN_NAME);
-
             calMorphOption.setStrainName(strainName);
 
             calMorphOption.setCalA(parser.isSet(Opt.ACTIN) ? Boolean.valueOf(parser.getValue(Opt.ACTIN)) : false);
             calMorphOption.setCalD(parser.isSet(Opt.DAPI) ? Boolean.valueOf(parser.getValue(Opt.DAPI)) : true);
 
-            Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\.jpg");
+            Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\." + _image_suffix);
             File inputDir = new File(inputDirName);
             File[] ls = inputDir.listFiles();
             int maxImage = 0;
+            assert ls != null;
             for (File f : ls) {
                 String fileName = f.getName();
                 Matcher m = conAfileNamePattern.matcher(fileName);
@@ -114,14 +120,9 @@ class CalMorph {
 
             DisruptantProcess dp = new DisruptantProcess(calMorphOption);
             dp.process();
-        } catch (OptionParserException e) {
-            System.err.println(e.getMessage());
-            _logger.error(e.getMessage());
-            return;
         } catch (Exception e) {
             System.err.println(e.getMessage());
             _logger.error(e.getMessage());
-            return;
         }
     }
 
