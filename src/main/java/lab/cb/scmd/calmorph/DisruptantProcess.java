@@ -19,7 +19,7 @@ import java.io.*;
  * @author mattun
  */
 class DisruptantProcess {
-    private String name, path, outdir, xmldir;
+    private String name, path, suffix, outdir, xmldir;
     private boolean objectsave, outstate, calD, calA, outimage, outsheet;
     private int maximage, objectload;
 
@@ -35,6 +35,7 @@ class DisruptantProcess {
     DisruptantProcess(CalMorphOption option) {
         this.name = option.getStrainName();
         this.path = option.getInputDirectory();
+        this.suffix = option.getImageSuffix();
         this.outdir = option.getOutputDirectory();
         this.xmldir = option.getXmlOutputDirectory();
         this.maximage = option.getMaxImageNumber();
@@ -107,7 +108,7 @@ class DisruptantProcess {
         for (int i = 1; i <= maximage; i++) {
             try {
 
-                CellImage image = new CellImage(name, path, i, outdir, startid, calD, calA);
+                CellImage image = new CellImage(name, path, suffix, i, outdir, startid, calD, calA);
                 if (image.err) {
                     _logger.error("error = " + image.err);
                     if (!image.err_kind.equals("")) pw2.println(i + ": " + image.err_kind);

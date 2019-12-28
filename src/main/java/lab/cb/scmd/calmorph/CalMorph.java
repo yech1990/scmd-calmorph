@@ -81,9 +81,13 @@ class CalMorph {
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
             // image suffix
-            String _image_suffix;
-            if (parser.isSet(Opt.IMAGE_SUFFIX)) _image_suffix = parser.getValue(Opt.IMAGE_SUFFIX);
-            else _image_suffix = "jpg";
+            //String _image_suffix;
+            //if (parser.isSet(Opt.IMAGE_SUFFIX)) _image_suffix = parser.getValue(Opt.IMAGE_SUFFIX);
+            //else _image_suffix = "jpg";
+            String imageSuffix = "jpg";
+            if (parser.isSet(Opt.IMAGE_SUFFIX))
+                imageSuffix = parser.getValue(Opt.IMAGE_SUFFIX);
+            calMorphOption.setImageSuffix(imageSuffix);
 
             // String strainName = inputDirName;
             String strainName = new File(inputDirName).getName();
@@ -94,7 +98,7 @@ class CalMorph {
             calMorphOption.setCalA(parser.isSet(Opt.ACTIN) ? Boolean.valueOf(parser.getValue(Opt.ACTIN)) : false);
             calMorphOption.setCalD(parser.isSet(Opt.DAPI) ? Boolean.valueOf(parser.getValue(Opt.DAPI)) : true);
 
-            Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\." + _image_suffix);
+            Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\." + imageSuffix);
             File inputDir = new File(inputDirName);
             File[] ls = inputDir.listFiles();
             int maxImage = 0;

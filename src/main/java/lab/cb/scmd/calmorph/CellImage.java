@@ -34,7 +34,7 @@ class CellImage {
 
     private int _width, _height, _size;                          //Image width, height, number of pixels
     private int number, Ddiff, Adiff, startid;                   //Image number, DAPI image shift, actin image shift, start cell number
-    private String name, path, outdir;                           //knockout strain name, image directory, output directory
+    private String name, suffix, path, outdir;                           //knockout strain name, image directory, output directory
     private int[] _cell_points, _nucleus_points, _actin_points;  //3 types of metric points
     private int[] ci, ci2, di, ai;                               //Brightness of 3 types of images during processing
     private int[] pixeltocell, pixeltocell2;                     //which cell is inside a certain pixel
@@ -47,18 +47,19 @@ class CellImage {
     String err_kind;
     //int[] actindiv;//テスト
 
-    private static final String _image_suffix = ".jpg";
+    //private static final String _image_suffix = ".jpg";
     private static final String _cell_wall = "cell_wall";
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
 
-    public CellImage(String name, String path, int number, String outdir, int startid, boolean calD, boolean calA) {
+    public CellImage(String name, String path, String suffix, int number, String outdir, int startid, boolean calD, boolean calA) {
         _width = 2040;            //Fixed for the time being
         _height = 2040;           //Fixed for the time being
         _size = _width * _height; //Fixed for the time being
         maxdiff = 5;              //Fixed for the time being
         this.name = name;
         this.path = path;
+        this.suffix = suffix;
         this.number = number;
         this.outdir = outdir;
         this.startid = startid;
@@ -75,7 +76,7 @@ class CellImage {
         String prefix = path + File.separator + new File(path).getName();
         //String prefix = path;
 
-        if ((f = new File(prefix + "-C" + number + _image_suffix)).exists() && (bi = getBufferedImage(prefix + "-C" + number + _image_suffix)) != null) {
+        if ((f = new File(prefix + "-C" + number + "." + suffix)).exists() && (bi = getBufferedImage(prefix + "-C" + number + "." + suffix)) != null) {
             db = bi.getRaster().getDataBuffer();
         } else {
             err = true;
@@ -96,8 +97,8 @@ class CellImage {
         }
 
         if (calD) {//DAPI画像の処理も行う
-            if ((f = new File(prefix + "-D" + number + _image_suffix)).exists()) {
-                if ((bi = getBufferedImage(prefix + "-D" + number + _image_suffix)) != null) {
+            if ((f = new File(prefix + "-D" + number + "." + suffix)).exists()) {
+                if ((bi = getBufferedImage(prefix + "-D" + number + "." + suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
                     err = true;
@@ -123,8 +124,8 @@ class CellImage {
         }
 
         if (calA) { //actin画像の処理も行う
-            if ((f = new File(prefix + "-A" + number + _image_suffix)).exists()) {
-                if ((bi = getBufferedImage(prefix + "-A" + number + _image_suffix)) != null) {
+            if ((f = new File(prefix + "-A" + number + "." + suffix)).exists()) {
+                if ((bi = getBufferedImage(prefix + "-A" + number + "." + suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
                     err = true;
@@ -303,6 +304,8 @@ class CellImage {
     public BufferedImage getBufferedImage(String filename) {
         try {
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
+            System.out.println(ImageIO.read(new File(filename)).getColorModel());
+            System.out.println(ImageIO.read(new File(filename)).Raster());
             return ImageIO.read(new File(filename));
         } catch (IOException ioe) {
             _logger.error(ioe);

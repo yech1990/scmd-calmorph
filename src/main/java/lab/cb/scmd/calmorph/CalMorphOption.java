@@ -38,6 +38,7 @@ package lab.cb.scmd.calmorph;
  */
 class CalMorphOption {
     private String strainName;
+    private String imageSuffix;
     private String outputDirectory;
     private String inputDirectory;
     private String xmlOutputDirectory;
@@ -77,16 +78,24 @@ class CalMorphOption {
         return maxImageNumber;
     }
 
+    void setMaxImageNumber(int maxImageNumber) {
+        this.maxImageNumber = maxImageNumber;
+    }
+
+    String getImageSuffix() {
+        return imageSuffix;
+    }
+
+    void setImageSuffix(String imageSuffix) {
+        this.imageSuffix = imageSuffix;
+    }
+
     String getStrainName() {
         return strainName;
     }
 
     void setStrainName(String strainName) {
         this.strainName = strainName;
-    }
-
-    void setMaxImageNumber(int maxImageNumber) {
-        this.maxImageNumber = maxImageNumber;
     }
 
     boolean isCalD() {
