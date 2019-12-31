@@ -77,8 +77,8 @@ public class AdjacencyListGraph extends GraphStructure {
             v2 = tmp;
         }
         Object[] adjs = getAdjacency(v1);
-        for (int i = 0; i < adjs.length; i++) {
-            if (v2.equals(adjs[i])) {
+        for (Object adj : adjs) {
+            if (v2.equals(adj)) {
                 return true;
             }
         }
@@ -99,8 +99,8 @@ public class AdjacencyListGraph extends GraphStructure {
             //TreeSet ts = (TreeSet)adjacencyList.get(id);
             //Iterator iterator = ts.iterator();
             //while( iterator.hasNext() ) {
-            for (int i = 0; i < ss.length; i++) {
-                v = (VertexDescriptor) vertexList.get(ss[i]);
+            for (Object s : ss) {
+                v = (VertexDescriptor) vertexList.get(s);
                 fOut.print(v.getName() + "(" + v.getId() + ")" + ", ");
             }
             //}

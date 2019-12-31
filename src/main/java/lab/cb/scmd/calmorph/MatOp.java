@@ -16,7 +16,7 @@ class MatOp {
         for (int i = 0; i < 5; i++) {
             x[i] = 0;
         }
-        while (true) {
+        do {
             for (int i = 0; i < 5; i++) {
                 double s = 0;
                 for (int j = 0; j < 5; j++) {
@@ -24,8 +24,7 @@ class MatOp {
                 }
                 x[i] = (1 - s) / A[i][i];
             }
-            if (zannsa(A, x) < 10E-10) break;
-        }
+        } while (!(zannsa(A, x) < 10E-10));
         return x;
     }
 

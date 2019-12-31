@@ -24,7 +24,7 @@ class Cell implements Serializable {
     double[] grad_cept_middle;
     boolean neck_change;
 
-    int w, h, size, id;// 画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
+    private int w, h, size, id;// 画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
 
     private int group;
 
@@ -38,29 +38,29 @@ class Cell implements Serializable {
 
     double bud_ratio;
 
-    double fitness;
+    private double fitness;
 
     private double[] mother_ellipse, bud_ellipse;// 楕円パラメータ
 
-    boolean budell_flag, bud_short_flag;
+    private boolean budell_flag, bud_short_flag;
 
-    Point point;// 細胞の左上の位置
+    private Point point;// 細胞の左上の位置
 
-    Point bottomrightPoint;
+    private Point bottomrightPoint;
 
     private Point neckpoint, centerpoint, hippoint, budcenterpoint, budtop;
 
-    Point[] longpoint, shortpoint, budlongpoint, budshortpoint;// 楕円の端点
+    private Point[] longpoint, shortpoint, budlongpoint, budshortpoint;// 楕円の端点
 
-    double long_length;
+    private double long_length;
 
-    double short_length;
+    private double short_length;
 
-    double budlong_length;
+    private double budlong_length;
 
-    double budshort_length;
+    private double budshort_length;
 
-    Point farfromneckpoint;
+    private Point farfromneckpoint;
 
     Vector brightestCpoint, darkestCpoint;
 
@@ -109,46 +109,46 @@ class Cell implements Serializable {
 
     Point[][] Acenterpoint;
 
-    Point[] farfromneckApoint;
+    private Point[] farfromneckApoint;
 
     double actinonneckline;
 
-    double budactincenterposition;
+    private double budactincenterposition;
 
-    double motheractincenterposition;
+    private double motheractincenterposition;
 
     Vector actinpatchpoint, actinpatchbright, actinpatchsize;
 
     Point[][] Apatchcenterpoint;
 
-    int[] actinpatchorder;
+    private int[] actinpatchorder;
 
-    double maxpatchdistance;
+    private double maxpatchdistance;
 
     int totalpatchsize;
 
-    Vector actinpatchpath;
+    private Vector actinpatchpath;
 
-    double actinpathlength;
+    private double actinpathlength;
 
-    int brightpatchnumber;
+    private int brightpatchnumber;
 
-    Point[] Cpointparam;
+    private Point[] Cpointparam;
 
-    Vector[] Cpointsparam;
+    private Vector[] Cpointsparam;
 
     double[] Cbaseparam;
 
     double[] Cexpandparam;
 
     //	Point[] Dpointparam;
-    HashMap<String, Point> dPointParamMap = new HashMap<String, Point>();
+    private HashMap<String, Point> dPointParamMap = new HashMap<String, Point>();
 
     double[] Dbaseparam;
 
     double[] Dexpandparam;
 
-    Point[] Apointparam;
+    private Point[] Apointparam;
 
     double[] Abaseparam;
 
@@ -156,7 +156,7 @@ class Cell implements Serializable {
 
     double[] versparam;
 
-    public Cell(int w, int h, int id) {
+    Cell(int w, int h, int id) {
         this.w = w;
         this.h = h;
         this.size = w * h;
@@ -164,7 +164,7 @@ class Cell implements Serializable {
         init();
     }
 
-    public void init() {
+    private void init() {
         edge = new Vector();
         edge_2 = new Vector();
         cover = new Vector();
@@ -206,18 +206,18 @@ class Cell implements Serializable {
         return group;
     }
 
-    public boolean getFlagUD() {
+    boolean getFlagUD() {
         return flag_ud;
     }
 
-    public void setFlagUD(boolean ud) {
+    void setFlagUD(boolean ud) {
         flag_ud = ud;
     }
 
     // //////////////////////////////////////////////////////////////////////////////
     // 楕円を当てる
     // //////////////////////////////////////////////////////////////////////////////
-    public void setEllipse() {
+    void setEllipse() {
         double[][] D;
         double[][] S = new double[6][6];
         double[][] C = {{0, 0, -2, 0, 0, 0}, {0, 1, 0, 0, 0, 0},
@@ -227,7 +227,7 @@ class Cell implements Serializable {
             int es = mother_edge.size();
             D = new double[es][6];
             for (int i = 0; i < es; i++) {
-                int p = ((Integer) mother_edge.get(i)).intValue();
+                int p = (Integer) mother_edge.get(i);
                 int x = p % w;
                 int y = p / w;
                 D[i][0] = x * x;
@@ -255,7 +255,7 @@ class Cell implements Serializable {
             int es = bud_edge.size();
             D = new double[es][6];
             for (int i = 0; i < es; i++) {
-                int p = ((Integer) bud_edge.get(i)).intValue();
+                int p = (Integer) bud_edge.get(i);
                 int x = p % w;
                 int y = p / w;
                 D[i][0] = x * x;
@@ -283,11 +283,11 @@ class Cell implements Serializable {
     // /////////////////////////////////////////////////////////////////////////////////////////
     // 出力するデータのセット
     // /////////////////////////////////////////////////////////////////////////////////////////
-    public void setCellData() {
+    void setCellData() {
         // 位置
         int left = w, right = 0, top = h, bottom = 0;
-        for (int i = 0; i < cover.size(); i++) {// pointのセット
-            int p = ((Integer) cover.get(i)).intValue();
+        for (Object value : cover) {// pointのセット
+            int p = (Integer) value;
             if (left > p % w)
                 left = p % w;
             if (right < p % w)
@@ -304,8 +304,8 @@ class Cell implements Serializable {
                     (neck[0] / w + neck[1] / w) / 2);
             double max = 0;
             int maxpoint = -1;
-            for (int i = 0; i < mother_edge.size(); i++) {
-                int p = ((Integer) mother_edge.get(i)).intValue();
+            for (Object o : mother_edge) {
+                int p = (Integer) o;
                 if (distance(p, neckpoint.y * w + neckpoint.x) > max) {
                     maxpoint = p;
                     max = distance(p, neckpoint.y * w + neckpoint.x);
@@ -438,22 +438,22 @@ class Cell implements Serializable {
 
             // C6
             for (int i = 0; i < brightestCpoint.size(); i++) {
-                int p = ((Integer) brightestCpoint.elementAt(i)).intValue();
+                int p = (Integer) brightestCpoint.elementAt(i);
                 Cpointsparam[0].add(new Point(p % w, p / w));// 細胞壁で最も輝度の高い点
             }
             // C7
             for (int i = 0; i < darkestCpoint.size(); i++) {
-                int p = ((Integer) darkestCpoint.elementAt(i)).intValue();
+                int p = (Integer) darkestCpoint.elementAt(i);
                 Cpointsparam[1].add(new Point(p % w, p / w));// //細胞壁で最も輝度の低い点
             }
             // C8
             for (int i = 0; i < widestCpoint.size(); i++) {
-                int p = ((Integer) widestCpoint.elementAt(i)).intValue();
+                int p = (Integer) widestCpoint.elementAt(i);
                 Cpointsparam[2].add(new Point(p % w, p / w));// //細胞壁で最も厚い点
             }
             // C9
             for (int i = 0; i < narrowestCpoint.size(); i++) {
-                int p = ((Integer) narrowestCpoint.elementAt(i)).intValue();
+                int p = (Integer) narrowestCpoint.elementAt(i);
                 Cpointsparam[3].add(new Point(p % w, p / w));// //細胞壁で最も薄い点
             }
 
@@ -523,28 +523,31 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // 楕円に関係するデータをセット
     // ///////////////////////////////////////////////////////////////////////////////
-    public void setCellEllData() {
+    private void setCellEllData() {
         double a = mother_ellipse[0] / (-mother_ellipse[5]);
         double b = mother_ellipse[1] / (-mother_ellipse[5]);
         double c = mother_ellipse[2] / (-mother_ellipse[5]);
         double d = mother_ellipse[3] / (-mother_ellipse[5]);
         double e = mother_ellipse[4] / (-mother_ellipse[5]);
-        double p = (-2 * c * d + b * e) / (4 * a * c - b * b);
-        double q = (b * d - 2 * a * e) / (4 * a * c - b * b);
+        double v = 4 * a * c - b * b;
+        double p = (-2 * c * d + b * e) / v;
+        double q = (b * d - 2 * a * e) / v;
         centerpoint = new Point((int) p, (int) q);
         double f = -a * p * p - b * p * q - c * q * q - d * p - e * q + 1;
-        double sin2theta = b / Math.sqrt((a - c) * (a - c) + b * b);
-        double cos2theta = (c - a) / Math.sqrt((a - c) * (a - c) + b * b);
+        final double a1 = (a - c) * (a - c) + b * b;
+        double sin2theta = b / Math.sqrt(a1);
+        double cos2theta = (c - a) / Math.sqrt(a1);
         double sintheta = 0;
         if (b > 0)
             sintheta = Math.sqrt((1 - cos2theta) / 2);
         else
             sintheta = -Math.sqrt((1 - cos2theta) / 2);
         double costheta = Math.sqrt((1 + cos2theta) / 2);
+        final double sqrt = Math.sqrt(b * b + (a - c) * (a - c));
         double aa = Math.sqrt(2 * f
-                / (a + c - Math.sqrt(b * b + (a - c) * (a - c))));
+                / (a + c - sqrt));
         double bb = Math.sqrt(2 * f
-                / (a + c + Math.sqrt(b * b + (a - c) * (a - c))));
+                / (a + c + sqrt));
         Point p1 = new Point((int) (p + aa * costheta), (int) (q - aa
                 * sintheta));
         Point p2 = new Point((int) (p - aa * costheta), (int) (q + aa
@@ -568,7 +571,7 @@ class Cell implements Serializable {
         short_length = distance(shortpoint[0], shortpoint[1]);
         fitness = 0;
         for (int i = 0; i < mother_edge.size(); i++) {
-            int po = ((Integer) mother_edge.elementAt(i)).intValue();
+            int po = (Integer) mother_edge.elementAt(i);
             int x = po % w;
             int y = po / w;
             fitness += (mother_ellipse[0] * x * x + mother_ellipse[1] * x * y
@@ -593,7 +596,7 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////////
     // 芽に関するデータをセット
     // ///////////////////////////////////////////////////////////////////////////////////
-    public void setBudData() {
+    private void setBudData() {
         if (group > 1) {
             if (neckpoint.distance(longpoint[0].x, longpoint[0].y) >= neckpoint
                     .distance(longpoint[1].x, longpoint[1].y)) {
@@ -603,8 +606,8 @@ class Cell implements Serializable {
             }
             double maxk = 0;
             int maxp = 0;
-            for (int i = 0; i < bud_edge.size(); i++) {// 近い方のネックから一番とおい
-                int p = ((Integer) bud_edge.get(i)).intValue();
+            for (Object o : bud_edge) {// 近い方のネックから一番とおい
+                int p = (Integer) o;
                 double d1 = Point2D.distance(neck[0] % w, neck[0] / w, p % w, p
                         / w);
                 double d2 = Point2D.distance(neck[1] % w, neck[1] / w, p % w, p
@@ -639,8 +642,8 @@ class Cell implements Serializable {
             double costh = (budtop.x - neckpoint.x) / budlong_length;
             double sinth = (budtop.y - neckpoint.y) / budlong_length;
             double x2y2 = 0, y2 = 0, y4 = 0;
-            for (int i = 0; i < bud_edge.size(); i++) {
-                int p = ((Integer) bud_edge.get(i)).intValue();
+            for (Object o : bud_edge) {
+                int p = (Integer) o;
                 double x = (p % w - budcenterpoint.x) * costh
                         + (p / w - budcenterpoint.y) * sinth;
                 double y = -(p % w - budcenterpoint.x) * sinth
@@ -667,7 +670,7 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // 点と直線の距離
     // ///////////////////////////////////////////////////////////////////////////////
-    public double getPointLineDist(Point p1, Point p2, Point bt) {
+    private double getPointLineDist(Point p1, Point p2, Point bt) {
         int a = p1.y - p2.y;
         int b = p2.x - p1.x;
         int c = -p1.y * b - p1.x * a;
@@ -677,13 +680,13 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // conA image output
     // ///////////////////////////////////////////////////////////////////////////////
-    public void outCImage(Graphics g) {
+    void outCImage(Graphics g) {
         g.setColor(Color.white);
         g.setFont(new Font("Courier", Font.PLAIN, 20));
         g.drawString(id + " " + Cgroup, point.x, point.y);
         g.setColor(Color.green);
-        for (int j = 0; j < edge.size(); j++) {
-            int p = ((Integer) edge.get(j)).intValue();
+        for (Object o : edge) {
+            int p = (Integer) o;
             g.fillRect(p % w, p / w, 1, 1);
         }
         if (group > 1) {
@@ -732,7 +735,7 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // 核に関するデータをセット
     // ///////////////////////////////////////////////////////////////////////////////
-    public void setDState() {
+    void setDState() {
         if (group > 0) {
             if (Dpoint.size() != 1 && Dpoint.size() != 2)
                 Dgroup = "E";
@@ -750,7 +753,7 @@ class Cell implements Serializable {
             } else {
                 if (group == 1) {
                     Dgroup = "A";
-                } else if (group > 1) {
+                } else {
                     if (flag_ud) {
                         Dgroup = "B";
                     } else if (!inmother(((Point) Dpoint.elementAt(0)).y * w
@@ -1120,19 +1123,15 @@ class Cell implements Serializable {
                     c++;
                     // c = 3, D15-1
                     if (Dgroup.equals("B"))
-                        Dbaseparam[c] = ((Integer) DtotalbrightB.elementAt(0))
-                                .intValue();// 核領域の輝度の合計（母）
+                        Dbaseparam[c] = (Integer) DtotalbrightB.elementAt(0);// 核領域の輝度の合計（母）
                     else
-                        Dbaseparam[c] = ((Integer) Dtotalbright.elementAt(0))
-                                .intValue();
+                        Dbaseparam[c] = (Integer) Dtotalbright.elementAt(0);
                     c++;
                     // c = 4, D15-2
                     if (Dgroup.equals("B"))
-                        Dbaseparam[c] = ((Integer) DtotalbrightB.elementAt(1))
-                                .intValue();// 核領域の輝度の合計（娘）
+                        Dbaseparam[c] = (Integer) DtotalbrightB.elementAt(1);// 核領域の輝度の合計（娘）
                     else if (Dgroup.equals("C"))
-                        Dbaseparam[c] = ((Integer) Dtotalbright.elementAt(1))
-                                .intValue();
+                        Dbaseparam[c] = (Integer) Dtotalbright.elementAt(1);
                     c++;
                     // c = 5, D15-3
                     if (Dgroup.equals("A") || Dgroup.equals("A1"))
@@ -1142,27 +1141,22 @@ class Cell implements Serializable {
                     c++;
                     // c = 6, D16-1
                     if (Dgroup.equals("B"))
-                        Dbaseparam[c] = ((Integer) DmaxbrightB.elementAt(0))
-                                .intValue();// 核領域の最大輝度（母）
+                        Dbaseparam[c] = (Integer) DmaxbrightB.elementAt(0);// 核領域の最大輝度（母）
                     else
-                        Dbaseparam[c] = ((Integer) Dmaxbright.elementAt(0))
-                                .intValue();
+                        Dbaseparam[c] = (Integer) Dmaxbright.elementAt(0);
                     c++;
                     // c = 7, D16-2
                     if (Dgroup.equals("B"))
-                        Dbaseparam[c] = ((Integer) DmaxbrightB.elementAt(1))
-                                .intValue();// 核領域の最大輝度（娘）
+                        Dbaseparam[c] = (Integer) DmaxbrightB.elementAt(1);// 核領域の最大輝度（娘）
                     else if (Dgroup.equals("C"))
-                        Dbaseparam[c] = ((Integer) Dmaxbright.elementAt(1))
-                                .intValue();
+                        Dbaseparam[c] = (Integer) Dmaxbright.elementAt(1);
                     c++;
                     // c = 8, D16-3
                     if (Dgroup.equals("C"))
                         Dbaseparam[c] = Math.max(Dbaseparam[c - 2],
                                 Dbaseparam[c - 1]);// 核領域の最大輝度（全体）
                     else if (Dgroup.equals("B"))
-                        Dbaseparam[c] = ((Integer) Dmaxbright.elementAt(0))
-                                .intValue();
+                        Dbaseparam[c] = (Integer) Dmaxbright.elementAt(0);
                     else
                         Dbaseparam[c] = Dbaseparam[c - 2];
                     c++;
@@ -1710,20 +1704,20 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // DAPI画像の出力
     // ///////////////////////////////////////////////////////////////////////////////
-    public void outDImage(Graphics g) {
+    void outDImage(Graphics g) {
         g.setColor(Color.white);
         g.drawString(id + " " + Cgroup, point.x, point.y);
         g.setColor(Color.red);
         g.drawString(Dgroup, point.x, point.y - 15);
         g.setColor(Color.green);
-        for (int j = 0; j < edge.size(); j++) {
-            int p = ((Integer) edge.get(j)).intValue();
+        for (Object item : edge) {
+            int p = (Integer) item;
             g.fillRect(p % w, p / w, 1, 1);
         }
         g.setColor(Color.red);
         if (group > 1) {
-            for (int j = 0; j < neck.length; j++) {
-                g.fillOval(neck[j] % w - 2, neck[j] / w - 2, 4, 4);
+            for (int i : neck) {
+                g.fillOval(i % w - 2, i / w - 2, 4, 4);
             }
         }
         if (group > 1) {
@@ -1733,14 +1727,14 @@ class Cell implements Serializable {
         g.setColor(Color.red);
         for (int j = 0; j < Dpoint.size(); j++) {
             Vector De = (Vector) (Dedge.get(j));
-            for (int k = 0; k < De.size(); k++) {
-                int p = ((Integer) De.get(k)).intValue();
+            for (Object o : De) {
+                int p = (Integer) o;
                 g.fillRect(p % w, p / w, 1, 1);
             }
         }
         g.setColor(Color.white);
-        for (int j = 0; j < Dpoint.size(); j++) {
-            Point p = (Point) Dpoint.get(j);
+        for (Object value : Dpoint) {
+            Point p = (Point) value;
             g.fillOval(p.x - 1, p.y - 1, 3, 3);
         }
         /*
@@ -1749,8 +1743,8 @@ class Cell implements Serializable {
          */
         if (flag_ud) {
             g.setColor(Color.green);
-            for (int j = 0; j < DpointB.size(); j++) {
-                Point p = (Point) DpointB.get(j);
+            for (Object o : DpointB) {
+                Point p = (Point) o;
                 g.fillOval(p.x - 1, p.y - 1, 3, 3);
             }
             /*
@@ -1770,7 +1764,7 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////////
     // アクチンに関するデータをセット
     // ///////////////////////////////////////////////////////////////////////////////////
-    public void setAState(int diff, int[] AImage) {
+    void setAState(int diff, int[] AImage) {
         int diffx = diff % w;
         if (diffx >= w / 2)
             diffx -= w;
@@ -1787,8 +1781,8 @@ class Cell implements Serializable {
             int counter_nearneck = 0;
             int counter_inbudnearneck = 0;
             int counter_inbudneartip = 0;
-            for (int j = 0; j < cover.size(); j++) {
-                int po = ((Integer) cover.get(j)).intValue() - diff;
+            for (Object o : cover) {
+                int po = (Integer) o - diff;
                 if (po >= 0 && po < size && po / w == (po + diffx) / w) {
                     int px = po % w;
                     int py = po / w;
@@ -1874,14 +1868,11 @@ class Cell implements Serializable {
                 double mx = (neckpoint.x * 4 - (budtop.x)) / 3;
                 double my = (neckpoint.y * 4 - (budtop.y)) / 3;
                 for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    int po = ((Integer) actinpatchpoint.elementAt(i))
-                            .intValue();
+                    int po = (Integer) actinpatchpoint.elementAt(i);
                     int px = po % w;
                     int py = po / w;
-                    int br = ((Integer) actinpatchbright.elementAt(i))
-                            .intValue()
-                            * ((Integer) actinpatchbright.elementAt(i))
-                            .intValue();
+                    int br = (Integer) actinpatchbright.elementAt(i)
+                            * (Integer) actinpatchbright.elementAt(i);
                     if (!inmother(po)) {
                         buds += br;
                         if ((a * (py - sy) + b * (px - sx))
@@ -1926,8 +1917,8 @@ class Cell implements Serializable {
             int mmaxpoint = -1;
             double bmax = 0;
             int bmaxpoint = -1;
-            for (int i = 0; i < Acover.size(); i++) {
-                int p = ((Integer) Acover.get(i)).intValue();
+            for (Object o : Acover) {
+                int p = (Integer) o;
                 if (distance(p, neckpoint.y * w + neckpoint.x) > max) {
                     maxpoint = p;
                     max = distance(p, neckpoint.y * w + neckpoint.x);
@@ -1956,8 +1947,8 @@ class Cell implements Serializable {
             boolean check1 = false;
             boolean check2 = false;
             if (group > 1) {
-                for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    if (inmother(((Integer) actinpatchpoint.get(i)).intValue()))
+                for (Object o : actinpatchpoint) {
+                    if (inmother((Integer) o))
                         check1 = true;
                     else
                         check2 = true;
@@ -1966,9 +1957,9 @@ class Cell implements Serializable {
             if (check1 == false || check2 == false) {
                 double max = 0;
                 for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    int p1 = ((Integer) actinpatchpoint.get(i)).intValue();
+                    int p1 = (Integer) actinpatchpoint.get(i);
                     for (int j = i + 1; j < actinpatchpoint.size(); j++) {
-                        int p2 = ((Integer) actinpatchpoint.get(j)).intValue();
+                        int p2 = (Integer) actinpatchpoint.get(j);
                         if (distance(p1, p2) > max)
                             max = distance(p1, p2);
                     }
@@ -1977,8 +1968,8 @@ class Cell implements Serializable {
             } else {
                 double mmax = 0;
                 double bmax = 0;
-                for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    int p = ((Integer) actinpatchpoint.get(i)).intValue();
+                for (Object o : actinpatchpoint) {
+                    int p = (Integer) o;
                     if (inmother(p) && distance(p, neckpoint) > mmax)
                         mmax = distance(p, neckpoint);
                     else if (!inmother(p) && distance(p, neckpoint) > bmax)
@@ -1991,7 +1982,7 @@ class Cell implements Serializable {
             int max = 0;
             int min = 255;
             for (int i = 0; i < actinpatchpoint.size(); i++) {
-                int br = ((Integer) actinpatchbright.get(i)).intValue();
+                int br = (Integer) actinpatchbright.get(i);
                 actinpatchorder[i] = br * 100 + i;// 1、10の位がパッチの番号、100以上の位が輝度を表すようにセット
                 if (br > max)
                     max = br;
@@ -2005,9 +1996,8 @@ class Cell implements Serializable {
             }
 
             brightpatchnumber = 0;
-            for (int i = 0; i < actinpatchorder.length; i++) {// 輝度が、その細胞のアクチンパッチの平均輝度以上であるアクチンパッチの数
-                if (((Integer) actinpatchbright.get(actinpatchorder[i]))
-                        .intValue() > (max + min) / 2)
+            for (int value : actinpatchorder) {// 輝度が、その細胞のアクチンパッチの平均輝度以上であるアクチンパッチの数
+                if ((Integer) actinpatchbright.get(value) > (max + min) / 2)
                     brightpatchnumber++;
             }
         }
@@ -2015,8 +2005,8 @@ class Cell implements Serializable {
         if (Agroup != "N" && group > 1) {// 母細胞と芽のアクチンの偏りを求める
             double distbr = 0;
             double total = 0;
-            for (int j = 0; j < Acover.size(); j++) {
-                int pp = ((Integer) Acover.get(j)).intValue();
+            for (Object o : Acover) {
+                int pp = (Integer) o;
                 if (pp - diff >= 0 && pp - diff < size
                         && pp / w == (pp - diffx) / w) {
                     Point p = new Point(pp % w, pp / w);
@@ -2162,14 +2152,14 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////////
     // actin画像出力
     // ///////////////////////////////////////////////////////////////////////////////////
-    public void outAImage(Graphics g) {
+    void outAImage(Graphics g) {
         g.setColor(Color.white);
         g.drawString(id + " " + Cgroup, point.x, point.y);
         g.setColor(Color.red);
         g.drawString(Agroup, point.x, point.y - 15);
         g.setColor(Color.green);
-        for (int j = 0; j < edge.size(); j++) {
-            int p = ((Integer) edge.get(j)).intValue();
+        for (Object value : edge) {
+            int p = (Integer) value;
             g.fillRect(p % w, p / w, 1, 1);
         }
         if (group > 1) {
@@ -2192,8 +2182,8 @@ class Cell implements Serializable {
             double my = (neckpoint.y * 4 - (budtop.y)) / 3;
             double a = neckpoint.y - budtop.y;
             double b = neckpoint.x - budtop.x;
-            for (int j = 0; j < actinpatchpoint.size(); j++) {
-                int p = ((Integer) actinpatchpoint.get(j)).intValue();
+            for (Object o : actinpatchpoint) {
+                int p = (Integer) o;
                 int px = p % w;
                 int py = p / w;
                 if (!inmother(p)
@@ -2214,8 +2204,8 @@ class Cell implements Serializable {
             }
         } else {
             g.setColor(Color.white);
-            for (int j = 0; j < actinpatchpoint.size(); j++) {
-                int p = ((Integer) actinpatchpoint.get(j)).intValue();
+            for (Object o : actinpatchpoint) {
+                int p = (Integer) o;
                 g.fillOval(p % w - 2, p / w - 2, 4, 4);
             }
         }
@@ -2249,7 +2239,7 @@ class Cell implements Serializable {
     // pがネックラインの母細胞側ならtrue、芽側ならfalse
     // ネックラインがなければtrue
     // ///////////////////////////////////////////////////////////////////////////////////
-    public boolean inmother(int p) {
+    boolean inmother(int p) {
         if (group > 1) {
             int dx = neck[1] % w - neck[0] % w;
             int dy = neck[1] / w - neck[0] / w;
@@ -2262,7 +2252,7 @@ class Cell implements Serializable {
         }
     }
 
-    public boolean inmother(Point p) {
+    private boolean inmother(Point p) {
         if (group > 1) {
             int dx = neck[1] % w - neck[0] % w;
             int dy = neck[1] / w - neck[0] / w;
@@ -2278,7 +2268,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 点集合を楕円近似したときのfitnessを求める
     // ////////////////////////////////////////////////////////////////////////
-    public double getfitness(Vector ed) {
+    private double getfitness(Vector ed) {
         double[] ellipse;
         double[][] D;
         double[][] S = new double[6][6];
@@ -2288,7 +2278,7 @@ class Cell implements Serializable {
         int es = ed.size();
         D = new double[es][6];
         for (int i = 0; i < es; i++) {
-            int p = ((Integer) ed.get(i)).intValue();
+            int p = (Integer) ed.get(i);
             int x = p % w;
             int y = p / w;
             D[i][0] = x * x;
@@ -2341,7 +2331,7 @@ class Cell implements Serializable {
         double ax = p1.distance(p2) * p3.distance(p4);
         double fit = 0;
         for (int i = 0; i < ed.size(); i++) {
-            int po = ((Integer) ed.elementAt(i)).intValue();
+            int po = (Integer) ed.elementAt(i);
             int x = po % w;
             int y = po / w;
             fit += (ellipse[0] * x * x + ellipse[1] * x * y + ellipse[2] * y
@@ -2358,7 +2348,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 二点を結ぶ直線とあるedgeの交点三つ（一つ目の先、二つ目の先、間）を求める
     // ////////////////////////////////////////////////////////////////////////
-    public Point[] Intersection(Point p1, Point p2, Vector ed) {
+    private Point[] Intersection(Point p1, Point p2, Vector ed) {
         Point pp1 = new Point(-1, -1);
         Point pp2 = new Point(-1, -1);
         Point pp3 = new Point(-1, -1);
@@ -2366,8 +2356,8 @@ class Cell implements Serializable {
         double mindist2 = 2000;
         double mindist3 = 2000;
         if (p1.x != p2.x) {
-            for (int i = 0; i < ed.size(); i++) {
-                int p = ((Integer) ed.get(i)).intValue();
+            for (Object o : ed) {
+                int p = (Integer) o;
                 double dist = Line2D.ptLineDist(p1.x,
                         p1.y, p2.x, p2.y,
                         p % w, p / w);
@@ -2386,8 +2376,8 @@ class Cell implements Serializable {
                 }
             }
         } else if (p1.y != p2.y) {
-            for (int i = 0; i < ed.size(); i++) {
-                int p = ((Integer) ed.get(i)).intValue();
+            for (Object o : ed) {
+                int p = (Integer) o;
                 double dist = Line2D.ptLineDist(p1.x,
                         p1.y, p2.x, p2.y,
                         p % w, p / w);
@@ -2416,7 +2406,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 二点を結ぶ直線と別の二点を結ぶ直線との交点を求める
     // ////////////////////////////////////////////////////////////////////////
-    public Point Intersection2(Point p1, Point p2, Point p3, Point p4) {
+    private Point Intersection2(Point p1, Point p2, Point p3, Point p4) {
         if ((p4.y - p3.y) * (p2.x - p1.x) - (p2.y - p1.y) * (p4.x - p3.x) != 0) {
             double x = (double) (p1.y * (p4.x - p3.x) * (p2.x - p1.x)
                     - (p2.y - p1.y) * (p4.x - p3.x) * p1.x - p3.y
@@ -2439,7 +2429,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 三点のなす角度を求める（90度以内）
     // ////////////////////////////////////////////////////////////////////////
-    public double angle(Point p1, Point p2, Point p3) {
+    private double angle(Point p1, Point p2, Point p3) {
         double theta1 = -1;
         if (p1.x != p2.x)
             theta1 = Math.atan((p1.y - p2.y) / (double) (p1.x - p2.x)) * 180
@@ -2461,7 +2451,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // p1p2とp3p4のなす角度を求める（90度以内）
     // ////////////////////////////////////////////////////////////////////////
-    public double angle(Point p1, Point p2, Point p3, Point p4) {
+    private double angle(Point p1, Point p2, Point p3, Point p4) {
         double theta1 = -1;
         if (p1.x != p2.x)
             theta1 = Math.atan((p1.y - p2.y) / (double) (p1.x - p2.x)) * 180
@@ -2483,7 +2473,7 @@ class Cell implements Serializable {
     // ///////////////////////////////////////////////////////////////////////////////
     // 90度以内であらわす
     // ///////////////////////////////////////////////////////////////////////////////
-    public double theta90(double th) {
+    private double theta90(double th) {
         double r = th;
         if (r < 0) {
             while (r < 0) {
@@ -2500,21 +2490,21 @@ class Cell implements Serializable {
         return r;
     }
 
-    public double distance(int a, int b) {
+    private double distance(int a, int b) {
         if (a >= 0 && b >= 0)
             return Point2D.distance(a % w, a / w, b % w, b / w);
         else
             return -1;
     }
 
-    public double distance(Point a, Point b) {
+    private double distance(Point a, Point b) {
         if (a.x >= 0 && b.x >= 0)
             return Point2D.distance(a.x, a.y, b.x, b.y);
         else
             return -1;
     }
 
-    public double distance(int a, Point b) {
+    private double distance(int a, Point b) {
         if (a >= 0 && b.x >= 0)
             return Point2D.distance(a % w, a / w, b.x, b.y);
         else
@@ -2524,11 +2514,11 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 輪郭の長さを返す。
     // ////////////////////////////////////////////////////////////////////////
-    public double edgeSize(Vector v) {
+    private double edgeSize(Vector v) {
         double r = 0;
         for (int i = 0; i < v.size() - 1; i++) {
-            int p1 = ((Integer) v.elementAt(i)).intValue();
-            int p2 = ((Integer) v.elementAt(i + 1)).intValue();
+            int p1 = (Integer) v.elementAt(i);
+            int p2 = (Integer) v.elementAt(i + 1);
             if (p1 - p2 == 1 || p1 - p2 == -1 || p1 - p2 == w || p1 - p2 == -w)
                 r += 1.0;
             if (p1 - p2 == w + 1 || p1 - p2 == w - 1 || p1 - p2 == -w + 1
@@ -2538,8 +2528,8 @@ class Cell implements Serializable {
         if (v.size() == 0) {
             return 0;
         }
-        int p1 = ((Integer) v.elementAt(v.size() - 1)).intValue();
-        int p2 = ((Integer) v.elementAt(0)).intValue();
+        int p1 = (Integer) v.elementAt(v.size() - 1);
+        int p2 = (Integer) v.elementAt(0);
         if (p1 - p2 == 1 || p1 - p2 == -1 || p1 - p2 == w || p1 - p2 == -w)
             r += 1.0;
         if (p1 - p2 == w + 1 || p1 - p2 == w - 1 || p1 - p2 == -w + 1
@@ -2551,7 +2541,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // xlsファイルを出力
     // ////////////////////////////////////////////////////////////////////////
-    public void writeXLSBaseC(PrintWriter pw, int num) {
+    void writeXLSBaseC(PrintWriter pw, int num) {
         pw.print(num + "\t");
         pw.print(id + "\t");
         pw.print(Cgroup + "\t");
@@ -2575,7 +2565,7 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSExpandC(PrintWriter pw, int num) {
+    void writeXLSExpandC(PrintWriter pw, int num) {
         pw.print(num + "\t");
         pw.print(id + "\t");
         pw.print(Cgroup + "\t");
@@ -2585,17 +2575,17 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSBaseD(PrintWriter pw, int num) {
+    void writeXLSBaseD(PrintWriter pw, int num) {
         pw.print(num + "\t");
         pw.print(id + "\t");
         pw.print(Cgroup + "\t");
         pw.print(Dgroup + "\t");
         // D1-1 .. D13-2
         String[] dPointParamIds = ParameterStatus.dapiPointParamIds;
-        for (int i = 0; i < dPointParamIds.length; i++) {
+        for (String dPointParamId : dPointParamIds) {
             Point p = ParameterStatus.missingValuePoint;
-            if (dPointParamMap.get(dPointParamIds[i]) != null)
-                p = dPointParamMap.get(dPointParamIds[i]);
+            if (dPointParamMap.get(dPointParamId) != null)
+                p = dPointParamMap.get(dPointParamId);
             pw.print("[" + p.x + "," + p.y + "]\t");
         }
         // D14-1 .. D17-3
@@ -2605,7 +2595,7 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSExpandD(PrintWriter pw, int num) {
+    void writeXLSExpandD(PrintWriter pw, int num) {
         //image_number
         pw.print(num + "\t");
         //cell_id
@@ -2621,7 +2611,7 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSBaseA(PrintWriter pw, int num) {
+    void writeXLSBaseA(PrintWriter pw, int num) {
         pw.print(num + "\t");
         pw.print(id + "\t");
         pw.print(Cgroup + "\t");
@@ -2636,29 +2626,25 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSPatchA(PrintWriter pw, int num) {
+    void writeXLSPatchA(PrintWriter pw, int num) {
         if (group > 0 && !Agroup.equals("N")) {
-            for (int i = 0; i < actinpatchorder.length; i++) {
+            for (int value : actinpatchorder) {
                 pw.print(num + "\t");
                 pw.print(id + "\t");
                 pw.print("["
-                        + ((Integer) actinpatchpoint.get(actinpatchorder[i]))
-                        .intValue()
+                        + (Integer) actinpatchpoint.get(value)
                         % w
                         + ","
-                        + ((Integer) actinpatchpoint.get(actinpatchorder[i]))
-                        .intValue() / w + "]\t");
-                pw.print(((Integer) actinpatchsize.get(actinpatchorder[i]))
-                        .intValue()
+                        + (Integer) actinpatchpoint.get(value) / w + "]\t");
+                pw.print((Integer) actinpatchsize.get(value)
                         + "\t");
-                pw.println(((Integer) actinpatchbright.get(actinpatchorder[i]))
-                        .intValue()
+                pw.println((Integer) actinpatchbright.get(value)
                         + "\t");
             }
         }
     }
 
-    public void writeXLSExpandA(PrintWriter pw, int num) {
+    void writeXLSExpandA(PrintWriter pw, int num) {
         pw.print(num + "\t");
         pw.print(id + "\t");
         pw.print(Cgroup + "\t");
@@ -2669,7 +2655,7 @@ class Cell implements Serializable {
         pw.println();
     }
 
-    public void writeXLSVers(PrintWriter pw, int num, boolean calA, boolean calD) {
+    void writeXLSVers(PrintWriter pw, int num, boolean calA, boolean calD) {
         versparam = new double[26];
         versparam[0] = Cbaseparam[0];
         versparam[1] = Cbaseparam[1];
@@ -2705,14 +2691,21 @@ class Cell implements Serializable {
             versparam[18] = Dexpandparam[83];
         else
             versparam[18] = -1;
-        if (Dgroup.equals("A"))
-            versparam[19] = Dexpandparam[4];
-        else if (Dgroup.equals("A1") || Dgroup.equals("C"))
-            versparam[19] = Dexpandparam[5];
-        else if (Dgroup.equals("B"))
-            versparam[19] = Dexpandparam[6];
-        else
-            versparam[19] = -1;
+        switch (Dgroup) {
+            case "A":
+                versparam[19] = Dexpandparam[4];
+                break;
+            case "A1":
+            case "C":
+                versparam[19] = Dexpandparam[5];
+                break;
+            case "B":
+                versparam[19] = Dexpandparam[6];
+                break;
+            default:
+                versparam[19] = -1;
+                break;
+        }
         if (Dgroup.equals("A") || Dgroup.equals("A1") || Dgroup.equals("C"))
             versparam[20] = Dexpandparam[46];
         else
@@ -2763,7 +2756,7 @@ class Cell implements Serializable {
     // ////////////////////////////////////////////////////////////////////////
     // 画像データのXMLファイルを出力
     // ////////////////////////////////////////////////////////////////////////
-    public void writeImageDataXML(PrintWriter pw2, int num) {
+    void writeImageDataXML(PrintWriter pw2, int num) {
         pw2.println("  <celldata id=\"" + id + "\">");
         pw2.println("   <Cgroup>" + Cgroup + "</Cgroup>");
         pw2.println("   <Dgroup>" + Dgroup + "</Dgroup>");
@@ -2794,10 +2787,10 @@ class Cell implements Serializable {
         if (edge != null && edge.size() > 0) {
             pw2.print("   <edge>");
             for (int i = 0; i < edge.size() - 1; i++) {
-                int p = ((Integer) edge.get(i)).intValue();
+                int p = (Integer) edge.get(i);
                 pw2.print((p % w) + "," + (p / w) + " ");
             }
-            int p = ((Integer) edge.get(edge.size() - 1)).intValue();
+            int p = (Integer) edge.get(edge.size() - 1);
             pw2.println((p % w) + "," + (p / w) + "</edge>");
         }
         if (Dpoint != null && Dpoint.size() > 0) {
@@ -2812,44 +2805,42 @@ class Cell implements Serializable {
         if (actinpatchpoint != null && actinpatchpoint.size() > 0) {
             pw2.print("   <actin>");
             for (int i = 0; i < actinpatchpoint.size() - 1; i++) {
-                int p = ((Integer) actinpatchpoint.get(i)).intValue();
+                int p = (Integer) actinpatchpoint.get(i);
                 pw2.print((p % w) + "," + (p / w) + " ");
             }
-            int p = ((Integer) actinpatchpoint.get(actinpatchpoint.size() - 1))
-                    .intValue();
+            int p = (Integer) actinpatchpoint.get(actinpatchpoint.size() - 1);
             pw2.println((p % w) + "," + (p / w) + "</actin>");
         }
         pw2.println("  </celldata>");
     }
 
     //	アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
-    public void calcActinpathlength() {
+    void calcActinpathlength() {
         this.actinpatchpath = new Vector();
         if (this.actinpatchpoint.size() > 0) {
             if (this.getGroup() == 1) {
                 int[] path = new int[this.actinpatchpoint.size()];
                 this.actinpathlength = shortestpathlength(
                         (Vector) this.actinpatchpoint.clone(), path);
-                for (int j = 0; j < path.length; j++) {
-                    this.actinpatchpath.add(new Point(path[j] % w, path[j]
+                for (int i : path) {
+                    this.actinpatchpath.add(new Point(i % w, i
                             / w));
                 }
             } else if (this.getGroup() > 1) {
                 Vector mpatch = new Vector();
                 Vector bpatch = new Vector();
-                for (int j = 0; j < this.actinpatchpoint.size(); j++) {
-                    int p = ((Integer) this.actinpatchpoint.get(j))
-                            .intValue();
+                for (Object o : this.actinpatchpoint) {
+                    int p = (Integer) o;
                     if (this.inmother(p))
-                        mpatch.add(new Integer(p));
+                        mpatch.add(p);
                     else
-                        bpatch.add(new Integer(p));
+                        bpatch.add(p);
                 }
                 if (mpatch.size() > 0 && bpatch.size() > 0) {
-                    mpatch.add(new Integer(this.neckpoint.y * w
-                            + this.neckpoint.x));
-                    bpatch.add(new Integer(this.neckpoint.y * w
-                            + this.neckpoint.x));
+                    mpatch.add(this.neckpoint.y * w
+                            + this.neckpoint.x);
+                    bpatch.add(this.neckpoint.y * w
+                            + this.neckpoint.x);
                     int[] path = new int[mpatch.size()];
                     double length = shortestpathlength(mpatch, path);
                     int j = 0;
@@ -2876,16 +2867,16 @@ class Cell implements Serializable {
                 } else if (mpatch.size() > 0) {
                     int[] path = new int[mpatch.size()];
                     this.actinpathlength = shortestpathlength(mpatch, path);
-                    for (int j = 0; j < path.length; j++) {
-                        this.actinpatchpath.add(new Point(path[j] % w,
-                                path[j] / w));
+                    for (int i : path) {
+                        this.actinpatchpath.add(new Point(i % w,
+                                i / w));
                     }
                 } else if (bpatch.size() > 0) {
                     int[] path = new int[bpatch.size()];
                     this.actinpathlength = shortestpathlength(bpatch, path);
-                    for (int j = 0; j < path.length; j++) {
-                        this.actinpatchpath.add(new Point(path[j] % w,
-                                path[j] / w));
+                    for (int i : path) {
+                        this.actinpatchpath.add(new Point(i % w,
+                                i / w));
                     }
                 } else
                     this.actinpathlength = -1;
@@ -2899,7 +2890,7 @@ class Cell implements Serializable {
     private double shortestpathlength(Vector points, int[] ps) {
         int n = points.size();
         for (int i = 0; i < n; i++)
-            ps[i] = ((Integer) points.get(i)).intValue();
+            ps[i] = (Integer) points.get(i);
         double length = 0;
         for (int i = 0; i < n; i++)
             length += distance(ps[i], ps[(i + 1) % n]);

@@ -11,6 +11,7 @@
 package lab.cb.scmd.algorithm;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 
@@ -143,10 +144,10 @@ public class Algorithm {
         if (input.size() != comparisonTarget.length)
             return false;
         Iterator it = input.iterator();
-        for (int i = 0; i < comparisonTarget.length; i++) {
+        for (Object o : comparisonTarget) {
             if (!it.hasNext())
                 return false;
-            if (!comparisonTarget[i].equals(it.next()))
+            if (!o.equals(it.next()))
                 return false;
         }
         return true;
@@ -158,12 +159,12 @@ public class Algorithm {
             return false;
 
         Iterator it = input.iterator();
-        for (int i = 0; i < comparisonTarget.length; i++) {
+        for (int value : comparisonTarget) {
             if (!it.hasNext())
                 return false;
-            int intVal = ((Integer) it.next()).intValue();
+            int intVal = (Integer) it.next();
 
-            if (intVal != comparisonTarget[i])
+            if (intVal != value)
                 return false;
         }
         return true;
@@ -174,12 +175,12 @@ public class Algorithm {
             return false;
 
         Iterator it = input.iterator();
-        for (int i = 0; i < comparisonTarget.length; i++) {
+        for (double v : comparisonTarget) {
             if (!it.hasNext())
                 return false;
-            double doubleVal = ((Double) it.next()).doubleValue();
+            double doubleVal = (Double) it.next();
 
-            if (doubleVal != comparisonTarget[i])
+            if (doubleVal != v)
                 return false;
         }
         return true;
@@ -207,15 +208,15 @@ public class Algorithm {
      * @return targetCollection
      */
     static public Collection initializeCollection(Collection targetCollection, int[] initialValue) {
-        for (int i = 0; i < initialValue.length; i++) {
-            targetCollection.add(new Integer(initialValue[i]));
+        for (int value : initialValue) {
+            targetCollection.add(value);
         }
         return targetCollection;
     }
 
     static public Collection initializeCollection(Collection targetCollection, double[] initialValue) {
-        for (int i = 0; i < initialValue.length; i++) {
-            targetCollection.add(new Double(initialValue[i]));
+        for (double v : initialValue) {
+            targetCollection.add(v);
         }
         return targetCollection;
     }
@@ -226,9 +227,7 @@ public class Algorithm {
      * @return
      */
     static public Collection initializeCollection(Collection targetCollection, String[] initialValue) {
-        for (int i = 0; i < initialValue.length; i++) {
-            targetCollection.add(initialValue[i]);
-        }
+        Collections.addAll(targetCollection, initialValue);
         return targetCollection;
     }
 }

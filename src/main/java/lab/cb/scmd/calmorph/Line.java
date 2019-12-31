@@ -8,19 +8,19 @@ public class Line {
     private double _gradient, _intercept;
     private final static double _vertical = Double.MAX_VALUE;
 
-    public Line() {
+    Line() {
     }
 
-    public Line(double gradient, double intercept) {
+    private Line(double gradient, double intercept) {
         _gradient = gradient;
         _intercept = intercept;
     }
 
-    public double getGradient() {
+    private double getGradient() {
         return _gradient;
     }
 
-    public double getIntercept() {
+    private double getIntercept() {
         return _intercept;
     }
 
@@ -31,14 +31,14 @@ public class Line {
         return new Line(gradient, intercept);
     }
 
-    public Line calculatePerpendicularLine(int start, int middle, int end, int width) {
+    Line calculatePerpendicularLine(int start, int middle, int end, int width) {
         int[] xy = calculateXY(start, end, width);
         double gradient = calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]);
         double intercept = calculateIntercept(gradient, middle, width);
         return new Line(gradient, intercept);
     }
 
-    protected static int[] calculateXY(int start, int end, int width) {
+    private static int[] calculateXY(int start, int end, int width) {
         int[] result = new int[4];
 
         int x1 = start % width;
@@ -60,28 +60,28 @@ public class Line {
         return result;
     }
 
-    protected static double calculateGradient(int x1, int y1, int x2, int y2) {
+    private static double calculateGradient(int x1, int y1, int x2, int y2) {
         if (x1 == x2) {
             return _vertical;
         }
         return (y2 - y1) / (x2 - x1);
     }
 
-    protected static double calculatePerpendicularGradient(int x1, int y1, int x2, int y2) {
+    private static double calculatePerpendicularGradient(int x1, int y1, int x2, int y2) {
         if (y1 == y2) {
             return _vertical;
         }
         return (x1 - x2) / (y2 - y1);
     }
 
-    protected static double calculateIntercept(double gradient, int middle, int width) {
+    private static double calculateIntercept(double gradient, int middle, int width) {
         if (gradient == _vertical) {
             return middle % width;
         }  // 縦線の時は 切片 = middle_x
         return (middle / width) - gradient * (middle % width);
     }
 
-    public static double calculateLineDistance(Line line, int p, int width) {
+    private static double calculateLineDistance(Line line, int p, int width) {
         double x = p % width;
         double y = p / width;
         double grad = line.getGradient();
@@ -94,15 +94,15 @@ public class Line {
         return ((y - grad * x - cept) * (y - grad * x - cept) / (1 + grad * grad));
     }
 
-    public static int findTheNearestPoint(Line line, Vector edge, int width) {
-        int result = ((Integer) edge.get(0)).intValue();
-        double min = calculateLineDistance(line, ((Integer) edge.get(0)).intValue(), width);
+    static int findTheNearestPoint(Line line, Vector edge, int width) {
+        int result = (Integer) edge.get(0);
+        double min = calculateLineDistance(line, (Integer) edge.get(0), width);
 
         for (int i = 1; i < edge.size(); i++) {
-            double distance = calculateLineDistance(line, ((Integer) edge.get(i)).intValue(), width);
+            double distance = calculateLineDistance(line, (Integer) edge.get(i), width);
             if (min > distance) {
                 min = distance;
-                result = ((Integer) edge.get(i)).intValue();
+                result = (Integer) edge.get(i);
             }
         }
         return result;

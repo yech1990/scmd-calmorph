@@ -23,7 +23,10 @@ import lab.cb.scmd.util.table.TableIterator;
 import lab.cb.scmd.util.time.StopWatch;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,26 +37,26 @@ import java.util.regex.Pattern;
  */
 public class CalcGroupStat implements TableFileName {
 
-    OptionParser _parser = new OptionParser();
-    String[] _missingValue = {"-1", "-1.0", "Infinity", "NaN"};
-    Statistics _stat = new StatisticsWithMissingValueSupport(_missingValue);
-    PrintStream _log = new NullPrintStream();
-    boolean _eliminateSample = false;
-    boolean _shortVariables = false;
+    private OptionParser _parser = new OptionParser();
+    private String[] _missingValue = {"-1", "-1.0", "Infinity", "NaN"};
+    private Statistics _stat = new StatisticsWithMissingValueSupport(_missingValue);
+    private PrintStream _log = new NullPrintStream();
+    private boolean _eliminateSample = false;
+    private boolean _shortVariables = false;
 
     // option IDs
-    final static int OPT_HELP = 0;
-    final static int OPT_VERBOSE = 1;
-    final static int OPT_BASEDIR = 2;
+    private final static int OPT_HELP = 0;
+    private final static int OPT_VERBOSE = 1;
+    private final static int OPT_BASEDIR = 2;
     //final static int	OPT_OLD_FORMAT		= 3;
-    final static int OPT_ELIMINATE = 4;
-    final static int OPT_SHORTVARIABLES = 5;
-    final static int OPT_CALCORFSTAT = 6;
+    private final static int OPT_ELIMINATE = 4;
+    private final static int OPT_SHORTVARIABLES = 5;
+    private final static int OPT_CALCORFSTAT = 6;
 
-    String _baseDirName = ".";
-    boolean _isVerbose = false;
+    private String _baseDirName = ".";
+    private boolean _isVerbose = false;
 
-    public CalcGroupStat() {
+    CalcGroupStat() {
     }
 
     public CalcGroupStat(String baseDirName) {
@@ -68,8 +71,8 @@ public class CalcGroupStat implements TableFileName {
      * @return CVパラメータ名 ([A-Za-z]{1})CV([0-9][0-9-]+_(A|A1B|C))
      * @throws SCMDException
      */
-    protected String getCVParameterName(String parameterName) throws SCMDException {
-        Pattern p = Pattern.compile("([A-Za-z]{1})([0-9][0-9-]*_(A|A1B|C))");
+    private String getCVParameterName(String parameterName) throws SCMDException {
+        Pattern p = Pattern.compile("([A-Za-z])([0-9][0-9-]*_(A|A1B|C))");
         Matcher m = p.matcher(parameterName);
         if (m.matches())
             return m.group(1) + "CV" + m.group(2);
@@ -82,7 +85,7 @@ public class CalcGroupStat implements TableFileName {
      *
      * @author leo
      */
-    class OutputResult {
+    static class OutputResult {
 
         OutputResult(HashMap resultHash, HashMap numValidSampleHash) {
             _resultHash = resultHash;
@@ -95,14 +98,14 @@ public class CalcGroupStat implements TableFileName {
         /**
          * @return Returns the _numValidSampleHash.
          */
-        public HashMap get_numValidSampleHash() {
+        HashMap get_numValidSampleHash() {
             return _numValidSampleHash;
         }
 
         /**
          * @return Returns the _resultHash.
          */
-        public HashMap get_resultHash() {
+        HashMap get_resultHash() {
             return _resultHash;
         }
     }
@@ -112,7 +115,7 @@ public class CalcGroupStat implements TableFileName {
      *
      * @throws SCMDException
      */
-    public void loopForEachDirectory() throws SCMDException, IOException {
+    void loopForEachDirectory() throws SCMDException, IOException {
         StopWatch globalTime = new StopWatch();
 
         File inputDir = new File(_baseDirName);
@@ -166,12 +169,12 @@ public class CalcGroupStat implements TableFileName {
             StopWatch groupTime = new StopWatch();
             _log.println("Entering the directory: " + groupDir[i]);
             File[] fileList = groupDir[i].listFiles();
-            for (int j = 0; j < fileList.length; j++) {
-                if (!fileList[j].isDirectory())
+            for (File file : fileList) {
+                if (!file.isDirectory())
                     continue;
 
                 // directory名からORFを切り出す
-                String dirName = fileList[j].getName();
+                String dirName = file.getName();
                 int groupNameSuffixPosition = dirName.lastIndexOf("_" + GROUP_NAME[i]);
                 if (groupNameSuffixPosition == -1)
                     continue; // ORF_{GROUP_NAME}の形式ではない。
@@ -182,14 +185,14 @@ public class CalcGroupStat implements TableFileName {
 
                 switch (i) {
                     case GROUP_A:
-                        calc_A(new File(fileList[j], orfName + GROUP_FILE_SUFFIX[GROUP_A]), orfName, resultOut[GROUP_A], sampleNumOut[GROUP_A]);
+                        calc_A(new File(file, orfName + GROUP_FILE_SUFFIX[GROUP_A]), orfName, resultOut[GROUP_A], sampleNumOut[GROUP_A]);
                         break;
                     case GROUP_A1B:
-                        calc_A1B(new File(fileList[j], orfName + GROUP_FILE_SUFFIX[GROUP_A1B]), orfName,
+                        calc_A1B(new File(file, orfName + GROUP_FILE_SUFFIX[GROUP_A1B]), orfName,
                                 resultOut[GROUP_A1B], sampleNumOut[GROUP_A1B]);
                         break;
                     case GROUP_C:
-                        calc_C(new File(fileList[j], orfName + GROUP_FILE_SUFFIX[GROUP_C]), orfName, resultOut[GROUP_C], sampleNumOut[GROUP_C]);
+                        calc_C(new File(file, orfName + GROUP_FILE_SUFFIX[GROUP_C]), orfName, resultOut[GROUP_C], sampleNumOut[GROUP_C]);
                         break;
                 }
             }
@@ -202,7 +205,7 @@ public class CalcGroupStat implements TableFileName {
         globalTime.showElapsedTime(_log);
     }
 
-    void outputLabel(PrintWriter out, String[] label) {
+    private void outputLabel(PrintWriter out, String[] label) {
         if (label.length < 1)
             return;
         out.print(label[0]);
@@ -211,7 +214,7 @@ public class CalcGroupStat implements TableFileName {
         out.println();
     }
 
-    void outputResult(String orfName, PrintWriter out, String[] label, HashMap resultHash) {
+    private void outputResult(String orfName, PrintWriter out, String[] label, HashMap resultHash) {
         out.print(orfName);
         for (int i = 1; i < label.length; i++) {
             out.print("\t" + resultHash.get(label[i]));
@@ -219,15 +222,15 @@ public class CalcGroupStat implements TableFileName {
         out.println();
     }
 
-    String[] outputLabel_A;
-    String[] outputLabel_SRT_A = {
+    private String[] outputLabel_A;
+    private String[] outputLabel_SRT_A = {
             "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "CCV11-1_A",
             "CCV115_A", "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
             "A123_A", "ACV101_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
             "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A", "D176_A", "D179_A", "D182_A", "D188_A",
             "D191_A", "D194_A", "DCV14-1_A", "DCV105_A", "DCV147_A", "DCV182_A"};
 
-    String[] outputLabel_ALL_A = {
+    private String[] outputLabel_ALL_A = {
             "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A",
             "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
             "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
@@ -246,8 +249,8 @@ public class CalcGroupStat implements TableFileName {
     // "D164,D165_A1B" => "D165_A1B"
     // "D171,D172_A1B" => "D172_A1B"
     // "D188,D190_A1B" => "D190_A1B"
-    String[] outputLabel_A1B;
-    String[] outputLabel_SRT_A1B = {
+    private String[] outputLabel_A1B;
+    private String[] outputLabel_SRT_A1B = {
             "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
             "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
             "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
@@ -262,7 +265,7 @@ public class CalcGroupStat implements TableFileName {
             "D190_A1B", "D193_A1B", "D196_A1B", "DCV14-3_A1B", "DCV107_A1B", "DCV114_A1B", "DCV147_A1B",
             "DCV184_A1B"};
 
-    String[] outputLabel_ALL_A1B = {
+    private String[] outputLabel_ALL_A1B = {
             "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
             "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
             "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
@@ -286,8 +289,8 @@ public class CalcGroupStat implements TableFileName {
             "DCV165_A1B", "DCV169_A1B", "DCV170_A1B", "DCV172_A1B", "DCV175_A1B", "DCV178_A1B", "DCV181_A1B", "DCV184_A1B",
             "DCV190_A1B", "DCV193_A1B", "DCV196_A1B"};
 
-    String[] outputLabel_C;
-    String[] outputLabel_SRT_C = {
+    private String[] outputLabel_C;
+    private String[] outputLabel_SRT_C = {
             "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
             "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
             "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C",
@@ -304,7 +307,7 @@ public class CalcGroupStat implements TableFileName {
             "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C", "DCV14-1_C", "DCV14-2_C", "DCV14-3_C",
             "DCV106_C", "DCV112_C", "DCV113_C", "DCV116_C", "DCV123_C", "DCV147_C", "DCV149_C", "DCV182_C", "DCV183_C"};
 
-    String[] outputLabel_ALL_C = {
+    private String[] outputLabel_ALL_C = {
             "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
             "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
             "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
@@ -332,13 +335,13 @@ public class CalcGroupStat implements TableFileName {
             "DCV179_C", "DCV180_C", "DCV182_C", "DCV183_C", "DCV185_C", "DCV186_C", "DCV188_C", "DCV189_C", "DCV191_C", "DCV192_C",
             "DCV193_C", "DCV194_C", "DCV195_C", "DCV196_C", "DCV197_C", "DCV198_C"};
 
-    String[] outputNumLabel_A = {
+    private String[] outputNumLabel_A = {
             "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "A7-1_A",
             "A8-1_A", "A101_A", "A120_A", "A121_A", "A122_A", "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A",
             "D102_A", "D105_A", "D117_A", "D127_A", "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A",
             "D176_A", "D179_A", "D182_A", "D188_A", "D191_A", "D194_A"};
 
-    String[] outputNumLabel_A1B = {
+    private String[] outputNumLabel_A1B = {
             "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
             "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
             "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C126_A1B", "C127_A1B",
@@ -349,7 +352,7 @@ public class CalcGroupStat implements TableFileName {
             "D155_A1B", "D161_A1B", "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B",
             "D178_A1B", "D181_A1B", "D184_A1B", "D190_A1B", "D193_A1B", "D196_A1B"};
 
-    String[] outputNumLabel_C = {
+    private String[] outputNumLabel_C = {
             "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
             "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
             "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
@@ -364,7 +367,7 @@ public class CalcGroupStat implements TableFileName {
             "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
             "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C"};
 
-    void calc_A(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
+    private void calc_A(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
         FlatTable table_A = new FlatTable(tableFile);
         //String[] targetedParameterOfCV_A = {"C11-1_A", "C115_A", "A101_A",
         // "D14-1_A", "D105_A", "D147_A", "D182_A"};
@@ -381,7 +384,7 @@ public class CalcGroupStat implements TableFileName {
         outputResult(orfName, numOut, outputNumLabel_A, result_A.get_numValidSampleHash());
     }
 
-    void calc_A1B(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
+    private void calc_A1B(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
         FlatTable table_A1B = new FlatTable(tableFile);
         //		String[] targetParameterOfCV_A1B = {
         //				"C11-1_A1B", "C11-2_A1B", "C105_A1B", "C106_A1B", "C109_A1B",
@@ -408,7 +411,7 @@ public class CalcGroupStat implements TableFileName {
 
     }
 
-    void calc_C(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
+    private void calc_C(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
         FlatTable table_C = new FlatTable(tableFile);
         //		String[] targetParameterOfCV_C = {
         //				"C11-1_A1B", "C11-2_A1B", "C105_A1B", "C106_A1B", "C109_A1B",
@@ -445,32 +448,31 @@ public class CalcGroupStat implements TableFileName {
      */
     private HashMap countRatio(String[] groupTypePattern, FlatTable inputTable, String targetColumnLabel) {
         // 出現する文字列ごとにカウントする（このときはgroupTypePatternと一致するかは判定しない）
-        HashMap countResult = new HashMap();
+        HashMap<String, Integer> countResult = new HashMap<String, Integer>();
         for (TableIterator ti = inputTable.getVerticalIterator(targetColumnLabel); ti.hasNext(); ) {
             String group = ti.nextCell().toString();
-            Integer count = (Integer) countResult.get(group);
+            Integer count = countResult.get(group);
             if (count != null)
-                countResult.put(group, new Integer(count.intValue() + 1));
+                countResult.put(group, count + 1);
             else
-                countResult.put(group, new Integer(1));
+                countResult.put(group, 1);
         }
 
         // patternCount - 結果の出力先
         HashMap patternCount = new HashMap();
-        for (int i = 0; i < groupTypePattern.length; i++)
-            patternCount.put(groupTypePattern[i], new Integer(0)); // 初期化
+        for (String value : groupTypePattern) patternCount.put(value, 0); // 初期化
 
         // countResult 内のパターンがどのgroupTypePattern内の要素に一致するかを調べ、
         // 各パターンの出現回数を、patternCountに代入する
-        Set entrySet = countResult.keySet();
-        for (Iterator ei = entrySet.iterator(); ei.hasNext(); ) {
-            String keyElem = (String) ei.next();
-            for (int i = 0; i < groupTypePattern.length; i++) {
-                if (keyElem.matches(groupTypePattern[i])) {
-                    String matchedPattern = groupTypePattern[i];
-                    int countToAdd = ((Integer) countResult.get(keyElem)).intValue(); // keyElemの出現回数
-                    int prevCount = ((Integer) patternCount.get(matchedPattern)).intValue(); // 既に計上されているカウント
-                    patternCount.put(matchedPattern, new Integer(prevCount + countToAdd));
+        Set<String> entrySet = countResult.keySet();
+        for (Object o : entrySet) {
+            String keyElem = (String) o;
+            for (String s : groupTypePattern) {
+                if (keyElem.matches(s)) {
+                    String matchedPattern = s;
+                    int countToAdd = countResult.get(keyElem); // keyElemの出現回数
+                    int prevCount = (Integer) patternCount.get(matchedPattern); // 既に計上されているカウント
+                    patternCount.put(matchedPattern, prevCount + countToAdd);
                 }
             }
         }
@@ -479,9 +481,9 @@ public class CalcGroupStat implements TableFileName {
         int numValidCell = _stat.countValidStringCell(inputTable.getVerticalIterator(targetColumnLabel));
         if (numValidCell < 1)
             numValidCell = 1;  // 0で割らないようにする
-        for (int i = 0; i < groupTypePattern.length; i++) {
-            int count = ((Integer) patternCount.get(groupTypePattern[i])).intValue();
-            patternCount.put(groupTypePattern[i], new Double((double) count / numValidCell));
+        for (String s : groupTypePattern) {
+            int count = (Integer) patternCount.get(s);
+            patternCount.put(s, (double) count / numValidCell);
         }
         return patternCount;
     }
@@ -506,7 +508,7 @@ public class CalcGroupStat implements TableFileName {
      * @return OutputResult(パラメータ名 - > 計算結果値のハッシュ 、 パラメータ名 - > 有効要素のカウント のハッシュ)
      * @throws SCMDException
      */
-    protected OutputResult calcOldFormat(String groupName, FlatTable inputTable, String[] outputLabel)
+    private OutputResult calcOldFormat(String groupName, FlatTable inputTable, String[] outputLabel)
             throws SCMDException {
         // A_data.xls のデータの出力
         HashMap resultHash = new HashMap(); // 出力結果を入れるコンテナ
@@ -515,10 +517,10 @@ public class CalcGroupStat implements TableFileName {
         // create a list of targeted parameter of calcurating averages and
         // counting the number of samples.
         Vector labelListOfOriginalTable = inputTable.getColLabelList();
-        Vector parameter = new Vector();
+        Vector<String> parameter = new Vector<String>();
         String regex = "[\"]?[^_]+_" + groupName + "[\"]?";
-        for (Iterator vi = labelListOfOriginalTable.iterator(); vi.hasNext(); ) {
-            String label = (String) vi.next();
+        for (Object item : labelListOfOriginalTable) {
+            String label = (String) item;
             if (label.matches(regex)) // 末尾に"_" + groupNameがついたものを取り出す
                 parameter.add(label);
             else {
@@ -527,28 +529,28 @@ public class CalcGroupStat implements TableFileName {
         }
 
         // calc average
-        for (Iterator vi = parameter.iterator(); vi.hasNext(); ) {
-            String paramName = (String) vi.next();
+        for (Object value : parameter) {
+            String paramName = (String) value;
             NumElementAndStatValuePair result = _stat.calcMeanAndNumSample(inputTable.getVerticalIterator(paramName));
-            resultHash.put(paramName, new Double(result.getValue()));
-            numValidSampleMap.put(paramName, new Integer(result.getNumElement()));
+            resultHash.put(paramName, result.getValue());
+            numValidSampleMap.put(paramName, result.getNumElement());
         }
 
-        LinkedList cvParameterList = new LinkedList();
+        LinkedList<String> cvParameterList = new LinkedList<String>();
         // outputLabel中で、CVの含まれているものを取り出す
         Pattern cvPattern = Pattern.compile("([A-Za-z]{1})CV([0-9][0-9-]*_(A|A1B|C))");
-        for (int i = 0; i < outputLabel.length; i++) {
-            Matcher m = cvPattern.matcher(outputLabel[i]);
+        for (String s : outputLabel) {
+            Matcher m = cvPattern.matcher(s);
             if (m.matches())
                 cvParameterList.add(m.group(1) + m.group(2)); // remove
             // CV
             // substring
         }
         // calc CV
-        for (Iterator vi = cvParameterList.iterator(); vi.hasNext(); ) {
-            String targetParameter = (String) vi.next();
-            resultHash.put(getCVParameterName(targetParameter), new Double(_stat.calcCV(inputTable
-                    .getVerticalIterator(targetParameter))));
+        for (Object o : cvParameterList) {
+            String targetParameter = (String) o;
+            resultHash.put(getCVParameterName(targetParameter), _stat.calcCV(inputTable
+                    .getVerticalIterator(targetParameter)));
         }
 
         return new OutputResult(resultHash, numValidSampleMap);
@@ -559,7 +561,7 @@ public class CalcGroupStat implements TableFileName {
      * @return 解析するORFのディレクトリ
      * @throws SCMDException
      */
-    public void setupByArguments(String[] args) throws SCMDException {
+    void setupByArguments(String[] args) throws SCMDException {
         setupOptionParser();
 
         _parser.getContext(args);
@@ -589,7 +591,7 @@ public class CalcGroupStat implements TableFileName {
         //return (String) argIterator.next();
     }
 
-    void setupOptionParser() throws SCMDException {
+    private void setupOptionParser() throws SCMDException {
         _parser.setOption(new Option(OPT_HELP, "h", "help", "diaplay help message"));
         _parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
         _parser.setOption(new OptionWithArgument(OPT_BASEDIR, "b", "basedir", "DIR",
@@ -603,7 +605,7 @@ public class CalcGroupStat implements TableFileName {
         _parser.setOption(new Option(OPT_CALCORFSTAT, "c", "calcgroupstat", "calculate group statistics"));
     }
 
-    public void printUsage(int exitCode) {
+    private void printUsage(int exitCode) {
         System.out.println("Usage: CalcGroupStat [option]");
         System.out.println(_parser.createHelpMessage());
         System.exit(exitCode);
@@ -621,11 +623,11 @@ public class CalcGroupStat implements TableFileName {
         }
     }
 
-    public void setBaseDir(String dirname) {
+    void setBaseDir(String dirname) {
         _baseDirName = dirname;
     }
 
-    public void setVerbose() {
+    void setVerbose() {
         _isVerbose = true;
     }
 }

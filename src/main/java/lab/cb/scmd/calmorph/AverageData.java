@@ -16,29 +16,29 @@ import java.io.PrintWriter;
 import java.util.Vector;
 
 class AverageData {
-    Vector Cgroup, Agroup, Dgroup;
-    Vector[] versparam;
-    double[] versparammean;
-    Vector[] Cparam;
-    double[] Cparammean;
-    Vector[] Aparam;
-    double[] Aparammean;
-    Vector[] Dparam;
-    double[] Dparammean;
-    int[] countCgroup, countDgroup, countAgroup;
+    private Vector Cgroup, Agroup, Dgroup;
+    private Vector[] versparam;
+    private double[] versparammean;
+    private Vector[] Cparam;
+    private double[] Cparammean;
+    private Vector[] Aparam;
+    private double[] Aparammean;
+    private Vector[] Dparam;
+    private double[] Dparammean;
+    private int[] countCgroup, countDgroup, countAgroup;
 
-    String outdir, name;
+    private String outdir, name;
 
-    double MISSINGVALUE = Double.NaN;
-    String DATAFILESUFFIX = ".xls";
-    String SUMMARYFILE = "_data";
-    String SDFILE = "_SD";
-    String VERSATILEFILE = "versatile";
-    String ACTINFILE = "actin";
-    String CONAFILE = "conA";
-    String DAPIFILE = "dapi";
+    private double MISSINGVALUE = Double.NaN;
+    private String DATAFILESUFFIX = ".xls";
+    private String SUMMARYFILE = "_data";
+    private String SDFILE = "_SD";
+    private String VERSATILEFILE = "versatile";
+    private String ACTINFILE = "actin";
+    private String CONAFILE = "conA";
+    private String DAPIFILE = "dapi";
 
-    public AverageData(String name, String outdir) {
+    AverageData(String name, String outdir) {
         Cgroup = new Vector();
         Dgroup = new Vector();
         Agroup = new Vector();
@@ -62,37 +62,34 @@ class AverageData {
         this.outdir = outdir;
     }
 
-    public void addCellData(CellImage image) {
+    void addCellData(CellImage image) {
         for (int i = 0; i < image.cell.length; i++) {
             Cgroup.add(image.cell[i].getCgroup());
             Dgroup.add(image.cell[i].getDgroup());
             Agroup.add(image.cell[i].getAgroup());
             for (int j = 0; j < versparam.length; j++) {
-                versparam[j].add(new Double(image.cell[i].versparam[j]));
+                versparam[j].add(image.cell[i].versparam[j]);
             }
             for (int j = 0; j < image.cell[i].Cbaseparam.length; j++) {
-                Cparam[j].add(new Double(image.cell[i].Cbaseparam[j]));
+                Cparam[j].add(image.cell[i].Cbaseparam[j]);
             }
             for (int j = 0; j < image.cell[i].Cexpandparam.length; j++) {
-                Cparam[image.cell[i].Cbaseparam.length + j].add(new Double(
-                        image.cell[i].Cexpandparam[j]));
+                Cparam[image.cell[i].Cbaseparam.length + j].add(image.cell[i].Cexpandparam[j]);
             }
             if (image.calA) {
                 for (int j = 0; j < image.cell[i].Abaseparam.length; j++) {
-                    Aparam[j].add(new Double(image.cell[i].Abaseparam[j]));
+                    Aparam[j].add(image.cell[i].Abaseparam[j]);
                 }
                 for (int j = 0; j < image.cell[i].Aexpandparam.length; j++) {
-                    Aparam[image.cell[i].Abaseparam.length + j].add(new Double(
-                            image.cell[i].Aexpandparam[j]));
+                    Aparam[image.cell[i].Abaseparam.length + j].add(image.cell[i].Aexpandparam[j]);
                 }
             }
             if (image.calD) {
                 for (int j = 0; j < image.cell[i].Dbaseparam.length; j++) {
-                    Dparam[j].add(new Double(image.cell[i].Dbaseparam[j]));
+                    Dparam[j].add(image.cell[i].Dbaseparam[j]);
                 }
                 for (int j = 0; j < image.cell[i].Dexpandparam.length; j++) {
-                    Dparam[image.cell[i].Dbaseparam.length + j].add(new Double(
-                            image.cell[i].Dexpandparam[j]));
+                    Dparam[image.cell[i].Dbaseparam.length + j].add(image.cell[i].Dexpandparam[j]);
                 }
             }
         }
@@ -102,7 +99,7 @@ class AverageData {
     //data.xlsを出力
     //data.xls -> versatile.xls
     //////////////////////////////////////////////////////////////////////////////////////////
-    public void printDataXLS(boolean calA, boolean calD, boolean outsheet) {
+    void printDataXLS(boolean calA, boolean calD, boolean outsheet) {
         try {
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(
                     outdir + "/" + VERSATILEFILE + DATAFILESUFFIX, true)));
@@ -235,7 +232,7 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //SDdata.xlsを出力
     //////////////////////////////////////////////////////////////////////////////////////////
-    public void printSDDataXLS(boolean calA, boolean calD, boolean outsheet) {
+    void printSDDataXLS(boolean calA, boolean calD, boolean outsheet) {
         try {
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(
                     outdir + "/" + VERSATILEFILE + SDFILE + DATAFILESUFFIX, true)));
@@ -301,7 +298,7 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //平均値をセット
     //////////////////////////////////////////////////////////////////////////////////////////
-    public void calParamMean(boolean calA, boolean calD) {
+    private void calParamMean(boolean calA, boolean calD) {
         versparammean = new double[versparam.length];
         for (int i = 0; i < versparam.length; i++) {
             versparammean[i] = mean(versparam[i]);
@@ -327,67 +324,93 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //グループ分けの数をセット
     //////////////////////////////////////////////////////////////////////////////////////////
-    public void setCountGroup() {
-        int err = 0;
+    private void setCountGroup() {
         countCgroup = new int[6];
-        for (int i = 0; i < Cgroup.size(); i++) {
-            String g = (String) Cgroup.get(i);
-            if (g.equals("complex"))
-                countCgroup[0]++;
-            else if (g.equals("no"))
-                countCgroup[1]++;
-            else if (g.equals("small"))
-                countCgroup[2]++;
-            else if (g.equals("medium"))
-                countCgroup[3]++;
-            else if (g.equals("large"))
-                countCgroup[4]++;
-            else
-                err++;
+        for (Object item : Cgroup) {
+            String g = (String) item;
+            switch (g) {
+                case "complex":
+                    countCgroup[0]++;
+                    break;
+                case "no":
+                    countCgroup[1]++;
+                    break;
+                case "small":
+                    countCgroup[2]++;
+                    break;
+                case "medium":
+                    countCgroup[3]++;
+                    break;
+                case "large":
+                    countCgroup[4]++;
+                    break;
+                default:
+                    break;
+            }
         }
         countDgroup = new int[8];
-        for (int i = 0; i < Dgroup.size(); i++) {
-            String g = (String) Dgroup.get(i);
-            if (g.equals("-"))
-                countDgroup[0]++;
-            else if (g.equals("A"))
-                countDgroup[1]++;
-            else if (g.equals("A1"))
-                countDgroup[2]++;
-            else if (g.equals("B"))
-                countDgroup[3]++;
-            else if (g.equals("C"))
-                countDgroup[4]++;
-            else if (g.equals("D"))
-                countDgroup[5]++;
-            else if (g.equals("E"))
-                countDgroup[6]++;
-            else if (g.equals("F"))
-                countDgroup[7]++;
-            else
-                err++;
+        for (Object value : Dgroup) {
+            String g = (String) value;
+            switch (g) {
+                case "-":
+                    countDgroup[0]++;
+                    break;
+                case "A":
+                    countDgroup[1]++;
+                    break;
+                case "A1":
+                    countDgroup[2]++;
+                    break;
+                case "B":
+                    countDgroup[3]++;
+                    break;
+                case "C":
+                    countDgroup[4]++;
+                    break;
+                case "D":
+                    countDgroup[5]++;
+                    break;
+                case "E":
+                    countDgroup[6]++;
+                    break;
+                case "F":
+                    countDgroup[7]++;
+                    break;
+                default:
+                    break;
+            }
         }
         countAgroup = new int[8];
-        for (int i = 0; i < Agroup.size(); i++) {
-            String g = (String) Agroup.get(i);
-            if (g.equals("-"))
-                countAgroup[0]++;
-            else if (g.equals("A"))
-                countAgroup[1]++;
-            else if (g.equals("B"))
-                countAgroup[2]++;
-            else if (g.equals("api"))
-                countAgroup[3]++;
-            else if (g.equals("iso"))
-                countAgroup[4]++;
-            else if (g.equals("E"))
-                countAgroup[5]++;
-            else if (g.equals("F"))
-                countAgroup[6]++;
-            else if (g.equals("N"))
-                countAgroup[7]++;
-            else
-                err++;
+        for (Object o : Agroup) {
+            String g = (String) o;
+            switch (g) {
+                case "-":
+                    countAgroup[0]++;
+                    break;
+                case "A":
+                    countAgroup[1]++;
+                    break;
+                case "B":
+                    countAgroup[2]++;
+                    break;
+                case "api":
+                    countAgroup[3]++;
+                    break;
+                case "iso":
+                    countAgroup[4]++;
+                    break;
+                case "E":
+                    countAgroup[5]++;
+                    break;
+                case "F":
+                    countAgroup[6]++;
+                    break;
+                case "N":
+                    countAgroup[7]++;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -396,8 +419,8 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     public int count(Vector v) {
         int count = 0;
-        for (int i = 0; i < v.size(); i++) {
-            double d = ((Double) v.get(i)).doubleValue();
+        for (Object o : v) {
+            double d = (Double) o;
             if (d != -1) {
                 count++;
             }
@@ -408,11 +431,11 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //-1以外のデータの平均値
     //////////////////////////////////////////////////////////////////////////////////////////
-    public double mean(Vector v) {
+    private double mean(Vector v) {
         double r = 0;
         int count = 0;
-        for (int i = 0; i < v.size(); i++) {
-            double d = ((Double) v.get(i)).doubleValue();
+        for (Object o : v) {
+            double d = (Double) o;
             if (d != -1) {
                 r += d;
                 count++;
@@ -427,11 +450,11 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //-1以外のデータの標準偏差(=sqrt(分散))
     //////////////////////////////////////////////////////////////////////////////////////////
-    public double SD(Vector v, double mean) {
+    private double SD(Vector v, double mean) {
         double r = 0;
         int count = 0;
-        for (int i = 0; i < v.size(); i++) {
-            double d = ((Double) v.get(i)).doubleValue();
+        for (Object o : v) {
+            double d = (Double) o;
             if (d != -1) {
                 r += (d - mean) * (d - mean);
                 count++;

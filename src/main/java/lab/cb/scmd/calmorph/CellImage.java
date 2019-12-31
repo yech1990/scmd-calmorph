@@ -52,7 +52,7 @@ class CellImage {
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
 
-    public CellImage(String name, String path, String suffix, int number, String outdir, int startid, boolean calD, boolean calA) {
+    CellImage(String name, String path, String suffix, int number, String outdir, int startid, boolean calD, boolean calA) {
         _width = 2040;            //Fixed for the time being
         _height = 2040;           //Fixed for the time being
         _size = _width * _height; //Fixed for the time being
@@ -67,8 +67,7 @@ class CellImage {
         this.calA = calA;
         err = false;
         err_kind = "";
-        File f = null;
-        BufferedImage bi = null;
+        BufferedImage bi;
         DataBuffer db = null;
 
         _logger.debug("process a photo: " + number);
@@ -76,7 +75,7 @@ class CellImage {
         String prefix = path + File.separator + new File(path).getName();
         //String prefix = path;
 
-        if ((f = new File(prefix + "-C" + number + "." + suffix)).exists() && (bi = getBufferedImage(prefix + "-C" + number + "." + suffix)) != null) {
+        if (new File(prefix + "-C" + number + "." + suffix).exists() && (bi = getBufferedImage(prefix + "-C" + number + "." + suffix)) != null) {
             db = bi.getRaster().getDataBuffer();
         } else {
             err = true;
@@ -84,6 +83,7 @@ class CellImage {
         }
 
         if (!err) {
+            assert db != null;
             if (_size == db.getSize()) {
                 _cell_points = new int[_size];
                 for (int i = 0; i < _size; i++) {
@@ -97,7 +97,7 @@ class CellImage {
         }
 
         if (calD) {//DAPI画像の処理も行う
-            if ((f = new File(prefix + "-D" + number + "." + suffix)).exists()) {
+            if (new File(prefix + "-D" + number + "." + suffix).exists()) {
                 if ((bi = getBufferedImage(prefix + "-D" + number + "." + suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
@@ -110,6 +110,7 @@ class CellImage {
                 _logger.warn("Nucleus image of " + name + " was not loaded although Flag is true.");
             }
             if (calD) {
+                assert db != null;
                 if (_size == db.getSize()) {
                     _nucleus_points = new int[_size];
                     for (int i = 0; i < _size; i++) {
@@ -124,7 +125,7 @@ class CellImage {
         }
 
         if (calA) { //actin画像の処理も行う
-            if ((f = new File(prefix + "-A" + number + "." + suffix)).exists()) {
+            if (new File(prefix + "-A" + number + "." + suffix).exists()) {
                 if ((bi = getBufferedImage(prefix + "-A" + number + "." + suffix)) != null) {
                     db = bi.getRaster().getDataBuffer();
                 } else {
@@ -137,6 +138,7 @@ class CellImage {
                 _logger.warn("Actin image of " + name + " was not loaded although Flag is true.");
             }
             if (calA) {
+                assert db != null;
                 if (_size == db.getSize()) {
                     _actin_points = new int[_size];
                     for (int i = 0; i < _size; i++) {
@@ -159,7 +161,7 @@ class CellImage {
      * @param outimage
      * @param outsheet
      */
-    public void setOptions(boolean objectsave, int objectload, boolean outimage, boolean outsheet) {
+    void setOptions(boolean objectsave, int objectload, boolean outimage, boolean outsheet) {
         this.objectsave = objectsave;
         this.objectload = objectload;
         this.outimage = outimage;
@@ -229,7 +231,7 @@ class CellImage {
      * his3_control_*-C*.jpg の処理
      * morphological segmentation
      */
-    public void segmentCells() {
+    private void segmentCells() {
         ci = _cell_points.clone(); //Keep the original image
 
         medianim(ci);
@@ -267,11 +269,11 @@ class CellImage {
     ////////////////////////////////////////////////////////////////////////////////
     //DAPI画像の処理
     ////////////////////////////////////////////////////////////////////////////////
-    public void procDImage() {
+    private void procDImage() {
         di = _nucleus_points.clone();//元の画像はとっておく
         if (isDifferentDImage()) {//DAPI画像が大きくずれていたら
             err = true;
-            if (err_kind.equals("")) err_kind = "gap of dapi image to cell image";
+            if (err_kind.equals("")) err_kind = "gap of DAPI image to cell image";
             return;
         }
 
@@ -283,7 +285,7 @@ class CellImage {
     ////////////////////////////////////////////////////////////////////////////////
     //actin image processing
     ////////////////////////////////////////////////////////////////////////////////
-    public void procAImage() {
+    private void procAImage() {
         ai = _actin_points.clone();//元の画像はとっておく
         if (isDifferentAImage()) {//actin画像が大きくずれていたら
             err = true;
@@ -301,11 +303,10 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //Read image file
     ///////////////////////////////////////////////////////////////////////////
-    public BufferedImage getBufferedImage(String filename) {
+    private BufferedImage getBufferedImage(String filename) {
         try {
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
             System.out.println(ImageIO.read(new File(filename)).getColorModel());
-            System.out.println(ImageIO.read(new File(filename)).Raster());
             return ImageIO.read(new File(filename));
         } catch (IOException ioe) {
             _logger.error(ioe);
@@ -316,7 +317,7 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //Median filter removes image noise
     ///////////////////////////////////////////////////////////////////////////
-    public void medianim(int[] Cim) {
+    private void medianim(int[] Cim) {
         int[] newci = new int[_size];
         for (int i = 0; i < _height; i++) {
             for (int j = 0; j < _width; j++) {
@@ -338,15 +339,15 @@ class CellImage {
                 }
             }
         }
-        for (int i = 0; i < _size; i++) Cim[i] = newci[i];
+        if (_size >= 0) System.arraycopy(newci, 0, Cim, 0, _size);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //Roughly separate the cell part from the background part
     ///////////////////////////////////////////////////////////////////////////
-    public void vivid(int[] Cim, int gradthresh) {
+    private void vivid(int[] Cim, int gradthresh) {
         int[] newci = new int[_size];
-        for (int i = 0; i < _size; i++) newci[i] = Cim[i];
+        System.arraycopy(Cim, 0, newci, 0, _size);
         int minbr = 255;
         int minpo = -1;
         for (int i = 0; i < _height; i++) {
@@ -358,38 +359,38 @@ class CellImage {
             }
         }
         boolean[] check = new boolean[_size];
-        Stack stk = new Stack();
-        stk.push(new Integer(minpo));
+        Stack<Integer> stk = new Stack<Integer>();
+        stk.push(minpo);
         check[minpo] = true;
         while (!stk.empty()) {
-            int p = ((Integer) stk.pop()).intValue();
+            int p = stk.pop();
             if (!((p - _width < 0 || Cim[p] - Cim[p - _width] < gradthresh) && (p + _width >= _size || Cim[p] - Cim[p + _width] < gradthresh) && (p % _width == 0 || Cim[p] - Cim[p - 1] < gradthresh) && (p % _width == _width - 1 || Cim[p] - Cim[p + 1] < gradthresh)))
                 continue;
             newci[p] = 0;
             if (p - _width >= 0 && !check[p - _width] && Cim[p - _width] - Cim[p] < gradthresh) {
-                stk.push(new Integer(p - _width));
+                stk.push(p - _width);
             }
             if (p - _width >= 0) check[p - _width] = true;
             if (p + _width < _size && !check[p + _width] && Cim[p + _width] - Cim[p] < gradthresh) {
-                stk.push(new Integer(p + _width));
+                stk.push(p + _width);
             }
             if (p + _width < _size) check[p + _width] = true;
             if (p % _width != 0 && !check[p - 1] && Cim[p - 1] - Cim[p] < gradthresh) {
-                stk.push(new Integer(p - 1));
+                stk.push(p - 1);
             }
             if (p % _width != 0) check[p - 1] = true;
             if (p % _width != _width - 1 && !check[p + 1] && Cim[p + 1] - Cim[p] < gradthresh) {
-                stk.push(new Integer(p + 1));
+                stk.push(p + 1);
             }
             if (p % _width != _width - 1) check[p + 1] = true;
         }
-        for (int i = 0; i < _size; i++) Cim[i] = newci[i];
+        if (_size >= 0) System.arraycopy(newci, 0, Cim, 0, _size);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //Take the difference between two results multiplied by vivid with different thresholds
     ///////////////////////////////////////////////////////////////////////////
-    public int[] dif(int[] ci, int[] ci2) {
+    private int[] dif(int[] ci, int[] ci2) {
         int[] difci = new int[_size];
         for (int i = 0; i < _size; i++) {
             if (ci[i] == ci2[i]) difci[i] = 255;
@@ -402,7 +403,7 @@ class CellImage {
     //Divide the difference determined by dif into the part that is
     // determined to be the background and the part that is not
     ///////////////////////////////////////////////////////////////////////////
-    public void division(int[] ci, int[] ci2, int[] difci) {
+    private void division(int[] ci, int[] ci2, int[] difci) {
         Vector[] vec = label(difci, 0, 10, true);
         int[] thci = new int[_size];
         for (int i = 0; i < _size; i++) {
@@ -411,15 +412,14 @@ class CellImage {
         }
         Vector[] vec2 = label(thci, 0, 3000, false);
         //(edited by yechang 200 -> 3000)
-        int[] pixeltoarea = new int[_size];
-        for (int i = 0; i < _size; i++) pixeltoarea[i] = -1;
+        int[] pixelToArea = new int[_size];
+        for (int i = 0; i < _size; i++) pixelToArea[i] = -1;
         for (int i = 0; i < vec2.length; i++) {
             for (int j = 0; j < vec2[i].size(); j++) {
-                pixeltoarea[((Integer) vec2[i].get(j)).intValue()] = i;
+                pixelToArea[(Integer) vec2[i].get(j)] = i;
             }
         }
-        for (int i = 0; i < vec.length; i++) {
-            Vector vector = vec[i];
+        for (Vector vector : vec) {
             int neighbor = -1;
             boolean check = false;
             for (Object o : vector) {
@@ -430,15 +430,15 @@ class CellImage {
                 stk[2] = p + 1;
                 stk[3] = p + _width;
                 for (int k = 0; k < 4; k++) {
-                    if (neighbor != -1 && pixeltoarea[stk[k]] != -1 && pixeltoarea[stk[k]] != neighbor) {
+                    if (neighbor != -1 && pixelToArea[stk[k]] != -1 && pixelToArea[stk[k]] != neighbor) {
                         check = true;
                         break;
-                    } else if (pixeltoarea[stk[k]] != -1) neighbor = pixeltoarea[stk[k]];
+                    } else if (pixelToArea[stk[k]] != -1) neighbor = pixelToArea[stk[k]];
                 }
                 if (check) break;
             }
             if (check) {
-                for (int j = 0; j < vector.size(); j++) ci[(Integer) vector.get(j)] = 0;
+                for (Object o : vector) ci[(Integer) o] = 0;
             }
         }
     }
@@ -446,7 +446,7 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //Find weighted brightness gradient and scale to 0-255
     ///////////////////////////////////////////////////////////////////////////
-    public int[] gradim(int[] Cim) {
+    private int[] gradim(int[] Cim) {
         int[] Cimage = Cim.clone();
         for (int i = 0; i < _size; i++) {
             if (Cimage[i] < 60 && Cimage[i] >= 10) Cimage[i] -= (60 - Cimage[i]) * (60 - Cimage[i]) / 20;
@@ -487,7 +487,7 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //Binary array of arguments and put into argument array
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    public boolean threshold(int[] image) {
+    private boolean threshold(int[] image) {
         int[] hg = new int[256];
         for (int i = 0; i < 256; i++) {
             hg[i] = 0;
@@ -528,7 +528,7 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////////////////////
     //Fill in the binarized array for the argument and put it in the argument array
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    public void cover(int[] biimage) {
+    private void cover(int[] biimage) {
         Vector[] vec = label(biimage, 255, 0, false);
         int maxsize = 0, maxi = 0;
         for (int i = 0; i < vec.length; i++) {
@@ -540,19 +540,19 @@ class CellImage {
         for (int i = 0; i < vec.length; i++) {
             if (i != maxi) {
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int p = ((Integer) vec[i].get(j)).intValue();
+                    int p = (Integer) vec[i].get(j);
                     biimage[p] = 0;
                 }
             }
         }
     }
 
-    public void beforecover(int[] biimage) {
+    private void beforecover(int[] biimage) {
         Vector[] vec = label(biimage, 255, 0, true);
         for (int i = 0; i < _size; i++) biimage[i] = 255;
-        for (int i = 0; i < vec.length; i++) {
-            for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
+        for (Vector vector : vec) {
+            for (int j = 0; j < vector.size(); j++) {
+                int p = (Integer) vector.get(j);
                 biimage[p] = 0;
             }
         }
@@ -565,17 +565,17 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////
     public Vector[] label(int[] biimage, int color, int minco, boolean cornercut) {
         Vector[] vec;
-        Vector same;
+        Vector<Integer> same;
         int[] lab = new int[_size];
 
         int nlbl = 0;
-        same = new Vector();
+        same = new Vector<>();
         for (int i = 0; i < _size; i++) {
             lab[i] = -1;
         }
         if (biimage[0] == color) {
             lab[0] = nlbl;
-            same.add(new Integer(nlbl++));
+            same.add(nlbl++);
         }
         for (int j = 1; j < _width; j++) {
             if (biimage[j] == color) {
@@ -583,7 +583,7 @@ class CellImage {
                     lab[j] = lab[j - 1];
                 } else {
                     lab[j] = nlbl;
-                    same.add(new Integer(nlbl++));
+                    same.add(nlbl++);
                 }
             }
         }
@@ -593,7 +593,7 @@ class CellImage {
                     lab[i * _width] = lab[(i - 1) * _width];
                 } else {
                     lab[i * _width] = nlbl;
-                    same.add(new Integer(nlbl++));
+                    same.add(nlbl++);
                 }
             }
             for (int j = 1; j < _width; j++) {
@@ -605,17 +605,17 @@ class CellImage {
                     else a2 = -1;
                     if (a1 == -1 && a2 == -1) {
                         lab[i * _width + j] = nlbl;
-                        same.add(new Integer(nlbl++));
+                        same.add(nlbl++);
                     } else if (a1 == -1) {
                         lab[i * _width + j] = a2;
                     } else if (a2 == -1) {
                         lab[i * _width + j] = a1;
                     } else if (a1 < a2) {
                         lab[i * _width + j] = a1;
-                        same.set(a2, new Integer(a1));
+                        same.set(a2, a1);
                     } else {
                         lab[i * _width + j] = a2;
-                        same.set(a1, new Integer(a2));
+                        same.set(a1, a2);
                     }
                 }
             }
@@ -624,7 +624,7 @@ class CellImage {
         for (int i = 0; i < same.size(); i++) {
             int s = smallestlabel(same, i);
             if (maxl < s) maxl = s;
-            same.set(i, new Integer(s));
+            same.set(i, s);
         }
         nlbl = maxl;
         Vector[] vec2 = new Vector[nlbl + 1];
@@ -634,7 +634,7 @@ class CellImage {
         for (int i = 0; i < _size; i++) {
             if (lab[i] < 0) {
             } else {
-                vec2[((Integer) same.get(lab[i])).intValue()].add(new Integer(i));
+                vec2[same.get(lab[i])].add(i);
             }
         }
         int num = 0;
@@ -647,7 +647,7 @@ class CellImage {
                 } else {//cornercutが指定されていれば
                     flag[i] = true;
                     for (int j = 0; j < vec2[i].size(); j++) {
-                        int p = ((Integer) vec2[i].get(j)).intValue();
+                        int p = (Integer) vec2[i].get(j);
                         if (p < _width || p > _width * (_height - 1) || p % _width == 0 || p % _width == _width - 1) {//壁に接するpixelが存在
                             flag[i] = false;
                             break;
@@ -682,17 +682,17 @@ class CellImage {
 
     public Vector[] label(int[] grey, int color, int minco, boolean cornercut, int wid, int hei) {
         Vector[] vec;
-        Vector same;
+        Vector<Integer> same;
         int[] lab = new int[wid * hei];
 
         int nlbl = 0;
-        same = new Vector();
+        same = new Vector<>();
         for (int i = 0; i < wid * hei; i++) {
             lab[i] = -1;
         }
         if (grey[0] == color) {
             lab[0] = nlbl;
-            same.add(new Integer(nlbl++));
+            same.add(nlbl++);
         }
         for (int j = 1; j < wid; j++) {
             if (grey[j] == color) {
@@ -700,7 +700,7 @@ class CellImage {
                     lab[j] = smallestlabel(same, lab[j - 1]);
                 } else {
                     lab[j] = nlbl;
-                    same.add(new Integer(nlbl++));
+                    same.add(nlbl++);
                 }
             }
         }
@@ -710,7 +710,7 @@ class CellImage {
                     lab[i * wid] = smallestlabel(same, lab[(i - 1) * wid]);
                 } else {
                     lab[i * wid] = nlbl;
-                    same.add(new Integer(nlbl++));
+                    same.add(nlbl++);
                 }
             }
             for (int j = 1; j < wid; j++) {
@@ -722,17 +722,17 @@ class CellImage {
                     else a2 = -1;
                     if (a1 == -1 && a2 == -1) {
                         lab[i * wid + j] = nlbl;
-                        same.add(new Integer(nlbl++));
+                        same.add(nlbl++);
                     } else if (a1 == -1) {
                         lab[i * wid + j] = a2;
                     } else if (a2 == -1) {
                         lab[i * wid + j] = a1;
                     } else if (a1 < a2) {
                         lab[i * wid + j] = a1;
-                        same.set(a2, new Integer(a1));
+                        same.set(a2, a1);
                     } else {
                         lab[i * wid + j] = a2;
-                        same.set(a1, new Integer(a2));
+                        same.set(a1, a2);
                     }
                 }
             }
@@ -741,7 +741,7 @@ class CellImage {
         for (int i = 0; i < same.size(); i++) {
             int s = smallestlabel(same, i);
             if (maxl < s) maxl = s;
-            same.set(i, new Integer(s));
+            same.set(i, s);
         }
         nlbl = maxl;
         Vector[] vec2 = new Vector[nlbl + 1];
@@ -751,7 +751,7 @@ class CellImage {
         for (int i = 0; i < wid * hei; i++) {
             if (lab[i] < 0) {
             } else {
-                vec2[((Integer) same.get(lab[i])).intValue()].add(new Integer(i));
+                vec2[same.get(lab[i])].add(i);
             }
         }
         int num = 0;
@@ -764,7 +764,7 @@ class CellImage {
                 } else {//cornercutが指定されていれば
                     flag[i] = true;
                     for (int j = 0; j < vec2[i].size(); j++) {
-                        int p = ((Integer) vec2[i].get(j)).intValue();
+                        int p = (Integer) vec2[i].get(j);
                         if (p < wid || p > wid * (hei - 1) || p % wid == 0 || p % wid == wid - 1) {//壁に接するpixelが存在
                             flag[i] = false;
                             break;
@@ -799,18 +799,18 @@ class CellImage {
     ////////////////////////////////////////////////////////////////////////////////
     //ラベル付けに使う、木をつぶす
     ////////////////////////////////////////////////////////////////////////////////
-    public int smallestlabel(Vector same, int label) {
+    private int smallestlabel(Vector<Integer> same, int label) {
         int now = label;
-        Vector temp = new Vector();
+        Vector<Integer> temp = new Vector<>();
         while (true) {
-            if (((Integer) same.get(now)).intValue() == now) {
+            if (same.get(now) == now) {
                 for (int i = 0; i < temp.size(); i++) {
-                    same.set(((Integer) temp.elementAt(i)).intValue(), new Integer(now));
+                    same.set(temp.elementAt(i), now);
                 }
                 return now;
             } else {
-                temp.add(new Integer(now));
-                now = ((Integer) same.get(now)).intValue();
+                temp.add(now);
+                now = same.get(now);
             }
         }
     }
@@ -818,48 +818,40 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////////
     //binary imageの黒い領域を一枚けずる
     /////////////////////////////////////////////////////////////////////////////////////
-    public void erosion(int[] biimage) {
+    private void erosion(int[] biimage) {
         int[] imagetemp = new int[_width * _height];
-        for (int i = 0; i < _size; i++) {
-            imagetemp[i] = biimage[i];
-        }
+        if (_size >= 0) System.arraycopy(biimage, 0, imagetemp, 0, _size);
         for (int i = 0; i < _size; i++) {
             if (i % _width - 1 > 0) imagetemp[i] |= biimage[i - 1];
             if (i % _width + 1 < _width) imagetemp[i] |= biimage[i + 1];
             if (i / _width - 1 > 0) imagetemp[i] |= biimage[i - _width];
             if (i / _width + 1 < _height) imagetemp[i] |= biimage[i + _width];
         }
-        for (int i = 0; i < _size; i++) {
-            biimage[i] = imagetemp[i];
-        }
+        if (_size >= 0) System.arraycopy(imagetemp, 0, biimage, 0, _size);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
     //黒い領域を一枚ふやす
     /////////////////////////////////////////////////////////////////////////////////////
-    public void dilation(int[] biimage) {
+    private void dilation(int[] biimage) {
         int[] imagetemp = new int[_width * _height];
-        for (int i = 0; i < _width * _height; i++) {
-            imagetemp[i] = biimage[i];
-        }
+        if (_width * _height >= 0) System.arraycopy(biimage, 0, imagetemp, 0, _width * _height);
         for (int i = 0; i < _width * _height; i++) {
             if (i % _width - 1 > 0 && i % _width + 1 < _width) imagetemp[i] &= biimage[i - 1];
             if (i % _width + 1 < _width && i % _width - 1 > 0) imagetemp[i] &= biimage[i + 1];
             if (i / _width - 1 > 0 && i / _width + 1 < _height) imagetemp[i] &= biimage[i - _width];
             if (i / _width + 1 < _height && i / _width - 1 > 0) imagetemp[i] &= biimage[i + _width];
         }
-        for (int i = 0; i < _width * _height; i++) {
-            biimage[i] = imagetemp[i];
-        }
+        if (_width * _height >= 0) System.arraycopy(imagetemp, 0, biimage, 0, _width * _height);
     }
 
-    public void dilation2(int[] biimage) {
+    private void dilation2(int[] biimage) {
         Vector[] vec = label(biimage, 0, 0, false);
         int[] group = new int[_width * _height];
         for (int i = 0; i < _width * _height; i++) group[i] = -1;
         for (int i = 0; i < vec.length; i++) {
             for (int j = 0; j < vec[i].size(); j++) {
-                group[((Integer) vec[i].get(j)).intValue()] = i;
+                group[(Integer) vec[i].get(j)] = i;
             }
         }
         int[] group2 = new int[_width * _height];
@@ -872,7 +864,7 @@ class CellImage {
                     gr = group[i - 1];
                 }
                 if (group[i + 1] != -1) {
-                    check &= (gr == -1 || group[i + 1] == gr);
+                    check = (gr == -1 || group[i + 1] == gr);
                     gr = group[i + 1];
                 }
                 if (group[i - _width] != -1) {
@@ -896,7 +888,7 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////////
     //edgeを探す
     /////////////////////////////////////////////////////////////////////////////////////
-    public void edge(int[] image, int[] oriimage) {
+    private void edge(int[] image, int[] oriimage) {
         int[] image2 = new int[_size];
         Vector[] vec = label(image, 0, 3000, true);
         //Consider more than 200 clumps as cells (edited by yechang 200 -> 3000)
@@ -912,7 +904,7 @@ class CellImage {
             cell[i] = new Cell(_width, _height, startid + i);
             cell[i].setGroup(1);
             for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
+                int p = (Integer) vec[i].get(j);
                 pixeltocell[p] = i;
                 if (image[p - _width] == 0 && image[p - 1] == 0 && image[p + 1] == 0 && image[p + _width] == 0) { //vecには細胞の部分のうちふちだけを記憶
                     vec[i].remove(j);
@@ -923,14 +915,14 @@ class CellImage {
         for (int i = 0; i < _size; i++) {
             image[i] = 255;
         }
-        for (int i = 0; i < vec.length; i++) { //imageを細胞のふち部分だけ黒で残りが白となるようにセット
-            for (int j = 0; j < vec[i].size(); j++) {
-                image[((Integer) vec[i].get(j)).intValue()] = 0;
+        for (Vector vector : vec) { //imageを細胞のふち部分だけ黒で残りが白となるようにセット
+            for (Object o : vector) {
+                image[(Integer) o] = 0;
             }
         }
         for (int i = 0; i < vec.length; i++) {//細胞内部（輪郭より内側）に接していないものはすてる
             for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
+                int p = (Integer) vec[i].get(j);
                 if ((image[p - _width] == 0 || pixeltocell[p - _width] != i) && (image[p - 1] == 0 || pixeltocell[p - 1] != i) &&
                         (image[p + 1] == 0 || pixeltocell[p + 1] != i) && (image[p + _width] == 0 || pixeltocell[p + _width] != i)) {
                     vec[i].remove(j);
@@ -947,14 +939,14 @@ class CellImage {
         for (int i = 0; i < vec.length; i++) {
             vec2[i] = new Vector();
             for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
-                vec2[i].add(new Integer(p));
+                int p = (Integer) vec[i].get(j);
+                vec2[i].add(p);
             }
         }
         edgecorrect1(vec, image, oriimage);
         for (int i = 0; i < _size; i++) {
             if (pixeltocell[i] != -1) {
-                cell[pixeltocell[i]].cover.add(new Integer(i));
+                cell[pixeltocell[i]].cover.add(i);
             }
         }
         boolean[] check = new boolean[_size];
@@ -962,31 +954,31 @@ class CellImage {
             check[i] = true;
         }
         for (int i = 0; i < cell.length; i++) {
-            int p = ((Integer) vec[i].get(0)).intValue();
+            int p = (Integer) vec[i].get(0);
             if (nextpoint(image, i, p, check, p) && vec[i].size() == cell[i].edge.size()) {
             } else {
                 cell[i].budcrush = 2;
             }
         }
-        for (int i = 0; i < cell.length; i++) {//One point of extremely bright cells in the complex Sawai additional part
-            if (cell[i].edge.size() > 0) {
+        for (Cell value : cell) {//One point of extremely bright cells in the complex Sawai additional part
+            if (value.edge.size() > 0) {
                 int[] br = new int[256];
                 for (int j = 0; j < 256; j++) br[j] = 0;
-                for (int j = 0; j < cell[i].edge.size(); j++) {
-                    int p = ((Integer) cell[i].edge.get(j)).intValue();
+                for (int j = 0; j < value.edge.size(); j++) {
+                    int p = (Integer) value.edge.get(j);
                     br[oriimage[p]]++;
                 }
                 int r = 0;
                 int s = 255;
-                while (r <= cell[i].edge.size() / 20) {
+                while (r <= value.edge.size() / 20) {
                     r += br[s];
                     s--;
                 }
                 int q = 0;
                 r = 0;
                 int t = 0;
-                for (int j = 0; j < cell[i].edge.size(); j++) {
-                    int p = ((Integer) cell[i].edge.get(j)).intValue();
+                for (int j = 0; j < value.edge.size(); j++) {
+                    int p = (Integer) value.edge.get(j);
                     if (oriimage[p] <= s) {
                         q += oriimage[p];
                         t++;
@@ -995,21 +987,21 @@ class CellImage {
                     }
                 }
                 if (t > 0) q = q / t;
-                if (r > 0 && (cell[i].edge.size() - t > 0)) r = r / (cell[i].edge.size() - t);
-                if (q < 50 && r > 100 && r - q > 70) cell[i].setGroup(0);
+                if (r > 0 && (value.edge.size() - t > 0)) r = r / (value.edge.size() - t);
+                if (q < 50 && r > 100 && r - q > 70) value.setGroup(0);
             }
         }
         edgecorrect2(vec2, image2, oriimage);
         for (int i = 0; i < _size; i++) {
             if (pixeltocell2[i] != -1) {
-                cell[pixeltocell2[i]].cover_2.add(new Integer(i));
+                cell[pixeltocell2[i]].cover_2.add(i);
             }
         }
         for (int i = 0; i < _size; i++) {
             check[i] = true;
         }
         for (int i = 0; i < cell.length; i++) {
-            int p = ((Integer) vec2[i].get(0)).intValue();
+            int p = (Integer) vec2[i].get(0);
             if (nextpoint2(image2, i, p, check, p) && vec2[i].size() == cell[i].edge_2.size()) {
             } else {
                 cell[i].setGroup(0);
@@ -1020,8 +1012,8 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //Follow edge
     ///////////////////////////////////////////////////////////////////////////
-    public boolean nextpoint(int[] grey, int i, int p, boolean[] check, int start) {
-        cell[i].edge.add(new Integer(p));
+    private boolean nextpoint(int[] grey, int i, int p, boolean[] check, int start) {
+        cell[i].edge.add(p);
         //System.out.println("set:"+p);
         check[p] = false;
         if (grey[p - 1] == 0 && pixeltocell[p - 1] == i && check[p - 1]) {
@@ -1073,8 +1065,8 @@ class CellImage {
         }
     }
 
-    public boolean nextpoint2(int[] grey, int i, int p, boolean[] check, int start) {
-        cell[i].edge_2.add(new Integer(p));
+    private boolean nextpoint2(int[] grey, int i, int p, boolean[] check, int start) {
+        cell[i].edge_2.add(p);
         check[p] = false;
         if (grey[p - 1] == 0 && pixeltocell2[p - 1] == i && check[p - 1]) {
             if (nextpoint2(grey, i, p - 1, check, start)) {
@@ -1127,14 +1119,14 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////////
     //True if adjacent points
     ///////////////////////////////////////////////////////////////////////////////
-    public boolean nextTo(int p, int q) {
+    private boolean nextTo(int p, int q) {
         return p == q - _width - 1 || p == q - _width || p == q - _width + 1 || p == q - 1 || p == q + 1 || p == q + _width - 1 || p == q + _width || p == q + _width + 1;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //Edge correction
     ///////////////////////////////////////////////////////////////////////////
-    public void edgecorrect1(Vector[] vec, int[] image, int[] oriimage) {
+    private void edgecorrect1(Vector[] vec, int[] image, int[] oriimage) {
         int counter;
         int brightness;
         int x, n, m, k, flag, flag2, ori, mopoint;
@@ -1151,8 +1143,7 @@ class CellImage {
                 mopoint = 0;
                 for (int a = 0; a < _size; a++) move[a] = false;
                 while (j < n) {
-                    int p = ((Integer) vec[i].get(j)).intValue();
-                    counter = 0;
+                    int p = (Integer) vec[i].get(j);
                     brightness = 0;
                     x = 0;
                     if (pixeltocell[p - 1] == i && image[p - 1] == 255) x -= 1;
@@ -1174,7 +1165,7 @@ class CellImage {
                     j++;
                 }
                 while (m < n) {
-                    int p = ((Integer) vec[i].get(m)).intValue();
+                    int p = (Integer) vec[i].get(m);
                     if (move[p] && (move[p - _width - 1] || move[p - _width] || move[p - _width + 1] || move[p - 1] || move[p + 1] || move[p + _width - 1] || move[p + _width] || move[p + _width + 1])) {
                         pixeltocell[p] = -1;
                         image[p] = 255;
@@ -1185,19 +1176,19 @@ class CellImage {
                         mopoint++;
                         if (pixeltocell[p - 1] == i && image[p - 1] == 255) {
                             image[p - 1] = 0;
-                            vec[i].add(new Integer(p - 1));
+                            vec[i].add(p - 1);
                         }
                         if (pixeltocell[p + 1] == i && image[p + 1] == 255) {
                             image[p + 1] = 0;
-                            vec[i].add(new Integer(p + 1));
+                            vec[i].add(p + 1);
                         }
                         if (pixeltocell[p - _width] == i && image[p - _width] == 255) {
                             image[p - _width] = 0;
-                            vec[i].add(new Integer(p - _width));
+                            vec[i].add(p - _width);
                         }
                         if (pixeltocell[p + _width] == i && image[p + _width] == 255) {
                             image[p + _width] = 0;
-                            vec[i].add(new Integer(p + _width));
+                            vec[i].add(p + _width);
                         }
                     }
                     m++;
@@ -1206,7 +1197,7 @@ class CellImage {
                 while (change) {
                     change = false;
                     for (k = 0; k < vec[i].size(); k++) {
-                        int p = ((Integer) vec[i].get(k)).intValue();
+                        int p = (Integer) vec[i].get(k);
                         if (!((pixeltocell[p - _width] == i && image[p - _width] == 255) || (pixeltocell[p - 1] == i && image[p - 1] == 255) || (pixeltocell[p + 1] == i && image[p + 1] == 255) || (pixeltocell[p + _width] == i && image[p + _width] == 255)) && (vec[i].size() > 1)) {
                             image[p] = 255;
                             vec[i].remove(k);
@@ -1216,7 +1207,7 @@ class CellImage {
                         }
                     }
                     for (k = 0; k < vec[i].size(); k++) {
-                        int p = ((Integer) vec[i].get(k)).intValue();
+                        int p = (Integer) vec[i].get(k);
                         int c = 0;
                         x = 0;
                         if (pixeltocell[p - _width] == -1) c++;
@@ -1234,7 +1225,7 @@ class CellImage {
                             if (k < j) j--;
                             k--;
                             image[p + x] = 0;
-                            vec[i].add(new Integer(p + x));
+                            vec[i].add(p + x);
                             change = true;
                         }
                     }
@@ -1245,30 +1236,30 @@ class CellImage {
             else if (flag > 2) cell[i].budcrush = 1;
             n = vec[i].size();
             for (k = 0; k < n; k++) {
-                int p = ((Integer) vec[i].get(k)).intValue();
+                int p = (Integer) vec[i].get(k);
                 if (p % _width > 1 && pixeltocell[p - 1] == -1 && image[p - 1] == 255) {
                     pixeltocell[p - 1] = i;
                     image[p - 1] = 0;
-                    vec[i].add(new Integer(p - 1));
+                    vec[i].add(p - 1);
                 }
                 if (p % _width < _width - 1 && pixeltocell[p + 1] == -1 && image[p + 1] == 255) {
                     pixeltocell[p + 1] = i;
                     image[p + 1] = 0;
-                    vec[i].add(new Integer(p + 1));
+                    vec[i].add(p + 1);
                 }
                 if (p - _width >= _width && pixeltocell[p - _width] == -1 && image[p - _width] == 255) {
                     pixeltocell[p - _width] = i;
                     image[p - _width] = 0;
-                    vec[i].add(new Integer(p - _width));
+                    vec[i].add(p - _width);
                 }
                 if (p + _width < _size - _width && pixeltocell[p + _width] == -1 && image[p + _width] == 255) {
                     pixeltocell[p + _width] = i;
                     image[p + _width] = 0;
-                    vec[i].add(new Integer(p + _width));
+                    vec[i].add(p + _width);
                 }
             }
             for (k = 0; k < vec[i].size(); k++) {
-                int p = ((Integer) vec[i].get(k)).intValue();
+                int p = (Integer) vec[i].get(k);
                 if (p - _width >= 0 && p + _width < _size) {
                     if ((pixeltocell[p - _width] == i) && (pixeltocell[p - 1] == i) && (pixeltocell[p + 1] == i) && (pixeltocell[p + _width] == i) && (vec[i].size() > 1)) {
                         image[p] = 255;
@@ -1278,7 +1269,7 @@ class CellImage {
                 }
             }
             for (k = 0; k < vec[i].size(); k++) {
-                int p = ((Integer) vec[i].get(k)).intValue();
+                int p = (Integer) vec[i].get(k);
                 if (p - _width >= 0 && p + _width < _size) {
                     if (!((pixeltocell[p - _width] == i && image[p - _width] == 255) || (pixeltocell[p - 1] == i && image[p - 1] == 255) || (pixeltocell[p + 1] == i && image[p + 1] == 255) || (pixeltocell[p + _width] == i && image[p + _width] == 255)) && (vec[i].size() > 1)) {
                         image[p] = 255;
@@ -1292,7 +1283,7 @@ class CellImage {
     }
 
 
-    public void edgecorrect2(Vector[] vec, int[] image, int[] oriimage) {
+    private void edgecorrect2(Vector[] vec, int[] image, int[] oriimage) {
         int brightness1, brightness2;
         int x, n, m, k, flag, ori;
         boolean[] move = new boolean[_size];
@@ -1304,7 +1295,7 @@ class CellImage {
                 m = j;
                 for (int a = 0; a < _size; a++) move[a] = false;
                 while (j < n) {
-                    int p = ((Integer) vec[i].get(j)).intValue();
+                    int p = (Integer) vec[i].get(j);
                     brightness1 = -1;
                     brightness2 = 0;
                     x = 0;
@@ -1329,7 +1320,7 @@ class CellImage {
                     j++;
                 }
                 while (m < n) {
-                    int p = ((Integer) vec[i].get(m)).intValue();
+                    int p = (Integer) vec[i].get(m);
                     if (move[p] && (move[p - _width - 1] || move[p - _width] || move[p - _width + 1] || move[p - 1] || move[p + 1] || move[p + _width - 1] || move[p + _width] || move[p + _width + 1])) {
                         pixeltocell2[p] = -1;
                         image[p] = 255;
@@ -1339,19 +1330,19 @@ class CellImage {
                         n--;
                         if (pixeltocell2[p - 1] == i && image[p - 1] == 255) {
                             image[p - 1] = 0;
-                            vec[i].add(new Integer(p - 1));
+                            vec[i].add(p - 1);
                         }
                         if (pixeltocell2[p + 1] == i && image[p + 1] == 255) {
                             image[p + 1] = 0;
-                            vec[i].add(new Integer(p + 1));
+                            vec[i].add(p + 1);
                         }
                         if (pixeltocell2[p - _width] == i && image[p - _width] == 255) {
                             image[p - _width] = 0;
-                            vec[i].add(new Integer(p - _width));
+                            vec[i].add(p - _width);
                         }
                         if (pixeltocell2[p + _width] == i && image[p + _width] == 255) {
                             image[p + _width] = 0;
-                            vec[i].add(new Integer(p + _width));
+                            vec[i].add(p + _width);
                         }
                     }
                     m++;
@@ -1360,7 +1351,7 @@ class CellImage {
                 while (change) {
                     change = false;
                     for (k = 0; k < vec[i].size(); k++) {
-                        int p = ((Integer) vec[i].get(k)).intValue();
+                        int p = (Integer) vec[i].get(k);
                         if (!((pixeltocell2[p - _width] == i && image[p - _width] == 255) || (pixeltocell2[p - 1] == i && image[p - 1] == 255) || (pixeltocell2[p + 1] == i && image[p + 1] == 255) || (pixeltocell2[p + _width] == i && image[p + _width] == 255)) && (vec[i].size() > 1)) {
                             image[p] = 255;
                             vec[i].remove(k);
@@ -1370,7 +1361,7 @@ class CellImage {
                         }
                     }
                     for (k = 0; k < vec[i].size(); k++) {
-                        int p = ((Integer) vec[i].get(k)).intValue();
+                        int p = (Integer) vec[i].get(k);
                         int c = 0;
                         x = 0;
                         if (pixeltocell2[p - _width] == -1) c++;
@@ -1388,7 +1379,7 @@ class CellImage {
                             if (k < j) j--;
                             k--;
                             image[p + x] = 0;
-                            vec[i].add(new Integer(p + x));
+                            vec[i].add(p + x);
                             change = true;
                         }
                     }
@@ -1396,7 +1387,7 @@ class CellImage {
             }
             double counter = 0;//この先、ぼやけ画像除去の操作　澤井追加部分
             for (k = 0; k < vec[i].size(); k++) {
-                int p = ((Integer) vec[i].get(k)).intValue();
+                int p = (Integer) vec[i].get(k);
                 x = 0;
                 if (pixeltocell2[p - 1] != i && image[p - 1] == 255) x -= 1;
                 if (pixeltocell2[p + 1] != i && image[p + 1] == 255) x += 1;
@@ -1421,17 +1412,17 @@ class CellImage {
     //cell[i].bud_edge    のセット
     //cell[i].neck        のセット
     //////////////////////////////////////////////////////////////////////////////
-    public void searchNeck() {
+    private void searchNeck() {
         int scorerad = 10;  //10
         int scoremeanrad = 2; // 2
         int scorethr = 920;  //920
-        Vector tmp = new Vector();
+        Vector<Integer> tmp = new Vector<>();
         for (int i = 0; i < cell.length; i++) {
             int es;
             boolean neck1 = false;
             int[] score, scoretmp;
             if (cell[i].getGroup() > 0) {
-                Vector neck = new Vector();
+                Vector<Integer> neck = new Vector<Integer>();
                 int jj;
                 int start;
                 while (true) {
@@ -1448,7 +1439,7 @@ class CellImage {
                     scoretmp = new int[es];
                     score = new int[es];
                     for (int j = 0; j < es; j++) {
-                        int p = ((Integer) cell[i].edge.get(j)).intValue();
+                        int p = (Integer) cell[i].edge.get(j);
                         for (int x = -scorerad; x <= scorerad; x++) {//Count of intracellular pixels within radius scorerad
                             for (int y = -scorerad; y <= scorerad; y++) {
                                 if (Math.sqrt(x * x + y * y) <= scorerad && p + y * _width + x >= 0 && p + y * _width + x < _size && pixeltocell[p + y * _width + x] == i)
@@ -1498,31 +1489,31 @@ class CellImage {
                     continue;
                 }
                 if (neck.size() == 2) {//一回目ネック２個
-                    int n1 = (Integer) neck.get(0);
-                    int n2 = (Integer) neck.get(1);
+                    int n1 = neck.get(0);
+                    int n2 = neck.get(1);
                     if ((n2 - n1) * 2 < es) {
                         for (int j = 0; j < n1; j++) {
-                            cell[i].mother_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                         for (int j = n1; j < n2; j++) {
-                            cell[i].bud_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                         for (int j = n2; j < es; j++) {
-                            cell[i].mother_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                     } else {
                         int n = n1 + es - n2;
                         for (int j = 0; j < n1; j++) {
-                            cell[i].bud_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                         for (int j = n1; j < n2; j++) {
-                            cell[i].mother_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                         for (int j = n2; j < es; j++) {
-                            cell[i].bud_edge.add(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue());
+                            cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                         }
                     }
-                    cell[i].bud_cover = getLinePixel(((Integer) cell[i].edge.get((jj + ((Integer) neck.get(0)).intValue() + es) % es)).intValue(), ((Integer) cell[i].edge.get((jj + ((Integer) neck.get(1)).intValue() + es) % es)).intValue());
+                    cell[i].bud_cover = getLinePixel((Integer) cell[i].edge.get((jj + neck.get(0) + es) % es), (Integer) cell[i].edge.get((jj + neck.get(1) + es) % es));
                     flag_tmp = false;
                     cell[i].bud_cover = getAreainBud(i, cell[i].bud_cover, cell[i].mother_edge, cell[i].bud_edge);
                     if (flag_tmp) {
@@ -1532,8 +1523,8 @@ class CellImage {
                     }
                     if (cell[i].bud_cover.size() == cell[i].bud_edge.size()) {//芽のcover領域が小さすぎる場合complexに分類しなおし
                         for (int j = 0; j < cell[i].bud_edge.size(); j++) {
-                            int p = ((Integer) cell[i].bud_edge.get(j)).intValue();
-                            cell[i].mother_edge.add(new Integer(p));
+                            int p = (Integer) cell[i].bud_edge.get(j);
+                            cell[i].mother_edge.add(p);
                         }
                         cell[i].bud_edge = new Vector();
                         cell[i].bud_ratio = 0;
@@ -1547,12 +1538,12 @@ class CellImage {
                     }
                     cell[i].neck = new int[2];
                     for (int j = 0; j < 2; j++) {
-                        int k = (jj + ((Integer) neck.get(j)).intValue() + es) % es;
-                        cell[i].neck[j] = ((Integer) cell[i].edge.get(k)).intValue();
+                        int k = (jj + neck.get(j) + es) % es;
+                        cell[i].neck[j] = (Integer) cell[i].edge.get(k);
                     }
                 } else if (neck.size() == 1) {//１回目ネック１個
                     for (int j = 0; j < es; j++) {
-                        cell[i].mother_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                        cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                     }
                     cell[i].bud_ratio = 0;
                     cell[i].setGroup(1);
@@ -1560,7 +1551,7 @@ class CellImage {
                     tmp = neck;
                 } else {
                     for (int j = 0; j < es; j++) {
-                        cell[i].mother_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                        cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                     }
                     cell[i].bud_ratio = 0;
                     cell[i].setGroup(1);
@@ -1578,48 +1569,49 @@ class CellImage {
                             jj--;
                         }
                         start = -1;
-                        neck = new Vector();
+                        neck = new Vector<Integer>();
                         for (int j = 0; j < es; j++) {
-                            if (score[(j + jj + es) % es] >= th && start < 0) {
+                            var i1 = score[(j + jj + es) % es];
+                            if (i1 >= th && start < 0) {
                                 start = j;
                             }
-                            if (score[(j + jj + es) % es] < th && start >= 0) {
-                                neck.add(new Integer((start + j - 1) / 2));
+                            if (i1 < th && start >= 0) {
+                                neck.add((start + j - 1) / 2);
                                 start = -1;
                             }
                         }
                         if (neck.size() == 2) {
-                            Vector medge = new Vector();
-                            Vector bedge = new Vector();
-                            int n1 = ((Integer) neck.get(0)).intValue();
-                            int n2 = ((Integer) neck.get(1)).intValue();
+                            Vector<Object> medge = new Vector<>();
+                            Vector<Object> bedge = new Vector<>();
+                            int n1 = neck.get(0);
+                            int n2 = neck.get(1);
                             if ((n2 - n1) * 2 < es) {
                                 for (int j = 0; j < n1; j++) {
-                                    medge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    medge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n1; j < n2; j++) {
-                                    bedge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    bedge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n2; j < es; j++) {
-                                    medge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    medge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                             } else {
                                 int n = n1 + es - n2;
                                 for (int j = 0; j < n1; j++) {
-                                    bedge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    bedge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n1; j < n2; j++) {
-                                    medge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    medge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n2; j < es; j++) {
-                                    bedge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    bedge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                             }
-                            Vector bud_cover = getLinePixel(((Integer) cell[i].edge.get((jj + ((Integer) neck.get(0)).intValue() + es) % es)).intValue(), ((Integer) cell[i].edge.get((jj + ((Integer) neck.get(1)).intValue() + es) % es)).intValue());
+                            Vector<Integer> bud_cover = getLinePixel((Integer) cell[i].edge.get((jj + neck.get(0) + es) % es), (Integer) cell[i].edge.get((jj + neck.get(1) + es) % es));
                             flag_tmp = false;
                             bud_cover = getAreainBud(i, bud_cover, medge, bedge);
                             if (flag_tmp) {
-                                Vector tmp_vec = bedge;
+                                Vector<Object> tmp_vec = bedge;
                                 bedge = medge;
                                 medge = tmp_vec;
                             }
@@ -1640,22 +1632,23 @@ class CellImage {
                                     cell[i].bud_cover = bud_cover;
                                     cell[i].neck = new int[2];
                                     for (int j = 0; j < 2; j++) {
-                                        int k = (jj + ((Integer) neck.get(j)).intValue() + es) % es;
-                                        cell[i].neck[j] = ((Integer) cell[i].edge.get(k)).intValue();
+                                        int k = (jj + neck.get(j) + es) % es;
+                                        cell[i].neck[j] = (Integer) cell[i].edge.get(k);
                                     }
                                 }
                             }
                         } else if (th == 820 && neck1) {//最初にneck一つをみつけ最後までいってもneckが二つ見つからない
                             neck = tmp;
-                            int n = ((Integer) neck.get(0)).intValue();
-                            int np = ((Integer) cell[i].edge.get((n + jj + es) % es)).intValue();
+                            int n = neck.get(0);
+                            int np = (Integer) cell[i].edge.get((n + jj + es) % es);
                             double mind = _width * _height;
                             int minj = 0;
                             //int nigrad = 10;
                             flag_tmp = false;
-                            double prev_d = 0, d = 0;
+                            double prev_d = 0;
+                            double d = 0;
                             for (int j = 0; j < cell[i].edge.size(); j++) {
-                                int p = ((Integer) cell[i].edge.get((n + j + jj + es) % es)).intValue();
+                                int p = (Integer) cell[i].edge.get((n + j + jj + es) % es);
                                 prev_d = d;
                                 d = Point2D.distance(np % _width, np / _width, p % _width, p / _width);
                                 if (flag_tmp) {
@@ -1672,40 +1665,39 @@ class CellImage {
                                             minj = j;
                                         }
                                         flag_tmp = true;
-                                    } else {
                                     }
                                 }
                             }
                             if ((minj + n + es) % es < n) {
-                                neck.add(0, new Integer((minj + n + es) % es));
+                                neck.add(0, (minj + n + es) % es);
                             } else {
-                                neck.add(new Integer((minj + n + es) % es));
+                                neck.add((minj + n + es) % es);
                             }
-                            int n1 = ((Integer) neck.get(0)).intValue();
-                            int n2 = ((Integer) neck.get(1)).intValue();
+                            int n1 = neck.get(0);
+                            int n2 = neck.get(1);
                             cell[i].mother_edge.clear();
                             if ((n2 - n1) * 2 < es) {
                                 for (int j = 0; j < n1; j++) {
-                                    cell[i].mother_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n1; j < n2; j++) {
-                                    cell[i].bud_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n2; j < es; j++) {
-                                    cell[i].mother_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                             } else {
                                 for (int j = 0; j < n1; j++) {
-                                    cell[i].bud_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n1; j < n2; j++) {
-                                    cell[i].mother_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].mother_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                                 for (int j = n2; j < es; j++) {
-                                    cell[i].bud_edge.add(new Integer(((Integer) cell[i].edge.get((j + jj + es) % es)).intValue()));
+                                    cell[i].bud_edge.add(cell[i].edge.get((j + jj + es) % es));
                                 }
                             }
-                            cell[i].bud_cover = getLinePixel(((Integer) cell[i].edge.get((jj + ((Integer) neck.get(0)).intValue() + es) % es)).intValue(), ((Integer) cell[i].edge.get((jj + ((Integer) neck.get(1)).intValue() + es) % es)).intValue());
+                            cell[i].bud_cover = getLinePixel((Integer) cell[i].edge.get((jj + neck.get(0) + es) % es), (Integer) cell[i].edge.get((jj + neck.get(1) + es) % es));
                             flag_tmp = false;
                             cell[i].bud_cover = getAreainBud(i, cell[i].bud_cover, cell[i].mother_edge, cell[i].bud_edge);
                             if (flag_tmp) {
@@ -1715,8 +1707,8 @@ class CellImage {
                             }
                             if (cell[i].bud_cover.size() == cell[i].bud_edge.size()) {//芽のcover領域が小さすぎる場合noに分類しなおし
                                 for (int j = 0; j < cell[i].bud_edge.size(); j++) {
-                                    int p = ((Integer) cell[i].bud_edge.get(j)).intValue();
-                                    cell[i].mother_edge.add(new Integer(p));
+                                    int p = (Integer) cell[i].bud_edge.get(j);
+                                    cell[i].mother_edge.add(p);
                                 }
                                 cell[i].bud_edge = new Vector();
                                 cell[i].bud_ratio = 0;
@@ -1730,11 +1722,10 @@ class CellImage {
                             }
                             cell[i].neck = new int[2];
                             for (int j = 0; j < 2; j++) {
-                                int k = (jj + ((Integer) neck.get(j)).intValue() + es) % es;
-                                cell[i].neck[j] = ((Integer) cell[i].edge.get(k)).intValue();
+                                int k = (jj + neck.get(j) + es) % es;
+                                cell[i].neck[j] = (Integer) cell[i].edge.get(k);
                             }
                         }
-                    } else {
                     }
                 }
             }
@@ -1744,11 +1735,11 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     //Returns the pixel to be painted when drawing a straight line between two points in a vector
     //////////////////////////////////////////////////////////////////////////////
-    public Vector getLinePixel(int s, int g) {
+    private Vector<Integer> getLinePixel(int s, int g) {
         int dx = g % _width - s % _width;
         int dy = g / _width - s / _width;
         int x, x_, y, y_, plusx, plusy, c1, c2, d;
-        Vector line = new Vector();
+        Vector<Integer> line = new Vector<>();
 
         if (Math.abs(dx) >= Math.abs(dy)) {
             if (dx >= 0) {//始点と方向を決める
@@ -1776,7 +1767,7 @@ class CellImage {
             d = 2 * dy - dx;
             c1 = 2 * (dy - dx);
             c2 = 2 * dy;
-            line.add(new Integer(y * _width + x));
+            line.add(y * _width + x);
             for (int i = x + 1; i <= x_; i++) {
                 if (d > 0) {
                     y += plusy;
@@ -1784,7 +1775,7 @@ class CellImage {
                 } else {
                     d += c2;
                 }
-                line.add(new Integer(y * _width + i));
+                line.add(y * _width + i);
             }
         } else {
             if (dy >= 0) {//始点と方向を決める
@@ -1812,7 +1803,7 @@ class CellImage {
             d = 2 * dx - dy;
             c1 = 2 * (dx - dy);
             c2 = 2 * dx;
-            line.add(new Integer(y * _width + x));
+            line.add(y * _width + x);
             for (int i = y + 1; i <= y_; i++) {
                 if (d > 0) {
                     x += plusx;
@@ -1820,7 +1811,7 @@ class CellImage {
                 } else {
                     d += c2;
                 }
-                line.add(new Integer(i * _width + x));
+                line.add(i * _width + x);
             }
         }
         return line;
@@ -1829,24 +1820,24 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     //Returns a Vector containing the bud area pixels
     //////////////////////////////////////////////////////////////////////////////
-    public Vector getAreainBud(int c, Vector n, Vector m, Vector b) {
+    private Vector<Integer> getAreainBud(int c, Vector n, Vector m, Vector b) {
         int top = _height, bottom = 0, left = _width, right = 0;//coverする長方形
-        for (int i = 0; i < m.size(); i++) {
-            int p = ((Integer) m.get(i)).intValue();
+        for (Object o1 : m) {
+            int p = (Integer) o1;
             if (top > p / _width) top = p / _width;
             if (bottom < p / _width) bottom = p / _width;
             if (left > p % _width) left = p % _width;
             if (right < p % _width) right = p % _width;
         }
-        for (int i = 0; i < b.size(); i++) {
-            int p = ((Integer) b.get(i)).intValue();
+        for (Object o : b) {
+            int p = (Integer) o;
             if (top > p / _width) top = p / _width;
             if (bottom < p / _width) bottom = p / _width;
             if (left > p % _width) left = p % _width;
             if (right < p % _width) right = p % _width;
         }
-        for (int i = 0; i < n.size(); i++) {
-            int p = ((Integer) n.get(i)).intValue();
+        for (Object element : n) {
+            int p = (Integer) element;
             if (top > p / _width) top = p / _width;
             if (bottom < p / _width) bottom = p / _width;
             if (left > p % _width) left = p % _width;
@@ -1856,20 +1847,20 @@ class CellImage {
         int hei = bottom - top + 3;
         int s = wid * hei;
         int[] greytemp = new int[s];
-        Vector ba = new Vector();//返すvector
+        Vector<Integer> ba = new Vector<>();//返すvector
 
         for (int i = 0; i < s; i++) {
             greytemp[i] = 255;
         }
         //neck、bud_edgeで囲んだ領域を作る
-        for (int i = 0; i < b.size(); i++) {
-            int p = ((Integer) b.get(i)).intValue();
+        for (Object item : b) {
+            int p = (Integer) item;
             int x = p % _width - left;
             int y = p / _width - top;
             greytemp[y * wid + x + 1 + wid] = 0;//小さいほうの座標
         }
-        for (int i = 0; i < n.size(); i++) {
-            int p = ((Integer) n.get(i)).intValue();
+        for (Object value : n) {
+            int p = (Integer) value;
             int x = p % _width - left;
             int y = p / _width - top;
             greytemp[y * wid + x + 1 + wid] = 0;//小さいほうの座標
@@ -1879,7 +1870,7 @@ class CellImage {
         if (vec.length == 2) {
             boolean flag_out = false;
             for (int i = 0; i < vec[0].size(); i++) {
-                if (((Integer) vec[0].get(i)).intValue() == 0) {
+                if ((Integer) vec[0].get(i) == 0) {
                     flag_out = true;
                     break;
                 }
@@ -1887,64 +1878,64 @@ class CellImage {
             if (flag_out) {//vec[0]が外部
                 if (cell[c].cover.size() / 2 >= vec[1].size() + b.size()) {//芽の領域確定
                     for (int i = 0; i < cell[c].cover.size(); i++) {
-                        int p = ((Integer) cell[c].cover.get(i)).intValue();
+                        int p = (Integer) cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (y * wid + x + 1 + wid >= 0 && y * wid + x + 1 + wid < wid * hei)
                             greytemp[y * wid + x + 1 + wid] = 0;//あとで修正・・・
                     }
                     for (int i = 0; i < vec[1].size(); i++) {
-                        int p = ((Integer) vec[1].get(i)).intValue();//座標を戻す
+                        int p = (Integer) vec[1].get(i);//座標を戻す
                         int x = p % wid - 1 + left;
                         int y = p / wid - 1 + top;
-                        if (greytemp[p] == 0) ba.add(new Integer(y * _width + x));
+                        if (greytemp[p] == 0) ba.add(y * _width + x);
                     }
-                    for (int i = 0; i < b.size(); i++) {//芽の輪郭部分も加える
-                        int p = ((Integer) b.get(i)).intValue();
-                        ba.add(new Integer(p));
+                    for (Object o : b) {//芽の輪郭部分も加える
+                        int p = (Integer) o;
+                        ba.add(p);
                     }
                 } else {//bud_edgeとmother_edgeを入れ替える
                     for (int i = 0; i < vec[1].size(); i++) {//greytempを埋める
-                        int p = ((Integer) vec[1].get(i)).intValue();
+                        int p = (Integer) vec[1].get(i);
                         greytemp[p] = 0;
                     }
                     for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                        int p = ((Integer) cell[c].cover.get(i)).intValue();
+                        int p = (Integer) cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
-                        if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(new Integer(p));
+                        if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
                     }
                     flag_tmp = true;
                 }
             } else {//vec[1]が外部
                 if (cell[c].cover.size() / 2 >= vec[0].size() + b.size()) {//芽の領域確定
                     for (int i = 0; i < cell[c].cover.size(); i++) {
-                        int p = ((Integer) cell[c].cover.get(i)).intValue();
+                        int p = (Integer) cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (y * wid + x + 1 + wid > 0 && y * wid + x + 1 + wid < wid * hei)
                             greytemp[y * wid + x + 1 + wid] = 0;
                     }
                     for (int i = 0; i < vec[0].size(); i++) {
-                        int p = ((Integer) vec[0].get(i)).intValue();//座標を戻す
+                        int p = (Integer) vec[0].get(i);//座標を戻す
                         int x = p % wid - 1 + left;
                         int y = p % hei - 1 + top;
-                        if (greytemp[p] == 0) ba.add(new Integer(y * _width + x));
+                        if (greytemp[p] == 0) ba.add(y * _width + x);
                     }
-                    for (int i = 0; i < b.size(); i++) {//芽の輪郭部分も加える
-                        int p = ((Integer) b.get(i)).intValue();
-                        ba.add(new Integer(p));
+                    for (Object o : b) {//芽の輪郭部分も加える
+                        int p = (Integer) o;
+                        ba.add(p);
                     }
                 } else {//bud_edgeとmother_edgeを入れ替える
                     for (int i = 0; i < vec[0].size(); i++) {//greytempを埋める
-                        int p = ((Integer) vec[0].get(i)).intValue();
+                        int p = (Integer) vec[0].get(i);
                         greytemp[p] = 0;
                     }
                     for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                        int p = ((Integer) cell[c].cover.get(i)).intValue();
+                        int p = (Integer) cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
-                        if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(new Integer(p));
+                        if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
                     }
                     flag_tmp = true;
                 }
@@ -1957,7 +1948,7 @@ class CellImage {
             }
             if (cell[c].cover.size() / 2 >= v + b.size()) {//芽の領域確定
                 for (int i = 0; i < cell[c].cover.size(); i++) {
-                    int p = ((Integer) cell[c].cover.get(i)).intValue();
+                    int p = (Integer) cell[c].cover.get(i);
                     int x = p % _width - left;
                     int y = p / _width - top;
                     if (y * wid + x + 1 + wid > 0 && y * wid + x + 1 + wid < wid * hei)
@@ -1965,28 +1956,28 @@ class CellImage {
                 }
                 for (int j = 1; j < vec.length; j++) {
                     for (int i = 0; i < vec[j].size(); i++) {
-                        int p = ((Integer) vec[j].get(i)).intValue();//座標を戻す
+                        int p = (Integer) vec[j].get(i);//座標を戻す
                         int x = p % wid - 1 + left;
                         int y = p / wid - 1 + top;
-                        if (greytemp[p] == 0) ba.add(new Integer(y * _width + x));
+                        if (greytemp[p] == 0) ba.add(y * _width + x);
                     }
                 }
-                for (int i = 0; i < b.size(); i++) {//芽の輪郭部分も加える
-                    int p = ((Integer) b.get(i)).intValue();
-                    ba.add(new Integer(p));
+                for (Object o : b) {//芽の輪郭部分も加える
+                    int p = (Integer) o;
+                    ba.add(p);
                 }
             } else {//bud_edgeとmother_edgeを入れ替える
                 for (int j = 1; j < vec.length; j++) {
                     for (int i = 0; i < vec[j].size(); i++) {//greytempを埋める
-                        int p = ((Integer) vec[j].get(i)).intValue();
+                        int p = (Integer) vec[j].get(i);
                         greytemp[p] = 0;
                     }
                 }
                 for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                    int p = ((Integer) cell[c].cover.get(i)).intValue();
+                    int p = (Integer) cell[c].cover.get(i);
                     int x = p % _width - left;
                     int y = p / _width - top;
-                    if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(new Integer(p));
+                    if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
                 }
                 flag_tmp = true;
             }
@@ -1998,27 +1989,27 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     // Find the highest and lowest cell wall brightness
     //////////////////////////////////////////////////////////////////////////////
-    public void serchbrightpoint(int[] Cim) {
-        for (int i = 0; i < cell.length; i++) {
+    private void serchbrightpoint(int[] Cim) {
+        for (Cell value : cell) {
             int max = -1;
             int min = 256;
-            for (int j = 0; j < cell[i].edge.size(); j++) {
-                int br = Cim[((Integer) cell[i].edge.get(j)).intValue()];
-                if (br == max) cell[i].brightestCpoint.add(cell[i].edge.get(j));
+            for (int j = 0; j < value.edge.size(); j++) {
+                int br = Cim[(Integer) value.edge.get(j)];
+                if (br == max) value.brightestCpoint.add(value.edge.get(j));
                 if (br > max) {
-                    cell[i].brightestCpoint = new Vector();
+                    value.brightestCpoint = new Vector();
                     max = br;
-                    cell[i].brightestCpoint.add(cell[i].edge.get(j));
+                    value.brightestCpoint.add(value.edge.get(j));
                 }
-                if (br == min) cell[i].darkestCpoint.add(cell[i].edge.get(j));
+                if (br == min) value.darkestCpoint.add(value.edge.get(j));
                 if (br < min) {
-                    cell[i].darkestCpoint = new Vector();
+                    value.darkestCpoint = new Vector();
                     min = br;
-                    cell[i].darkestCpoint.add(cell[i].edge.get(j));
+                    value.darkestCpoint.add(value.edge.get(j));
                 }
             }
-            cell[i].Cmaxbright = max;
-            cell[i].Cminbright = min;
+            value.Cmaxbright = max;
+            value.Cminbright = min;
         }
     }
 
@@ -2026,12 +2017,12 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     //Find the highest and lowest cell wall thickness
     //////////////////////////////////////////////////////////////////////////////
-    public void serchwidepoint(int[] CIm) {
+    private void serchwidepoint(int[] CIm) {
         int[] image = new int[_size];
         for (int i = 0; i < _size; i++) image[i] = 255;
-        for (int i = 0; i < cell.length; i++) {
-            for (int j = 0; j < cell[i].edge.size(); j++) {
-                int p = ((Integer) cell[i].edge.get(j)).intValue();
+        for (Cell value : cell) {
+            for (int j = 0; j < value.edge.size(); j++) {
+                int p = (Integer) value.edge.get(j);
                 image[p] = 0;
             }
         }
@@ -2040,7 +2031,7 @@ class CellImage {
             double minw = 20;
             double[] width = new double[cell[i].edge.size()];
             for (int j = 0; j < cell[i].edge.size(); j++) {
-                int p = ((Integer) cell[i].edge.get(j)).intValue();
+                int p = (Integer) cell[i].edge.get(j);
                 if (cell[i].getGroup() > 1) {
                     int q1 = cell[i].neck[0];
                     int q2 = cell[i].neck[1];
@@ -2098,25 +2089,25 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     //楕円をあてる
     //////////////////////////////////////////////////////////////////////////////
-    public void setEllipse() {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].setEllipse();
+    private void setEllipse() {
+        for (Cell value : cell) {
+            value.setEllipse();
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////
     //出力用のデータをセット
     /////////////////////////////////////////////////////////////////////////////
-    public void setCellData() {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].setCellData();
+    private void setCellData() {
+        for (Cell value : cell) {
+            value.setCellData();
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////
     //画像の出力
     /////////////////////////////////////////////////////////////////////////////
-    public void outCImage() {
+    private void outCImage() {
         int[] pixel = new int[_size];
         for (int i = 0; i < _size; i++) {
             pixel[i] = 0xff000000 | (_cell_points[i] << 16) | (_cell_points[i] << 8) | _cell_points[i];
@@ -2128,8 +2119,8 @@ class CellImage {
         g.setColor(Color.red);
         while (!g.drawImage(im, 0, 0, null)) {
         }
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].outCImage(g);
+        for (Cell value : cell) {
+            value.outCImage(g);
         }
         //System.out.println(outdir+"/"+name+"/"+name+"-conA"+number+".jpg");
         writeJPEG(bi, outdir + "/" + name + "/" + name + "-conA" + number + ".jpg");
@@ -2139,7 +2130,7 @@ class CellImage {
     // True if the image is significantly out of alignment
     // If it is slightly off, fix it and false
     /////////////////////////////////////////////////////////////////////////////
-    public boolean isDifferentDImage() {
+    private boolean isDifferentDImage() {
         int[] ci_tmp = _cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
@@ -2174,9 +2165,9 @@ class CellImage {
         dilation(di);
         int k = 7;
         cover(ci_tmp);
-        for (int i = 0; i < cell.length; i++) {
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue();
+        for (Cell element : cell) {
+            for (int j = 0; j < element.cover.size(); j++) {
+                int p = (Integer) element.cover.get(j);
                 ci_tmp[p] = 0;
             }
         }
@@ -2249,19 +2240,19 @@ class CellImage {
         Vector[] partedge = new Vector[4];
         boolean[] pixelofactin = new boolean[_size];
         for (int i = 0; i < 4; i++) partedge[i] = new Vector();
-        for (int i = 0; i < cell.length; i++) {
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.elementAt(j)).intValue();
-                if (pixeltocell[p - 1] < 0) partedge[0].add(new Integer(p));
-                if (pixeltocell[p + 1] < 0) partedge[1].add(new Integer(p));
-                if (pixeltocell[p - _width] < 0) partedge[2].add(new Integer(p));
-                if (pixeltocell[p + _width] < 0) partedge[3].add(new Integer(p));
+        for (Cell item : cell) {
+            for (int j = 0; j < item.cover.size(); j++) {
+                int p = (Integer) item.cover.elementAt(j);
+                if (pixeltocell[p - 1] < 0) partedge[0].add(p);
+                if (pixeltocell[p + 1] < 0) partedge[1].add(p);
+                if (pixeltocell[p - _width] < 0) partedge[2].add(p);
+                if (pixeltocell[p + _width] < 0) partedge[3].add(p);
             }
         }
         for (int i = 0; i < _size; i++) pixelofactin[i] = false;
-        for (int i = 0; i < vec.length; i++) {
-            for (int j = 0; j < vec[i].size(); j++) {
-                pixelofactin[((Integer) vec[i].elementAt(j)).intValue()] = true;
+        for (Vector vector : vec) {
+            for (int j = 0; j < vector.size(); j++) {
+                pixelofactin[(Integer) vector.elementAt(j)] = true;
             }
         }
         int min = countOutActin(vec, k);
@@ -2307,12 +2298,12 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     //外に出てるあくちんをかぞえる
     /////////////////////////////////////////////////////////////////////////////////
-    public int countOutActin(Vector[] v, int diff) {
+    private int countOutActin(Vector[] v, int diff) {
         int count = 0;
 
-        for (int i = 0; i < v.length; i++) {
-            for (int j = 0; j < v[i].size(); j++) {
-                int p = ((Integer) v[i].elementAt(j)).intValue() + diff;
+        for (Vector vector : v) {
+            for (int j = 0; j < vector.size(); j++) {
+                int p = (Integer) vector.elementAt(j) + diff;
                 if (p < 0 || p >= _size || pixeltocell[p] < 0) count++;
             }
         }
@@ -2320,13 +2311,13 @@ class CellImage {
         return count;
     }
 
-    public int countOutActin2(Vector partedge1, Vector partedge2, boolean[] pixelofactin, int previous, int prediff, int diff) {
+    private int countOutActin2(Vector partedge1, Vector partedge2, boolean[] pixelofactin, int previous, int prediff, int diff) {
         for (int i = 0; i < partedge1.size(); i++) {
-            int p = ((Integer) partedge1.elementAt(i)).intValue() - prediff;
+            int p = (Integer) partedge1.elementAt(i) - prediff;
             if (p >= 0 && p < _size && pixelofactin[p]) previous++;
         }
         for (int i = 0; i < partedge2.size(); i++) {
-            int p = ((Integer) partedge2.elementAt(i)).intValue() - diff;
+            int p = (Integer) partedge2.elementAt(i) - diff;
             if (p >= 0 && p < _size && pixelofactin[p]) previous--;
         }
         return previous;
@@ -2335,23 +2326,23 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////////
     //imageをcell.coverの範囲で２値化,diffのずれがある
     ///////////////////////////////////////////////////////////////////////////////
-    public void rethresh(int[] image, int[] oriimage, int diff) {
+    private void rethresh(int[] image, int[] oriimage, int diff) {
         for (int i = 0; i < _size; i++) {
             image[i] = 255;
         }
         int diffx = diff % _width;
         if (diffx >= _width / 2) diffx -= _width;
         else if (diffx <= -_width / 2) diffx += _width;
-        for (int i = 0; i < cell.length; i++) {
-            int[] cellarea = new int[cell[i].cover.size()];
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue() - diff;
+        for (Cell value : cell) {
+            int[] cellarea = new int[value.cover.size()];
+            for (int j = 0; j < value.cover.size(); j++) {
+                int p = (Integer) value.cover.get(j) - diff;
                 if (p < _size && p >= 0 && p / _width == (p + diffx) / _width) cellarea[j] = oriimage[p];
                 else cellarea[j] = 0;
             }
             blockthreshold(cellarea);
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue() - diff;
+            for (int j = 0; j < value.cover.size(); j++) {
+                int p = (Integer) value.cover.get(j) - diff;
                 if (p < _size && p >= 0 && p / _width == (p + diffx) / _width) image[p] = cellarea[j];
             }
         }
@@ -2360,15 +2351,15 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////////
     //cellareaの中だけ２値化
     ///////////////////////////////////////////////////////////////////////////////
-    public void blockthreshold(int[] cellarea) {
+    private void blockthreshold(int[] cellarea) {
         int[] hg = new int[256];
         for (int i = 0; i < 256; i++) {
             hg[i] = 0;
         }
         double ut = 0;
-        for (int i = 0; i < cellarea.length; i++) {
+        for (int value : cellarea) {
             //System.out.println(cellarea[i]);
-            hg[cellarea[i]]++;
+            hg[value]++;
         }
         for (int i = 0; i < 256; i++) {
             ut += (double) (i) * (double) (hg[i]) / (double) (cellarea.length);
@@ -2406,15 +2397,15 @@ class CellImage {
     // Find the center of the nucleus
     //cell[i].Dpoint set
     /////////////////////////////////////////////////////////////////////////////////
-    public void depth(int[] biimage) {
+    private void depth(int[] biimage) {
         Vector[] vec = label(biimage, 0, 20, true);
 
         //ここから核の重心を求める処理
         int[] mpoint = new int[vec.length];//重心
         int[][] mpointB = new int[vec.length][2];//Center of gravity of mother cell side and bud side when cut at the neckline in B cells
-        Vector MafterB = new Vector();
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].setFlagUD(false);
+        Vector<Integer> MafterB = new Vector<Integer>();
+        for (Cell cell11 : cell) {
+            cell11.setFlagUD(false);
         }
         for (int i = 0; i < vec.length; i++) {
             int r = 1;
@@ -2424,8 +2415,8 @@ class CellImage {
             int pointy = 0;
             int maxbr = 0;
             for (int j = 0; j < vec[i].size(); j++) {
-                int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;//細胞画像の位置にする
-                int pdapi = ((Integer) vec[i].get(j)).intValue();//DAPI画像の位置にする
+                int pconA = (Integer) vec[i].get(j) + Ddiff;//細胞画像の位置にする
+                int pdapi = (Integer) vec[i].get(j);//DAPI画像の位置にする
                 if (pixeltocell[pconA] >= 0) {
                     if (cell[pixeltocell[pconA]].getGroup() >= 2) {
                         int k;
@@ -2453,8 +2444,8 @@ class CellImage {
                 int pointx2 = 0;
                 int pointy2 = 0;
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;//細胞画像の位置にする
-                    int pdapi = ((Integer) vec[i].get(j)).intValue();//DAPI画像の位置にする
+                    int pconA = (Integer) vec[i].get(j) + Ddiff;//細胞画像の位置にする
+                    int pdapi = (Integer) vec[i].get(j);//DAPI画像の位置にする
                     if (pixeltocell[pconA] >= 0) {
                         if (cell[pixeltocell[pconA]].inmother(pconA)) {
                             pointx1 += pconA % _width;
@@ -2475,21 +2466,21 @@ class CellImage {
                 mpointB[i][1] = pointy2 * _width + pointx2;
             }
         }
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].Dpoint = new Vector();
+        for (Cell cell10 : cell) {
+            cell10.Dpoint = new Vector();
         }
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].DpointB = new Vector();
+        for (Cell cell9 : cell) {
+            cell9.DpointB = new Vector();
         }
         for (int i = 0; i < vec.length; i++) {//母細胞中の核から先に記録
             if (pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].inmother(mpoint[i])) {
-                MafterB.add(new Integer(i));
+                MafterB.add(i);
                 cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i] % _width, mpoint[i] / _width));
             }
         }
         for (int i = 0; i < vec.length; i++) {//芽中の核は母細胞中の核の後に記録
             if (pixeltocell[mpoint[i]] >= 0 && !cell[pixeltocell[mpoint[i]]].inmother(mpoint[i])) {
-                MafterB.add(new Integer(i));
+                MafterB.add(i);
                 cell[pixeltocell[mpoint[i]]].Dpoint.add(new Point(mpoint[i] % _width, mpoint[i] / _width));
             }
         }
@@ -2505,23 +2496,23 @@ class CellImage {
         int[][] brightpointB = new int[vec.length][2];
         for (int i = 0; i < vec.length; i++) {
             int brightness = 0;
-            Vector bpoint = new Vector();
+            Vector<Integer> bpoint = new Vector<Integer>();
             for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
+                int p = (Integer) vec[i].get(j);
                 if (pixeltocell[p + Ddiff] >= 0) {
                     if (_nucleus_points[p] > brightness) {
                         brightness = _nucleus_points[p];
-                        bpoint = new Vector();
-                        bpoint.add(new Integer(p));
-                    } else if (_nucleus_points[p] == brightness) bpoint.add(new Integer(p));
+                        bpoint = new Vector<>();
+                        bpoint.add(p);
+                    } else if (_nucleus_points[p] == brightness) bpoint.add(p);
                 }
             }
             if (bpoint.size() > 1) {//最大輝点が複数点あった場合、それらの重心を使う
                 int s = 0;
                 int pointx = 0;
                 int pointy = 0;
-                for (int j = 0; j < bpoint.size(); j++) {
-                    int pconA = ((Integer) bpoint.get(j)).intValue() + Ddiff;
+                for (Object o : bpoint) {
+                    int pconA = (Integer) o + Ddiff;
                     pointx += pconA % _width;
                     pointy += pconA / _width;
                     s++;
@@ -2530,30 +2521,30 @@ class CellImage {
                 pointy /= s;
                 brightpoint[i] = pointy * _width + pointx;
             } else {
-                int pconA = ((Integer) bpoint.get(0)).intValue() + Ddiff;
+                int pconA = bpoint.get(0) + Ddiff;
                 brightpoint[i] = pconA;
             }
 
             if (pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
                 int brightness1 = 0;
                 int brightness2 = 0;
-                Vector bpoint1 = new Vector();
-                Vector bpoint2 = new Vector();
+                Vector<Integer> bpoint1 = new Vector<>();
+                Vector<Integer> bpoint2 = new Vector<>();
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int p = ((Integer) vec[i].get(j)).intValue();
+                    int p = (Integer) vec[i].get(j);
                     if (pixeltocell[p + Ddiff] >= 0) {
                         if (cell[pixeltocell[p + Ddiff]].inmother(p + Ddiff)) {
                             if (_nucleus_points[p] > brightness1) {
                                 brightness1 = _nucleus_points[p];
-                                bpoint1 = new Vector();
-                                bpoint1.add(new Integer(p));
-                            } else if (_nucleus_points[p] == brightness1) bpoint1.add(new Integer(p));
+                                bpoint1 = new Vector<>();
+                                bpoint1.add(p);
+                            } else if (_nucleus_points[p] == brightness1) bpoint1.add(p);
                         } else {
                             if (_nucleus_points[p] > brightness2) {
                                 brightness2 = _nucleus_points[p];
-                                bpoint2 = new Vector();
-                                bpoint2.add(new Integer(p));
-                            } else if (_nucleus_points[p] == brightness2) bpoint2.add(new Integer(p));
+                                bpoint2 = new Vector<Integer>();
+                                bpoint2.add(p);
+                            } else if (_nucleus_points[p] == brightness2) bpoint2.add(p);
                         }
                     }
                 }
@@ -2563,8 +2554,8 @@ class CellImage {
                     int s = 0;
                     int pointx = 0;
                     int pointy = 0;
-                    for (int j = 0; j < bpoint1.size(); j++) {
-                        int pconA = ((Integer) bpoint1.get(j)).intValue() + Ddiff;
+                    for (Object o : bpoint1) {
+                        int pconA = (Integer) o + Ddiff;
                         pointx += pconA % _width;
                         pointy += pconA / _width;
                         s++;
@@ -2573,7 +2564,7 @@ class CellImage {
                     pointy /= s;
                     brightpointB[i][0] = pointy * _width + pointx;
                 } else {
-                    int pconA = ((Integer) bpoint1.get(0)).intValue() + Ddiff;
+                    int pconA = bpoint1.get(0) + Ddiff;
                     brightpointB[i][0] = pconA;
                 }
                 if (bpoint2.size() > 1) {
@@ -2582,8 +2573,8 @@ class CellImage {
                     int s = 0;
                     int pointx = 0;
                     int pointy = 0;
-                    for (int j = 0; j < bpoint2.size(); j++) {
-                        int pconA = ((Integer) bpoint2.get(j)).intValue() + Ddiff;
+                    for (Object o : bpoint2) {
+                        int pconA = (Integer) o + Ddiff;
                         pointx += pconA % _width;
                         pointy += pconA / _width;
                         s++;
@@ -2592,103 +2583,103 @@ class CellImage {
                     pointy /= s;
                     brightpointB[i][1] = pointy * _width + pointx;
                 } else {
-                    int pconA = ((Integer) bpoint2.get(0)).intValue() + Ddiff;
+                    int pconA = bpoint2.get(0) + Ddiff;
                     brightpointB[i][1] = pconA;
                 }
             }
         }
 
-        for (int i = 0; i < cell.length; i++) cell[i].Dbrightpoint = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].DbrightpointB = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].Dmaxbright = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].DmaxbrightB = new Vector();
+        for (Cell cell8 : cell) cell8.Dbrightpoint = new Vector();
+        for (Cell cell7 : cell) cell7.DbrightpointB = new Vector();
+        for (Cell cell6 : cell) cell6.Dmaxbright = new Vector();
+        for (Cell cell5 : cell) cell5.DmaxbrightB = new Vector();
 
-        for (int ii = 0; ii < MafterB.size(); ii++) {
-            int i = ((Integer) MafterB.get(ii)).intValue();
+        for (Object o2 : MafterB) {
+            int i = (Integer) o2;
             if (pixeltocell[mpoint[i]] >= 0) {
                 cell[pixeltocell[mpoint[i]]].Dbrightpoint.add(new Point(brightpoint[i] % _width, brightpoint[i] / _width));
-                cell[pixeltocell[mpoint[i]]].Dmaxbright.add(new Integer(_nucleus_points[brightpoint[i]]));
+                cell[pixeltocell[mpoint[i]]].Dmaxbright.add(_nucleus_points[brightpoint[i]]);
             }
         }
         for (int i = 0; i < vec.length; i++) {
             if (pixeltocell[mpoint[i]] >= 0 && cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
                 cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][0] % _width, brightpointB[i][0] / _width));
-                cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(_nucleus_points[brightpointB[i][0]]));
+                cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(_nucleus_points[brightpointB[i][0]]);
                 cell[pixeltocell[mpoint[i]]].DbrightpointB.add(new Point(brightpointB[i][1] % _width, brightpointB[i][1] / _width));
-                cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(new Integer(_nucleus_points[brightpointB[i][1]]));
+                cell[pixeltocell[mpoint[i]]].DmaxbrightB.add(_nucleus_points[brightpointB[i][1]]);
             }
         }
 
         //ここから核領域と核の輝度合計を求める処理
         boolean[] Dcov = new boolean[_size];//核の外縁を求める際に使用
-        for (int i = 0; i < cell.length; i++) cell[i].Dcover = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].Dtotalbright = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].DcoverB = new Vector();
-        for (int i = 0; i < cell.length; i++) cell[i].DtotalbrightB = new Vector();
-        for (int ii = 0; ii < MafterB.size(); ii++) {
-            int i = ((Integer) MafterB.get(ii)).intValue();
+        for (Cell cell4 : cell) cell4.Dcover = new Vector();
+        for (Cell cell3 : cell) cell3.Dtotalbright = new Vector();
+        for (Cell cell2 : cell) cell2.DcoverB = new Vector();
+        for (Cell cell1 : cell) cell1.DtotalbrightB = new Vector();
+        for (Object o1 : MafterB) {
+            int i = (Integer) o1;
             if (pixeltocell[mpoint[i]] >= 0) {
-                Vector Dc = new Vector();
+                Vector<Integer> Dc = new Vector<Integer>();
                 int totalbr = 0;
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
-                    Dc.add(new Integer(pconA));
+                    int pconA = (Integer) vec[i].get(j) + Ddiff;
+                    Dc.add(pconA);
                     Dcov[pconA] = true;
                     totalbr += _nucleus_points[pconA - Ddiff];
                 }
                 cell[pixeltocell[mpoint[i]]].Dcover.add(Dc);
-                cell[pixeltocell[mpoint[i]]].Dtotalbright.add(new Integer(totalbr));
+                cell[pixeltocell[mpoint[i]]].Dtotalbright.add(totalbr);
                 if (cell[pixeltocell[mpoint[i]]].getFlagUD() && cell[pixeltocell[mpoint[i]]].Dpoint.size() == 1) {
-                    Vector Dc1 = new Vector();
-                    Vector Dc2 = new Vector();
+                    Vector<Integer> Dc1 = new Vector<>();
+                    Vector<Integer> Dc2 = new Vector<>();
                     int totalbr1 = 0;
                     int totalbr2 = 0;
                     for (int j = 0; j < vec[i].size(); j++) {
-                        int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
+                        int pconA = (Integer) vec[i].get(j) + Ddiff;
                         if (cell[pixeltocell[mpoint[i]]].inmother(pconA)) {
-                            Dc1.add(new Integer(pconA));
+                            Dc1.add(pconA);
                             totalbr1 += _nucleus_points[pconA - Ddiff];
                         } else {
-                            Dc2.add(new Integer(pconA));
+                            Dc2.add(pconA);
                             totalbr2 += _nucleus_points[pconA - Ddiff];
                         }
                     }
                     cell[pixeltocell[mpoint[i]]].DcoverB.add(Dc1);
-                    cell[pixeltocell[mpoint[i]]].DtotalbrightB.add(new Integer(totalbr1));
+                    cell[pixeltocell[mpoint[i]]].DtotalbrightB.add(totalbr1);
                     cell[pixeltocell[mpoint[i]]].DcoverB.add(Dc2);
-                    cell[pixeltocell[mpoint[i]]].DtotalbrightB.add(new Integer(totalbr2));
+                    cell[pixeltocell[mpoint[i]]].DtotalbrightB.add(totalbr2);
                 }
             }
         }
 
         //ここから核の外縁を求めるための処理
-        for (int i = 0; i < cell.length; i++) cell[i].Dedge = new Vector();
+        for (Cell element : cell) element.Dedge = new Vector();
         Vector[] De = new Vector[vec.length];
-        for (int ii = 0; ii < MafterB.size(); ii++) {
-            int i = ((Integer) MafterB.get(ii)).intValue();
+        for (Object item : MafterB) {
+            int i = (Integer) item;
             if (pixeltocell[mpoint[i]] >= 0) {
                 De[i] = new Vector();
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
+                    int pconA = (Integer) vec[i].get(j) + Ddiff;
                     if (!Dcov[pconA - _width] || !Dcov[pconA - 1] || !Dcov[pconA + 1] || !Dcov[pconA + _width])
-                        De[i].add(new Integer(pconA));
+                        De[i].add(pconA);
                 }
                 cell[pixeltocell[mpoint[i]]].Dedge.add(De[i]);
             }
         }
 
         //ここから核の、重心から一番遠い点（D3）、D3から一番遠い点（D4）、D3D4と垂直で重心を通る直線と核の外縁の交点のうち重心から遠い方（D5）を求めるための処理
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].D345point = new Vector[3];
-            for (int j = 0; j < 3; j++) cell[i].D345point[j] = new Vector();
+        for (Cell value : cell) {
+            value.D345point = new Vector[3];
+            for (int j = 0; j < 3; j++) value.D345point[j] = new Vector();
         }
-        for (int ii = 0; ii < MafterB.size(); ii++) {
-            int i = ((Integer) MafterB.get(ii)).intValue();
+        for (Object o : MafterB) {
+            int i = (Integer) o;
             if (mpoint[i] >= 0) {
                 double maxdist = -1;
                 int maxpoint = -1;
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
+                    int pconA = (Integer) vec[i].get(j) + Ddiff;
                     if (distance(pconA, mpoint[i]) > maxdist) {
                         maxdist = distance(pconA, mpoint[i]);
                         maxpoint = pconA;
@@ -2699,7 +2690,7 @@ class CellImage {
                 int maxpoint2 = -1;
                 maxdist = -1;
                 for (int j = 0; j < vec[i].size(); j++) {
-                    int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
+                    int pconA = (Integer) vec[i].get(j) + Ddiff;
                     if (distance(pconA, maxpoint) > maxdist) {
                         maxdist = distance(pconA, maxpoint);
                         maxpoint2 = pconA;
@@ -2711,7 +2702,7 @@ class CellImage {
                     int maxpoint3 = -1;
                     double mindist = 1000;
                     for (int j = 0; j < De[i].size(); j++) {//一つ目の交点を求める
-                        int pconA = ((Integer) De[i].get(j)).intValue();
+                        int pconA = (Integer) De[i].get(j);
                         if (Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width) < mindist) {
                             mindist = Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width);
                             maxpoint3 = pconA;
@@ -2720,7 +2711,7 @@ class CellImage {
                     mindist = 1000;
                     int maxpoint3_2 = -1;
                     for (int j = 0; j < De[i].size(); j++) {//二つ目の交点を求める
-                        int pconA = ((Integer) De[i].get(j)).intValue();
+                        int pconA = (Integer) De[i].get(j);
                         if (distance(pconA, maxpoint3) > 1 && Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width) < mindist) {
                             mindist = Line2D.ptLineDist(mpoint[i] % _width, mpoint[i] / _width, mpoint[i] % _width + maxpoint2 / _width - maxpoint / _width, mpoint[i] / _width - maxpoint2 % _width + maxpoint % _width, pconA % _width, pconA / _width);
                             maxpoint3_2 = pconA;
@@ -2734,7 +2725,7 @@ class CellImage {
                     int maxpoint3 = -1;
                     maxdist = -1;
                     for (int j = 0; j < vec[i].size(); j++) {
-                        int pconA = ((Integer) vec[i].get(j)).intValue() + Ddiff;
+                        int pconA = (Integer) vec[i].get(j) + Ddiff;
                         if ((pconA - mpoint[i]) % _width == 0 && (pconA - mpoint[i]) / _width > maxdist) {
                             maxdist = (pconA - mpoint[i]) / _width;
                             maxpoint3 = pconA;
@@ -2747,23 +2738,23 @@ class CellImage {
         }
     }
 
-    public double distance(int a, int b) {
+    private double distance(int a, int b) {
         return Math.sqrt((a / _width - b / _width) * (a / _width - b / _width) + (a % _width - b % _width) * (a % _width - b % _width));
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     //核に関するデータをセット
     /////////////////////////////////////////////////////////////////////////////////
-    public void setDState() {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].setDState();
+    private void setDState() {
+        for (Cell value : cell) {
+            value.setDState();
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     //DAPI画像出力
     /////////////////////////////////////////////////////////////////////////////////
-    public void outDImage() {
+    private void outDImage() {
         int[] pixel = new int[_size];
         for (int i = 0; i < _size; i++) {
             pixel[i] = 0xff000000 | (_nucleus_points[i] << 16) | (_nucleus_points[i] << 8) | _nucleus_points[i];
@@ -2786,8 +2777,8 @@ class CellImage {
             }
         //while(!g.drawImage(im,0,0,null)){}
         g.setFont(new Font("Courier", Font.PLAIN, 20));
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].outDImage(g);
+        for (Cell value : cell) {
+            value.outDImage(g);
         }
         writeJPEG(bi, outdir + "/" + name + "/" + name + "-dapi" + number + ".jpg");
     }
@@ -2796,7 +2787,7 @@ class CellImage {
     //画像が大きくずれていたらtrue
     //少しずれていたら直してfalse
     /////////////////////////////////////////////////////////////////////////////
-    public boolean isDifferentAImage() {
+    private boolean isDifferentAImage() {
         int[] ci_tmp = _cell_points.clone();
         threshold(ci_tmp);
         int countcarea = 0;
@@ -2830,9 +2821,9 @@ class CellImage {
         dilation(ai);
         int k = 7;
         cover(ci_tmp);
-        for (int i = 0; i < cell.length; i++) {
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue();
+        for (Cell element : cell) {
+            for (int j = 0; j < element.cover.size(); j++) {
+                int p = (Integer) element.cover.get(j);
                 ci_tmp[p] = 0;
             }
         }
@@ -2905,19 +2896,19 @@ class CellImage {
         Vector[] partedge = new Vector[4];
         boolean[] pixelofactin = new boolean[_size];
         for (int i = 0; i < 4; i++) partedge[i] = new Vector();
-        for (int i = 0; i < cell.length; i++) {
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.elementAt(j)).intValue();
-                if (pixeltocell[p - 1] < 0) partedge[0].add(new Integer(p));
-                if (pixeltocell[p + 1] < 0) partedge[1].add(new Integer(p));
-                if (pixeltocell[p - _width] < 0) partedge[2].add(new Integer(p));
-                if (pixeltocell[p + _width] < 0) partedge[3].add(new Integer(p));
+        for (Cell item : cell) {
+            for (int j = 0; j < item.cover.size(); j++) {
+                int p = (Integer) item.cover.elementAt(j);
+                if (pixeltocell[p - 1] < 0) partedge[0].add(p);
+                if (pixeltocell[p + 1] < 0) partedge[1].add(p);
+                if (pixeltocell[p - _width] < 0) partedge[2].add(p);
+                if (pixeltocell[p + _width] < 0) partedge[3].add(p);
             }
         }
         for (int i = 0; i < _size; i++) pixelofactin[i] = false;
-        for (int i = 0; i < vec.length; i++) {
-            for (int j = 0; j < vec[i].size(); j++) {
-                pixelofactin[((Integer) vec[i].elementAt(j)).intValue()] = true;
+        for (Vector vector : vec) {
+            for (int j = 0; j < vector.size(); j++) {
+                pixelofactin[(Integer) vector.elementAt(j)] = true;
             }
         }
         int min = countOutActin(vec, k);
@@ -2963,17 +2954,17 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     //アクチン領域で分類
     /////////////////////////////////////////////////////////////////////////////////
-    public void searchActinRegion() {
+    private void searchActinRegion() {
         //アクチンの消えたセルを探す
         int diffx = Adiff % _width;
         if (diffx >= _width / 2) diffx -= _width;
         else if (diffx <= -_width / 2) diffx += _width;
-        for (int i = 0; i < cell.length; i++) {
+        for (Cell value : cell) {
             boolean flag_tmp = true;
-            cell[i].Aregionsize = new int[2];
-            cell[i].Atotalbright = new int[2];
-            cell[i].Acenterpoint = new Point[3][5];
-            cell[i].Acover = new Vector();
+            value.Aregionsize = new int[2];
+            value.Atotalbright = new int[2];
+            value.Acenterpoint = new Point[3][5];
+            value.Acover = new Vector();
             int regionsize = 0;
             int totalbright = 0;
             int maxbright = 0;
@@ -2990,10 +2981,10 @@ class CellImage {
             long total2 = 0;
             long total3 = 0;
             long total4 = 0;
-            for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue();
+            for (int j = 0; j < value.cover.size(); j++) {
+                int p = (Integer) value.cover.get(j);
                 if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width && ai[p - Adiff] == 0) {
-                    cell[i].Acover.add(new Integer(p));
+                    value.Acover.add(p);
                     flag_tmp = false;
                     regionsize++;
                     long br = _actin_points[p - Adiff];
@@ -3037,24 +3028,24 @@ class CellImage {
                 brx4 = -1;
                 bry4 = -1;
             }
-            if ((flag_tmp || maxbright < 10) && cell[i].getGroup() > 0) cell[i].setAgroup("N");
+            if ((flag_tmp || maxbright < 10) && value.getGroup() > 0) value.setAgroup("N");
             else {
-                cell[i].Aregionsize[0] = regionsize;
-                cell[i].Atotalbright[0] = totalbright;
-                cell[i].Acenterpoint[2][0] = new Point(x, y);
-                cell[i].Acenterpoint[2][1] = new Point(brx, bry);
-                cell[i].Acenterpoint[2][2] = new Point((int) brxx, (int) bryy);
-                cell[i].Acenterpoint[2][3] = new Point((int) brx3, (int) bry3);
-                cell[i].Acenterpoint[2][4] = new Point((int) brx4, (int) bry4);
-                if (cell[i].getGroup() == 1) {
-                    if (regionsize > cell[i].cover.size() / 4) cell[i].setAgroup("A");
-                    else cell[i].setAgroup("B");
-                    cell[i].Acenterpoint[0][0] = new Point(x, y);
-                    cell[i].Acenterpoint[0][1] = new Point(brx, bry);
-                    cell[i].Acenterpoint[0][2] = new Point((int) brxx, (int) bryy);
-                    cell[i].Acenterpoint[0][3] = new Point((int) brx3, (int) bry3);
-                    cell[i].Acenterpoint[0][4] = new Point((int) brx4, (int) bry4);
-                } else if (cell[i].getGroup() > 1) {
+                value.Aregionsize[0] = regionsize;
+                value.Atotalbright[0] = totalbright;
+                value.Acenterpoint[2][0] = new Point(x, y);
+                value.Acenterpoint[2][1] = new Point(brx, bry);
+                value.Acenterpoint[2][2] = new Point((int) brxx, (int) bryy);
+                value.Acenterpoint[2][3] = new Point((int) brx3, (int) bry3);
+                value.Acenterpoint[2][4] = new Point((int) brx4, (int) bry4);
+                if (value.getGroup() == 1) {
+                    if (regionsize > value.cover.size() / 4) value.setAgroup("A");
+                    else value.setAgroup("B");
+                    value.Acenterpoint[0][0] = new Point(x, y);
+                    value.Acenterpoint[0][1] = new Point(brx, bry);
+                    value.Acenterpoint[0][2] = new Point((int) brxx, (int) bryy);
+                    value.Acenterpoint[0][3] = new Point((int) brx3, (int) bry3);
+                    value.Acenterpoint[0][4] = new Point((int) brx4, (int) bry4);
+                } else if (value.getGroup() > 1) {
                     int mregionsize = 0;
                     int mtotalbright = 0;
                     int bregionsize = 0;
@@ -3085,11 +3076,11 @@ class CellImage {
                     long btotal2 = 0;
                     long btotal3 = 0;
                     long btotal4 = 0;
-                    for (int j = 0; j < cell[i].cover.size(); j++) {
-                        int p = ((Integer) cell[i].cover.get(j)).intValue();
+                    for (int j = 0; j < value.cover.size(); j++) {
+                        int p = (Integer) value.cover.get(j);
                         if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width && ai[p - Adiff] == 0) {
                             long br = _actin_points[p - Adiff];
-                            if (cell[i].inmother(p)) {
+                            if (value.inmother(p)) {
                                 mregionsize++;
                                 mtotalbright += _actin_points[p - Adiff];
                                 mx += p % _width;
@@ -3170,49 +3161,49 @@ class CellImage {
                         bbrx4 = -1;
                         bbry4 = -1;
                     }
-                    cell[i].Acenterpoint[0][0] = new Point(mx, my);
-                    cell[i].Acenterpoint[0][1] = new Point(mbrx, mbry);
-                    cell[i].Acenterpoint[0][2] = new Point((int) mbrxx, (int) mbryy);
-                    cell[i].Acenterpoint[0][3] = new Point((int) mbrx3, (int) mbry3);
-                    cell[i].Acenterpoint[0][4] = new Point((int) mbrx4, (int) mbry4);
-                    cell[i].Acenterpoint[1][0] = new Point(bx, by);
-                    cell[i].Acenterpoint[1][1] = new Point(bbrx, bbry);
-                    cell[i].Acenterpoint[1][2] = new Point((int) bbrxx, (int) bbryy);
-                    cell[i].Acenterpoint[1][3] = new Point((int) bbrx3, (int) bbry3);
-                    cell[i].Acenterpoint[1][4] = new Point((int) bbrx4, (int) bbry4);
-                    cell[i].Aregionsize[0] = mregionsize;
-                    cell[i].Aregionsize[1] = bregionsize;
-                    cell[i].Atotalbright[0] = mtotalbright;
-                    cell[i].Atotalbright[1] = btotalbright;
+                    value.Acenterpoint[0][0] = new Point(mx, my);
+                    value.Acenterpoint[0][1] = new Point(mbrx, mbry);
+                    value.Acenterpoint[0][2] = new Point((int) mbrxx, (int) mbryy);
+                    value.Acenterpoint[0][3] = new Point((int) mbrx3, (int) mbry3);
+                    value.Acenterpoint[0][4] = new Point((int) mbrx4, (int) mbry4);
+                    value.Acenterpoint[1][0] = new Point(bx, by);
+                    value.Acenterpoint[1][1] = new Point(bbrx, bbry);
+                    value.Acenterpoint[1][2] = new Point((int) bbrxx, (int) bbryy);
+                    value.Acenterpoint[1][3] = new Point((int) bbrx3, (int) bbry3);
+                    value.Acenterpoint[1][4] = new Point((int) bbrx4, (int) bbry4);
+                    value.Aregionsize[0] = mregionsize;
+                    value.Aregionsize[1] = bregionsize;
+                    value.Atotalbright[0] = mtotalbright;
+                    value.Atotalbright[1] = btotalbright;
                 }
             }
-            if (cell[i].getGroup() >= 2) {//ネックライン上に乗っているアクチン領域のネックライン全体に対する割合を求める
-                if (Math.abs(cell[i].neck[0] % _width - cell[i].neck[1] % _width) > Math.abs(cell[i].neck[0] / _width - cell[i].neck[1] / _width)) {
+            if (value.getGroup() >= 2) {//ネックライン上に乗っているアクチン領域のネックライン全体に対する割合を求める
+                if (Math.abs(value.neck[0] % _width - value.neck[1] % _width) > Math.abs(value.neck[0] / _width - value.neck[1] / _width)) {
                     int min = 0;
-                    if (cell[i].neck[0] % _width > cell[i].neck[1] % _width) min = 1;
-                    int minx = cell[i].neck[min] % _width;
-                    int maxx = cell[i].neck[(1 + min) % 2] % _width;
-                    int miny = cell[i].neck[min] / _width;
-                    int maxy = cell[i].neck[(1 + min) % 2] / _width;
+                    if (value.neck[0] % _width > value.neck[1] % _width) min = 1;
+                    int minx = value.neck[min] % _width;
+                    int maxx = value.neck[(1 + min) % 2] % _width;
+                    int miny = value.neck[min] / _width;
+                    int maxy = value.neck[(1 + min) % 2] / _width;
                     int count = 0;
                     for (int j = 0; j <= maxx - minx; j++) {
                         int p = minx + j + (miny + ((maxy - miny) * j) / (maxx - minx)) * _width;
                         if (ai[p - Adiff] == 0) count++;
                     }
-                    cell[i].actinonneckline = (double) count / (double) (maxx - minx + 1);
+                    value.actinonneckline = (double) count / (double) (maxx - minx + 1);
                 } else {
                     int min = 0;
-                    if (cell[i].neck[0] / _width > cell[i].neck[1] / _width) min = 1;
-                    int minx = cell[i].neck[min] % _width;
-                    int maxx = cell[i].neck[(1 + min) % 2] % _width;
-                    int miny = cell[i].neck[min] / _width;
-                    int maxy = cell[i].neck[(1 + min) % 2] / _width;
+                    if (value.neck[0] / _width > value.neck[1] / _width) min = 1;
+                    int minx = value.neck[min] % _width;
+                    int maxx = value.neck[(1 + min) % 2] % _width;
+                    int miny = value.neck[min] / _width;
+                    int maxy = value.neck[(1 + min) % 2] / _width;
                     int count = 0;
                     for (int j = 0; j <= maxy - miny; j++) {
                         int p = (miny + j) * _width + minx + ((maxx - minx) * j) / (maxy - miny);
                         if (ai[p - Adiff] == 0) count++;
                     }
-                    cell[i].actinonneckline = (double) count / (double) (maxy - miny + 1);
+                    value.actinonneckline = (double) count / (double) (maxy - miny + 1);
                 }
 
             }
@@ -3222,11 +3213,11 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     //アクチンパッチを探す
     /////////////////////////////////////////////////////////////////////////////////
-    public void searchActinPatch() {
-        Vector same;
+    private void searchActinPatch() {
+        Vector<ActinLabel> same;
         int[] lab = new int[_size];
 
-        same = new Vector();
+        same = new Vector<>();
         ai = _actin_points.clone();
         for (int i = 0; i < _size; i++) {//全てラベルがついてない状態に
             lab[i] = -1;
@@ -3258,10 +3249,10 @@ class CellImage {
                         removeActinLabel(same, lab, i - 1);//左のラベルを消す
                     } else {//両方のラベルがあれば
                         if (a1 <= a2) {//小さい方にポインタを付け替える
-                            ((ActinLabel) same.get(a2)).setPointer(a1);
+                            (same.get(a2)).setPointer(a1);
                             lab[i] = a1;
                         } else {
-                            ((ActinLabel) same.get(a1)).setPointer(a2);
+                            (same.get(a1)).setPointer(a2);
                             lab[i] = a2;
                         }
                     }
@@ -3290,7 +3281,7 @@ class CellImage {
             int x = 0;
             int y = 0;
             for (int j = 0; j < vec[i].size(); j++) {
-                int p = ((Integer) vec[i].get(j)).intValue();
+                int p = (Integer) vec[i].get(j);
                 x += p % _width;
                 y += p / _width;
             }
@@ -3298,7 +3289,7 @@ class CellImage {
             y /= vec[i].size();
             int p1 = x + y * _width;
             if (p1 + Adiff > 0 && p1 + Adiff < _size && p1 / _width == (p1 + diffx) / _width && pixeltocell[p1 + Adiff] >= 0) {
-                brhist[_actin_points[p1]].add(new Integer(i));
+                brhist[_actin_points[p1]].add(i);
                 patchp[i] = p1;
             }
         }
@@ -3310,8 +3301,7 @@ class CellImage {
 
         int[] patchnumofcell = new int[cell.length];
         int[] patchbrightofcell = new int[cell.length];
-        for (int i = 0; i < patchp.length; i++) {
-            int p = patchp[i];
+        for (int p : patchp) {
             if (p == 0) continue;
             patchnumofcell[pixeltocell[p + Adiff]]++;
             patchbrightofcell[pixeltocell[p + Adiff]] += _actin_points[p];
@@ -3325,7 +3315,7 @@ class CellImage {
             actinbrightofcell[i] = 255;
             int count = 0;
             for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = ((Integer) cell[i].cover.get(j)).intValue();
+                int p = (Integer) cell[i].cover.get(j);
                 if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width) {
                     actinbrightofcell[i] += _actin_points[p - Adiff];
                     count++;
@@ -3336,18 +3326,18 @@ class CellImage {
         boolean[] ingroup = new boolean[_size];//あるピクセルがアクチンパッチ領域に含まれたかどうか
         for (int i = 255; i >= 30; i--) {
             for (int j = 0; j < brhist[i].size(); j++) {
-                int ii = ((Integer) brhist[i].get(j)).intValue();
+                int ii = (Integer) brhist[i].get(j);
                 int p = patchp[ii];
                 int cellnum = pixeltocell[p + Adiff];
                 int bright = _actin_points[p];
-                Vector group = new Vector();
+                Vector<Integer> group = new Vector<>();
                 for (int k = 0; k < vec[ii].size(); k++) {
-                    p = ((Integer) vec[ii].get(k)).intValue();
+                    p = (Integer) vec[ii].get(k);
                     ingroup[p] = true;
-                    group.add(new Integer(p));
+                    group.add(p);
                 }
                 for (int k = 0; k < group.size(); k++) {
-                    p = ((Integer) group.get(k)).intValue();
+                    p = group.get(k);
                     if (p + Adiff >= 0 && p + Adiff < _size && p / _width == (p + diffx) / _width) {
                         int maxneighbor = 0;
                         if (p - _width >= 0) maxneighbor = _actin_points[p - _width];
@@ -3357,21 +3347,21 @@ class CellImage {
                         if (p + _width < _size && maxneighbor < _actin_points[p + _width])
                             maxneighbor = _actin_points[p + _width];
 
-                        if (p - _width >= 0 && p + Adiff - _width >= 0 && pixeltocell[p + Adiff - _width] >= 0 && !ingroup[p - _width] && _actin_points[p - _width] > Math.max(bright * 1 / 2, actinbrightofcell[cellnum]) && _actin_points[p - _width] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p - _width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
+                        if (p - _width >= 0 && p + Adiff - _width >= 0 && pixeltocell[p + Adiff - _width] >= 0 && !ingroup[p - _width] && _actin_points[p - _width] > Math.max(bright / 2, actinbrightofcell[cellnum]) && _actin_points[p - _width] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p - _width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
                             ingroup[p - _width] = true;
-                            group.add(new Integer(p - _width));
+                            group.add(p - _width);
                         }
-                        if (p % _width != 0 && (p + Adiff) % _width != 0 && pixeltocell[p + Adiff - 1] >= 0 && !ingroup[p - 1] && _actin_points[p - 1] > Math.max(bright * 1 / 2, actinbrightofcell[cellnum]) && _actin_points[p - 1] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p - 1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
+                        if (p % _width != 0 && (p + Adiff) % _width != 0 && pixeltocell[p + Adiff - 1] >= 0 && !ingroup[p - 1] && _actin_points[p - 1] > Math.max(bright / 2, actinbrightofcell[cellnum]) && _actin_points[p - 1] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p - 1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
                             ingroup[p - 1] = true;
-                            group.add(new Integer(p - 1));
+                            group.add(p - 1);
                         }
-                        if (p % _width != _width - 1 && (p + Adiff) % _width != _width - 1 && pixeltocell[p + Adiff + 1] >= 0 && !ingroup[p + 1] && _actin_points[p + 1] > Math.max(bright * 1 / 2, actinbrightofcell[cellnum]) && _actin_points[p + 1] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p + 1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
+                        if (p % _width != _width - 1 && (p + Adiff) % _width != _width - 1 && pixeltocell[p + Adiff + 1] >= 0 && !ingroup[p + 1] && _actin_points[p + 1] > Math.max(bright / 2, actinbrightofcell[cellnum]) && _actin_points[p + 1] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p + 1] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
                             ingroup[p + 1] = true;
-                            group.add(new Integer(p + 1));
+                            group.add(p + 1);
                         }
-                        if (p + _width < _size && p + Adiff + _width < _size && pixeltocell[p + Adiff + _width] >= 0 && !ingroup[p + _width] && _actin_points[p + _width] > Math.max(bright * 1 / 2, actinbrightofcell[cellnum]) && _actin_points[p + _width] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p + _width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
+                        if (p + _width < _size && p + Adiff + _width < _size && pixeltocell[p + Adiff + _width] >= 0 && !ingroup[p + _width] && _actin_points[p + _width] > Math.max(bright / 2, actinbrightofcell[cellnum]) && _actin_points[p + _width] <= _actin_points[p] && (maxneighbor - _actin_points[p] < _actin_points[p] - _actin_points[p + _width] || maxneighbor < _actin_points[p] + 5 || _actin_points[p] > 150)) {
                             ingroup[p + _width] = true;
-                            group.add(new Integer(p + _width));
+                            group.add(p + _width);
                         }
                     }
                 }
@@ -3385,9 +3375,9 @@ class CellImage {
 						alab[p] = -1;
 					}*/
                 } else {
-                    cell[cellnum].actinpatchpoint.add(new Integer(patchp[ii] + Adiff));
-                    cell[cellnum].actinpatchbright.add(new Integer(_actin_points[patchp[ii]]));
-                    cell[cellnum].actinpatchsize.add(new Integer(group.size()));
+                    cell[cellnum].actinpatchpoint.add(patchp[ii] + Adiff);
+                    cell[cellnum].actinpatchbright.add(_actin_points[patchp[ii]]);
+                    cell[cellnum].actinpatchsize.add(group.size());
                     cell[cellnum].totalpatchsize += group.size();
                 }
             }
@@ -3402,8 +3392,8 @@ class CellImage {
 			}
         }*/
 
-        for (int i = 0; i < cell.length; i++) {//アクチンパッチの重心（重み輝度0〜4乗）を求める
-            cell[i].Apatchcenterpoint = new Point[3][5];
+        for (Cell item : cell) {//アクチンパッチの重心（重み輝度0〜4乗）を求める
+            item.Apatchcenterpoint = new Point[3][5];
             int x = 0;
             int y = 0;
             int brx = 0;
@@ -3448,8 +3438,8 @@ class CellImage {
             long btotal2 = 0;
             long btotal3 = 0;
             long btotal4 = 0;
-            for (int j = 0; j < cell[i].actinpatchpoint.size(); j++) {
-                int p = ((Integer) cell[i].actinpatchpoint.get(j)).intValue();
+            for (int j = 0; j < item.actinpatchpoint.size(); j++) {
+                int p = (Integer) item.actinpatchpoint.get(j);
                 long br = _actin_points[p - Adiff];
                 x += p % _width;
                 y += p / _width;
@@ -3465,8 +3455,8 @@ class CellImage {
                 total2 += br * br;
                 total3 += br * br * br;
                 total4 += br * br * br * br;
-                if (cell[i].getGroup() > 1) {
-                    if (cell[i].inmother(p)) {
+                if (item.getGroup() > 1) {
+                    if (item.inmother(p)) {
                         mpatchsize++;
                         mtotal += br;
                         mx += p % _width;
@@ -3501,9 +3491,9 @@ class CellImage {
                     }
                 }
             }
-            if (cell[i].actinpatchpoint.size() != 0) {
-                x /= cell[i].actinpatchpoint.size();
-                y /= cell[i].actinpatchpoint.size();
+            if (item.actinpatchpoint.size() != 0) {
+                x /= item.actinpatchpoint.size();
+                y /= item.actinpatchpoint.size();
                 brx /= total;
                 bry /= total;
                 brxx /= total2;
@@ -3524,17 +3514,17 @@ class CellImage {
                 brx4 = -1;
                 bry4 = -1;
             }
-            cell[i].Apatchcenterpoint[2][0] = new Point(x, y);
-            cell[i].Apatchcenterpoint[2][1] = new Point(brx, bry);
-            cell[i].Apatchcenterpoint[2][2] = new Point((int) brxx, (int) bryy);
-            cell[i].Apatchcenterpoint[2][3] = new Point((int) brx3, (int) bry3);
-            cell[i].Apatchcenterpoint[2][4] = new Point((int) brx4, (int) bry4);
-            cell[i].Apatchcenterpoint[0][0] = new Point(x, y);
-            cell[i].Apatchcenterpoint[0][1] = new Point(brx, bry);
-            cell[i].Apatchcenterpoint[0][2] = new Point((int) brxx, (int) bryy);
-            cell[i].Apatchcenterpoint[0][3] = new Point((int) brx3, (int) bry3);
-            cell[i].Apatchcenterpoint[0][4] = new Point((int) brx4, (int) bry4);
-            if (cell[i].getGroup() > 1) {
+            item.Apatchcenterpoint[2][0] = new Point(x, y);
+            item.Apatchcenterpoint[2][1] = new Point(brx, bry);
+            item.Apatchcenterpoint[2][2] = new Point((int) brxx, (int) bryy);
+            item.Apatchcenterpoint[2][3] = new Point((int) brx3, (int) bry3);
+            item.Apatchcenterpoint[2][4] = new Point((int) brx4, (int) bry4);
+            item.Apatchcenterpoint[0][0] = new Point(x, y);
+            item.Apatchcenterpoint[0][1] = new Point(brx, bry);
+            item.Apatchcenterpoint[0][2] = new Point((int) brxx, (int) bryy);
+            item.Apatchcenterpoint[0][3] = new Point((int) brx3, (int) bry3);
+            item.Apatchcenterpoint[0][4] = new Point((int) brx4, (int) bry4);
+            if (item.getGroup() > 1) {
                 if (mpatchsize != 0) {
                     mx /= mpatchsize;
                     my /= mpatchsize;
@@ -3581,56 +3571,56 @@ class CellImage {
                     bbrx4 = -1;
                     bbry4 = -1;
                 }
-                cell[i].Apatchcenterpoint[0][0] = new Point(mx, my);
-                cell[i].Apatchcenterpoint[0][1] = new Point(mbrx, mbry);
-                cell[i].Apatchcenterpoint[0][2] = new Point((int) mbrxx, (int) mbryy);
-                cell[i].Apatchcenterpoint[0][3] = new Point((int) mbrx3, (int) mbry3);
-                cell[i].Apatchcenterpoint[0][4] = new Point((int) mbrx4, (int) mbry4);
-                cell[i].Apatchcenterpoint[1][0] = new Point(bx, by);
-                cell[i].Apatchcenterpoint[1][1] = new Point(bbrx, bbry);
-                cell[i].Apatchcenterpoint[1][2] = new Point((int) bbrxx, (int) bbryy);
-                cell[i].Apatchcenterpoint[1][3] = new Point((int) bbrx3, (int) bbry3);
-                cell[i].Apatchcenterpoint[1][4] = new Point((int) bbrx4, (int) bbry4);
+                item.Apatchcenterpoint[0][0] = new Point(mx, my);
+                item.Apatchcenterpoint[0][1] = new Point(mbrx, mbry);
+                item.Apatchcenterpoint[0][2] = new Point((int) mbrxx, (int) mbryy);
+                item.Apatchcenterpoint[0][3] = new Point((int) mbrx3, (int) mbry3);
+                item.Apatchcenterpoint[0][4] = new Point((int) mbrx4, (int) mbry4);
+                item.Apatchcenterpoint[1][0] = new Point(bx, by);
+                item.Apatchcenterpoint[1][1] = new Point(bbrx, bbry);
+                item.Apatchcenterpoint[1][2] = new Point((int) bbrxx, (int) bbryy);
+                item.Apatchcenterpoint[1][3] = new Point((int) bbrx3, (int) bbry3);
+                item.Apatchcenterpoint[1][4] = new Point((int) bbrx4, (int) bbry4);
             }
         }
 
-        for (int i = 0; i < cell.length; i++) {//アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
-            cell[i].calcActinpathlength();
+        for (Cell value : cell) {//アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
+            value.calcActinpathlength();
         }
     }
 
 
-    public boolean bright(int[] image, int p1, int p2) {
-        return image[p1] > image[p2] + 0;
+    private boolean bright(int[] image, int p1, int p2) {
+        return image[p1] > image[p2];
     }
 
-    public boolean equal(int[] image, int p1, int p2) {
-        return image[p1] >= image[p2] - 0 && image[p1] <= image[p2] + 0;
+    private boolean equal(int[] image, int p1, int p2) {
+        return image[p1] >= image[p2] && image[p1] <= image[p2];
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //画像上でiの位置につけられたラベルのﾙｰﾄを返す
     //木をつぶす
     ///////////////////////////////////////////////////////////////////////////
-    public int smallestActinLabel(Vector same, int[] lab, int i) {
+    private int smallestActinLabel(Vector<ActinLabel> same, int[] lab, int i) {
         if (lab[i] >= 0) {
             int now = lab[i];
-            Vector temp = new Vector();
+            Vector<Integer> temp = new Vector<>();
             while (true) {
-                ActinLabel al = (ActinLabel) same.get(now);
+                ActinLabel al = same.get(now);
                 if (al.isEnabled()) {//ラベルが消えてなければ
                     if (al.getPointer() == now) {//ﾙｰﾄまでたどり着いたら
-                        for (int j = 0; j < temp.size(); j++) {//それまでのラベルのポインタをﾙｰﾄにして
-                            ((ActinLabel) same.get(((Integer) temp.get(j)).intValue())).setPointer(now);
+                        for (Object o : temp) {//それまでのラベルのポインタをﾙｰﾄにして
+                            (same.get((Integer) o)).setPointer(now);
                         }
                         return now;//ﾙｰﾄの番号を返す
                     } else {//ﾙｰﾄじゃなければ
-                        temp.add(new Integer(now));//このラベルを通過したことを記録し
-                        now = ((ActinLabel) same.get(now)).getPointer();//先をたどる
+                        temp.add(now);//このラベルを通過したことを記録し
+                        now = (same.get(now)).getPointer();//先をたどる
                     }
                 } else {//ラベルが消えてたら
                     for (int j = 0; j < temp.size(); j++) {//それまでのラベルも消して（全部消えてるかも）
-                        ((ActinLabel) same.get(((Integer) temp.elementAt(j)).intValue())).setState(false);
+                        (same.get(temp.elementAt(j))).setState(false);
                     }
                     return -1;//ラベルが消えてたことを知らせる。
                 }
@@ -3644,11 +3634,11 @@ class CellImage {
     //画像上でiの位置につけられたラベルを消す
     //ラベルがつながれているときはその先も消す
     ///////////////////////////////////////////////////////////////////////////
-    public void removeActinLabel(Vector same, int[] lab, int i) {
+    private void removeActinLabel(Vector<ActinLabel> same, int[] lab, int i) {
         if (lab[i] >= 0) {
             int now = lab[i];
             while (true) {
-                ActinLabel al = (ActinLabel) same.get(now);
+                ActinLabel al = same.get(now);
                 if (al.getPointer() == now || !al.isEnabled()) {//ﾙｰﾄorすでに消されているなら先をたどらない
                     al.setState(false);
                     break;
@@ -3657,25 +3647,24 @@ class CellImage {
                     al.setState(false);
                 }
             }
-        } else {
-            //もともとラベルが無い
-        }
+        }  //もともとラベルが無い
+
     }
 
 
     /////////////////////////////////////////////////////////////////////////////////
     //アクチンに関するデータをセット
     /////////////////////////////////////////////////////////////////////////////////
-    public void setAState() {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].setAState(Adiff, _actin_points);
+    private void setAState() {
+        for (Cell value : cell) {
+            value.setAState(Adiff, _actin_points);
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     //actin画像出力
     /////////////////////////////////////////////////////////////////////////////////
-    public void outAImage() {
+    private void outAImage() {
         int[] pixel = new int[_size];
         for (int i = 0; i < _size; i++) {
             pixel[i] = 0xff000000 | (_actin_points[i] << 16) | (_actin_points[i] << 8) | _actin_points[i];
@@ -3698,8 +3687,8 @@ class CellImage {
             }
         g.setFont(new Font("Courier", Font.PLAIN, 20));
         g.setColor(new Color(0xff8888ff));
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].outAImage(g);
+        for (Cell value : cell) {
+            value.outAImage(g);
         }
 
         writeJPEG(bi, outdir + "/" + name + "/" + name + "-actin" + number + ".jpg");
@@ -3708,61 +3697,61 @@ class CellImage {
     /////////////////////////////////////////////////////////////////////////////////
     //Do output
     /////////////////////////////////////////////////////////////////////////////////
-    public void writeXLSBaseC(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSBaseC(pw, number);
+    private void writeXLSBaseC(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSBaseC(pw, number);
         }
     }
 
-    public void writeXLSExpandC(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSExpandC(pw, number);
+    private void writeXLSExpandC(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSExpandC(pw, number);
         }
     }
 
-    public void writeXLSBaseD(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSBaseD(pw, number);
+    private void writeXLSBaseD(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSBaseD(pw, number);
         }
     }
 
-    public void writeXLSExpandD(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSExpandD(pw, number);
+    private void writeXLSExpandD(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSExpandD(pw, number);
         }
     }
 
-    public void writeXLSBaseA(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSBaseA(pw, number);
+    private void writeXLSBaseA(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSBaseA(pw, number);
         }
     }
 
-    public void writeXLSExpandA(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSExpandA(pw, number);
+    private void writeXLSExpandA(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSExpandA(pw, number);
         }
     }
 
-    public void writeXLSPatchA(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSPatchA(pw, number);
+    private void writeXLSPatchA(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSPatchA(pw, number);
         }
     }
 
-    public void writeXLSVers(PrintWriter pw) {
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeXLSVers(pw, number, calA, calD);
+    private void writeXLSVers(PrintWriter pw) {
+        for (Cell value : cell) {
+            value.writeXLSVers(pw, number, calA, calD);
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     //画像データの出力を行う
     /////////////////////////////////////////////////////////////////////////////////
-    public void writeImageDataXML(PrintWriter pwxml) {
+    private void writeImageDataXML(PrintWriter pwxml) {
         pwxml.println(" <photo id=\"" + number + "\">");
-        for (int i = 0; i < cell.length; i++) {
-            cell[i].writeImageDataXML(pwxml, number);
+        for (Cell value : cell) {
+            value.writeImageDataXML(pwxml, number);
         }
         pwxml.println(" </photo>");
     }
@@ -3771,7 +3760,7 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     //画像ファイルを書き出す
     ///////////////////////////////////////////////////////////////////////////
-    public void writeJPEG(BufferedImage img, String fname) {
+    private void writeJPEG(BufferedImage img, String fname) {
         try {
             //File file = new File(fname);
             //BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
@@ -3805,7 +3794,7 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////
     //Coordinate display of deviation
     //////////////////////////////////////////////////////////////////////////
-    public Point calDiffPoint(int diff) {
+    private Point calDiffPoint(int diff) {
         Point p = new Point();
         if (diff >= 0) {
             if (diff % _width < _width / 2) {
@@ -3830,16 +3819,16 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////
     //objectをsave
     //////////////////////////////////////////////////////////////////////////
-    public void save(int savenum) {
+    private void save(int savenum) {
         try {
             File sa = new File("objects");
             if (!sa.exists()) sa.mkdir();
             sa = new File("objects/" + name);
             if (!sa.exists()) sa.mkdir();
             ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream((new FileOutputStream("objects/" + name + "/" + name + "-" + number + "-" + savenum + ".dat"))));
-            oos.writeObject(new Integer(number));
-            oos.writeObject(new Integer(Ddiff));
-            oos.writeObject(new Integer(Adiff));
+            oos.writeObject(number);
+            oos.writeObject(Ddiff);
+            oos.writeObject(Adiff);
             oos.writeObject(_cell_points);
             oos.writeObject(_nucleus_points);
             oos.writeObject(_actin_points);
@@ -3849,10 +3838,10 @@ class CellImage {
             oos.writeObject(pixeltocell);
             oos.writeObject(pixeltocell2);
             oos.writeObject(cell);
-            oos.writeObject(new Boolean(err));
-            oos.writeObject(new Boolean(calD));
-            oos.writeObject(new Boolean(calA));
-            oos.writeObject(new Boolean(flag_tmp));
+            oos.writeObject(err);
+            oos.writeObject(calD);
+            oos.writeObject(calA);
+            oos.writeObject(flag_tmp);
             oos.flush();
             oos.close();
         } catch (Exception e) {
@@ -3866,9 +3855,9 @@ class CellImage {
     public void load(int loadnum) {
         try {
             ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream((new FileInputStream("objects/" + name + "/" + name + "-" + number + "-" + loadnum + ".dat"))));
-            number = ((Integer) ois.readObject()).intValue();
-            Ddiff = ((Integer) ois.readObject()).intValue();
-            Adiff = ((Integer) ois.readObject()).intValue();
+            number = (Integer) ois.readObject();
+            Ddiff = (Integer) ois.readObject();
+            Adiff = (Integer) ois.readObject();
             _cell_points = (int[]) ois.readObject();
             _nucleus_points = (int[]) ois.readObject();
             _actin_points = (int[]) ois.readObject();
@@ -3878,10 +3867,10 @@ class CellImage {
             pixeltocell = (int[]) ois.readObject();
             pixeltocell2 = (int[]) ois.readObject();
             cell = (Cell[]) ois.readObject();
-            err = ((Boolean) ois.readObject()).booleanValue();
-            calD = ((Boolean) ois.readObject()).booleanValue();
-            calA = ((Boolean) ois.readObject()).booleanValue();
-            flag_tmp = ((Boolean) ois.readObject()).booleanValue();
+            err = (Boolean) ois.readObject();
+            calD = (Boolean) ois.readObject();
+            calA = (Boolean) ois.readObject();
+            flag_tmp = (Boolean) ois.readObject();
         } catch (Exception e) {
             System.err.println("CellImage.load(int):" + e);
         }
@@ -3889,27 +3878,27 @@ class CellImage {
 }
 
 class ActinLabel {
-    int pointer;
-    boolean state;
+    private int pointer;
+    private boolean state;
 
-    public ActinLabel(int p, boolean b) {
+    ActinLabel(int p, boolean b) {
         pointer = p;
         state = b;
     }
 
-    public void setState(boolean b) {
+    void setState(boolean b) {
         state = b;
     }
 
-    public int getPointer() {
+    int getPointer() {
         return pointer;
     }
 
-    public void setPointer(int p) {
+    void setPointer(int p) {
         pointer = p;
     }
 
-    public boolean isEnabled() {
+    boolean isEnabled() {
         return state;
     }
 }

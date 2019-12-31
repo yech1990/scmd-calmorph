@@ -32,7 +32,7 @@ package lab.cb.scmd.calmorph;
  * public void setXmlOutputDirectory(String xmlOutputDirectory) {
  * this.xmlOutputDirectory = xmlOutputDirectory;
  * }
- * irectory, input photo directory, etc.
+ * directory, input photo directory, etc.
  *
  * @author leo
  */

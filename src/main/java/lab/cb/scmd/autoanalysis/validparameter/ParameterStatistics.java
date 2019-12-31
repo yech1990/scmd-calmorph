@@ -30,39 +30,39 @@ import java.util.Vector;
  * @author nakatani
  */
 public class ParameterStatistics {
-    OptionParser parser = new OptionParser();
-    boolean verbose = true;
-    boolean SIGMA = false;
+    private OptionParser parser = new OptionParser();
+    private boolean verbose = true;
+    private boolean SIGMA = false;
 
-    CalMorphTable wildtypeTable;
-    CalMorphTable mutantTable;
-    int parameterSize;
-    int orfSizeWildtype;
-    int orfSizeMutant;
+    private CalMorphTable wildtypeTable;
+    private CalMorphTable mutantTable;
+    private int parameterSize;
+    private int orfSizeWildtype;
+    private int orfSizeMutant;
 
-    BoxCox[] transformedWildtypeList;
+    private BoxCox[] transformedWildtypeList;
 
-    String outputFile = null;
-    String transformedWildtypeFile = null;
-    String transformedMutantFile = null;
-    String orfStatFile = null;
-    String excelMutantFile = null;
+    private String outputFile = null;
+    private String transformedWildtypeFile = null;
+    private String transformedMutantFile = null;
+    private String orfStatFile = null;
+    private String excelMutantFile = null;
 
     // option IDs
-    final static int OPT_HELP = 0;
-    final static int OPT_VERBOSE = 1;
-    final static int OPT_WILD = 2;
-    final static int OPT_MUTANT = 3;
+    private final static int OPT_HELP = 0;
+    private final static int OPT_VERBOSE = 1;
+    private final static int OPT_WILD = 2;
+    private final static int OPT_MUTANT = 3;
     //final static int    OPT_PARAMETER       = 4;
-    final static int OPT_OUTPUT_PARAMETER_STAT = 5;
-    final static int OPT_OUTPUT_TRANSFORMED_WILDTYPE = 6;
-    final static int OPT_OUTPUT_TRANSFORMED_MUTANT = 7;
-    final static int OPT_OUTPUT_ORF_STAT = 8;
-    final static int OPT_SIGMA = 9;
-    final static int OPT_EXCEL_MUTANT_FILE = 10;
+    private final static int OPT_OUTPUT_PARAMETER_STAT = 5;
+    private final static int OPT_OUTPUT_TRANSFORMED_WILDTYPE = 6;
+    private final static int OPT_OUTPUT_TRANSFORMED_MUTANT = 7;
+    private final static int OPT_OUTPUT_ORF_STAT = 8;
+    private final static int OPT_SIGMA = 9;
+    private final static int OPT_EXCEL_MUTANT_FILE = 10;
 
 
-    ParameterStatistics() {
+    private ParameterStatistics() {
     }
 
     /**
@@ -70,7 +70,7 @@ public class ParameterStatistics {
      * @throws IOException
      * @throws SCMDException
      */
-    public void setupByArguments(String[] args) throws IOException, SCMDException {
+    private void setupByArguments(String[] args) throws IOException, SCMDException {
         setupOptionParser();
         parser.getContext(args);
 
@@ -126,7 +126,7 @@ public class ParameterStatistics {
         }
     }
 
-    void setupOptionParser() throws SCMDException {
+    private void setupOptionParser() throws SCMDException {
         parser.setOption(new Option(OPT_HELP, "h", "help", "diaplay help message"));
         parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
         parser.setOption(new OptionWithArgument(OPT_WILD, "W", "wildtype_file", "FILE", "set wildtype input file"));
@@ -141,7 +141,7 @@ public class ParameterStatistics {
 
     }
 
-    public void printUsage(int exitCode) {
+    private void printUsage(int exitCode) {
         System.out.println("Usage: ParameterStatistics [option]");
         System.out.println(parser.createHelpMessage());
         System.exit(exitCode);
@@ -157,16 +157,13 @@ public class ParameterStatistics {
             ps.outputTransformedTable();
             ps.outputOrfStat();
             ps.outputExcelTable();
-        } catch (SCMDException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
+        } catch (SCMDException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
     }
 
-    public void transformAllParameters() {
+    private void transformAllParameters() {
         transformedWildtypeList = new BoxCox[parameterSize];
         for (int i = 1; i < parameterSize; ++i) {//i=0 --> "name"
             System.out.println(wildtypeTable.getColLabel(i) + "\t");
@@ -175,7 +172,7 @@ public class ParameterStatistics {
         }
     }
 
-    public void outputStatistics() throws SCMDException, IOException {
+    private void outputStatistics() throws SCMDException, IOException {
         PrintWriter outfile = new PrintWriter(new FileWriter(outputFile));
 
         //Vector parameterList=wildtypeData.getParameterNames();
@@ -236,22 +233,22 @@ public class ParameterStatistics {
             if (SIGMA) {
                 transformedWildtypeList[i].printSigma(outfile);
                 int[] counterW = getSignificantDataNumberSigma(transformedWildtypeList[i], w);
-                for (int k = 0; k < counterW.length; ++k) {
-                    outfile.print(counterW[k] + "\t");
+                for (int item : counterW) {
+                    outfile.print(item + "\t");
                 }
                 int[] counterM = getSignificantDataNumberSigma(transformedWildtypeList[i], m);
-                for (int k = 0; k < counterM.length; ++k) {
-                    outfile.print(counterM[k] + "\t");
+                for (int value : counterM) {
+                    outfile.print(value + "\t");
                 }
             } else {
                 transformedWildtypeList[i].print(outfile);
                 int[] counterW = getSignificantDataNumber(transformedWildtypeList[i], w);
-                for (int k = 0; k < counterW.length; ++k) {
-                    outfile.print(counterW[k] + "\t");
+                for (int item : counterW) {
+                    outfile.print(item + "\t");
                 }
                 int[] counterM = getSignificantDataNumber(transformedWildtypeList[i], m);
-                for (int k = 0; k < counterM.length; ++k) {
-                    outfile.print(counterM[k] + "\t");
+                for (int value : counterM) {
+                    outfile.print(value + "\t");
                 }
             }
             outfile.println();
@@ -262,15 +259,15 @@ public class ParameterStatistics {
     private int[] getSignificantDataNumber(BoxCox bc, Double[] data) {
         int[] counter = new int[2 * BoxCox.pValueList.length];
         for (int k = 0; k < BoxCox.pValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForP(BoxCox.pValueList[BoxCox.pValueList.length - 1 - k]).doubleValue();
-            for (int n = 0; n < data.length; ++n) {
-                if (data[n].doubleValue() <= cvalue) ++counter[k];
+            double cvalue = bc.getOneSidedCriticalValueForP(BoxCox.pValueList[BoxCox.pValueList.length - 1 - k]);
+            for (Double datum : data) {
+                if (datum <= cvalue) ++counter[k];
             }
         }
         for (int k = 0; k < BoxCox.pValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForP(1 - BoxCox.pValueList[k]).doubleValue();
-            for (int n = 0; n < data.length; ++n) {
-                if (data[n].doubleValue() >= cvalue) ++counter[BoxCox.pValueList.length + k];
+            double cvalue = bc.getOneSidedCriticalValueForP(1 - BoxCox.pValueList[k]);
+            for (Double datum : data) {
+                if (datum >= cvalue) ++counter[BoxCox.pValueList.length + k];
             }
         }
         return counter;
@@ -279,17 +276,17 @@ public class ParameterStatistics {
     private int[] getSignificantDataNumberSigma(BoxCox bc, Double[] data) {
         int[] counter = new int[2 * BoxCox.sigmaValueList.length];
         for (int k = 0; k < BoxCox.sigmaValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]).doubleValue();
+            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]);
             //double cvalue=bc.getOneSidedCriticalValueForMinMinusSigma(BoxCox.sigmaValueList[BoxCox.sigmaValueList.length-1-k]).doubleValue();
-            for (int n = 0; n < data.length; ++n) {
-                if (data[n].doubleValue() <= cvalue) ++counter[k];
+            for (Double datum : data) {
+                if (datum <= cvalue) ++counter[k];
             }
         }
         for (int k = 0; k < BoxCox.sigmaValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[k]).doubleValue();
+            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[k]);
             //double cvalue=bc.getOneSidedCriticalValueForMaxPlusSigma(BoxCox.sigmaValueList[k]).doubleValue();
-            for (int n = 0; n < data.length; ++n) {
-                if (data[n].doubleValue() >= cvalue) ++counter[BoxCox.sigmaValueList.length + k];
+            for (Double datum : data) {
+                if (datum >= cvalue) ++counter[BoxCox.sigmaValueList.length + k];
             }
         }
         return counter;
@@ -297,11 +294,11 @@ public class ParameterStatistics {
 
     private int getSignificantDataLabelSigma(BoxCox bc, double data) {
         for (int k = 0; k < BoxCox.sigmaValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]).doubleValue();
+            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]);
             if (data <= cvalue) return -1 * (BoxCox.sigmaValueList.length - k);
         }
         for (int k = 0; k < BoxCox.sigmaValueList.length; ++k) {
-            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]).doubleValue();
+            double cvalue = bc.getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[BoxCox.sigmaValueList.length - 1 - k]);
             if (data >= cvalue) return (BoxCox.sigmaValueList.length - k);
         }
         return 0;//not significant
@@ -309,9 +306,9 @@ public class ParameterStatistics {
 
     private double getSDRatio(Double[] wild, Double[] mutant) {
         Double[] ESD = StatisticalTests.getEandSD(wild);
-        double wsd = ESD[1].doubleValue();
+        double wsd = ESD[1];
         ESD = StatisticalTests.getEandSD(mutant);
-        double msd = ESD[1].doubleValue();
+        double msd = ESD[1];
         return wsd / msd;
     }
 
@@ -319,7 +316,7 @@ public class ParameterStatistics {
         double mutantMode = StatisticalTests.getMode(mutant);
         double percentileRankOfMutantMode = StatisticalTests.percentileRankFromLower(mutant, mutantMode);
         Double[] ESD = StatisticalTests.getEandSD(wild);
-        double wildtypeMean = ESD[0].doubleValue();
+        double wildtypeMean = ESD[0];
         double percentileRankOfWildtypeMean = StatisticalTests.percentileRankFromLower(wild, wildtypeMean);
         return Math.abs(percentileRankOfMutantMode - percentileRankOfWildtypeMean);
     }
@@ -337,7 +334,7 @@ public class ParameterStatistics {
             if (c.isValidAsDouble()) {
                 double d = c.doubleValue();
                 if (d < 0) continue;
-                dataW.add(new Double(d));
+                dataW.add(d);
             }
         }
         Double[] validData = new Double[dataW.size()];
@@ -353,7 +350,7 @@ public class ParameterStatistics {
         for (int j = 0; i.hasNext(); ++j) {
             lab.cb.scmd.util.table.Cell c = (lab.cb.scmd.util.table.Cell) i.next();
             double d = c.doubleValue();
-            dataW.add(new Double(d));
+            dataW.add(d);
         }
         Double[] validData = new Double[dataW.size()];
         for (int j = 0; j < dataW.size(); ++j) {
@@ -362,7 +359,7 @@ public class ParameterStatistics {
         return validData;
     }
 
-    public void outputTransformedTable() throws IOException {
+    private void outputTransformedTable() throws IOException {
         if (transformedWildtypeFile != null) {
             toTransformedTable(transformedWildtypeFile, wildtypeTable);
         }
@@ -391,8 +388,8 @@ public class ParameterStatistics {
                 lab.cb.scmd.util.table.Cell c = table.getCell(orf, p);
                 if (c.isValidAsDouble() && c.doubleValue() >= 0) {
                     Double[] data = new Double[1];
-                    data[0] = new Double(c.doubleValue());
-                    transformed.print(transformedWildtypeList[p].getSTDTransformedData(data)[0].doubleValue() + "\t");
+                    data[0] = c.doubleValue();
+                    transformed.print(transformedWildtypeList[p].getSTDTransformedData(data)[0] + "\t");
                 } else {
                     transformed.print("NaN\t");
                 }
@@ -402,7 +399,7 @@ public class ParameterStatistics {
         transformed.close();
     }
 
-    public void outputExcelTable() throws IOException {
+    private void outputExcelTable() throws IOException {
 //		if(excelWildtypeFile!=null){
 //			toExcelTable(excelWildtypeFile,wildtypeTable);
 //		}
@@ -418,7 +415,7 @@ public class ParameterStatistics {
         for (int parameter = 1; parameter < parameterSize; ++parameter) {
             Double[] dataToTransform = new Double[orfSize];
             for (int orf = 0; orf < orfSize; ++orf) {
-                dataToTransform[orf] = new Double(table.getCell(orf, parameter).doubleValue());
+                dataToTransform[orf] = table.getCell(orf, parameter).doubleValue();
             }
             Double[] lowerSigmaValue = new Double[BoxCox.sigmaValueList.length];
             Double[] upperSigmaValue = new Double[BoxCox.sigmaValueList.length];
@@ -429,10 +426,10 @@ public class ParameterStatistics {
             for (int orf = 0; orf < orfSize; ++orf) {
                 labeledTable[parameter][orf] = 0;
                 for (int k = BoxCox.sigmaValueList.length - 1; k >= 0; --k) {
-                    if (dataToTransform[orf].doubleValue() <= lowerSigmaValue[k].doubleValue()) {
+                    if (dataToTransform[orf] <= lowerSigmaValue[k]) {
                         labeledTable[parameter][orf] = -1 * (k + 1);
                         break;
-                    } else if (dataToTransform[orf].doubleValue() >= upperSigmaValue[k].doubleValue()) {
+                    } else if (dataToTransform[orf] >= upperSigmaValue[k]) {
                         labeledTable[parameter][orf] = (k + 1);
                         break;
                     }
@@ -477,7 +474,7 @@ public class ParameterStatistics {
      transformed.close();
      }***/
 
-    public void outputOrfStat() throws IOException {
+    private void outputOrfStat() throws IOException {
         if (orfStatFile != null) {
             PrintWriter pw = new PrintWriter(new FileWriter(orfStatFile));
             outputOrfStat(pw, wildtypeTable);
@@ -508,18 +505,18 @@ public class ParameterStatistics {
         for (int parameter = 1; parameter < parameterSize; ++parameter) {
             for (int i = 0; i < pvalueSize; ++i) {
                 if (SIGMA) {
-                    lowerCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[i]).doubleValue();
+                    lowerCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForMeanPlusDSigma(-BoxCox.sigmaValueList[i]);
                     //lowerCriticalValues[i]=transformedWildtypeList[parameter].getOneSidedCriticalValueForMinMinusSigma(BoxCox.sigmaValueList[i]).doubleValue();
                 } else {
-                    lowerCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForP(BoxCox.pValueList[i]).doubleValue();
+                    lowerCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForP(BoxCox.pValueList[i]);
                 }
             }
             for (int i = 0; i < pvalueSize; ++i) {
                 if (SIGMA) {
-                    upperCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[i]).doubleValue();
+                    upperCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForMeanPlusDSigma(BoxCox.sigmaValueList[i]);
                     //upperCriticalValues[i]=transformedWildtypeList[parameter].getOneSidedCriticalValueForMaxPlusSigma(BoxCox.sigmaValueList[i]).doubleValue();
                 } else {
-                    upperCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForP(1 - BoxCox.pValueList[i]).doubleValue();
+                    upperCriticalValues[i] = transformedWildtypeList[parameter].getOneSidedCriticalValueForP(1 - BoxCox.pValueList[i]);
                 }
             }
             for (int orf = 0; orf < orfSize; ++orf) {

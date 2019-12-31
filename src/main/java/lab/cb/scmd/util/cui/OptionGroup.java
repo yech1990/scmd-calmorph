@@ -23,7 +23,7 @@ public class OptionGroup extends OptionComposite {
     /**
      * @param groupName オプショングループの名前
      */
-    public OptionGroup(String groupName) {
+    OptionGroup(String groupName) {
         super();
         _groupName = groupName;
     }
@@ -42,12 +42,12 @@ public class OptionGroup extends OptionComposite {
         return true;
     }
 
-    public String getGroupName() {
+    String getGroupName() {
         return _groupName;
     }
 
 
-    public boolean isExclusive() {
+    boolean isExclusive() {
         return _isExclusive;
     }
 
@@ -60,8 +60,8 @@ public class OptionGroup extends OptionComposite {
     public void collectOptionDescriptions(OptionDescriptionContainer container) {
         if (!_groupName.equals(""))
             container.addDescription("[" + _groupName + "]");
-        for (Iterator li = _optionList.iterator(); li.hasNext(); ) {
-            OptionComposite component = (OptionComposite) li.next();
+        for (Object o : _optionList) {
+            OptionComposite component = (OptionComposite) o;
             component.collectOptionDescriptions(container);
         }
     }
@@ -76,28 +76,28 @@ public class OptionGroup extends OptionComposite {
         return this;
     }
 
-    public void putOptionsInTheGroup(TreeMap optionMap, TreeMap optionID2GroupMap) throws SCMDException {
-        for (Iterator oi = _optionList.iterator(); oi.hasNext(); ) {
-            Option element = (Option) oi.next();
+    void putOptionsInTheGroup(TreeMap optionMap, TreeMap optionID2GroupMap) throws SCMDException {
+        for (Object o : _optionList) {
+            Option element = (Option) o;
             int optionID = element.getOptionID();
-            if (optionMap.get(new Integer(optionID)) != null)
+            if (optionMap.get(optionID) != null)
                 throw new SCMDException("duplilcate option id: " + optionID);
-            optionMap.put(new Integer(element.getOptionID()), element);
-            optionID2GroupMap.put(new Integer(element.getOptionID()), _groupName);
+            optionMap.put(element.getOptionID(), element);
+            optionID2GroupMap.put(element.getOptionID(), _groupName);
         }
     }
 
-    String _groupName;
-    boolean _isExclusive = false;
-    LinkedList _optionList = new LinkedList();
+    private String _groupName;
+    private boolean _isExclusive = false;
+    private LinkedList _optionList = new LinkedList();
 
     /* (non-Javadoc)
      * @see lab.cb.scmd.util.cui.OptionComposite#findByLongOptionName(java.lang.String)
      */
     public Option findByLongOptionName(String longOption) {
         Option opt = null;
-        for (Iterator li = _optionList.iterator(); li.hasNext(); ) {
-            OptionComposite component = (OptionComposite) li.next();
+        for (Object o : _optionList) {
+            OptionComposite component = (OptionComposite) o;
             opt = component.findByLongOptionName(longOption);
             if (opt != null)
                 break;
@@ -110,8 +110,8 @@ public class OptionGroup extends OptionComposite {
      */
     public Option findByShortOptionName(String shortOption) {
         Option opt = null;
-        for (Iterator li = _optionList.iterator(); li.hasNext(); ) {
-            OptionComposite component = (OptionComposite) li.next();
+        for (Object o : _optionList) {
+            OptionComposite component = (OptionComposite) o;
             opt = component.findByShortOptionName(shortOption);
             if (opt != null)
                 break;

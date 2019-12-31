@@ -35,9 +35,9 @@ public class OptionParser {
 
     public void setOption(Option option) throws SCMDException {
         int optionID = option.getOptionID();
-        if (_optionMap.get(new Integer(optionID)) != null)
+        if (_optionMap.get(optionID) != null)
             throw new SCMDException("duplicate option ID: " + optionID);
-        _optionMap.put(new Integer(optionID), option);
+        _optionMap.put(optionID, option);
         _globalOption.add(option);
     }
 
@@ -52,9 +52,9 @@ public class OptionParser {
         return _globalOption.createHelpMessage();
     }
 
-    void setGroupHash(Option opt) {
+    private void setGroupHash(Option opt) {
         int id = opt.getOptionID();
-        String groupName = (String) _optionIDToGroupMap.get(new Integer(id));
+        String groupName = (String) _optionIDToGroupMap.get(id);
         if (groupName == null)
             return;
 
@@ -180,17 +180,17 @@ public class OptionParser {
         return opt == null ? "" : opt.getArgumentValue();
     }
 
-    protected Option findOption(int optionID) {
-        OptionComposite opt = (OptionComposite) _optionMap.get(new Integer(optionID));
+    private Option findOption(int optionID) {
+        OptionComposite opt = (OptionComposite) _optionMap.get(optionID);
         if (opt == null)
             return null;
         return (opt instanceof Option) ? (Option) opt : null;
     }
 
-    TreeMap _optionMap = new TreeMap();
-    TreeMap _optionIDToGroupMap = new TreeMap();
-    LinkedList _incompatibleGroup = new LinkedList();
-    HashSet _setGroupHash = new HashSet();
+    private TreeMap _optionMap = new TreeMap();
+    private TreeMap _optionIDToGroupMap = new TreeMap();
+    private LinkedList _incompatibleGroup = new LinkedList();
+    private HashSet _setGroupHash = new HashSet();
 
     private OptionGroup _globalOption = new OptionGroup("");
     private String[] _args = {""};

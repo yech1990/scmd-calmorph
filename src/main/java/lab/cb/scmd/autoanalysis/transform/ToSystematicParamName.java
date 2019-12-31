@@ -20,10 +20,10 @@ import java.util.HashMap;
  */
 public class ToSystematicParamName {
 
-    String DELIMITER = "\t";
-    PrintStream out = System.out;
-    int OLDNAMECOL = 1;
-    int SYSNAMECOL = 10;
+    private String DELIMITER = "\t";
+    private PrintStream out = System.out;
+    private int OLDNAMECOL = 1;
+    private int SYSNAMECOL = 10;
 
     // args[0] : original
     // args[1] : db hash
@@ -48,7 +48,7 @@ public class ToSystematicParamName {
                 toSysnameMap.put(oldname, sysname);
             }
             BufferedReader fileReader = new BufferedReader(new FileReader(origfile));
-            String line = "";
+            String line;
             line = fileReader.readLine();
             String[] header = line.split(DELIMITER);
             for (int i = 0; i < header.length; i++) {
@@ -65,11 +65,7 @@ public class ToSystematicParamName {
                 out.print(line);
                 out.println();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SCMDException e) {
+        } catch (IOException | SCMDException e) {
             e.printStackTrace();
         }
     }

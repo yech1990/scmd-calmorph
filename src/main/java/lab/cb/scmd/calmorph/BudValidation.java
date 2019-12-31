@@ -4,10 +4,10 @@ import java.util.Vector;
 
 public class BudValidation {
 
-    public static final double _bud_length_threshold = 1.5;
-    public static final double _mother_length_threshold = 0.2;
-    public static final double _perpendicular_length_threshold = 0.4;
-    public static final double _perpendicular_length_threshold_primary = 0.2;
+    private static final double _bud_length_threshold = 1.5;
+    private static final double _mother_length_threshold = 0.2;
+    private static final double _perpendicular_length_threshold = 0.4;
+    private static final double _perpendicular_length_threshold_primary = 0.2;
 
     /**
      * @param cells
@@ -15,7 +15,7 @@ public class BudValidation {
      * @param width
      * @return
      */
-    public static Cell[] validation(Cell[] cells, final int size, final int width) {
+    static Cell[] validation(Cell[] cells, final int size, final int width) {
         for (int i = 0; i < cells.length; i++) {
             if (cells[i].neck == null || cells[i].neck[0] == cells[i].neck[cells[i].neck.length - 1] ||
                     cells[i].bud_edge.size() <= 0) {
@@ -51,7 +51,7 @@ public class BudValidation {
         return cells;
     }
 
-    protected static void deleteBudEdge(Cell[] cells, int i) {
+    private static void deleteBudEdge(Cell[] cells, int i) {
         cells[i].mother_edge = budEdgeConcatinatesMotherEdge(cells[i].mother_edge, cells[i].bud_edge);
         cells[i].bud_edge = new Vector();
         cells[i].neck = null;
@@ -73,7 +73,7 @@ public class BudValidation {
         cells[i].grad_cept_middle[2] = middle;
     }
 
-    protected static double getDistance(int start, int end, int width) {
+    private static double getDistance(int start, int end, int width) {
         int x1 = start % width;
         int y1 = start / width;
         int x2 = end % width;
@@ -81,7 +81,7 @@ public class BudValidation {
         return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
-    protected static int getMiddlePoint(int start, int end, int width) {
+    private static int getMiddlePoint(int start, int end, int width) {
         int x1 = start % width;
         int y1 = start / width;
         int x2 = end % width;
@@ -96,7 +96,7 @@ public class BudValidation {
      * @param bud_edge_length
      * @return : 妥当なbud = true,  budではない = false
      */
-    protected static boolean budLengthValidation(double neck_length, double bud_edge_length) {
+    private static boolean budLengthValidation(double neck_length, double bud_edge_length) {
         return neck_length * _bud_length_threshold > bud_edge_length;
     }
 
@@ -107,7 +107,7 @@ public class BudValidation {
      * @param bud_edge_length
      * @return
      */
-    protected static boolean motherLengthValidation(double mother_edge_length, double bud_edge_length) {
+    private static boolean motherLengthValidation(double mother_edge_length, double bud_edge_length) {
         return bud_edge_length > mother_edge_length * _mother_length_threshold;
     }
 
@@ -118,7 +118,7 @@ public class BudValidation {
      * @param bud_perpendicular_length
      * @return
      */
-    protected static boolean budPerpendicularLengthValidation(double neck_length, double bud_perpendicular_length) {
+    private static boolean budPerpendicularLengthValidation(double neck_length, double bud_perpendicular_length) {
         return neck_length * _perpendicular_length_threshold > bud_perpendicular_length;
     }
 
@@ -129,13 +129,13 @@ public class BudValidation {
      * @param bud_perpendicular_length
      * @return
      */
-    protected static boolean budPerpendicularLengthValidationPrimary(double neck_length, double bud_perpendicular_length) {
+    private static boolean budPerpendicularLengthValidationPrimary(double neck_length, double bud_perpendicular_length) {
         return neck_length * _perpendicular_length_threshold_primary > bud_perpendicular_length;
     }
 
-    protected static Vector budEdgeConcatinatesMotherEdge(Vector mother_edge, Vector bud_edge) {
-        for (int i = 0; i < bud_edge.size(); i++) {
-            mother_edge.add(bud_edge.get(i));
+    private static Vector budEdgeConcatinatesMotherEdge(Vector mother_edge, Vector bud_edge) {
+        for (Object o : bud_edge) {
+            mother_edge.add(o);
         }
         return mother_edge;
     }
@@ -143,11 +143,11 @@ public class BudValidation {
     protected static double[] calculateMaxAndMinDistances(int center, int width, Vector edge) {
         double[] result = new double[2];
 
-        double max = getDistance(center, ((Integer) edge.get(0)).intValue(), width);
+        double max = getDistance(center, (Integer) edge.get(0), width);
         double min = max;
 
         for (int i = 1; i < edge.size(); i++) {
-            double distance = getDistance(center, ((Integer) edge.get(i)).intValue(), width);
+            double distance = getDistance(center, (Integer) edge.get(i), width);
             if (min > distance) {
                 min = distance;
             } else if (max < distance) {

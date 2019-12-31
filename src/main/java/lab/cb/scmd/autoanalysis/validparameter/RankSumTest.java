@@ -17,18 +17,17 @@ import java.util.ArrayList;
 
 public class RankSumTest {
 
-    int data_size1;
-    int data_size2;
-    java.util.Vector all = null;
-    double rank_sum1 = 0;
-    double rank_sum2 = 0;
+    private int data_size1;
+    private int data_size2;
+    private java.util.Vector all = null;
+    private double rank_sum1 = 0;
+    private double rank_sum2 = 0;
 
-    double test_statistic_U;
-    double test_statistic_z;
+    private double test_statistic_z;
 
-    ArrayList probTable;
-    int minRankSum;
-    static RankSumExactProbTable exact = new RankSumExactProbTable();
+    private ArrayList probTable;
+    private int minRankSum;
+    private static RankSumExactProbTable exact = new RankSumExactProbTable();
 
     //	public void readExactProbTable(String filename) throws IOException{
 //		BufferedReader br=new BufferedReader(new FileReader(filename));
@@ -52,7 +51,7 @@ public class RankSumTest {
 //		}
 //		probTable=table;
 //	}
-    public double getExactProb(double ranksum) {
+    private double getExactProb(double ranksum) {
         if (ranksum < minRankSum) {
             //System.out.println("wrong ranksum. ranksum="+ranksum+" minRankSum="+minRankSum);
             return 0;
@@ -62,11 +61,10 @@ public class RankSumTest {
             return 1;
         }
         int r = (int) Math.floor(ranksum);
-        double measure = ((Double) probTable.get(r - minRankSum)).doubleValue();
-        return measure;
+        return (double) (Double) probTable.get(r - minRankSum);
     }
 
-    public double getProb() throws IOException {
+    double getProb() {
         //String filename=new String("./table/table"+data_size1+"_"+data_size2+".xls");
         //readExactProbTable(filename);
         if (Math.floor(rank_sum2) == rank_sum2) {
@@ -83,7 +81,7 @@ public class RankSumTest {
         //return StatisticalTests.HastingsApproximationForStandardNormalDF(get_value());
     }
 
-    public RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
+    RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
         data_size1 = f.size();
         data_size2 = g.size();
         if (data_size1 < 10 || data_size2 < 10) {
@@ -131,11 +129,11 @@ public class RankSumTest {
         }
         //System.out.println(rank_sum1+rank_sum2+"\t"+(data_size1+data_size2)*(data_size1+data_size2+1)/2);
 
-        test_statistic_U = rank_sum1 - data_size1 * (data_size1 + 1) / 2;
+        double test_statistic_U = rank_sum1 - data_size1 * (data_size1 + 1) / 2;
         test_statistic_z = get_normal_approx(test_statistic_U);
     }
 
-    public double get_rank_sum(int label) {
+    private double get_rank_sum(int label) {
         double tmp_rank_sum = 0;
         int partial_rank_sum = 0;
         int data_same_rank = 0;
@@ -164,8 +162,7 @@ public class RankSumTest {
     }
 
     public double get_W() {
-        double W = rank_sum1 - data_size1 * (data_size1 + 1) / 2;
-        return W;
+        return rank_sum1 - data_size1 * (data_size1 + 1) / 2;
     }
 }
 //--------------------------------------

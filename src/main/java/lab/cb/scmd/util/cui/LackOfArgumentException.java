@@ -23,7 +23,7 @@ public class LackOfArgumentException extends SCMDException {
     /**
      *
      */
-    public LackOfArgumentException() {
+    LackOfArgumentException() {
         super();
 
     }

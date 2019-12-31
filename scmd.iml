@@ -14,7 +14,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="11" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:1.0" level="project" />
     <orderEntry type="library" name="Maven: slide:webdavlib:1.0.16" level="project" />
@@ -24,5 +24,8 @@
     <orderEntry type="library" name="Maven: org.xerial:xerial-core:1.0.10" level="project" />
     <orderEntry type="library" name="Maven: org.xerial.thirdparty:org.antlr.antlr3:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: xpp3:xpp3:1.1.4c" level="project" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="renderExternalDocumentation" value="true" />
   </component>
 </module>

@@ -31,42 +31,35 @@ import java.util.*;
  * 501のパラメータ（param.xlsで指定したパラメータ）を抽出する
  */
 public class Summarize {
-    OptionParser parser = new OptionParser();
-    String targetDir = null;
-    String parameterFile = null;
-    String orfFile = null;
-    String outputFile = null;
-    int ignoreThreshold = 0;
-    static final String SEP = File.separator;
+    private OptionParser parser = new OptionParser();
+    private String targetDir = null;
+    private String parameterFile = null;
+    private String orfFile = null;
+    private String outputFile = null;
+    private int ignoreThreshold = 0;
+    private static final String SEP = File.separator;
 
     // option IDs
-    final static int OPT_HELP = 0;
-    final static int OPT_VERBOSE = 1;
-    final static int OPT_TARGETDIR = 2;
-    final static int OPT_PARAMETER = 3;
-    final static int OPT_ORF = 4;
-    final static int OPT_OUTPUT = 5;
-    final static int OPT_IGNORETHRESHOLD = 6;
+    private final static int OPT_HELP = 0;
+    private final static int OPT_VERBOSE = 1;
+    private final static int OPT_TARGETDIR = 2;
+    private final static int OPT_PARAMETER = 3;
+    private final static int OPT_ORF = 4;
+    private final static int OPT_OUTPUT = 5;
+    private final static int OPT_IGNORETHRESHOLD = 6;
 
-    PrintStream _log = new NullPrintStream();
+    private PrintStream _log = new NullPrintStream();
 
-    Summarize() {
+    private Summarize() {
     }
 
-    public Summarize(String target_dir, String parameter_file) throws SCMDException, IOException {
-        targetDir = target_dir;
-        parameterFile = parameter_file;
-        readOutputParameterList();
-        readAllData();
-    }
-
-    protected TreeSet<String> getOrfIgnore(int threshold) throws SCMDException {
+    private TreeSet<String> getOrfIgnore(int threshold) throws SCMDException {
         CalMorphTable versatileTable = new CalMorphTable(targetDir + SEP + DataFileName.VERSATILE);
-        TreeSet<String> IgnoreList = new TreeSet<String>();
+        TreeSet<String> IgnoreList = new TreeSet<>();
         int orfSize = versatileTable.getRowSize();
         for (int i = 0; i < orfSize; ++i) {
             Cell c = versatileTable.getCell(i, 1);
-            if (c.isValidAsDouble() == false) {
+            if (!c.isValidAsDouble()) {
                 System.err.println("Error in Summarize.getOrfIgnore(). format error in " + targetDir + SEP + DataFileName.VERSATILE + '?');
             }
             int sampleNumber = (int) c.doubleValue();
@@ -84,7 +77,7 @@ public class Summarize {
      * @throws SCMDException
      * @throws IOException
      */
-    public void setupByArguments(String[] args) throws SCMDException, IOException {
+    private void setupByArguments(String[] args) throws SCMDException, IOException {
         setupOptionParser();
         parser.getContext(args);
 
@@ -142,32 +135,29 @@ public class Summarize {
             s.setupByArguments(args);
             s.readAllData();
             s.outputSummary();
-        } catch (SCMDException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
+        } catch (SCMDException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
     }
 
 
-    Vector<String> outputParams = new Vector<String>();
-    Vector<String> outputOrfList = new Vector<String>();
-    OutputResult result = new OutputResult();
+    private Vector<String> outputParams = new Vector<>();
+    private Vector<String> outputOrfList = new Vector<>();
+    private OutputResult result = new OutputResult();
 
     //取り出した値を格納するコンテナ
-    class OutputResult {
-        Map<String, Map<String, String>> table = new TreeMap<String, Map<String, String>>();
-        TreeSet<String> cols = new TreeSet<String>();
+    static class OutputResult {
+        Map<String, Map<String, String>> table = new TreeMap<>();
+        TreeSet<String> cols = new TreeSet<>();
         String TABLENAME = "";
         String NULLVALUE = ".";
 
-        public void setTableName(String name) {
+        void setTableName(String name) {
             TABLENAME = name;
         }
 
-        public String getTableName() {
+        String getTableName() {
             return TABLENAME;
         }
 
@@ -183,31 +173,28 @@ public class Summarize {
 
         public void set(String rowname, String colname, String value) {
             if (!table.containsKey(rowname))
-                table.put(rowname, new TreeMap<String, String>());
+                table.put(rowname, new TreeMap<>());
             Map<String, String> onerow = table.get(rowname);
             onerow.put(colname, value);
             cols.add(colname);
         }
 
-        public boolean colExists(String colname) {
+        boolean colExists(String colname) {
             return cols.contains(colname);
         }
 
         /**
          * @return
          */
-        public Vector<String> getRowList() {
+        Vector<String> getRowList() {
             int size = table.keySet().size();
             String[] liststr = new String[size];
-            Vector<String> list = new Vector<String>();
             int n = 0;
             for (String r : table.keySet()) {
                 liststr[n++] = r;
             }
             Arrays.sort(liststr);
-            for (String r : liststr) {
-                list.add(r);
-            }
+            Vector<String> list = new Vector<>(Arrays.asList(liststr));
             return list;
         }
     }
@@ -224,10 +211,10 @@ public class Summarize {
             e.printStackTrace();
         }
         String line;
+        assert parameterListReader != null;
         while ((line = parameterListReader.readLine()) != null) {
             String[] cols = line.split("\t+");
-            for (String c : cols)
-                outputParams.add(c);
+            outputParams.addAll(Arrays.asList(cols));
         }
     }
 
@@ -240,15 +227,14 @@ public class Summarize {
             e.printStackTrace();
         }
         String line;
+        assert orfListReader != null;
         while ((line = orfListReader.readLine()) != null) {
             String[] cols = line.split("\t+");
-            for (String c : cols) {
-                outputOrfList.add(c);
-            }
+            outputOrfList.addAll(Arrays.asList(cols));
         }
     }
 
-    public void readAllData() throws SCMDException {
+    private void readAllData() throws SCMDException {
         for (int i = 0; i < DataFileName.GROUP_FILE_NAME.length; ++i) {
             readFile(targetDir + SEP + DataFileName.GROUP_FILE_NAME[i]);
         }
@@ -283,11 +269,11 @@ public class Summarize {
 
     }
 
-    public void outputSummary() throws IOException, SCMDException {
+    private void outputSummary() throws IOException, SCMDException {
         outputSummary(getOrfIgnore(ignoreThreshold));
     }
 
-    public void outputSummary(TreeSet<String> ignoreOrfList) throws IOException {
+    private void outputSummary(TreeSet<String> ignoreOrfList) throws IOException {
         PrintStream outfile = new PrintStream(new FileOutputStream(outputFile));
 
         outfile.print(result.getTableName());

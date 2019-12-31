@@ -483,1077 +483,1089 @@ public class SCMDConverter extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
-        if (command.equals(EXIT)) {
-            // exit
-            System.exit(0);
-        } else if (command.equals(DIR_SELECT)) {
-            // select directory
-            fc = new JFileChooser();
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fc.setCurrentDirectory(new File(inputDir.getText()));
-            int ret = fc.showOpenDialog(SCMDConverter.this);
-            if (ret == JFileChooser.APPROVE_OPTION) {
-                File dir = fc.getSelectedFile();
-                inputDir.setText(dir.getAbsolutePath());
+        switch (command) {
+            case EXIT:
+                // exit
+                System.exit(0);
+            case DIR_SELECT: {
+                // select directory
+                fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                fc.setCurrentDirectory(new File(inputDir.getText()));
+                int ret = fc.showOpenDialog(SCMDConverter.this);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File dir = fc.getSelectedFile();
+                    inputDir.setText(dir.getAbsolutePath());
+                    geneNameField.setText(dir.getName());
+                    isReadyORF = false;
+                    //selectButton.setEnabled(false);
+                    submitButton.setEnabled(false);
+                    retrieveORF();
+                    renamed = false;
+                }
+                break;
+            }
+            case BUDIR_SELECT: {
+                // select directory
+                fc2 = new JFileChooser();
+                fc2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                fc2.setCurrentDirectory(new File(backupDir.getText()));
+                int ret = fc2.showOpenDialog(SCMDConverter.this);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File dir = fc2.getSelectedFile();
+                    backupDir.setText(dir.getAbsolutePath());
+                }
+                break;
+            }
+            case HELP:
+                // display help message
+                JFrame helpframe = new HelpFrame();
+                JTextArea helpMessage = new JTextArea();
+                helpMessage.setLineWrap(true);
+                helpMessage.setWrapStyleWord(true);
+                helpMessage.setEditable(false);
+                helpMessage.setText(
+                        "SCMD toolkitの使い方"
+                                + newline
+                                + newline
+                                + "1. 画像ファイルの入っているフォルダとRename後のファイルを入れるバックアップフォルダを選択"
+                                + newline
+                                + "2. 画像ファイルの入っているフォルダ名が株のStandard nameもしくはORFではない場合、Standard name(or ORF)の項目に入力"
+                                + newline
+                                + "3. 付け替える名前の検索方法を選択（ネット(yeastサーバ)から検索 or ローカルファイル(orf_descriptions.tab)から検索　or 手動で入力)"
+                                + newline
+                                + "4. 名前が確定したらFirst number of new nameに付け替えるファイル名の番号を何番からにするかを入力してrename filesを選択"
+                                + newline
+                                + "5. 使用しない画像のチェックボックスを外してからRenameを選択"
+                                + newline
+                                + "6. rename logを確認して、問題がなければRename Executeを選択"
+                                + newline
+                                + "7. ファイル名が変換されてバックアップフォルダに入れられ、元のフォルダが削除される"
+                                + newline
+                                + "8. 使用しないとされた画像はunusableという名前のフォルダの中に入れられる"
+                                + newline
+                                + "9. もし必要ならば、さらにselect photoでそれぞれの画像を使用するかどうかを画像を見て選ぶ"
+                                + newline
+                                + "10. submitを選択"
+                                + newline
+                                + "11. yeastサーバーに画像ファイルとログファイルが送られる(unusableとその中身も)"
+                                + newline
+                                + newline
+                                + "注：submitで送られるファイルは前回のrenameで名前が付け替えられたファイル"
+                                + newline
+                                + newline
+                                + "すでに存在するフォルダに画像を送るとき、送りたい画像と同名の画像が送り先にすでに存在した場合は、その送り先の画像が以前このプログラムによって（エラーなしに）正常に送られたものならば上書きせず、そうでなければ上書きする"
+                                + newline
+                                + newline
+                                + "submit時にネットワークのエラーによって送信が中断されたときはもう一度submitする"
+                                + newline
+                                + newline
+                                + "submit終了時には画像ファイルが入っているこちら側のディレクトリにもサーバー側にあるlogのコピーができる。（名前はrename_log）この内容はテキストエディタで確認できる。形式は「元のファイル名」「付け替えたファイル名」「サーバーにアップされた時間」で、今までサーバー側のそのフォルダに送られたすべてのファイルの記録が書いてある");
+
+                JScrollPane helpScrollPane = new JScrollPane(helpMessage);
+                helpScrollPane.setVerticalScrollBarPolicy(
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                Container contentPane = helpframe.getContentPane();
+                contentPane.add(helpScrollPane);
+                helpframe.setSize(new Dimension(400, 400));
+                helpframe.setVisible(true);
+                break;
+            case ORF:
+                // ORFを取得する
+                isReadyORF = false;
+                //selectButton.setEnabled(false);
+                submitButton.setEnabled(false);
+                retrieveORF();
+                break;
+            case DIR_CHANGE:
+                File dir = new File(inputDir.getText());
                 geneNameField.setText(dir.getName());
                 isReadyORF = false;
                 //selectButton.setEnabled(false);
                 submitButton.setEnabled(false);
                 retrieveORF();
                 renamed = false;
-            }
-        } else if (command.equals(BUDIR_SELECT)) {
-            // select directory
-            fc2 = new JFileChooser();
-            fc2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fc2.setCurrentDirectory(new File(backupDir.getText()));
-            int ret = fc2.showOpenDialog(SCMDConverter.this);
-            if (ret == JFileChooser.APPROVE_OPTION) {
-                File dir = fc2.getSelectedFile();
-                backupDir.setText(dir.getAbsolutePath());
-            }
-        } else if (command.equals(HELP)) {
-            // display help message
-            JFrame helpframe = new HelpFrame();
-            JTextArea helpMessage = new JTextArea();
-            helpMessage.setLineWrap(true);
-            helpMessage.setWrapStyleWord(true);
-            helpMessage.setEditable(false);
-            helpMessage.setText(
-                    "SCMD toolkitの使い方"
-                            + newline
-                            + newline
-                            + "1. 画像ファイルの入っているフォルダとRename後のファイルを入れるバックアップフォルダを選択"
-                            + newline
-                            + "2. 画像ファイルの入っているフォルダ名が株のStandard nameもしくはORFではない場合、Standard name(or ORF)の項目に入力"
-                            + newline
-                            + "3. 付け替える名前の検索方法を選択（ネット(yeastサーバ)から検索 or ローカルファイル(orf_descriptions.tab)から検索　or 手動で入力)"
-                            + newline
-                            + "4. 名前が確定したらFirst number of new nameに付け替えるファイル名の番号を何番からにするかを入力してrename filesを選択"
-                            + newline
-                            + "5. 使用しない画像のチェックボックスを外してからRenameを選択"
-                            + newline
-                            + "6. rename logを確認して、問題がなければRename Executeを選択"
-                            + newline
-                            + "7. ファイル名が変換されてバックアップフォルダに入れられ、元のフォルダが削除される"
-                            + newline
-                            + "8. 使用しないとされた画像はunusableという名前のフォルダの中に入れられる"
-                            + newline
-                            + "9. もし必要ならば、さらにselect photoでそれぞれの画像を使用するかどうかを画像を見て選ぶ"
-                            + newline
-                            + "10. submitを選択"
-                            + newline
-                            + "11. yeastサーバーに画像ファイルとログファイルが送られる(unusableとその中身も)"
-                            + newline
-                            + newline
-                            + "注：submitで送られるファイルは前回のrenameで名前が付け替えられたファイル"
-                            + newline
-                            + newline
-                            + "すでに存在するフォルダに画像を送るとき、送りたい画像と同名の画像が送り先にすでに存在した場合は、その送り先の画像が以前このプログラムによって（エラーなしに）正常に送られたものならば上書きせず、そうでなければ上書きする"
-                            + newline
-                            + newline
-                            + "submit時にネットワークのエラーによって送信が中断されたときはもう一度submitする"
-                            + newline
-                            + newline
-                            + "submit終了時には画像ファイルが入っているこちら側のディレクトリにもサーバー側にあるlogのコピーができる。（名前はrename_log）この内容はテキストエディタで確認できる。形式は「元のファイル名」「付け替えたファイル名」「サーバーにアップされた時間」で、今までサーバー側のそのフォルダに送られたすべてのファイルの記録が書いてある");
+                break;
+            case RENAME:
+                // file名をrenameする
+                if (!retrieveORF()) {
+                    // show an error dialog
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "ORFを決定してください。",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // 顕微鏡のファイルをsortする
+                    File path = new File(inputDir.getText());
+                    String[] ls = path.list();
+                    Pattern p = Pattern.compile(FILE_PATTERN);
+                    String[] newName = new String[ls.length];
 
-            JScrollPane helpScrollPane = new JScrollPane(helpMessage);
-            helpScrollPane.setVerticalScrollBarPolicy(
-                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-            Container contentPane = helpframe.getContentPane();
-            contentPane.add(helpScrollPane);
-            helpframe.setSize(new Dimension(400, 400));
-            helpframe.setVisible(true);
-        } else if (command.equals(ORF)) {
-            // ORFを取得する
-            isReadyORF = false;
-            //selectButton.setEnabled(false);
-            submitButton.setEnabled(false);
-            retrieveORF();
-        } else if (command.equals(DIR_CHANGE)) {
-            File dir = new File(inputDir.getText());
-            geneNameField.setText(dir.getName());
-            isReadyORF = false;
-            //selectButton.setEnabled(false);
-            submitButton.setEnabled(false);
-            retrieveORF();
-            renamed = false;
-        } else if (command.equals(RENAME)) {
-            // file名をrenameする
-            if (!retrieveORF()) {
-                // show an error dialog
-                JOptionPane.showMessageDialog(
-                        this,
-                        "ORFを決定してください。",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            } else {
-                // 顕微鏡のファイルをsortする
-                File path = new File(inputDir.getText());
-                String[] ls = path.list();
-                Pattern p = Pattern.compile(FILE_PATTERN);
-                String[] newName = new String[ls.length];
-
-                // PhotoNumComparetorで定義される順序でsortされた
-                // PhotoNumクラスの集合 -> PhotoGroup というMap
-                TreeMap fileMap = new TreeMap(new PhotoNumComparator());
-                imgfilenum = 0;
-                for (int i = 0; i < ls.length; i++) {
-                    Matcher m = p.matcher(ls[i]);
-                    if (m.matches()) {
-                        imgfilenum++;
-                        // ファイルがMetaMorphのパターンにマッチしている場合
-                        for (int j = 1; j <= m.groupCount(); j++) {
-                            PhotoNum pn;
-                            // FP_FIRST_PHOTO_NUMの部分と、FP_SECOND_PHOTO_NUMの合成数
-                            if (m.group(FP_SECOND_PHOTO_NUM) == null) {
-                                // 手動の顕微鏡でとられた写真
-                                pn =
-                                        new PhotoNum(
-                                                new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                -1);
-                            } else {
-                                // 自動顕微鏡でとられた写真
-                                pn =
-                                        new PhotoNum(
-                                                new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
+                    // PhotoNumComparetorで定義される順序でsortされた
+                    // PhotoNumクラスの集合 -> PhotoGroup というMap
+                    TreeMap fileMap = new TreeMap(new PhotoNumComparator());
+                    imgfilenum = 0;
+                    for (int i = 0; i < ls.length; i++) {
+                        Matcher m = p.matcher(ls[i]);
+                        if (m.matches()) {
+                            imgfilenum++;
+                            // ファイルがMetaMorphのパターンにマッチしている場合
+                            for (int j = 1; j <= m.groupCount(); j++) {
+                                PhotoNum pn;
+                                // FP_FIRST_PHOTO_NUMの部分と、FP_SECOND_PHOTO_NUMの合成数
+                                if (m.group(FP_SECOND_PHOTO_NUM) == null) {
+                                    // 手動の顕微鏡でとられた写真
+                                    pn =
+                                            new PhotoNum(
+                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    -1);
+                                } else {
+                                    // 自動顕微鏡でとられた写真
+                                    pn =
+                                            new PhotoNum(
+                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
+                                }
+                                // search treemap
+                                PhotoGroup pg;
+                                if (fileMap.containsKey(pn)) {
+                                    // 既に同じ番号のPhotoGroupが存在する場合
+                                    pg = (PhotoGroup) fileMap.get(pn);
+                                    fileMap.remove(pn);
+                                } else {
+                                    pg = new PhotoGroup();
+                                }
+                                pg.add(ls[i], m.group(2));
+                                fileMap.put(pn, pg);
                             }
-                            // search treemap
-                            PhotoGroup pg;
-                            if (fileMap.containsKey(pn)) {
-                                // 既に同じ番号のPhotoGroupが存在する場合
-                                pg = (PhotoGroup) fileMap.get(pn);
-                                fileMap.remove(pn);
-                            } else {
-                                pg = new PhotoGroup();
-                            }
-                            pg.add(ls[i], m.group(2));
-                            fileMap.put(pn, pg);
                         }
                     }
-                }
 
-                Collection c = fileMap.values();
-                Iterator ci = c.iterator();
-                pgs = new PhotoGroup[c.size()];
+                    Collection c = fileMap.values();
+                    Iterator ci = c.iterator();
+                    pgs = new PhotoGroup[c.size()];
 
-                int count = 0;
-                while (ci.hasNext()) {
-                    PhotoGroup pg = (PhotoGroup) ci.next();
-                    pgs[count] = pg;
-                    count++;
-                }
-
-                JLabel checklabel = new JLabel("Remove checks of unusable images.");
-                JPanel checklabelPane = new JPanel();
-                setPanelSize(checklabelPane, new Dimension(470, 40));
-                checklabelPane.add(checklabel);
-                usecheck = new JCheckBox[count];
-                JPanel checkPane = new JPanel();
-                setPanelSize(checkPane, new Dimension(470, 30 * count));
-                for (int i = 0; i < count; i++) {
-                    String orifile = "";
-                    for (int j = 0; j < 3; j++) {
-                        if (pgs[i].origFile[j] != null) {
-                            orifile += pgs[i].origFile[j] + " ";
-                        }
+                    int count = 0;
+                    while (ci.hasNext()) {
+                        PhotoGroup pg = (PhotoGroup) ci.next();
+                        pgs[count] = pg;
+                        count++;
                     }
-                    usecheck[i] = new JCheckBox(orifile, pgs[currentimage].useornot);
-                    usecheck[i].setActionCommand(Integer.toString(i));
-                    usecheck[i].addActionListener(new ActionListener() {
+
+                    JLabel checklabel = new JLabel("Remove checks of unusable images.");
+                    JPanel checklabelPane = new JPanel();
+                    setPanelSize(checklabelPane, new Dimension(470, 40));
+                    checklabelPane.add(checklabel);
+                    usecheck = new JCheckBox[count];
+                    JPanel checkPane = new JPanel();
+                    setPanelSize(checkPane, new Dimension(470, 30 * count));
+                    for (int i = 0; i < count; i++) {
+                        String orifile = "";
+                        for (int j = 0; j < 3; j++) {
+                            if (pgs[i].origFile[j] != null) {
+                                orifile += pgs[i].origFile[j] + " ";
+                            }
+                        }
+                        usecheck[i] = new JCheckBox(orifile, pgs[currentimage].useornot);
+                        usecheck[i].setActionCommand(Integer.toString(i));
+                        usecheck[i].addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e1) {
+                                pgs[Integer.parseInt(e1.getActionCommand())].useornot = usecheck[Integer.parseInt(e1.getActionCommand())].isSelected();
+                            }
+                        });
+                        checkPane.add(usecheck[i]);
+                    }
+                    JScrollPane cs = new JScrollPane(checkPane);
+                    cs.setVerticalScrollBarPolicy(
+                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                    cs.setPreferredSize(new Dimension(470, 200));
+
+                    usecheckFrame = new UsecheckFrame();
+                    Container usecheckPane = usecheckFrame.getContentPane();
+                    usecheckFrame.setSize(500, 347);
+
+                    JButton checkokButton = new JButton("Rename");
+                    JButton checkcancelButton = new JButton("Cancel");
+                    JPanel checkbuttonPane = new JPanel();
+                    setPanelSize(checkbuttonPane, new Dimension(470, 40));
+                    checkbuttonPane.add(checkokButton);
+                    checkbuttonPane.add(checkcancelButton);
+                    checkcancelButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e1) {
-                            pgs[Integer.parseInt(e1.getActionCommand())].useornot = usecheck[Integer.parseInt(e1.getActionCommand())].isSelected();
+                            usecheckFrame.dispose();
                         }
                     });
-                    checkPane.add(usecheck[i]);
-                }
-                JScrollPane cs = new JScrollPane(checkPane);
-                cs.setVerticalScrollBarPolicy(
-                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-                cs.setPreferredSize(new Dimension(470, 200));
 
-                usecheckFrame = new UsecheckFrame();
-                Container usecheckPane = usecheckFrame.getContentPane();
-                usecheckFrame.setSize(500, 347);
-
-                JButton checkokButton = new JButton("Rename");
-                JButton checkcancelButton = new JButton("Cancel");
-                JPanel checkbuttonPane = new JPanel();
-                setPanelSize(checkbuttonPane, new Dimension(470, 40));
-                checkbuttonPane.add(checkokButton);
-                checkbuttonPane.add(checkcancelButton);
-                checkcancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e1) {
-                        usecheckFrame.dispose();
-                    }
-                });
-
-                checkokButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e1) {
-                        usecheckFrame.dispose();
-                        int fileNum = sNm.getNumber().intValue();
-                        unusefileNum = 1;
-                        String filePrefix = orfField.getText();
-                        Vector files = new Vector();
-                        counter = 0;
-                        oldfiles = new String[imgfilenum];
-                        newfiles = new String[imgfilenum];
-                        String renameText = "";        // file名をどのように変更するかを表示するためのHTML
-                        renameText += "<html><center>"
-                                + "rename log"
-                                + "<table>"
-                                + "<tr bgcolor=white><td width=110>Original</td>"
-                                + "<td width=25></td><td width=110>New</td></tr>";
-                        for (int j = 0; j < pgs.length; j++) {
-                            if (pgs[j].useornot) {
-                                for (int i = 0; i < 3; i++) {
-                                    if (pgs[j].origFile[i] != null) {
-                                        String newFile =
-                                                filePrefix
-                                                        + "-"
-                                                        + photoCategory[i]
-                                                        + fileNum
-                                                        + ".jpg";
-                                        pgs[j].addNewFile(newFile, photoClassifier[i]);
-                                        files.add(pgs[j]);
-                                        renameText += "<tr><td>"
-                                                + pgs[j].origFile[i]
-                                                + "</td><td> -- </td><td><font color=#7070FF>"
-                                                + pgs[j].newFile[i]
-                                                + "</font></td></tr>";
-                                        oldfiles[counter] = pgs[j].origFile[i];
-                                        newfiles[counter] = pgs[j].newFile[i];
-                                        counter++;
+                    checkokButton.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e1) {
+                            usecheckFrame.dispose();
+                            int fileNum = sNm.getNumber().intValue();
+                            unusefileNum = 1;
+                            String filePrefix = orfField.getText();
+                            Vector files = new Vector();
+                            counter = 0;
+                            oldfiles = new String[imgfilenum];
+                            newfiles = new String[imgfilenum];
+                            String renameText = "";        // file名をどのように変更するかを表示するためのHTML
+                            renameText += "<html><center>"
+                                    + "rename log"
+                                    + "<table>"
+                                    + "<tr bgcolor=white><td width=110>Original</td>"
+                                    + "<td width=25></td><td width=110>New</td></tr>";
+                            for (int j = 0; j < pgs.length; j++) {
+                                if (pgs[j].useornot) {
+                                    for (int i = 0; i < 3; i++) {
+                                        if (pgs[j].origFile[i] != null) {
+                                            String newFile =
+                                                    filePrefix
+                                                            + "-"
+                                                            + photoCategory[i]
+                                                            + fileNum
+                                                            + ".jpg";
+                                            pgs[j].addNewFile(newFile, photoClassifier[i]);
+                                            files.add(pgs[j]);
+                                            renameText += "<tr><td>"
+                                                    + pgs[j].origFile[i]
+                                                    + "</td><td> -- </td><td><font color=#7070FF>"
+                                                    + pgs[j].newFile[i]
+                                                    + "</font></td></tr>";
+                                            oldfiles[counter] = pgs[j].origFile[i];
+                                            newfiles[counter] = pgs[j].newFile[i];
+                                            counter++;
+                                        }
                                     }
-                                }
-                                fileNum++;
-                                renameText += "<tr><td> </td></tr>";
-                            } else {
-                                for (int i = 0; i < 3; i++) {
-                                    if (pgs[j].origFile[i] != null) {
-                                        String newFile =
-                                                filePrefix
-                                                        + "-"
-                                                        + "unusable"
-                                                        + "-"
-                                                        + photoCategory[i]
-                                                        + unusefileNum
-                                                        + ".jpg";
-                                        pgs[j].addNewFile(newFile, photoClassifier[i]);
-                                        files.add(pgs[j]);
+                                    fileNum++;
+                                    renameText += "<tr><td> </td></tr>";
+                                } else {
+                                    for (int i = 0; i < 3; i++) {
+                                        if (pgs[j].origFile[i] != null) {
+                                            String newFile =
+                                                    filePrefix
+                                                            + "-"
+                                                            + "unusable"
+                                                            + "-"
+                                                            + photoCategory[i]
+                                                            + unusefileNum
+                                                            + ".jpg";
+                                            pgs[j].addNewFile(newFile, photoClassifier[i]);
+                                            files.add(pgs[j]);
+                                        }
                                     }
+                                    unusefileNum++;
                                 }
-                                unusefileNum++;
                             }
-                        }
-                        renameText += "</table></center></html>";
+                            renameText += "</table></center></html>";
 
-                        // どのようにrenameされるか確認するpaneを作成
-                        JLabel renameListText = new JLabel(renameText);
-                        //renameListText.setFont(new Font("Arial", Font.BOLD, 12));
-                        JScrollPane js = new JScrollPane(renameListText);
-                        js.setVerticalScrollBarPolicy(
-                                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-                        js.setPreferredSize(new Dimension(270, 200));
+                            // どのようにrenameされるか確認するpaneを作成
+                            JLabel renameListText = new JLabel(renameText);
+                            //renameListText.setFont(new Font("Arial", Font.BOLD, 12));
+                            JScrollPane js = new JScrollPane(renameListText);
+                            js.setVerticalScrollBarPolicy(
+                                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                            js.setPreferredSize(new Dimension(270, 200));
 
-                        confirmFrame = new RenameFrame();
-                        Container confirmPane = confirmFrame.getContentPane();
-                        JPanel listPane = new JPanel();
-                        confirmFrame.setSize(300, 317);
-                        listPane.add(js, BorderLayout.CENTER);
+                            confirmFrame = new RenameFrame();
+                            Container confirmPane = confirmFrame.getContentPane();
+                            JPanel listPane = new JPanel();
+                            confirmFrame.setSize(300, 317);
+                            listPane.add(js, BorderLayout.CENTER);
 
-                        JButton okButton = new JButton("Rename Execute");
-                        JButton cancelButton = new JButton("Cancel");
-                        JPanel buttonPane = new JPanel();
-                        setPanelSize(buttonPane, new Dimension(400, 40));
-                        buttonPane.add(okButton);
-                        buttonPane.add(cancelButton);
+                            JButton okButton = new JButton("Rename Execute");
+                            JButton cancelButton = new JButton("Cancel");
+                            JPanel buttonPane = new JPanel();
+                            setPanelSize(buttonPane, new Dimension(400, 40));
+                            buttonPane.add(okButton);
+                            buttonPane.add(cancelButton);
 
-                        cancelButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) {
-                                confirmFrame.dispose();
-                            }
-                        });
+                            cancelButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    confirmFrame.dispose();
+                                }
+                            });
 
-                        okButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) {
-                                int max = 0;
-                                if (online) {
-                                    try {
-                                        HttpURL httpURL = new HttpURL(SERVER);
-                                        httpURL.setUserInfo(username, password);
-                                        WebdavResource wr = new WebdavResource(httpURL);
-                                        String folder = orfField.getText();
-                                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
-                                        if (wr.exists()) {
-                                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
+                            okButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    int max = 0;
+                                    if (online) {
+                                        try {
+                                            HttpURL httpURL = new HttpURL(SERVER);
+                                            httpURL.setUserInfo(username, password);
+                                            WebdavResource wr = new WebdavResource(httpURL);
+                                            String folder = orfField.getText();
+                                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
                                             if (wr.exists()) {
-                                                max = 0;
-                                                File log = new File(inputDir.getText() + SLA + "old_rename_log");
-                                                wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                                                PrintWriter pw;
-                                                FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
-                                                int ch;
-                                                int counter = 0;
-                                                String str;
-                                                while ((char) (ch = fr.read()) != '\t') {
-                                                    while ((char) (ch = fr.read()) != '\t') ;
-                                                    str = "";
-                                                    while ((char) (ch = fr.read()) != 'A' && ch != 'C' && ch != 'D') ;
-                                                    while ((char) (ch = fr.read()) != '.') {
-                                                        str += (char) ch;
+                                                wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
+                                                if (wr.exists()) {
+                                                    max = 0;
+                                                    File log = new File(inputDir.getText() + SLA + "old_rename_log");
+                                                    wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                                    PrintWriter pw;
+                                                    FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
+                                                    int ch;
+                                                    int counter = 0;
+                                                    String str;
+                                                    while ((char) (ch = fr.read()) != '\t') {
+                                                        while ((char) (ch = fr.read()) != '\t') ;
+                                                        str = "";
+                                                        while ((char) (ch = fr.read()) != 'A' && ch != 'C' && ch != 'D')
+                                                            ;
+                                                        while ((char) (ch = fr.read()) != '.') {
+                                                            str += (char) ch;
+                                                        }
+                                                        if (Integer.parseInt(str) > max) max = Integer.parseInt(str);
+                                                        while ((char) (ch = fr.read()) != '\n') ;
                                                     }
-                                                    if (Integer.parseInt(str) > max) max = Integer.parseInt(str);
-                                                    while ((char) (ch = fr.read()) != '\n') ;
+                                                    fr.close();
+                                                    log.delete();
                                                 }
-                                                fr.close();
-                                                log.delete();
+                                            }
+                                            wr.close();
+                                        } catch (HttpException e2) {
+                                            displayErrorDialog(e2);
+                                        } catch (IOException e2) {
+                                            displayErrorDialog(e2);
+                                        }
+                                    }
+                                    try {
+                                        String sourcedir = inputDir.getText();
+                                        boolean flag = true;
+                                        File bufolder = new File(backupDir.getText() + SLA + orfField.getText());
+                                        if (bufolder.exists()) {
+                                            int ans = JOptionPane.showConfirmDialog(null, "すでに同じORF名のついたバックアップフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
+                                            if (ans == JOptionPane.NO_OPTION) {
+                                                flag = false;
                                             }
                                         }
-                                        wr.close();
-                                    } catch (HttpException e2) {
-                                        displayErrorDialog(e2);
+                                        if (flag && max >= sNm.getNumber().intValue()) {
+                                            int ans = JOptionPane.showConfirmDialog(null, "サーバー上の同ORF名のフォルダの中のファイルと番号が重なる可能性があります。（サーバーのフォルダ中の最大番号　" + max + "）　よろしいですか？", "", JOptionPane.YES_NO_OPTION);
+                                            if (ans == JOptionPane.NO_OPTION) {
+                                                flag = false;
+                                            }
+                                        }
+                                        if (!flag) {
+                                            confirmFrame.dispose();
+                                            JOptionPane.showMessageDialog(null, "renameを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
+                                        } else {
+                                            bufolder.mkdirs();
+                                            if (!bufolder.exists()) {
+                                                confirmFrame.dispose();
+                                                JOptionPane.showMessageDialog(null, "backup folderの生成に失敗しました", "", JOptionPane.ERROR_MESSAGE);
+                                            } else {
+                                                Process[] proc = new Process[counter];
+                                                for (int i = 0; i < counter; i++) {
+                                                    String[] cmd = {IRFAN_VIEW, sourcedir + SLA + oldfiles[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                                    proc[i] = Runtime.getRuntime().exec(cmd);
+                                                    proc[i].waitFor();
+                                                    //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                                    //Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                                    //proc0.waitFor();
+                                                    progress.setValue(i + 1);
+                                                    progress.update(progress.getGraphics());
+                                                }
+                                                String[] cmd0 = {MOGRIFY, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + "*.jpg"};
+                                                Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                                proc0.waitFor();
+
+                                                File f1 = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
+                                                f1.mkdir();
+                                                int k = 0;
+                                                int l = 0;
+                                                pgs2 = new PhotoGroup[pgs.length - unusefileNum + 1];
+                                                for (int j = 0; j < pgs.length; j++) {
+                                                    if (!pgs[j].useornot) {
+                                                        for (int i = 0; i < 3; i++) {
+                                                            if (pgs[j].origFile[i] != null) {
+                                                                String[] cmd = {IRFAN_VIEW, sourcedir + SLA + pgs[j].origFile[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + pgs[j].newFile[i]};
+                                                                proc[i] = Runtime.getRuntime().exec(cmd);
+                                                                proc[i].waitFor();
+                                                                //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                                                //Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                                                //proc0.waitFor();
+                                                                progress.setValue(counter + k + 2);
+                                                                progress.update(progress.getGraphics());
+                                                                k++;
+                                                            }
+                                                        }
+                                                    } else {
+                                                        pgs2[l] = pgs[j];
+                                                        l++;
+                                                    }
+                                                }
+                                                //File path = new File(sourcedir);
+                                                //String ls[] = path.list();
+                                                //for(int i=0;i<ls.length;i++)
+                                                //{
+                                                //	new File(sourcedir + SLA + ls[i]).delete();
+                                                //}
+                                                //new File(sourcedir).delete();
+                                                confirmFrame.dispose();
+                                                renamed = true;
+                                                JOptionPane.showMessageDialog(null, "ファイル名の付け替えが完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                                                //selectButton.setEnabled(true);
+                                                if (online) submitButton.setEnabled(true);
+                                            }
+                                        }
                                     } catch (IOException e2) {
                                         displayErrorDialog(e2);
+                                    } catch (InterruptedException e2) {
+                                        displayErrorDialog(e2);
                                     }
                                 }
-                                try {
-                                    String sourcedir = inputDir.getText();
-                                    boolean flag = true;
-                                    File bufolder = new File(backupDir.getText() + SLA + orfField.getText());
-                                    if (bufolder.exists()) {
-                                        int ans = JOptionPane.showConfirmDialog(null, "すでに同じORF名のついたバックアップフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
-                                        if (ans == JOptionPane.NO_OPTION) {
-                                            flag = false;
-                                        }
-                                    }
-                                    if (flag && max >= sNm.getNumber().intValue()) {
-                                        int ans = JOptionPane.showConfirmDialog(null, "サーバー上の同ORF名のフォルダの中のファイルと番号が重なる可能性があります。（サーバーのフォルダ中の最大番号　" + max + "）　よろしいですか？", "", JOptionPane.YES_NO_OPTION);
-                                        if (ans == JOptionPane.NO_OPTION) {
-                                            flag = false;
-                                        }
-                                    }
-                                    if (!flag) {
-                                        confirmFrame.dispose();
-                                        JOptionPane.showMessageDialog(null, "renameを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
-                                    } else {
-                                        bufolder.mkdirs();
-                                        if (!bufolder.exists()) {
-                                            confirmFrame.dispose();
-                                            JOptionPane.showMessageDialog(null, "backup folderの生成に失敗しました", "", JOptionPane.ERROR_MESSAGE);
-                                        } else {
-                                            Process[] proc = new Process[counter];
-                                            for (int i = 0; i < counter; i++) {
-                                                String[] cmd = {IRFAN_VIEW, sourcedir + SLA + oldfiles[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                proc[i] = Runtime.getRuntime().exec(cmd);
-                                                proc[i].waitFor();
-                                                //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                //Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                                //proc0.waitFor();
-                                                progress.setValue(i + 1);
-                                                progress.update(progress.getGraphics());
-                                            }
-                                            String[] cmd0 = {MOGRIFY, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + "*.jpg"};
-                                            Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                            proc0.waitFor();
+                            });
 
-                                            File f1 = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
-                                            f1.mkdir();
-                                            int k = 0;
-                                            int l = 0;
-                                            pgs2 = new PhotoGroup[pgs.length - unusefileNum + 1];
-                                            for (int j = 0; j < pgs.length; j++) {
-                                                if (!pgs[j].useornot) {
-                                                    for (int i = 0; i < 3; i++) {
-                                                        if (pgs[j].origFile[i] != null) {
-                                                            String[] cmd = {IRFAN_VIEW, sourcedir + SLA + pgs[j].origFile[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + pgs[j].newFile[i]};
-                                                            proc[i] = Runtime.getRuntime().exec(cmd);
-                                                            proc[i].waitFor();
-                                                            //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                            //Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                                            //proc0.waitFor();
-                                                            progress.setValue(counter + k + 2);
-                                                            progress.update(progress.getGraphics());
-                                                            k++;
-                                                        }
-                                                    }
-                                                } else {
-                                                    pgs2[l] = pgs[j];
-                                                    l++;
-                                                }
-                                            }
-                                            //File path = new File(sourcedir);
-                                            //String ls[] = path.list();
-                                            //for(int i=0;i<ls.length;i++)
-                                            //{
-                                            //	new File(sourcedir + SLA + ls[i]).delete();
-                                            //}
-                                            //new File(sourcedir).delete();
-                                            confirmFrame.dispose();
-                                            renamed = true;
-                                            JOptionPane.showMessageDialog(null, "ファイル名の付け替えが完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                                            //selectButton.setEnabled(true);
-                                            if (online) submitButton.setEnabled(true);
-                                        }
-                                    }
-                                } catch (IOException e2) {
-                                    displayErrorDialog(e2);
-                                } catch (InterruptedException e2) {
-                                    displayErrorDialog(e2);
-                                }
-                            }
-                        });
+                            progress = new JProgressBar(0, imgfilenum);
+                            progress.setValue(0);
+                            progress.setStringPainted(true);
+                            JPanel progressPane = new JPanel();
+                            progressPane.add(progress);
+                            setPanelSize(progressPane, new Dimension(400, 40));
 
-                        progress = new JProgressBar(0, imgfilenum);
+                            listPane.add(buttonPane);
+                            listPane.add(progressPane);
+                            confirmPane.add(listPane);
+                            confirmFrame.setVisible(true);
+                        }
+                    });
+                    JPanel checklistPane = new JPanel();
+                    setPanelSize(checklistPane, new Dimension(500, 347));
+                    checklistPane.add(checklabelPane);
+                    checklistPane.add(cs);
+                    checklistPane.add(checkbuttonPane);
+                    usecheckPane.add(checklistPane);
+                    usecheckFrame.setVisible(true);
+                }
+                break;
+            case SUBMIT:
+                boolean flg = true;
+                if (getORF2(orfField.getText()).status.equals(GeneName.ST_NONE)) {
+                    int ans = JOptionPane.showConfirmDialog(null, "orf_descriptions.tab上に同じ名前のorfが存在しないフォルダを送信しようとしていますが、よろしいですか？", "", JOptionPane.YES_NO_OPTION);
+                    if (ans == JOptionPane.NO_OPTION) flg = false;
+                }
+                if (flg) {
+                    try {
+                        HttpURL httpURL = new HttpURL(SERVER);
+                        //HttpURL httpURL2 = new HttpURL(SERVER2);
+                        httpURL.setUserInfo(username, password);
+                        //httpURL2.setUserInfo(username2, password);
+                        WebdavResource wr = new WebdavResource(httpURL);
+                        //WebdavResource wr2 = new WebdavResource(httpURL2);
+                        String folder = orfField.getText();
+                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
+                        //wr2.setPath("/" + PHOTO_FOLDER2 + "/" + folder);
+                        String logText = "";
+
+                        progress = new JProgressBar(0, newfiles.length);
                         progress.setValue(0);
                         progress.setStringPainted(true);
                         JPanel progressPane = new JPanel();
                         progressPane.add(progress);
-                        setPanelSize(progressPane, new Dimension(400, 40));
+                        setPanelSize(progressPane, new Dimension(400, 80));
+                        progressFrame = new ProgressFrame();
+                        Container prPane = progressFrame.getContentPane();
+                        progressFrame.setSize(300, 100);
+                        prPane.add(progressPane);
+                        int prcounter = 0;
 
-                        listPane.add(buttonPane);
-                        listPane.add(progressPane);
-                        confirmPane.add(listPane);
-                        confirmFrame.setVisible(true);
-                    }
-                });
-                JPanel checklistPane = new JPanel();
-                setPanelSize(checklistPane, new Dimension(500, 347));
-                checklistPane.add(checklabelPane);
-                checklistPane.add(cs);
-                checklistPane.add(checkbuttonPane);
-                usecheckPane.add(checklistPane);
-                usecheckFrame.setVisible(true);
-            }
-        } else if (command.equals(SUBMIT)) {
-            boolean flg = true;
-            if (getORF2(orfField.getText()).status.equals(GeneName.ST_NONE)) {
-                int ans = JOptionPane.showConfirmDialog(null, "orf_descriptions.tab上に同じ名前のorfが存在しないフォルダを送信しようとしていますが、よろしいですか？", "", JOptionPane.YES_NO_OPTION);
-                if (ans == JOptionPane.NO_OPTION) flg = false;
-            }
-            if (flg) {
-                try {
-                    HttpURL httpURL = new HttpURL(SERVER);
-                    //HttpURL httpURL2 = new HttpURL(SERVER2);
-                    httpURL.setUserInfo(username, password);
-                    //httpURL2.setUserInfo(username2, password);
-                    WebdavResource wr = new WebdavResource(httpURL);
-                    //WebdavResource wr2 = new WebdavResource(httpURL2);
-                    String folder = orfField.getText();
-                    wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
-                    //wr2.setPath("/" + PHOTO_FOLDER2 + "/" + folder);
-                    String logText = "";
-
-                    progress = new JProgressBar(0, newfiles.length);
-                    progress.setValue(0);
-                    progress.setStringPainted(true);
-                    JPanel progressPane = new JPanel();
-                    progressPane.add(progress);
-                    setPanelSize(progressPane, new Dimension(400, 80));
-                    progressFrame = new ProgressFrame();
-                    Container prPane = progressFrame.getContentPane();
-                    progressFrame.setSize(300, 100);
-                    prPane.add(progressPane);
-                    int prcounter = 0;
-
-                    if (!wr.exists()) {
-                        progressFrame.setVisible(true);
-                        wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder);
-                        //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder);
-                        for (int i = 0; i < newfiles.length; i++) {
-                            File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
-                            if (file.exists()) {
-                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
-                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
-                                Calendar cl = Calendar.getInstance();
-                                logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
-                                prcounter++;
-                                progress.setValue(prcounter);
-                                progress.update(progress.getGraphics());
-                            }
-                        }
-                        PrintWriter pw;
-                        pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
-                        pw.print(logText);
-                        pw.print('\t' + "finished");
-                        pw.flush();
-                        pw.close();
-                        File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
-                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                        File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
-                        if (unuse.exists()) {
-                            wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                            //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
-                            String[] unusefiles = unuse.list();
-                            for (int i = 0; i < unusefiles.length; i++) {
-                                File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                prcounter++;
-                                progress.setValue(prcounter);
-                                progress.update(progress.getGraphics());
-                            }
-                        }
-                        JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        int ans = JOptionPane.showConfirmDialog(null, "すでにサーバー上に同じORF名のついたフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
-                        if (ans == JOptionPane.YES_OPTION) {
+                        if (!wr.exists()) {
                             progressFrame.setVisible(true);
-                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
-                            if (!wr.exists()) {
-                                for (int i = 0; i < newfiles.length; i++) {
-                                    File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
-                                    if (file.exists()) {
-                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
-                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
-                                        Calendar cl = Calendar.getInstance();
-                                        logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
-                                        prcounter++;
-                                        progress.setValue(prcounter);
-                                        progress.update(progress.getGraphics());
-                                    }
-                                }
-                                PrintWriter pw;
-                                pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
-                                pw.print(logText);
-                                pw.print('\t' + "finished");
-                                pw.flush();
-                                pw.close();
-                                File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
-                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                                File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
-                                if (unuse.exists()) {
-                                    wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                                    //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
-                                    String[] unusefiles = unuse.list();
-                                    for (int i = 0; i < unusefiles.length; i++) {
-                                        File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                        prcounter++;
-                                        progress.setValue(prcounter);
-                                        progress.update(progress.getGraphics());
-                                    }
-                                }
-                                JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                            } else {
-                                File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "old_rename_log");
-                                wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                                PrintWriter pw;
-                                pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
-                                FileReader fr = new FileReader(backupDir.getText() + SLA + orfField.getText() + SLA + "old_rename_log");
-                                int ch;
-                                int counter = 0;
-                                String[] str = new String[1024];
-                                while ((char) (ch = fr.read()) != '\t') {
-                                    pw.print((char) ch);
-                                    while ((char) (ch = fr.read()) != '\t') pw.print((char) ch);
-                                    pw.print('\t');
-                                    str[counter] = "";
-                                    while ((char) (ch = fr.read()) != '\t') {
-                                        str[counter] += (char) ch;
-                                        pw.print((char) ch);
-                                    }
-                                    pw.print('\t');
-                                    counter++;
-                                    while ((char) (ch = fr.read()) != '\n') pw.print((char) ch);
-                                    pw.print('\n');
-                                }
-                                fr.close();
-                                log.delete();
-                                for (int i = 0; i < newfiles.length; i++) {
-                                    File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
-                                    if (file.exists()) {
-                                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i]);
-                                        boolean flag = true;
-                                        if (wr.exists()) {
-                                            for (int j = 0; j < counter; j++) {
-                                                if (str[j].equals(newfiles[i])) flag = false;
-                                            }
-                                        }
-                                        if (flag) {
-                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
-                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
-                                            Calendar cl = Calendar.getInstance();
-                                            logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
-                                        }
-                                    }
+                            wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder);
+                            //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder);
+                            for (int i = 0; i < newfiles.length; i++) {
+                                File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
+                                if (file.exists()) {
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
+                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
+                                    Calendar cl = Calendar.getInstance();
+                                    logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
                                     prcounter++;
                                     progress.setValue(prcounter);
                                     progress.update(progress.getGraphics());
                                 }
-                                pw.print(logText);
-                                pw.print('\t' + "finished");
-                                pw.flush();
-                                pw.close();
-                                log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
-                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                                File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
-                                if (unuse.exists()) {
-                                    wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                                    if (!wr.exists()) {
+                            }
+                            PrintWriter pw;
+                            pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
+                            pw.print(logText);
+                            pw.print('\t' + "finished");
+                            pw.flush();
+                            pw.close();
+                            File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
+                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                            File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
+                            if (unuse.exists()) {
+                                wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                                String[] unusefiles = unuse.list();
+                                for (int i = 0; i < unusefiles.length; i++) {
+                                    File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                    prcounter++;
+                                    progress.setValue(prcounter);
+                                    progress.update(progress.getGraphics());
+                                }
+                            }
+                            JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            int ans = JOptionPane.showConfirmDialog(null, "すでにサーバー上に同じORF名のついたフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
+                            if (ans == JOptionPane.YES_OPTION) {
+                                progressFrame.setVisible(true);
+                                wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
+                                if (!wr.exists()) {
+                                    for (int i = 0; i < newfiles.length; i++) {
+                                        File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
+                                        if (file.exists()) {
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
+                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
+                                            Calendar cl = Calendar.getInstance();
+                                            logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
+                                            prcounter++;
+                                            progress.setValue(prcounter);
+                                            progress.update(progress.getGraphics());
+                                        }
+                                    }
+                                    PrintWriter pw;
+                                    pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
+                                    pw.print(logText);
+                                    pw.print('\t' + "finished");
+                                    pw.flush();
+                                    pw.close();
+                                    File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                                    File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
+                                    if (unuse.exists()) {
                                         wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
                                         //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                                        String[] unusefiles = unuse.list();
+                                        for (int i = 0; i < unusefiles.length; i++) {
+                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                            prcounter++;
+                                            progress.setValue(prcounter);
+                                            progress.update(progress.getGraphics());
+                                        }
                                     }
-                                    String[] unusefiles = unuse.list();
-                                    for (int i = 0; i < unusefiles.length; i++) {
-                                        File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                    JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    File log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "old_rename_log");
+                                    wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                    PrintWriter pw;
+                                    pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
+                                    FileReader fr = new FileReader(backupDir.getText() + SLA + orfField.getText() + SLA + "old_rename_log");
+                                    int ch;
+                                    int counter = 0;
+                                    String[] str = new String[1024];
+                                    while ((char) (ch = fr.read()) != '\t') {
+                                        pw.print((char) ch);
+                                        while ((char) (ch = fr.read()) != '\t') pw.print((char) ch);
+                                        pw.print('\t');
+                                        str[counter] = "";
+                                        while ((char) (ch = fr.read()) != '\t') {
+                                            str[counter] += (char) ch;
+                                            pw.print((char) ch);
+                                        }
+                                        pw.print('\t');
+                                        counter++;
+                                        while ((char) (ch = fr.read()) != '\n') pw.print((char) ch);
+                                        pw.print('\n');
+                                    }
+                                    fr.close();
+                                    log.delete();
+                                    for (int i = 0; i < newfiles.length; i++) {
+                                        File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
+                                        if (file.exists()) {
+                                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i]);
+                                            boolean flag = true;
+                                            if (wr.exists()) {
+                                                for (int j = 0; j < counter; j++) {
+                                                    if (str[j].equals(newfiles[i])) flag = false;
+                                                }
+                                            }
+                                            if (flag) {
+                                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
+                                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
+                                                Calendar cl = Calendar.getInstance();
+                                                logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
+                                            }
+                                        }
                                         prcounter++;
                                         progress.setValue(prcounter);
                                         progress.update(progress.getGraphics());
                                     }
+                                    pw.print(logText);
+                                    pw.print('\t' + "finished");
+                                    pw.flush();
+                                    pw.close();
+                                    log = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log");
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                                    File unuse = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
+                                    if (unuse.exists()) {
+                                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                        if (!wr.exists()) {
+                                            wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                            //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                                        }
+                                        String[] unusefiles = unuse.list();
+                                        for (int i = 0; i < unusefiles.length; i++) {
+                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                            prcounter++;
+                                            progress.setValue(prcounter);
+                                            progress.update(progress.getGraphics());
+                                        }
+                                    }
+                                    JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
                                 }
-                                JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                            }
-                        } else {
-                            JOptionPane.showMessageDialog(null, "アップロードを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    }
-                    progressFrame.dispose();
-                    wr.close();
-                    //wr2.close();
-                } catch (IOException e2) {
-                    // yeastサーバーへの書き込みエラー
-                    System.out.println(e2.getMessage());
-                    JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-                } catch (HttpException e2) {
-                    //yeastサーバーへのアクセスエラー
-                    System.out.println(e2.getMessage());
-                    JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } else if (command.equals(SELECT_PHOTO)) {
-            img = new Image[4];
-            imagedir = backupDir.getText() + SLA + orfField.getText();
-            if (!(renamed)) {
-                imagedir = inputDir.getText();
-                File path = new File(inputDir.getText());
-                String[] ls = path.list();
-                Pattern p = Pattern.compile(FILE_PATTERN);
-                String[] newName = new String[ls.length];
-
-                // PhotoNumComparetorで定義される順序でsortされた
-                // PhotoNumクラスの集合 -> PhotoGroup というMap
-                TreeMap fileMap = new TreeMap(new PhotoNumComparator());
-                for (int i = 0; i < ls.length; i++) {
-                    Matcher m = p.matcher(ls[i]);
-                    if (m.matches()) {
-                        // ファイルがMetaMorphのパターンにマッチしている場合
-                        for (int j = 1; j <= m.groupCount(); j++) {
-                            PhotoNum pn;
-                            // FP_FIRST_PHOTO_NUMの部分と、FP_SECOND_PHOTO_NUMの合成数
-                            if (m.group(FP_SECOND_PHOTO_NUM) == null) {
-                                // 手動の顕微鏡でとられた写真
-                                pn =
-                                        new PhotoNum(
-                                                new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                -1);
                             } else {
-                                // 自動顕微鏡でとられた写真
-                                pn =
-                                        new PhotoNum(
-                                                new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
-                            }
-                            // search treemap
-                            PhotoGroup pg;
-                            if (fileMap.containsKey(pn)) {
-                                // 既に同じ番号のPhotoGroupが存在する場合
-                                pg = (PhotoGroup) fileMap.get(pn);
-                                fileMap.remove(pn);
-                            } else {
-                                pg = new PhotoGroup();
-                            }
-                            pg.add(ls[i], m.group(2));
-                            fileMap.put(pn, pg);
-                        }
-                    }
-                }
-
-                Collection c = fileMap.values();
-                Iterator ci = c.iterator();
-                pgs2 = new PhotoGroup[c.size()];
-
-                int count = 0;
-                while (ci.hasNext()) {
-                    PhotoGroup pg = (PhotoGroup) ci.next();
-                    pg.newFile = pg.origFile;
-                    pgs2[count] = pg;
-                    count++;
-                }
-            }
-
-            currentimage = 0;
-            currentkind = 1;
-
-            JLabel settingLabel = new JLabel("now setting");
-            JPanel settingPane = new JPanel();
-            settingPane.add(settingLabel);
-            setPanelSize(settingPane, new Dimension(300, 80));
-            settingFrame = new JFrame("");
-            Container setPane = settingFrame.getContentPane();
-            settingFrame.setSize(300, 100);
-            setPane.add(settingPane);
-            settingFrame.setVisible(true);
-            settingLabel.update(settingLabel.getGraphics());
-
-            photoselectFrame = new PhotoselectFrame();
-            Container photoselectPane = photoselectFrame.getContentPane();
-            photoselectFrame.setSize(825, 750);
-            if (pgs2[currentimage].newFile[currentkind] != null) {
-                photoLabel = new JLabel(pgs2[currentimage].newFile[currentkind]);
-            } else {
-                photoLabel = new JLabel("none");
-            }
-            JPanel photonamePane = new JPanel();
-            setPanelSize(photonamePane, new Dimension(825, 30));
-            photonamePane.add(photoLabel);
-
-            try {
-                for (int i = 0; i < 3; i++) {
-                    if (pgs2[currentimage].newFile[i] != null) {
-                        if (!renamed) {
-                            String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                            Process proc = Runtime.getRuntime().exec(cmd);
-                            proc.waitFor();
-                            img[i] = getToolkit().getImage(imagedir + SLA + "im" + i + ".jpg");
-                        } else {
-                            img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                        }
-                    }
-                }
-                if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                    if (!renamed) {
-                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                        proc0.waitFor();
-                        proc1.waitFor();
-                        proc2.waitFor();
-                    } else {
-                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                        proc0.waitFor();
-                        proc1.waitFor();
-                        proc2.waitFor();
-                    }
-                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                    Process proc3 = Runtime.getRuntime().exec(cmd3);
-                    proc3.waitFor();
-                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                    Process proc4 = Runtime.getRuntime().exec(cmd4);
-                    proc4.waitFor();
-                    img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                }
-            } catch (IOException e2) {
-                displayErrorDialog(e2);
-            } catch (InterruptedException e2) {
-                displayErrorDialog(e2);
-            }
-
-            photocanvas = new PhotoCanvas();
-            photocanvas.setSize(new Dimension(825, 520));
-            JPanel photoPane = new JPanel();
-            setPanelSize(photoPane, new Dimension(825, 520));
-            photoPane.add(photocanvas);
-
-            conAButton = new JRadioButton("ConA");
-            conAButton.setSelected(true);
-            ActinButton = new JRadioButton("Actin");
-            DAPIButton = new JRadioButton("DAPI");
-            compositeButton = new JRadioButton("Composite");
-            ButtonGroup photogroup = new ButtonGroup();
-            photogroup.add(conAButton);
-            photogroup.add(ActinButton);
-            photogroup.add(DAPIButton);
-            photogroup.add(compositeButton);
-            conAButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    currentkind = 1;
-                    photoselectupdate();
-                }
-            });
-            ActinButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    currentkind = 0;
-                    photoselectupdate();
-                }
-            });
-            DAPIButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    currentkind = 2;
-                    photoselectupdate();
-                }
-            });
-            compositeButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    currentkind = 3;
-                    photoselectupdate();
-                }
-            });
-            JPanel kindSelectPane = new JPanel();
-            setPanelSize(kindSelectPane, new Dimension(825, 40));
-            kindSelectPane.add(conAButton);
-            kindSelectPane.add(ActinButton);
-            kindSelectPane.add(DAPIButton);
-            kindSelectPane.add(compositeButton);
-
-            checkUseornot = new JCheckBox("use this image", pgs2[currentimage].useornot);
-            checkUseornot.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    pgs2[currentimage].useornot = checkUseornot.isSelected();
-                }
-            });
-            JPanel checkPane = new JPanel();
-            setPanelSize(checkPane, new Dimension(825, 30));
-            checkPane.add(checkUseornot);
-
-            JButton previousButton = new JButton("previous image");
-            JButton nextButton = new JButton("next image");
-            sNm2 = new SpinnerNumberModel(1, 1, pgs2.length, 1);
-            Currentspinner = new JSpinner(sNm2);
-            JButton jumpButton = new JButton("jump");
-
-            previousButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (currentimage == 0) currentimage = pgs2.length - 1;
-                    else currentimage--;
-                    try {
-                        for (int i = 0; i < 3; i++) {
-                            if (pgs2[currentimage].newFile[i] != null) {
-                                if (!renamed) {
-                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                    Process proc = Runtime.getRuntime().exec(cmd);
-                                    proc.waitFor();
-                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                } else {
-                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                }
+                                JOptionPane.showMessageDialog(null, "アップロードを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
                             }
                         }
-                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            if (!f1.exists()) {
-                                if (!renamed) {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                } else {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                }
-                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                proc3.waitFor();
-                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                proc4.waitFor();
-                            }
-                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                        }
+                        progressFrame.dispose();
+                        wr.close();
+                        //wr2.close();
                     } catch (IOException e2) {
-                        displayErrorDialog(e2);
-                    } catch (InterruptedException e2) {
-                        displayErrorDialog(e2);
+                        // yeastサーバーへの書き込みエラー
+                        System.out.println(e2.getMessage());
+                        JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
+                    } catch (HttpException e2) {
+                        //yeastサーバーへのアクセスエラー
+                        System.out.println(e2.getMessage());
+                        JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
                     }
-                    photoselectupdate();
                 }
-            });
-            nextButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (currentimage == pgs2.length - 1) currentimage = 0;
-                    else currentimage++;
-                    try {
-                        for (int i = 0; i < 3; i++) {
-                            if (pgs2[currentimage].newFile[i] != null) {
-                                if (!renamed) {
-                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                    Process proc = Runtime.getRuntime().exec(cmd);
-                                    proc.waitFor();
-                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                } else {
-                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                }
-                            }
-                        }
-                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            if (!f1.exists()) {
-                                if (!renamed) {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                } else {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                }
-                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                proc3.waitFor();
-                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                proc4.waitFor();
-                            }
-                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                        }
-                    } catch (IOException e2) {
-                        displayErrorDialog(e2);
-                    } catch (InterruptedException e2) {
-                        displayErrorDialog(e2);
-                    }
-                    photoselectupdate();
-                }
-            });
-            jumpButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    currentimage = sNm2.getNumber().intValue() - 1;
-                    try {
-                        for (int i = 0; i < 3; i++) {
-                            if (pgs2[currentimage].newFile[i] != null) {
-                                if (!renamed) {
-                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                    Process proc = Runtime.getRuntime().exec(cmd);
-                                    proc.waitFor();
-                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                } else {
-                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                }
-                            }
-                        }
-                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            if (!f1.exists()) {
-                                if (!renamed) {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                } else {
-                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                    proc0.waitFor();
-                                    proc1.waitFor();
-                                    proc2.waitFor();
-                                }
-                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                proc3.waitFor();
-                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                proc4.waitFor();
-                            }
-                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                        }
-                    } catch (IOException e2) {
-                        displayErrorDialog(e2);
-                    } catch (InterruptedException e2) {
-                        displayErrorDialog(e2);
-                    }
-                    photoselectupdate();
-                }
-            });
-            JPanel imageselectPane = new JPanel();
-            setPanelSize(imageselectPane, new Dimension(825, 40));
-            imageselectPane.add(previousButton);
-            imageselectPane.add(nextButton);
-            imageselectPane.add(Currentspinner);
-            imageselectPane.add(jumpButton);
+                break;
+            case SELECT_PHOTO:
+                img = new Image[4];
+                imagedir = backupDir.getText() + SLA + orfField.getText();
+                if (!(renamed)) {
+                    imagedir = inputDir.getText();
+                    File path = new File(inputDir.getText());
+                    String[] ls = path.list();
+                    Pattern p = Pattern.compile(FILE_PATTERN);
+                    String[] newName = new String[ls.length];
 
-            JButton finishButton = new JButton("finish selection");
-            finishButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    File f1, f2;
-                    for (int i = 0; i < pgs2.length; i++) {
-                        f1 = new File(imagedir + SLA + "convert" + i + ".jpg");
-                        if (f1.exists()) f1.delete();
+                    // PhotoNumComparetorで定義される順序でsortされた
+                    // PhotoNumクラスの集合 -> PhotoGroup というMap
+                    TreeMap fileMap = new TreeMap(new PhotoNumComparator());
+                    for (int i = 0; i < ls.length; i++) {
+                        Matcher m = p.matcher(ls[i]);
+                        if (m.matches()) {
+                            // ファイルがMetaMorphのパターンにマッチしている場合
+                            for (int j = 1; j <= m.groupCount(); j++) {
+                                PhotoNum pn;
+                                // FP_FIRST_PHOTO_NUMの部分と、FP_SECOND_PHOTO_NUMの合成数
+                                if (m.group(FP_SECOND_PHOTO_NUM) == null) {
+                                    // 手動の顕微鏡でとられた写真
+                                    pn =
+                                            new PhotoNum(
+                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    -1);
+                                } else {
+                                    // 自動顕微鏡でとられた写真
+                                    pn =
+                                            new PhotoNum(
+                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
+                                }
+                                // search treemap
+                                PhotoGroup pg;
+                                if (fileMap.containsKey(pn)) {
+                                    // 既に同じ番号のPhotoGroupが存在する場合
+                                    pg = (PhotoGroup) fileMap.get(pn);
+                                    fileMap.remove(pn);
+                                } else {
+                                    pg = new PhotoGroup();
+                                }
+                                pg.add(ls[i], m.group(2));
+                                fileMap.put(pn, pg);
+                            }
+                        }
                     }
-                    for (int i = 0; i < 4; i++) {
-                        f1 = new File(imagedir + SLA + "to" + i + ".jpg");
-                        if (f1.exists()) f1.delete();
+
+                    Collection c = fileMap.values();
+                    Iterator ci = c.iterator();
+                    pgs2 = new PhotoGroup[c.size()];
+
+                    int count = 0;
+                    while (ci.hasNext()) {
+                        PhotoGroup pg = (PhotoGroup) ci.next();
+                        pg.newFile = pg.origFile;
+                        pgs2[count] = pg;
+                        count++;
                     }
+                }
+
+                currentimage = 0;
+                currentkind = 1;
+
+                JLabel settingLabel = new JLabel("now setting");
+                JPanel settingPane = new JPanel();
+                settingPane.add(settingLabel);
+                setPanelSize(settingPane, new Dimension(300, 80));
+                settingFrame = new JFrame("");
+                Container setPane = settingFrame.getContentPane();
+                settingFrame.setSize(300, 100);
+                setPane.add(settingPane);
+                settingFrame.setVisible(true);
+                settingLabel.update(settingLabel.getGraphics());
+
+                photoselectFrame = new PhotoselectFrame();
+                Container photoselectPane = photoselectFrame.getContentPane();
+                photoselectFrame.setSize(825, 750);
+                if (pgs2[currentimage].newFile[currentkind] != null) {
+                    photoLabel = new JLabel(pgs2[currentimage].newFile[currentkind]);
+                } else {
+                    photoLabel = new JLabel("none");
+                }
+                JPanel photonamePane = new JPanel();
+                setPanelSize(photonamePane, new Dimension(825, 30));
+                photonamePane.add(photoLabel);
+
+                try {
                     for (int i = 0; i < 3; i++) {
-                        f1 = new File(imagedir + SLA + "im" + i + ".jpg");
-                        if (f1.exists()) f1.delete();
-                    }
-                    f1 = new File(imagedir + SLA + "unusable");
-                    if (!f1.exists()) {
-                        f1.mkdir();
-                    }
-                    for (int j = 0; j < pgs2.length; j++) {
-                        for (int i = 0; i < 3; i++) {
-                            if (pgs2[j].newFile[i] != null) {
-                                if (!pgs2[j].useornot) {
-                                    f1 = new File(imagedir + SLA + pgs2[j].newFile[i]);
-                                    f2 = new File(imagedir + SLA + "unusable" + SLA + pgs2[j].newFile[i]);
-                                    f1.renameTo(f2);
-                                }
+                        if (pgs2[currentimage].newFile[i] != null) {
+                            if (!renamed) {
+                                String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                Process proc = Runtime.getRuntime().exec(cmd);
+                                proc.waitFor();
+                                img[i] = getToolkit().getImage(imagedir + SLA + "im" + i + ".jpg");
+                            } else {
+                                img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
                             }
                         }
                     }
-                    photoselectFrame.dispose();
+                    if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                        if (!renamed) {
+                            String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                            Process proc0 = Runtime.getRuntime().exec(cmd0);
+                            String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                            Process proc1 = Runtime.getRuntime().exec(cmd1);
+                            String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                            Process proc2 = Runtime.getRuntime().exec(cmd2);
+                            proc0.waitFor();
+                            proc1.waitFor();
+                            proc2.waitFor();
+                        } else {
+                            String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                            Process proc0 = Runtime.getRuntime().exec(cmd0);
+                            String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                            Process proc1 = Runtime.getRuntime().exec(cmd1);
+                            String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                            Process proc2 = Runtime.getRuntime().exec(cmd2);
+                            proc0.waitFor();
+                            proc1.waitFor();
+                            proc2.waitFor();
+                        }
+                        String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                        Process proc3 = Runtime.getRuntime().exec(cmd3);
+                        proc3.waitFor();
+                        String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                        Process proc4 = Runtime.getRuntime().exec(cmd4);
+                        proc4.waitFor();
+                        img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                    }
+                } catch (IOException e2) {
+                    displayErrorDialog(e2);
+                } catch (InterruptedException e2) {
+                    displayErrorDialog(e2);
                 }
-            });
-            JPanel finishPane = new JPanel();
-            setPanelSize(finishPane, new Dimension(825, 40));
-            finishPane.add(finishButton);
 
-            photoselectPane.setLayout(new BoxLayout(photoselectPane, BoxLayout.Y_AXIS));
-            photoselectPane.add(photonamePane);
-            photoselectPane.add(photoPane);
-            photoselectPane.add(kindSelectPane);
-            photoselectPane.add(checkPane);
-            photoselectPane.add(imageselectPane);
-            photoselectPane.add(finishPane);
-            settingFrame.dispose();
-            photoselectFrame.setVisible(true);
+                photocanvas = new PhotoCanvas();
+                photocanvas.setSize(new Dimension(825, 520));
+                JPanel photoPane = new JPanel();
+                setPanelSize(photoPane, new Dimension(825, 520));
+                photoPane.add(photocanvas);
+
+                conAButton = new JRadioButton("ConA");
+                conAButton.setSelected(true);
+                ActinButton = new JRadioButton("Actin");
+                DAPIButton = new JRadioButton("DAPI");
+                compositeButton = new JRadioButton("Composite");
+                ButtonGroup photogroup = new ButtonGroup();
+                photogroup.add(conAButton);
+                photogroup.add(ActinButton);
+                photogroup.add(DAPIButton);
+                photogroup.add(compositeButton);
+                conAButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        currentkind = 1;
+                        photoselectupdate();
+                    }
+                });
+                ActinButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        currentkind = 0;
+                        photoselectupdate();
+                    }
+                });
+                DAPIButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        currentkind = 2;
+                        photoselectupdate();
+                    }
+                });
+                compositeButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        currentkind = 3;
+                        photoselectupdate();
+                    }
+                });
+                JPanel kindSelectPane = new JPanel();
+                setPanelSize(kindSelectPane, new Dimension(825, 40));
+                kindSelectPane.add(conAButton);
+                kindSelectPane.add(ActinButton);
+                kindSelectPane.add(DAPIButton);
+                kindSelectPane.add(compositeButton);
+
+                checkUseornot = new JCheckBox("use this image", pgs2[currentimage].useornot);
+                checkUseornot.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        pgs2[currentimage].useornot = checkUseornot.isSelected();
+                    }
+                });
+                JPanel checkPane = new JPanel();
+                setPanelSize(checkPane, new Dimension(825, 30));
+                checkPane.add(checkUseornot);
+
+                JButton previousButton = new JButton("previous image");
+                JButton nextButton = new JButton("next image");
+                sNm2 = new SpinnerNumberModel(1, 1, pgs2.length, 1);
+                Currentspinner = new JSpinner(sNm2);
+                JButton jumpButton = new JButton("jump");
+
+                previousButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (currentimage == 0) currentimage = pgs2.length - 1;
+                        else currentimage--;
+                        try {
+                            for (int i = 0; i < 3; i++) {
+                                if (pgs2[currentimage].newFile[i] != null) {
+                                    if (!renamed) {
+                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                        Process proc = Runtime.getRuntime().exec(cmd);
+                                        proc.waitFor();
+                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                    } else {
+                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
+                                    }
+                                }
+                            }
+                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                                if (!f1.exists()) {
+                                    if (!renamed) {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    } else {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    }
+                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                    proc3.waitFor();
+                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                    proc4.waitFor();
+                                }
+                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            }
+                        } catch (IOException e2) {
+                            displayErrorDialog(e2);
+                        } catch (InterruptedException e2) {
+                            displayErrorDialog(e2);
+                        }
+                        photoselectupdate();
+                    }
+                });
+                nextButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (currentimage == pgs2.length - 1) currentimage = 0;
+                        else currentimage++;
+                        try {
+                            for (int i = 0; i < 3; i++) {
+                                if (pgs2[currentimage].newFile[i] != null) {
+                                    if (!renamed) {
+                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                        Process proc = Runtime.getRuntime().exec(cmd);
+                                        proc.waitFor();
+                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                    } else {
+                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
+                                    }
+                                }
+                            }
+                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                                if (!f1.exists()) {
+                                    if (!renamed) {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    } else {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    }
+                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                    proc3.waitFor();
+                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                    proc4.waitFor();
+                                }
+                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            }
+                        } catch (IOException e2) {
+                            displayErrorDialog(e2);
+                        } catch (InterruptedException e2) {
+                            displayErrorDialog(e2);
+                        }
+                        photoselectupdate();
+                    }
+                });
+                jumpButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        currentimage = sNm2.getNumber().intValue() - 1;
+                        try {
+                            for (int i = 0; i < 3; i++) {
+                                if (pgs2[currentimage].newFile[i] != null) {
+                                    if (!renamed) {
+                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                        Process proc = Runtime.getRuntime().exec(cmd);
+                                        proc.waitFor();
+                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                    } else {
+                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
+                                    }
+                                }
+                            }
+                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                                if (!f1.exists()) {
+                                    if (!renamed) {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    } else {
+                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                        proc0.waitFor();
+                                        proc1.waitFor();
+                                        proc2.waitFor();
+                                    }
+                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                    proc3.waitFor();
+                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                    proc4.waitFor();
+                                }
+                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            }
+                        } catch (IOException e2) {
+                            displayErrorDialog(e2);
+                        } catch (InterruptedException e2) {
+                            displayErrorDialog(e2);
+                        }
+                        photoselectupdate();
+                    }
+                });
+                JPanel imageselectPane = new JPanel();
+                setPanelSize(imageselectPane, new Dimension(825, 40));
+                imageselectPane.add(previousButton);
+                imageselectPane.add(nextButton);
+                imageselectPane.add(Currentspinner);
+                imageselectPane.add(jumpButton);
+
+                JButton finishButton = new JButton("finish selection");
+                finishButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        File f1, f2;
+                        for (int i = 0; i < pgs2.length; i++) {
+                            f1 = new File(imagedir + SLA + "convert" + i + ".jpg");
+                            if (f1.exists()) f1.delete();
+                        }
+                        for (int i = 0; i < 4; i++) {
+                            f1 = new File(imagedir + SLA + "to" + i + ".jpg");
+                            if (f1.exists()) f1.delete();
+                        }
+                        for (int i = 0; i < 3; i++) {
+                            f1 = new File(imagedir + SLA + "im" + i + ".jpg");
+                            if (f1.exists()) f1.delete();
+                        }
+                        f1 = new File(imagedir + SLA + "unusable");
+                        if (!f1.exists()) {
+                            f1.mkdir();
+                        }
+                        for (int j = 0; j < pgs2.length; j++) {
+                            for (int i = 0; i < 3; i++) {
+                                if (pgs2[j].newFile[i] != null) {
+                                    if (!pgs2[j].useornot) {
+                                        f1 = new File(imagedir + SLA + pgs2[j].newFile[i]);
+                                        f2 = new File(imagedir + SLA + "unusable" + SLA + pgs2[j].newFile[i]);
+                                        f1.renameTo(f2);
+                                    }
+                                }
+                            }
+                        }
+                        photoselectFrame.dispose();
+                    }
+                });
+                JPanel finishPane = new JPanel();
+                setPanelSize(finishPane, new Dimension(825, 40));
+                finishPane.add(finishButton);
+
+                photoselectPane.setLayout(new BoxLayout(photoselectPane, BoxLayout.Y_AXIS));
+                photoselectPane.add(photonamePane);
+                photoselectPane.add(photoPane);
+                photoselectPane.add(kindSelectPane);
+                photoselectPane.add(checkPane);
+                photoselectPane.add(imageselectPane);
+                photoselectPane.add(finishPane);
+                settingFrame.dispose();
+                photoselectFrame.setVisible(true);
+                break;
         }
     }
 
@@ -1626,27 +1638,35 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
         // originalの写真名を加える typeは、{FITC, Rh, DAPI}にpattern matchした部分
         public void add(String file, String type) {
-            if (type.equals("FITC")) {
-                origFile[CON_A] = file;
-            } else if (type.equals("Rh")) {
-                origFile[ACTINE] = file;
-            } else if (type.equals("DAPI")) {
-                origFile[DAPI] = file;
-            } else {
-                // do nothing
-                return;
+            switch (type) {
+                case "FITC":
+                    origFile[CON_A] = file;
+                    break;
+                case "Rh":
+                    origFile[ACTINE] = file;
+                    break;
+                case "DAPI":
+                    origFile[DAPI] = file;
+                    break;
+                default:
+                    // do nothing
+                    return;
             }
             count++;
         }
 
         // renameされた後の写真名を加える
         public void addNewFile(String file, String type) {
-            if (type.equals("FITC")) {
-                newFile[CON_A] = file;
-            } else if (type.equals("Rh")) {
-                newFile[ACTINE] = file;
-            } else if (type.equals("DAPI")) {
-                newFile[DAPI] = file;
+            switch (type) {
+                case "FITC":
+                    newFile[CON_A] = file;
+                    break;
+                case "Rh":
+                    newFile[ACTINE] = file;
+                    break;
+                case "DAPI":
+                    newFile[DAPI] = file;
+                    break;
             }
         }
     }
@@ -1699,26 +1719,35 @@ public class SCMDConverter extends JFrame implements ActionListener {
                 }
                 String orf = "";
 
-                if (gn.status.equals(GeneName.ST_DONE)) {
-                    geneNameField.setText(gn.gene_name);
-                    orf = gn.orf;
-                    orfMessage.setText("ORF is retrieved");
-                    flag = true;
-                    isReadyORF = true;
-                } else if (gn.status.equals(GeneName.ST_MULTIPLE)) {
-                    orfMessage.setText("cannot find an unique ORF");
-                } else if (gn.status.equals(GeneName.ST_NONE)) {
-                    orfMessage.setText("cannot find any ORF");
-                } else if (gn.status.equals(GeneName.ST_NETWORK_ERROR)) {
-                    orfMessage.setText("network connection error");
-                } else if (gn.status.equals(GeneName.ST_NOFILE_ERROR)) {
-                    orfMessage.setText("orf_descriptions.tab is not exist");
-                } else if (gn.status.equals(GeneName.ST_FILEREAD_ERROR)) {
-                    orfMessage.setText("error occured while reading orf_descriptions.tab");
-                } else if (gn.status.equals(GeneName.ST_NOFILE_ERROR2)) {
-                    orfMessage.setText("platetable.tab is not exist");
-                } else if (gn.status.equals(GeneName.ST_FILEREAD_ERROR2)) {
-                    orfMessage.setText("error occured while reading platetable.tab");
+                switch (gn.status) {
+                    case GeneName.ST_DONE:
+                        geneNameField.setText(gn.gene_name);
+                        orf = gn.orf;
+                        orfMessage.setText("ORF is retrieved");
+                        flag = true;
+                        isReadyORF = true;
+                        break;
+                    case GeneName.ST_MULTIPLE:
+                        orfMessage.setText("cannot find an unique ORF");
+                        break;
+                    case GeneName.ST_NONE:
+                        orfMessage.setText("cannot find any ORF");
+                        break;
+                    case GeneName.ST_NETWORK_ERROR:
+                        orfMessage.setText("network connection error");
+                        break;
+                    case GeneName.ST_NOFILE_ERROR:
+                        orfMessage.setText("orf_descriptions.tab is not exist");
+                        break;
+                    case GeneName.ST_FILEREAD_ERROR:
+                        orfMessage.setText("error occured while reading orf_descriptions.tab");
+                        break;
+                    case GeneName.ST_NOFILE_ERROR2:
+                        orfMessage.setText("platetable.tab is not exist");
+                        break;
+                    case GeneName.ST_FILEREAD_ERROR2:
+                        orfMessage.setText("error occured while reading platetable.tab");
+                        break;
                 }
 
                 orfField.setText(orf);

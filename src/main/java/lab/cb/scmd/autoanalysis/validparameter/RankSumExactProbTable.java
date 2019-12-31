@@ -17,24 +17,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class RankSumExactProbTable {
-    HashMap tableList = new HashMap();
+class RankSumExactProbTable {
+    private HashMap<Integer, HashMap<Object, ArrayList<Double>>> tableList = new HashMap<Integer, HashMap<Object, ArrayList<Double>>>();
 
-    public RankSumExactProbTable() {
+    RankSumExactProbTable() {
     }
 
-    public ArrayList getTable(int controlSize, int mutantSize) throws IOException {
-        if (tableList.containsKey(new Integer(controlSize)) == false) {
-            tableList.put(new Integer(controlSize), new HashMap());
+    ArrayList<Double> getTable(int controlSize, int mutantSize) throws IOException {
+        if (!tableList.containsKey(controlSize)) {
+            tableList.put(controlSize, new HashMap<>());
         }
-        HashMap table = (HashMap) tableList.get(new Integer(controlSize));
-        if (table.containsKey(new Integer(mutantSize)) == false) {
-            table.put(new Integer(mutantSize), readExactProbTable(controlSize, mutantSize));
+        HashMap<Object, ArrayList<Double>> table = tableList.get(controlSize);
+        if (!table.containsKey(mutantSize)) {
+            table.put(mutantSize, readExactProbTable(controlSize, mutantSize));
         }
-        return (ArrayList) table.get(new Integer(mutantSize));
+        return table.get(mutantSize);
     }
 
-    private ArrayList readExactProbTable(int controlSize, int mutantSize) throws IOException {
+    private ArrayList<Double> readExactProbTable(int controlSize, int mutantSize) throws IOException {
         String filename = "./table/table" + controlSize + "_" + mutantSize + ".xls";
         BufferedReader br = new BufferedReader(new FileReader(filename));
         String buf = br.readLine();
@@ -47,11 +47,11 @@ public class RankSumExactProbTable {
             System.err.println("wrong exact probability table.");
             System.exit(-1);
         }
-        ArrayList table = new ArrayList();
+        ArrayList<Double> table = new ArrayList<>();
         while ((buf = br.readLine()) != null) {
             line = buf.split("\t");
             if (line.length < 2) break;
-            table.add(new Double(Double.parseDouble(line[1])));
+            table.add(Double.parseDouble(line[1]));
         }
         return table;
     }
