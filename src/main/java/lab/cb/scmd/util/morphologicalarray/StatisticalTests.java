@@ -22,18 +22,18 @@ public class StatisticalTests {
     }
 
     static public double max(Double[] data) {
-        double max = data[0].doubleValue();
+        double max = data[0];
         for (int i = 1; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+            double d = data[i];
             if (d > max) max = d;
         }
         return max;
     }
 
     static public double min(Double[] data) {
-        double min = data[0].doubleValue();
+        double min = data[0];
         for (int i = 1; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+            double d = data[i];
             if (d < min) min = d;
         }
         return min;
@@ -53,7 +53,7 @@ public class StatisticalTests {
         double sum_of_squares = 0;
         int n = 0;
         for (int i = 0; i < data.length; ++i) {
-            double x = data[i].doubleValue();
+            double x = data[i];
             x -= tmp_exp;
             tmp_exp += x / (double) (i + 1);
             sum_of_squares += i * x * x / (double) (i + 1);
@@ -61,8 +61,8 @@ public class StatisticalTests {
         sum_of_squares = Math.sqrt(sum_of_squares / (data.length - 1));
 
         Double[] EandSD = new Double[2];
-        EandSD[0] = new Double(tmp_exp);//expectation
-        EandSD[1] = new Double(sum_of_squares);//standard deviation
+        EandSD[0] = tmp_exp;//expectation
+        EandSD[1] = sum_of_squares;//standard deviation
         return EandSD;
     }
 
@@ -73,8 +73,8 @@ public class StatisticalTests {
      */
     static public double getGeometricMean(Double[] data) {
         double mean = 1;
-        for (int i = 0; i < data.length; ++i) {
-            mean *= data[i].doubleValue();
+        for (Double datum : data) {
+            mean *= datum;
             //System.out.println(data[i].doubleValue()+"\t");
         }
         return Math.pow(mean, 1 / (double) data.length);
@@ -88,22 +88,21 @@ public class StatisticalTests {
     static public Double[] getStandardizedData(Double[] data) {
         Double[] standard = new Double[data.length];
         Double[] ESD = getEandSD(data);
-        if (ESD[1].doubleValue() == 0) return data;
+        if (ESD[1] == 0) return data;
         for (int i = 0; i < data.length; ++i) {
-            standard[i] = new Double((data[i].doubleValue() - ESD[0].doubleValue()) / ESD[1].doubleValue());
+            standard[i] = (data[i] - ESD[0]) / ESD[1];
         }
         return standard;
     }
 
     static public double getSampleSkewness(Double[] data) throws SCMDException {
         Double[] ESD = getEandSD(data);
-        double sampleMean = ESD[0].doubleValue();
-        if (ESD[1].doubleValue() == 0) {
+        double sampleMean = ESD[0];
+        if (ESD[1] == 0) {
             return 0.0;
         }
         double a = 0, b = 0;
-        for (int i = 0; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+        for (double d : data) {
             a += (d - sampleMean) * (d - sampleMean) * (d - sampleMean);
             b += (d - sampleMean) * (d - sampleMean);
         }
@@ -123,13 +122,12 @@ public class StatisticalTests {
 
     static public double getSampleKurtosis(Double[] data) throws SCMDException {
         Double[] ESD = getEandSD(data);
-        double sampleMean = ESD[0].doubleValue();
-        if (ESD[1].doubleValue() == 0) {
+        double sampleMean = ESD[0];
+        if (ESD[1] == 0) {
             return 0.0;
         }
         double a = 0, b = 0;
-        for (int i = 0; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+        for (double d : data) {
             a += (d - sampleMean) * (d - sampleMean) * (d - sampleMean) * (d - sampleMean);
             b += (d - sampleMean) * (d - sampleMean);
         }
@@ -150,8 +148,7 @@ public class StatisticalTests {
     static public double percentileRankFromLower(Double[] data, double x) {
         int count_bigger = 0;
         int count_same = 0;
-        for (int i = 0; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+        for (double d : data) {
             if (d > x) ++count_bigger;
             if (d == x) ++count_same;
         }
@@ -162,16 +159,15 @@ public class StatisticalTests {
         double intervalLength = (max - min) / (double) n_box;
         Integer[] histogram = new Integer[n_box + 2];
         for (int i = 0; i < n_box + 2; ++i) {
-            histogram[i] = new Integer(0);
+            histogram[i] = 0;
         }
-        for (int i = 0; i < data.length; ++i) {
-            double d = data[i].doubleValue();
+        for (double d : data) {
             int boxNum = (int) Math.floor((d - min) / intervalLength);
             if (d < min) boxNum = 0;
             else if (d >= max) boxNum = n_box + 1;
             else boxNum++;
-            int count = histogram[boxNum].intValue();
-            histogram[boxNum] = new Integer(count + 1);
+            int count = histogram[boxNum];
+            histogram[boxNum] = count + 1;
         }
         return histogram;
     }
@@ -180,8 +176,8 @@ public class StatisticalTests {
 
     static public double getMode(Double[] data) {
         Double[] ESD = getEandSD(data);
-        double E = ESD[0].doubleValue();
-        double SD = ESD[1].doubleValue();
+        double E = ESD[0];
+        double SD = ESD[1];
         double min = E - 3 * SD;
         double max = E + 3 * SD;
         double partitionLength = (max - min) / (double) numberOfPartitions;
@@ -189,7 +185,7 @@ public class StatisticalTests {
         int max_data = 0;
         double mode = 0;
         for (int i = 1; i < numberOfPartitions; ++i) {
-            int num_of_data = histogram[i].intValue();
+            int num_of_data = histogram[i];
             if (num_of_data > max_data) {
                 max_data = num_of_data;
                 mode = min + ((i - 1) + 0.5) * partitionLength;
@@ -205,7 +201,7 @@ public class StatisticalTests {
         int max_data = 0;
         double mode = 0;
         for (int i = 1; i < numberOfPartitions; ++i) {
-            int num_of_data = histogram[i].intValue();
+            int num_of_data = histogram[i];
             if (num_of_data > max_data) {
                 max_data = num_of_data;
                 mode = min + ((i - 1) + 0.5) * partitionLength;
@@ -222,18 +218,18 @@ public class StatisticalTests {
             isMinus = true;
         }
         Double[] coefficients = new Double[6];
-        coefficients[0] = new Double(0.0498673470);
-        coefficients[1] = new Double(0.0211410061);
-        coefficients[2] = new Double(0.0032776263);
-        coefficients[3] = new Double(0.0000380036);
-        coefficients[4] = new Double(0.0000488906);
-        coefficients[5] = new Double(0.0000053830);
+        coefficients[0] = 0.0498673470;
+        coefficients[1] = 0.0211410061;
+        coefficients[2] = 0.0032776263;
+        coefficients[3] = 0.0000380036;
+        coefficients[4] = 0.0000488906;
+        coefficients[5] = 0.0000053830;
 
         double sum = 1;
         double xpow = 1;
         for (int i = 0; i < 6; ++i) {
             xpow *= x;
-            sum += coefficients[i].doubleValue() * xpow;
+            sum += coefficients[i] * xpow;
         }
         double returnValue = 1 - 0.5 * Math.pow(sum, -16);
         if (isMinus) {
@@ -252,7 +248,7 @@ public class StatisticalTests {
             System.err.println("Error in StatisticalTests.HastingsApproximationForReverseStandardNormalDF(" + p + ") assert(0<x<1)");
             System.exit(-1);
         }
-        int sign = 1;
+        int sign;
         if (p <= 0.5) {
             sign = -1;
         } else {

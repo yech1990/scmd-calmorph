@@ -25,18 +25,13 @@ public class BasicTable implements Table {
         _colSize = labelArray.length;
         for (int i = 0; i < _colSize; i++) {
             String colLabel = (String) labelArray[i];
-            _colLabelToColIndexMap.put(colLabel, new Integer(i));
+            _colLabelToColIndexMap.put(colLabel, i);
             _colLabel.add(colLabel);
         }
     }
 
-    public void addColLabel(String colLabel) {
-        _colLabelToColIndexMap.put(colLabel, new Integer(_colLabel.size()));
-        _colLabel.add(colLabel);
-    }
-
     public String getColLabel(int n) {
-        return (String) _colLabel.get(n);
+        return _colLabel.get(n);
     }
 
     protected void setRowLabel(AbstractCollection labelList) {
@@ -47,19 +42,19 @@ public class BasicTable implements Table {
     protected void setRowLabel(Object[] labelArray) {
         for (int i = 0; i < _rows.size(); i++) {
             String rowLabel = (String) labelArray[i];
-            _rowLabelToRowIndexMap.put(rowLabel, new Integer(i));
+            _rowLabelToRowIndexMap.put(rowLabel, i);
             _rowLabel.add(rowLabel);
         }
         _hasRowLabel = true;
     }
 
     public void addRowLabel(String rowLabel) {
-        _rowLabelToRowIndexMap.put(rowLabel, new Integer(_colLabel.size()));
+        _rowLabelToRowIndexMap.put(rowLabel, _colLabel.size());
         _rowLabel.add(rowLabel);
     }
 
     public String getRowLabel(int n) {
-        return (String) _rowLabel.get(n);
+        return _rowLabel.get(n);
     }
 
     /*
@@ -68,7 +63,7 @@ public class BasicTable implements Table {
      * @see lab.cb.scmd.util.table.Table#getCell(int, int)
      */
     public Cell getCell(int row, int col) {
-        return isValidCoordinates(row, col) ? (Cell) ((Vector) _rows.get(row))
+        return isValidCoordinates(row, col) ? (Cell) _rows.get(row)
                 .get(col) : null;
     }
 
@@ -89,24 +84,18 @@ public class BasicTable implements Table {
     }
 
     public int getColIndex(String colLabel) {
-        Integer col = (Integer) _colLabelToColIndexMap.get(colLabel);
-        if (col == null)
-            return -1;
-        else
-            return col.intValue();
+        Integer col = _colLabelToColIndexMap.get(colLabel);
+        return Objects.requireNonNullElse(col, -1);
     }
 
     public int getRowIndex(String rowLabel) {
-        Integer row = (Integer) _rowLabelToRowIndexMap.get(rowLabel);
-        if (row == null)
-            return -1;
-        else
-            return row.intValue();
+        Integer row = _rowLabelToRowIndexMap.get(rowLabel);
+        return Objects.requireNonNullElse(row, -1);
     }
 
     public void setCell(Cell cell, int row, int col) throws OutOfRangeException {
         if (isValidCoordinates(row, col)) {
-            Vector hrzline = (Vector) _rows.get(row);
+            Vector hrzline = _rows.get(row);
             hrzline.set(col, cell);
         } else {
             throw new OutOfRangeException("out of range: (" + row + ", " + col
@@ -118,11 +107,11 @@ public class BasicTable implements Table {
         return row >= 0 && row < _rows.size() && col >= 0 && col < _colSize;
     }
 
-    public final Vector getColLabelList() {
+    public final Vector<String> getColLabelList() {
         return _colLabel;
     }
 
-    public final Vector getRowLabelList() {
+    public final Vector<String> getRowLabelList() {
         return _rowLabel;
     }
 
@@ -155,18 +144,9 @@ public class BasicTable implements Table {
             return new VerticalTableRangeIterator(this, 0, 0, 0);
     }
 
-    public List getRow(String rowLabel) {
-        TableIterator ti = getHorisontalIterator(rowLabel);
-        LinkedList list = new LinkedList();
-        for (; ti.hasNext(); ) {
-            list.add(ti.nextCell());
-        }
-        return list;
-    }
-
-    public List getRow(int n) {
+    public List<Cell> getRow(int n) {
         TableIterator ti = getHorisontalIterator(n);
-        LinkedList list = new LinkedList();
+        LinkedList<Cell> list = new LinkedList<>();
         for (; ti.hasNext(); ) {
             list.add(ti.nextCell());
         }
@@ -217,12 +197,12 @@ public class BasicTable implements Table {
     }
 
     String _tableName = "";
-    Vector _rows = new Vector();
+    Vector<Vector> _rows = new Vector<>();
     int _colSize = 0;
-    Vector _colLabel = new Vector();
-    Vector _rowLabel = new Vector();
-    HashMap _colLabelToColIndexMap = new HashMap();
-    HashMap _rowLabelToRowIndexMap = new HashMap();
+    Vector<String> _colLabel = new Vector<>();
+    Vector<String> _rowLabel = new Vector<>();
+    HashMap<String, Integer> _colLabelToColIndexMap = new HashMap<>();
+    HashMap<String, Integer> _rowLabelToRowIndexMap = new HashMap<>();
     boolean _hasRowLabel = false;
 
     String DELIMITER = "\t";

@@ -2,7 +2,6 @@ package lab.cb.scmd.util.analysis.clique.graph;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -20,11 +19,11 @@ import java.util.TreeSet;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class AdjacencyListGraph extends GraphStructure {
-    protected HashMap vertexList = new HashMap();
+    protected HashMap<Integer, VertexDescriptor> vertexList = new HashMap<>();
     /*
      * adjacencyList -- (id, TreeSet (id1, id2,...))
      */
-    protected HashMap adjacencyList = new HashMap();
+    protected HashMap<Integer, TreeSet<Integer>> adjacencyList = new HashMap<>();
 
     public AdjacencyListGraph() {
 
@@ -33,7 +32,7 @@ public class AdjacencyListGraph extends GraphStructure {
     public void addVertex(VertexDescriptor v) {
         Integer id = v.getId();
         vertexList.put(id, v);
-        TreeSet ts = new TreeSet();
+        TreeSet<Integer> ts = new TreeSet<>();
         adjacencyList.put(id, ts);
     }
 
@@ -42,7 +41,7 @@ public class AdjacencyListGraph extends GraphStructure {
     }
 
     public VertexDescriptor getVertex(Integer vertexId) {
-        return (VertexDescriptor) vertexList.get(vertexId);
+        return vertexList.get(vertexId);
     }
 
     public boolean isInclude(Integer vertexId) {
@@ -50,14 +49,14 @@ public class AdjacencyListGraph extends GraphStructure {
     }
 
     public void addAdjacency(Integer vsid, Integer veid) {
-        TreeSet ts;
-        if (isDirectedGraph == false) {
-            ts = (TreeSet) adjacencyList.get(vsid);
+        TreeSet<Integer> ts;
+        if (!isDirectedGraph) {
+            ts = adjacencyList.get(vsid);
             ts.add(veid);
-            ts = (TreeSet) adjacencyList.get(veid);
+            ts = adjacencyList.get(veid);
             ts.add(vsid);
         } else {
-            ts = (TreeSet) adjacencyList.get(vsid);
+            ts = adjacencyList.get(vsid);
             ts.add(veid);
         }
     }
@@ -67,11 +66,11 @@ public class AdjacencyListGraph extends GraphStructure {
     }
 
     public Object[] getAdjacency(Integer vertexId) {
-        return ((TreeSet) adjacencyList.get(vertexId)).toArray();
+        return (adjacencyList.get(vertexId)).toArray();
     }
 
     public boolean hasAdjacency(Integer v1, Integer v2) {
-        if (v1.intValue() > v2.intValue()) {
+        if (v1 > v2) {
             Integer tmp = v1;
             v1 = v2;
             v2 = tmp;
@@ -89,18 +88,16 @@ public class AdjacencyListGraph extends GraphStructure {
         PrintStream fOut = System.out;
         VertexDescriptor v;
 
-        Set keyset = vertexList.keySet();
-        Iterator keyiterator = keyset.iterator();
-        while (keyiterator.hasNext()) {
-            Integer id = (Integer) keyiterator.next();
-            v = (VertexDescriptor) vertexList.get(id);
+        Set<Integer> keyset = vertexList.keySet();
+        for (Integer id : keyset) {
+            v = vertexList.get(id);
             fOut.print(v.getName() + "(" + v.getId() + ")" + ": ");
             Object[] ss = getAdjacency(id);
             //TreeSet ts = (TreeSet)adjacencyList.get(id);
             //Iterator iterator = ts.iterator();
             //while( iterator.hasNext() ) {
             for (Object s : ss) {
-                v = (VertexDescriptor) vertexList.get(s);
+                v = vertexList.get(s);
                 fOut.print(v.getName() + "(" + v.getId() + ")" + ", ");
             }
             //}
@@ -108,19 +105,19 @@ public class AdjacencyListGraph extends GraphStructure {
         }
     }
 
-    public Set getVertexIds() {
+    public Set<Integer> getVertexIds() {
         return vertexList.keySet();
     }
 
     public static void main(String[] args) {
         AdjacencyListGraph g = new AdjacencyListGraph();
 
-        VertexDescriptor v1 = new VertexDescriptor(new Integer(1), "a");
-        VertexDescriptor v2 = new VertexDescriptor(new Integer(2), "b");
-        VertexDescriptor v3 = new VertexDescriptor(new Integer(3), "c");
-        VertexDescriptor v4 = new VertexDescriptor(new Integer(4), "d");
-        VertexDescriptor v5 = new VertexDescriptor(new Integer(5), "e");
-        VertexDescriptor v6 = new VertexDescriptor(new Integer(6), "f");
+        VertexDescriptor v1 = new VertexDescriptor(1, "a");
+        VertexDescriptor v2 = new VertexDescriptor(2, "b");
+        VertexDescriptor v3 = new VertexDescriptor(3, "c");
+        VertexDescriptor v4 = new VertexDescriptor(4, "d");
+        VertexDescriptor v5 = new VertexDescriptor(5, "e");
+        VertexDescriptor v6 = new VertexDescriptor(6, "f");
 
         g.addVertex(v1);
         g.addVertex(v2);

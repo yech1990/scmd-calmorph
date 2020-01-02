@@ -33,8 +33,8 @@ public class PowerTransformation {
     public PowerTransformation(Double[] d) throws SCMDException, IOException {
         originalData = d;
         Double[] ESD = StatisticalTests.getEandSD(originalData);
-        originalMean = ESD[0].doubleValue();
-        originalSD = ESD[1].doubleValue();
+        originalMean = ESD[0];
+        originalSD = ESD[1];
         standardizedData = StatisticalTests.getStandardizedData(originalData);
         findBestParameter();
 
@@ -43,7 +43,7 @@ public class PowerTransformation {
     private Double[] reverseStandardize(Double[] data) {
         Double[] reversed = new Double[data.length];
         for (int i = 0; i < data.length; ++i) {
-            reversed[i] = new Double(data[i].doubleValue() * originalSD + originalMean);
+            reversed[i] = data[i] * originalSD + originalMean;
         }
         return reversed;
     }
@@ -86,7 +86,7 @@ public class PowerTransformation {
             int j = 0;
             double a = minA + j * (maxA - minA) / (double) m;
             Double[] transformedData = normalizedTransform(p, a);
-            double mlesd = StatisticalTests.getEandSD(transformedData)[1].doubleValue();
+            double mlesd = StatisticalTests.getEandSD(transformedData)[1];
             //double mlesd=StatisticalTests.getSampleSkewness(transformedData);
             debug.print(mlesd + "\t");
             //double normalityScore = evaluateNormality(transformedData);
@@ -112,7 +112,7 @@ public class PowerTransformation {
     }
 
     protected Double transform(double p, double a, Double originalDataPoint) throws SCMDException {
-        double x = originalDataPoint.doubleValue();
+        double x = originalDataPoint;
         if (x - a <= 0) {
             System.err.println("Error in PowerTransformation.transform() 0<x-a=" + (x - a) + " x=" + x + " a=" + a);
             throw new SCMDException("Error in PowerTransformation.transform() 0<x-a=" + (x - a) + " x=" + x + " a=" + a);
@@ -123,16 +123,12 @@ public class PowerTransformation {
         if (-Double.MAX_VALUE < d && d < Double.MAX_VALUE) {
         } else {
             throw new SCMDException("PowerTransformation.transform() p=" + p + " a=" + a + " =" + d);
-            /***
-             System.err.println("PowerTransformation.transform() p="+p+" a="+a+" ="+d);
-             System.exit(-1);
-             ***/
         }
-        return new Double(d);
+        return d;
     }
 
     protected Double reverseTransform(double p, double a, Double transformedDataPoint) {
-        double y = transformedDataPoint.doubleValue();
+        double y = transformedDataPoint;
         double x = -19780426;
         if (p != 0) {
             if (y * p + 1 == 0) x = 0;
@@ -143,7 +139,7 @@ public class PowerTransformation {
             System.err.println("PowerTransformation.reverseTransform() p=" + p + " a=" + a + " x= " + x + " y=" + y);
             System.exit(-1);
         }
-        return new Double(x);
+        return x;
     }
 
     protected Double[] transform(double p, double a) throws SCMDException {
@@ -163,13 +159,13 @@ public class PowerTransformation {
         Double[] transformedData = transform(p, a);
         Double[] shiftedData = new Double[originalData.length];
         for (int i = 0; i < originalData.length; ++i) {
-            shiftedData[i] = new Double(standardizedData[i].doubleValue() - a);
+            shiftedData[i] = standardizedData[i] - a;
             //shiftedData[i]=new Double(originalData[i].doubleValue()-a);
         }
         double gm = StatisticalTests.getGeometricMean(shiftedData);
         gm = Math.pow(gm, p - 1);
         for (int i = 0; i < transformedData.length; ++i) {
-            transformedData[i] = new Double(transformedData[i].doubleValue() / gm);
+            transformedData[i] = transformedData[i] / gm;
         }
         return transformedData;
     }
@@ -202,23 +198,23 @@ public class PowerTransformation {
         //System.err.println("no power transfomation.");
         //Double[] transformedData=getOriginalData();//***
         Double[] ESD = StatisticalTests.getEandSD(transformedData);
-        double mean = ESD[0].doubleValue();
-        double sd = ESD[1].doubleValue();
+        double mean = ESD[0];
+        double sd = ESD[1];
         Double[] criticalValues = new Double[14];
-        criticalValues[0] = new Double(up5 * sd + mean);
-        criticalValues[1] = new Double(up4 * sd + mean);
-        criticalValues[2] = new Double(up32 * sd + mean);
-        criticalValues[3] = new Double(up35 * sd + mean);
-        criticalValues[4] = new Double(up3 * sd + mean);
-        criticalValues[5] = new Double(up25 * sd + mean);
-        criticalValues[6] = new Double(up2 * sd + mean);
-        criticalValues[7] = new Double(-up2 * sd + mean);
-        criticalValues[8] = new Double(-up25 * sd + mean);
-        criticalValues[9] = new Double(-up3 * sd + mean);
-        criticalValues[10] = new Double(-up35 * sd + mean);
-        criticalValues[11] = new Double(-up32 * sd + mean);
-        criticalValues[12] = new Double(-up4 * sd + mean);
-        criticalValues[13] = new Double(-up5 * sd + mean);
+        criticalValues[0] = up5 * sd + mean;
+        criticalValues[1] = up4 * sd + mean;
+        criticalValues[2] = up32 * sd + mean;
+        criticalValues[3] = up35 * sd + mean;
+        criticalValues[4] = up3 * sd + mean;
+        criticalValues[5] = up25 * sd + mean;
+        criticalValues[6] = up2 * sd + mean;
+        criticalValues[7] = -up2 * sd + mean;
+        criticalValues[8] = -up25 * sd + mean;
+        criticalValues[9] = -up3 * sd + mean;
+        criticalValues[10] = -up35 * sd + mean;
+        criticalValues[11] = -up32 * sd + mean;
+        criticalValues[12] = -up4 * sd + mean;
+        criticalValues[13] = -up5 * sd + mean;
         criticalValues = reverseTransform(criticalValues);//***
         criticalValues = reverseStandardize(criticalValues);//only if standardized -1116
         return criticalValues;
@@ -250,13 +246,13 @@ public class PowerTransformation {
 
         Double[] transformedData = getTransformedData();
         Double[] ESD = StatisticalTests.getEandSD(transformedData);
-        double mean = ESD[0].doubleValue();
-        double sd = ESD[1].doubleValue();
+        double mean = ESD[0];
+        double sd = ESD[1];
         pw.print(mean + t + sd + t);
         pw.print(evaluateNormality(getTransformedData()) + t);
         Double[] crt = getOneSidedCriticalValues();
         for (int i = crt.length - 1; i >= 0; --i) {
-            pw.print(crt[i].doubleValue() + t);
+            pw.print(crt[i] + t);
         }
     }
 

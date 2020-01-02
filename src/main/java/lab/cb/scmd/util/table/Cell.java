@@ -39,7 +39,7 @@ public class Cell {
     }
 
     public void setValue(Double value) {
-        _dvalue = value.doubleValue();
+        _dvalue = value;
         _value = value.toString();
         _haveTriedToTransformToDouble = true;
     }
@@ -53,7 +53,7 @@ public class Cell {
 
     public boolean isValidAsDouble() {
         if (_haveTriedToTransformToDouble)
-            return (Double.isNaN(_dvalue) == false)
+            return (!Double.isNaN(_dvalue))
                     && (_dvalue != Double.NEGATIVE_INFINITY)
                     && (_dvalue != Double.POSITIVE_INFINITY);
         else {
@@ -70,8 +70,7 @@ public class Cell {
         try {
             if (!_haveTriedToTransformToDouble) {
                 _haveTriedToTransformToDouble = true;
-                Double d = new Double(_value);
-                _dvalue = d.doubleValue();
+                _dvalue = Double.parseDouble(_value);
             }
         } catch (NumberFormatException e) {
             _dvalue = Double.NaN;

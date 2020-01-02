@@ -57,13 +57,13 @@ public class Makexls {
     public void process() {
         setPrintFile();
         Arrays.sort(mutants);
-        for (int i = 0; i < mutants.length; i++) {
-            File mutantxls = new File(path + "/" + mutants[i] + "/" + mutants[i] + ".xls");
+        for (String mutant : mutants) {
+            File mutantxls = new File(path + "/" + mutant + "/" + mutant + ".xls");
             if (!mutantxls.exists()) continue;
-            System.out.println(mutants[i]);
+            System.out.println(mutant);
             System.out.flush();
-            mp = new Mutantprocess(mutants[i]);
-            mp.getcellData(mutants[i]);
+            mp = new Mutantprocess(mutant);
+            mp.getcellData(mutant);
             mp.printDataXLS();
             mp.printSDDataXLS();
         }
@@ -139,7 +139,9 @@ public class Makexls {
     }
 
     public class Mutantprocess {
-        Vector Cgroup, Agroup, Dgroup;
+        Vector<String> Cgroup;
+        Vector<String> Agroup;
+        Vector<String> Dgroup;
         Vector[] versparam;
         double[] versparammean;
         Vector[] Cparam;
@@ -153,9 +155,9 @@ public class Makexls {
 
         public Mutantprocess(String mutant) {
             this.mutant = mutant;
-            Cgroup = new Vector();
-            Dgroup = new Vector();
-            Agroup = new Vector();
+            Cgroup = new Vector<>();
+            Dgroup = new Vector<String>();
+            Agroup = new Vector<>();
             versparam = new Vector[26];
             for (int i = 0; i < versparam.length; i++) {
                 versparam[i] = new Vector();
@@ -176,7 +178,7 @@ public class Makexls {
 
         public void getcellData(String mutant) {
             int ch;
-            String data;
+            StringBuilder data;
             try {
                 BufferedReader fr = new BufferedReader(new FileReader(path + "/" + mutant + "/" + mutant + ".xls"));
                 while ((char) (ch = fr.read()) != '\n') ;
@@ -184,29 +186,29 @@ public class Makexls {
                     for (int j = 0; j < 2; j++) {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
-                    data = "";
-                    while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                    Cgroup.add(data);
+                    data = new StringBuilder();
+                    while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                    Cgroup.add(data.toString());
                     for (int j = 0; j < 8; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        versparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        versparam[j].add(Double.parseDouble(data.toString()));
                     }
-                    data = "";
-                    while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                    Agroup.add(data);
+                    data = new StringBuilder();
+                    while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                    Agroup.add(data.toString());
                     for (int j = 8; j < 12; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        versparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        versparam[j].add(Double.parseDouble(data.toString()));
                     }
-                    data = "";
-                    while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                    Dgroup.add(data);
+                    data = new StringBuilder();
+                    while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                    Dgroup.add(data.toString());
                     for (int j = 12; j < 26; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        versparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        versparam[j].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -219,9 +221,9 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 5; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Cparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Cparam[j].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -234,9 +236,9 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 21; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Cparam[j + 5].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Cparam[j + 5].add(new Double(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -249,9 +251,9 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 5; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Aparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Aparam[j].add(new Double(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -264,9 +266,9 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 8; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Aparam[j + 5].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Aparam[j + 5].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -279,9 +281,9 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 12; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Dparam[j].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Dparam[j].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -294,14 +296,14 @@ public class Makexls {
                         while ((char) (ch = fr.read()) != '\t') ;
                     }
                     for (int j = 0; j < 98; j++) {
-                        data = "";
-                        while ((char) (ch = fr.read()) != '\t') data += (char) ch;
-                        Dparam[j + 12].add(new Double(data));
+                        data = new StringBuilder();
+                        while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
+                        Dparam[j + 12].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
                 fr.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -489,42 +491,89 @@ public class Makexls {
         //グループ分けの数をセット
         //////////////////////////////////////////////////////////////////////////////////////////
         public void setCountGroup() {
-            int err = 0;
             countCgroup = new int[6];
-            for (int i = 0; i < Cgroup.size(); i++) {
-                String g = (String) Cgroup.get(i);
-                if (g.equals("complex")) countCgroup[0]++;
-                else if (g.equals("no")) countCgroup[1]++;
-                else if (g.equals("small")) countCgroup[2]++;
-                else if (g.equals("medium")) countCgroup[3]++;
-                else if (g.equals("large")) countCgroup[4]++;
-                else err++;
+            for (String g : Cgroup) {
+                switch (g) {
+                    case "complex":
+                        countCgroup[0]++;
+                        break;
+                    case "no":
+                        countCgroup[1]++;
+                        break;
+                    case "small":
+                        countCgroup[2]++;
+                        break;
+                    case "medium":
+                        countCgroup[3]++;
+                        break;
+                    case "large":
+                        countCgroup[4]++;
+                        break;
+                    default:
+                        break;
+                }
             }
             countDgroup = new int[8];
-            for (int i = 0; i < Dgroup.size(); i++) {
-                String g = (String) Dgroup.get(i);
-                if (g.equals("-")) countDgroup[0]++;
-                else if (g.equals("A")) countDgroup[1]++;
-                else if (g.equals("A1")) countDgroup[2]++;
-                else if (g.equals("B")) countDgroup[3]++;
-                else if (g.equals("C")) countDgroup[4]++;
-                else if (g.equals("D")) countDgroup[5]++;
-                else if (g.equals("E")) countDgroup[6]++;
-                else if (g.equals("F")) countDgroup[7]++;
-                else err++;
+            for (String g : Dgroup) {
+                switch (g) {
+                    case "-":
+                        countDgroup[0]++;
+                        break;
+                    case "A":
+                        countDgroup[1]++;
+                        break;
+                    case "A1":
+                        countDgroup[2]++;
+                        break;
+                    case "B":
+                        countDgroup[3]++;
+                        break;
+                    case "C":
+                        countDgroup[4]++;
+                        break;
+                    case "D":
+                        countDgroup[5]++;
+                        break;
+                    case "E":
+                        countDgroup[6]++;
+                        break;
+                    case "F":
+                        countDgroup[7]++;
+                        break;
+                    default:
+                        break;
+                }
             }
             countAgroup = new int[8];
-            for (int i = 0; i < Agroup.size(); i++) {
-                String g = (String) Agroup.get(i);
-                if (g.equals("-")) countAgroup[0]++;
-                else if (g.equals("A")) countAgroup[1]++;
-                else if (g.equals("B")) countAgroup[2]++;
-                else if (g.equals("api")) countAgroup[3]++;
-                else if (g.equals("iso")) countAgroup[4]++;
-                else if (g.equals("E")) countAgroup[5]++;
-                else if (g.equals("F")) countAgroup[6]++;
-                else if (g.equals("N")) countAgroup[7]++;
-                else err++;
+            for (String g : Agroup) {
+                switch (g) {
+                    case "-":
+                        countAgroup[0]++;
+                        break;
+                    case "A":
+                        countAgroup[1]++;
+                        break;
+                    case "B":
+                        countAgroup[2]++;
+                        break;
+                    case "api":
+                        countAgroup[3]++;
+                        break;
+                    case "iso":
+                        countAgroup[4]++;
+                        break;
+                    case "E":
+                        countAgroup[5]++;
+                        break;
+                    case "F":
+                        countAgroup[6]++;
+                        break;
+                    case "N":
+                        countAgroup[7]++;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -533,8 +582,8 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         public int count(Vector v) {
             int count = 0;
-            for (int i = 0; i < v.size(); i++) {
-                double d = ((Double) v.get(i)).doubleValue();
+            for (Object o : v) {
+                double d = (Double) o;
                 if (d != -1) {
                     count++;
                 }
@@ -548,8 +597,8 @@ public class Makexls {
         public double mean(Vector v) {
             double r = 0;
             int count = 0;
-            for (int i = 0; i < v.size(); i++) {
-                double d = ((Double) v.get(i)).doubleValue();
+            for (Object o : v) {
+                double d = (Double) o;
                 if (d != -1) {
                     r += d;
                     count++;
@@ -564,8 +613,8 @@ public class Makexls {
         public double SD(Vector v, double mean) {
             double r = 0;
             int count = 0;
-            for (int i = 0; i < v.size(); i++) {
-                double d = ((Double) v.get(i)).doubleValue();
+            for (Object o : v) {
+                double d = (Double) o;
                 if (d != -1) {
                     r += (d - mean) * (d - mean);
                     count++;

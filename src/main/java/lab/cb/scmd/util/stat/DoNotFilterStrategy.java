@@ -29,12 +29,12 @@ public class DoNotFilterStrategy extends SampleFilteringStrategy {
      * @see lab.cb.scmd.util.stat.SampleFilteringStrategy#filter(lab.cb.scmd.util.table.TableIterator)
      */
     public Collection filter(TableIterator ti) {
-        LinkedList list = new LinkedList();
+        LinkedList<Double> list = new LinkedList<>();
         for (; ti.hasNext(); ) {
             Cell c = ti.nextCell();
             if (!getStatClass().isValidAsDouble(c))
                 continue;
-            list.add(new Double(c.doubleValue()));
+            list.add(c.doubleValue());
         }
         return list;
     }

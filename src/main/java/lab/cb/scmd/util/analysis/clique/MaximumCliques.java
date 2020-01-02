@@ -19,11 +19,11 @@ public class MaximumCliques {
     public static void main(String[] args) {
         AdjacencyListGraph g = new AdjacencyListGraph();
 
-        VertexDescriptor v1 = new VertexDescriptor(new Integer(1), "a");
-        VertexDescriptor v2 = new VertexDescriptor(new Integer(2), "b");
-        VertexDescriptor v3 = new VertexDescriptor(new Integer(3), "c");
-        VertexDescriptor v4 = new VertexDescriptor(new Integer(4), "d");
-        VertexDescriptor v5 = new VertexDescriptor(new Integer(5), "e");
+        VertexDescriptor v1 = new VertexDescriptor(1, "a");
+        VertexDescriptor v2 = new VertexDescriptor(2, "b");
+        VertexDescriptor v3 = new VertexDescriptor(3, "c");
+        VertexDescriptor v4 = new VertexDescriptor(4, "d");
+        VertexDescriptor v5 = new VertexDescriptor(5, "e");
 
         g.addVertex(v1);
         g.addVertex(v2);
@@ -39,7 +39,7 @@ public class MaximumCliques {
         g.addAdjacency(v4, v5);
 
         MaximumCliques mc = new MaximumCliques();
-        ArrayList al = mc.maximumCliques(g);
+        ArrayList<Integer[]> al = mc.maximumCliques(g);
         for (Object o : al) {
             Integer[] list = (Integer[]) o;
             for (Integer integer : list) {
@@ -49,18 +49,18 @@ public class MaximumCliques {
         }
     }
 
-    ArrayList maximumCliques(AdjacencyListGraph adjGraph) {
-        ArrayList cliques;
+    ArrayList<Integer[]> maximumCliques(AdjacencyListGraph adjGraph) {
+        ArrayList<Integer[]> cliques;
         Set vertexIds = adjGraph.getVertexIds();
         Object[] vertexArray = vertexIds.toArray();
         Arrays.sort(vertexArray);
         int vertexSize = vertexArray.length;
-        ArrayList latticeNodes = new ArrayList();
+        ArrayList<Integer[]> latticeNodes = new ArrayList<>();
         int n = 1;
-        ArrayList maxCliques = new ArrayList();
-        for (int i = 0; i < vertexSize; i++) {
+        ArrayList<Integer[]> maxCliques = new ArrayList<>();
+        for (Object o : vertexArray) {
             Integer[] vertexId = new Integer[1];
-            vertexId[0] = (Integer) vertexArray[i];
+            vertexId[0] = (Integer) o;
             latticeNodes.add(vertexId);
         }
         cliques = maximumCliquesBFS(latticeNodes, n, adjGraph, maxCliques);
@@ -77,17 +77,17 @@ public class MaximumCliques {
      * @param
      * @return
      */
-    private ArrayList maximumCliquesBFS(ArrayList nodes, int depth,
-                                        AdjacencyListGraph adjGraph, ArrayList maxCliques) {
+    private ArrayList<Integer[]> maximumCliquesBFS(ArrayList<Integer[]> nodes, int depth,
+                                                   AdjacencyListGraph adjGraph, ArrayList<Integer[]> maxCliques) {
         int size = nodes.size();
         Integer[] baseVertexIds;
         Integer[] objVertexIds;
         Integer[] nVertexIds;
-        ArrayList nnodes = new ArrayList();
+        ArrayList<Integer[]> nnodes = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            baseVertexIds = (Integer[]) nodes.get(i);
+            baseVertexIds = nodes.get(i);
             for (int j = i + 1; j < size; j++) {
-                objVertexIds = (Integer[]) nodes.get(j);
+                objVertexIds = nodes.get(j);
                 nVertexIds = mergeVertex(baseVertexIds, objVertexIds, depth, adjGraph);
                 if (nVertexIds == null)
                     break;
@@ -111,18 +111,18 @@ public class MaximumCliques {
         Object[] vertexArray = vertexIds.toArray();
         Arrays.sort(vertexArray);
         int vertexSize = vertexArray.length;
-        ArrayList<Integer[]> latticeNodes = new ArrayList<Integer[]>(); // all nodes in adjGraph
+        ArrayList<Integer[]> latticeNodes = new ArrayList<>(); // all nodes in adjGraph
         int n = 1;
-        for (int i = 0; i < vertexSize; i++) {
+        for (Object o : vertexArray) {
             Integer[] vertexId = new Integer[1];
-            vertexId[0] = (Integer) vertexArray[i];
+            vertexId[0] = (Integer) o;
             latticeNodes.add(vertexId);
         }
         if (vertexSize <= 0)
-            return new ArrayList<Integer[]>();
-        ArrayList<Integer[]> connectedComponents = new ArrayList<Integer[]>();
+            return new ArrayList<>();
+        ArrayList<Integer[]> connectedComponents = new ArrayList<>();
         while (latticeNodes.size() > 0) {
-            ArrayList<Integer[]> nnodes = new ArrayList<Integer[]>();
+            ArrayList<Integer[]> nnodes = new ArrayList<>();
             nnodes.add(latticeNodes.get(0));
             nnodes = findConnectedComponentsBFS(latticeNodes, n, adjGraph, connectedComponents, latticeNodes.get(0), nnodes);
             Integer[] component = new Integer[nnodes.size()];
@@ -154,8 +154,7 @@ public class MaximumCliques {
         int size = nodes.size();
         Integer[] baseVertexIds;
         Integer[] objVertexIds;
-        Integer[] nVertexIds;
-        ArrayList<Integer[]> nnodes = new ArrayList<Integer[]>();
+        ArrayList<Integer[]> nnodes = new ArrayList<>();
         int i = 0;
         baseVertexIds = nodes.get(i);
         for (int j = i + 1; j < size; j++) {
@@ -194,10 +193,10 @@ public class MaximumCliques {
         int size = nodes.size();
         Integer[] objVertexIds;
         Integer[] nVertexIds;
-        int i = baseVertexIds[0].intValue();
+        int i = baseVertexIds[0];
         for (int j = 0; j < size; j++) {
             objVertexIds = nodes.get(j);
-            if (i == objVertexIds[0].intValue())
+            if (i == objVertexIds[0])
                 continue;
             if (!adjGraph.hasAdjacency(baseVertexIds[0], objVertexIds[0]))
                 continue;
@@ -213,9 +212,9 @@ public class MaximumCliques {
      * @param nVertexIds
      * @param maxCliques
      */
-    private void addMaxCliques(Integer[] nVertexIds, ArrayList maxCliques) {
+    private void addMaxCliques(Integer[] nVertexIds, ArrayList<Integer[]> maxCliques) {
         for (int i = 0; i < maxCliques.size(); i++) {
-            if (isSubClique((Integer[]) maxCliques.get(i), nVertexIds)) {
+            if (isSubClique(maxCliques.get(i), nVertexIds)) {
                 maxCliques.remove(i);
                 i--;
             }
@@ -231,10 +230,10 @@ public class MaximumCliques {
     private boolean isSubClique(Integer[] child, Integer[] parent) {
         int c = 0, p = 0;
         while (c < child.length && p < parent.length) {
-            if (child[c] == parent[p]) {
+            if (child[c].equals(parent[p])) {
                 c++;
                 p++;
-            } else if (child[c] != parent[p]) {
+            } else if (!child[c].equals(parent[p])) {
                 p++;
             }
         }
@@ -249,9 +248,7 @@ public class MaximumCliques {
     private Integer[] mergeVertex(Integer[] baseVertex, Integer[] objVertex, int depth, AdjacencyListGraph adjGraph) {
         if (depth <= 1 || hasSamePrefix(baseVertex, objVertex, depth - 1)) {
             Integer[] nVertex = new Integer[depth + 1];
-            for (int i = 0; i < depth; i++) {
-                nVertex[i] = baseVertex[i];
-            }
+            if (depth >= 0) System.arraycopy(baseVertex, 0, nVertex, 0, depth);
             if (hasCompleteLinkage(baseVertex, objVertex[depth - 1], adjGraph)) {
                 nVertex[depth] = objVertex[depth - 1];
             } else {
@@ -271,8 +268,8 @@ public class MaximumCliques {
      */
     private boolean hasCompleteLinkage(Integer[] baseVertex, Integer objVertex, AdjacencyListGraph adjGraph) {
 
-        for (int i = 0; i < baseVertex.length; i++) {
-            if (!adjGraph.hasAdjacency(baseVertex[i], objVertex)) {
+        for (Integer vertex : baseVertex) {
+            if (!adjGraph.hasAdjacency(vertex, objVertex)) {
                 return false;
             }
         }
@@ -287,7 +284,7 @@ public class MaximumCliques {
      */
     private boolean hasSamePrefix(Integer[] baseVertex, Integer[] objVertex, int n) {
         for (int i = 0; i < n; i++) {
-            if (baseVertex[i] != objVertex[i]) {
+            if (!baseVertex[i].equals(objVertex[i])) {
                 return false;
             }
         }

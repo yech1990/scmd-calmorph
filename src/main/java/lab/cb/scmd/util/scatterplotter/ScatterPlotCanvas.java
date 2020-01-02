@@ -53,16 +53,8 @@ public class ScatterPlotCanvas extends Canvas {
         super(comp, flag);
 
         // event listener
-        this.addPaintListener(new PaintListener() {
-            public void paintControl(PaintEvent e) {
-                redraw();
-            }
-        });
-        this.addMouseMoveListener(new MouseMoveListener() {
-            public void mouseMove(MouseEvent e) {
-                _statusBar.setText("(" + posToRealValue(0, e.x) + ", " + posToRealValue(1, e.y) + ")");
-            }
-        });
+        this.addPaintListener(e -> redraw());
+        this.addMouseMoveListener(e -> _statusBar.setText("(" + posToRealValue(0, e.x) + ", " + posToRealValue(1, e.y) + ")"));
 
         this.addMouseListener(mouseAdapter);
         this.addMouseMoveListener(mouseMoveListener);
@@ -81,8 +73,8 @@ public class ScatterPlotCanvas extends Canvas {
     }
 
     private void setMaxAndMinValues(int dim) {
-        int rowsize = 0;
-        double value = 0.0;
+        int rowsize;
+        double value;
         rowsize = _flatTable.getRowSize();
         _realMax[dim] = Double.MIN_VALUE;
         _realMin[dim] = Double.MAX_VALUE;
@@ -109,20 +101,20 @@ public class ScatterPlotCanvas extends Canvas {
             _mouseDown = false;
             if (_selectingRegion) {
                 _selectingRegion = false;
-                ArrayList selectedrows = selectRows();
+                ArrayList<Integer> selectedrows = selectRows();
                 //System.out.println("Mouse Up at " + _selectedRegionEnd[0] + ":" + _selectedRegionEnd[1] );
             }
         }
 
     };
 
-    private ArrayList selectRows() {
+    private ArrayList<Integer> selectRows() {
         if (_flatTable == null) {
-            return new ArrayList(0);
+            return new ArrayList<>(0);
         }
         int rowsize = _flatTable.getRowSize();
-        double xvalue = 0.0, yvalue = 0.0;
-        ArrayList rows = new ArrayList();
+        double xvalue, yvalue;
+        ArrayList<Integer> rows = new ArrayList<>();
         if (_tableViewer != null)
             _tableViewer.removeAll();
 
@@ -144,7 +136,7 @@ public class ScatterPlotCanvas extends Canvas {
                 }
                 //System.out.print(xvalue + "(" + realValueToPos(0, xvalue)+ ")"+ ":");
                 //System.out.println(yvalue + "(" + realValueToPos(1, yvalue)+ ")");
-                rows.add(new Integer(i));
+                rows.add(i);
             }
         }
         return rows;
@@ -153,7 +145,7 @@ public class ScatterPlotCanvas extends Canvas {
     MouseMoveListener mouseMoveListener = new MouseMoveListener() {
         public void mouseMove(MouseEvent e) {
             if (_mouseDown) {
-                if (_selectingRegion == false) {
+                if (!_selectingRegion) {
                     //System.out.println("Mouse Down at " + e.x + ":" + e.y);
                     _selectingRegion = true;
                     _selectedRegionStart[0] = e.x;
@@ -226,7 +218,6 @@ public class ScatterPlotCanvas extends Canvas {
             rows[i] = i;
         }
         plotPoints(gc, rows, _pointColor, OVALSIZE);
-        return;
     }
 
     private void plotPoints(GC gc, int[] rows, Color color, int size) {
@@ -234,16 +225,15 @@ public class ScatterPlotCanvas extends Canvas {
             return;
         int rowsize = rows.length;
         double xd, yd;
-        int x = 0, y = 0;
-        for (int i = 0; i < rowsize; i++) {
-            xd = _flatTable.getCell(rows[i], _axisColIndex[0]).doubleValue();
+        int x, y;
+        for (int row : rows) {
+            xd = _flatTable.getCell(row, _axisColIndex[0]).doubleValue();
             x = (int) (realValueToRatio(0, xd) * _canvasSize[0]);
-            yd = _flatTable.getCell(rows[i], _axisColIndex[1]).doubleValue();
+            yd = _flatTable.getCell(row, _axisColIndex[1]).doubleValue();
             y = (int) ((1 - realValueToRatio(1, yd)) * _canvasSize[1]);
             gc.setBackground(color);
             gc.fillOval(x - size / 2, y - size / 2, size, size);
         }
-        return;
     }
 
     private void plotSelectedPoints(GC gc) {
@@ -293,19 +283,19 @@ public class ScatterPlotCanvas extends Canvas {
      * @param selectedRows
      */
     public void setSelectedPoints(TableItem[] selectedRows) {
-        String rowLabel = "";
+        String rowLabel;
         int count = 0;
-        for (int i = 0; i < selectedRows.length; i++) {
-            rowLabel = selectedRows[i].getText();
+        for (TableItem row : selectedRows) {
+            rowLabel = row.getText();
             if (_flatTable.getRowIndex(rowLabel) >= 0) {
                 count++;
             }
         }
         _selectedPoints = new int[count];
-        int index = 0;
+        int index;
         count = 0;
-        for (int i = 0; i < selectedRows.length; i++) {
-            rowLabel = selectedRows[i].getText();
+        for (TableItem selectedRow : selectedRows) {
+            rowLabel = selectedRow.getText();
             index = _flatTable.getRowIndex(rowLabel);
             if (index >= 0) {
                 _selectedPoints[count++] = index;
@@ -315,16 +305,16 @@ public class ScatterPlotCanvas extends Canvas {
 
     public void setSelectedPoints(String[] selectedRowLabels) {
         int count = 0;
-        for (int i = 0; i < selectedRowLabels.length; i++) {
-            if (_flatTable.getRowIndex(selectedRowLabels[i]) >= 0) {
+        for (String rowLabel : selectedRowLabels) {
+            if (_flatTable.getRowIndex(rowLabel) >= 0) {
                 count++;
             }
         }
         _selectedPoints = new int[count];
-        int index = 0;
+        int index;
         count = 0;
-        for (int i = 0; i < selectedRowLabels.length; i++) {
-            index = _flatTable.getRowIndex(selectedRowLabels[i]);
+        for (String selectedRowLabel : selectedRowLabels) {
+            index = _flatTable.getRowIndex(selectedRowLabel);
             if (index >= 0) {
                 _selectedPoints[count++] = index;
             }

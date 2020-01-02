@@ -17,7 +17,6 @@ import lab.cb.scmd.util.io.NullPrintStream;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -128,14 +127,15 @@ public class NucleusStageClassifier implements TableFileName {
                 if (!baseDir.isDirectory())
                     throw new SCMDException("base directory " + _baseDir + " doesn't exist");
                 File[] file = baseDir.listFiles();
-                for (int i = 0; i < file.length; i++) {
-                    if (!file[i].isDirectory())
+                assert file != null;
+                for (File value : file) {
+                    if (!value.isDirectory())
                         continue; // skip non directory files
-                    if (file[i].getName().charAt(0) == '.') {
-                        _log.println("directory " + file[i].getName() + " skipped because of invalid directory name");
+                    if (value.getName().charAt(0) == '.') {
+                        _log.println("directory " + value.getName() + " skipped because of invalid directory name");
                         continue;
                     }
-                    String orfName = file[i].getName();
+                    String orfName = value.getName();
                     inputFileList.add(orfName);
                 }
             } else {
@@ -167,8 +167,8 @@ public class NucleusStageClassifier implements TableFileName {
             TableSchema schema_A1 = new TableSchema(structA1, false);
             TableSchema schema_B = new TableSchema(structB, false);
             TableSchema schema_C = new TableSchema(structC, false);
-            for (Iterator fi = inputFileList.iterator(); fi.hasNext(); ) {
-                String inputDir = _baseDir + File.separator + fi.next();
+            for (Object o : inputFileList) {
+                String inputDir = _baseDir + File.separator + o;
                 String orf = (new File(inputDir)).getName();
                 _log.println("input directory: " + inputDir);
                 _log.println("orf: " + orf);
@@ -215,23 +215,26 @@ public class NucleusStageClassifier implements TableFileName {
                     TableSchema schema;
                     String nucleusGroup = orfTable.getCellData(row, "Dgroup");
                     // group by Dgroup value
-                    if (nucleusGroup.equals("A"))
-                        outputRow(row, tableMap, schema_A, outFile[TABLE_A]);
-                    else if (nucleusGroup.equals("A1"))
-                        outputRow(row, tableMap, schema_A1, outFile[TABLE_A1B]);
-                    else if (nucleusGroup.equals("B"))
-                        outputRow(row, tableMap, schema_B, outFile[TABLE_A1B]);
-                    else if (nucleusGroup.equals("C"))
-                        outputRow(row, tableMap, schema_C, outFile[TABLE_C]);
-                    else
-                        continue; // unknown group (skip this cell data)
+                    switch (nucleusGroup) {
+                        case "A":
+                            outputRow(row, tableMap, schema_A, outFile[TABLE_A]);
+                            break;
+                        case "A1":
+                            outputRow(row, tableMap, schema_A1, outFile[TABLE_A1B]);
+                            break;
+                        case "B":
+                            outputRow(row, tableMap, schema_B, outFile[TABLE_A1B]);
+                            break;
+                        case "C":
+                            outputRow(row, tableMap, schema_C, outFile[TABLE_C]);
+                            break;
+                        default:
+                            // unknown group (skip this cell data)
+                    }
                 }
-                for (int i = 0; i < outFile.length; i++)
-                    outFile[i].close();
+                for (PrintWriter printWriter : outFile) printWriter.close();
             }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        } catch (SCMDException e) {
+        } catch (IOException | SCMDException e) {
             System.err.println(e.getMessage());
         }
     }
@@ -613,17 +616,17 @@ class TableMap {
     }
 
     public void addTable(int tableType, CalMorphTable table) {
-        _tableMap.put(new Integer(tableType), table);
+        _tableMap.put(tableType, table);
     }
 
     public CalMorphTable getTable(int tableType) throws SCMDException {
-        CalMorphTable table = (CalMorphTable) _tableMap.get(new Integer(tableType));
+        CalMorphTable table = _tableMap.get(tableType);
         if (table == null)
             throw new SCMDException("cannot find table corresponding to tableType = " + tableType);
         return table;
     }
 
-    HashMap _tableMap = new HashMap();
+    HashMap<Integer, CalMorphTable> _tableMap = new HashMap<>();
 }
 //--------------------------------------
 // $Log: NucleusStageClassifier.java,v $

@@ -36,8 +36,8 @@ public class ArrayImage {
     int orfSizeM;
     int parameterSize;
 
-    BufferedImage image = null;
-    int[][] colorTable = null;
+    BufferedImage image;
+    int[][] colorTable;
 
 
     ArrayImage(String CalmorphTableFilename_Wildtype, String CalmorphTableFilename_Mutant, String transformLogFilename) throws SCMDException, IOException {
@@ -109,27 +109,28 @@ public class ArrayImage {
      */
     private int testWildtypeLeaveOneOut(int parameter, int testOrf) throws SCMDException, IOException {
         lab.cb.scmd.util.table.Cell test = null;
-        Vector dataW = new Vector();
+        Vector<Double> dataW = new Vector<>();
         TableIterator i = tableW.getVerticalIterator(parameter);
         for (int j = 0; i.hasNext(); ++j) {
             lab.cb.scmd.util.table.Cell c = (lab.cb.scmd.util.table.Cell) i.next();
             if (j == testOrf) {
                 test = c;
-                if (test.isValidAsDouble() == false || test.doubleValue() < 0) return backgroundColor;
+                if (!test.isValidAsDouble() || test.doubleValue() < 0) return backgroundColor;
                 continue;
             }
-            if (c.isValidAsDouble() == false || c.doubleValue() < 0) continue;
-            dataW.add(new Double(c.doubleValue()));
+            if (!c.isValidAsDouble() || c.doubleValue() < 0) continue;
+            dataW.add(c.doubleValue());
         }
         Double[] data = new Double[dataW.size()];
         for (int k = 0; k < dataW.size(); ++k) {
-            data[k] = (Double) dataW.get(k);
+            data[k] = dataW.get(k);
         }
 
         PowerTransformation pt = new PowerTransformation(data);
         PrintWriter pw = new PrintWriter(System.out, true);
         //pt.println(pw);
-        return getSignificance(pt, new Double(test.doubleValue()));
+        assert test != null;
+        return getSignificance(pt, test.doubleValue());
     }
 
     /**
@@ -157,19 +158,19 @@ public class ArrayImage {
      * @author nakatani
      */
     private Double[] getDataByParameter(CalMorphTable cmt, int parameter) {
-        Vector dataW = new Vector();
+        Vector<Double> dataW = new Vector<Double>();
         TableIterator i = cmt.getVerticalIterator(parameter);
         for (int j = 0; i.hasNext(); ++j) {
             lab.cb.scmd.util.table.Cell c = (lab.cb.scmd.util.table.Cell) i.next();
             if (c.isValidAsDouble()) {
                 double d = c.doubleValue();
                 if (d < 0) continue;
-                dataW.add(new Double(d));
+                dataW.add(d);
             }
         }
         Double[] validData = new Double[dataW.size()];
         for (int j = 0; j < dataW.size(); ++j) {
-            validData[j] = (Double) dataW.get(j);
+            validData[j] = dataW.get(j);
         }
         return validData;
     }
@@ -181,13 +182,13 @@ public class ArrayImage {
      * @author nakatani
      */
     private int getSignificance(PowerTransformation pt, Double d) throws SCMDException {
-        double x = d.doubleValue();
+        double x = d;
         Double[] crt = pt.getOneSidedCriticalValues();
         for (int i = 0; i < 7; ++i) {
-            if (crt[i].doubleValue() <= x) {
+            if (crt[i] <= x) {
                 return 8 - i;
             }
-            if (crt[13 - i].doubleValue() >= x) {
+            if (crt[13 - i] >= x) {
                 return -(8 - i);
             }
         }
@@ -248,7 +249,7 @@ public class ArrayImage {
                 if (c.isValidAsDouble()) {
                     double d = c.doubleValue();
                     if (d >= 0) {
-                        signif = getSignificance(pt, new Double(d));
+                        signif = getSignificance(pt, d);
                     }
                 }
                 int color = significanceToColor(signif);
@@ -311,15 +312,12 @@ public class ArrayImage {
             ai.writeImageArray(args[2]);
             ai.toTransformedWildtypeTable(args[5]);
 
-        } catch (SCMDException e) {
+        } catch (SCMDException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
             //} catch (ImageFormatException e1) {
             //    e1.printStackTrace();
             //    System.exit(-1);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            System.exit(-1);
         }
 
     }
