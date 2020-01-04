@@ -320,8 +320,6 @@ class CellImage {
         try {
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
             BufferedImage input = ImageIO.read(new File(filename));
-            //test
-            System.out.println(input.getColorModel());
             short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
             short[] per = percentiles(pixels, 0.8, 0.999);
             short min = per[0];
@@ -341,8 +339,6 @@ class CellImage {
             BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
             final short[] a = ((DataBufferUShort) output.getRaster().getDataBuffer()).getData();
             System.arraycopy(pixelsNorm, 0, a, 0, pixelsNorm.length);
-            //test
-            System.out.println(output.getColorModel());
             return output;
         } catch (IOException ioe) {
             _logger.error(ioe);
