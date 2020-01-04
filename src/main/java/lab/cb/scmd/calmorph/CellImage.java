@@ -18,16 +18,16 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.MemoryImageSource;
 import java.io.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static java.util.Collections.min;
 
 class CellImage {
 
@@ -391,7 +391,7 @@ class CellImage {
             }
         }
         boolean[] check = new boolean[_size];
-        Stack<Integer> stk = new Stack<Integer>();
+        Stack<Integer> stk = new Stack<>();
         stk.push(minpo);
         check[minpo] = true;
         while (!stk.empty()) {
@@ -583,8 +583,8 @@ class CellImage {
         Vector[] vec = label(biimage, 255, 0, true);
         for (int i = 0; i < _size; i++) biimage[i] = 255;
         for (Vector vector : vec) {
-            for (int j = 0; j < vector.size(); j++) {
-                int p = (Integer) vector.get(j);
+            for (Object o : vector) {
+                int p = (Integer) o;
                 biimage[p] = 0;
             }
         }
@@ -664,8 +664,7 @@ class CellImage {
             vec2[i] = new Vector();
         }
         for (int i = 0; i < _size; i++) {
-            if (lab[i] < 0) {
-            } else {
+            if (lab[i] >= 0) {
                 vec2[same.get(lab[i])].add(i);
             }
         }
@@ -781,8 +780,7 @@ class CellImage {
             vec2[i] = new Vector();
         }
         for (int i = 0; i < wid * hei; i++) {
-            if (lab[i] < 0) {
-            } else {
+            if (lab[i] >= 0) {
                 vec2[same.get(lab[i])].add(i);
             }
         }
@@ -1454,7 +1452,7 @@ class CellImage {
             boolean neck1 = false;
             int[] score, scoretmp;
             if (cell[i].getGroup() > 0) {
-                Vector<Integer> neck = new Vector<Integer>();
+                Vector<Integer> neck = new Vector<>();
                 int jj;
                 int start;
                 while (true) {
@@ -1601,7 +1599,7 @@ class CellImage {
                             jj--;
                         }
                         start = -1;
-                        neck = new Vector<Integer>();
+                        neck = new Vector<>();
                         for (int j = 0; j < es; j++) {
                             var i1 = score[(j + jj + es) % es];
                             if (i1 >= th && start < 0) {
@@ -2435,7 +2433,7 @@ class CellImage {
         //ここから核の重心を求める処理
         int[] mpoint = new int[vec.length];//重心
         int[][] mpointB = new int[vec.length][2];//Center of gravity of mother cell side and bud side when cut at the neckline in B cells
-        Vector<Integer> MafterB = new Vector<Integer>();
+        Vector<Integer> MafterB = new Vector<>();
         for (Cell cell11 : cell) {
             cell11.setFlagUD(false);
         }
@@ -2528,7 +2526,7 @@ class CellImage {
         int[][] brightpointB = new int[vec.length][2];
         for (int i = 0; i < vec.length; i++) {
             int brightness = 0;
-            Vector<Integer> bpoint = new Vector<Integer>();
+            Vector<Integer> bpoint = new Vector<>();
             for (int j = 0; j < vec[i].size(); j++) {
                 int p = (Integer) vec[i].get(j);
                 if (pixeltocell[p + Ddiff] >= 0) {
@@ -2574,7 +2572,7 @@ class CellImage {
                         } else {
                             if (_nucleus_points[p] > brightness2) {
                                 brightness2 = _nucleus_points[p];
-                                bpoint2 = new Vector<Integer>();
+                                bpoint2 = new Vector<>();
                                 bpoint2.add(p);
                             } else if (_nucleus_points[p] == brightness2) bpoint2.add(p);
                         }
@@ -2651,7 +2649,7 @@ class CellImage {
         for (Object o1 : MafterB) {
             int i = (Integer) o1;
             if (pixeltocell[mpoint[i]] >= 0) {
-                Vector<Integer> Dc = new Vector<Integer>();
+                Vector<Integer> Dc = new Vector<>();
                 int totalbr = 0;
                 for (int j = 0; j < vec[i].size(); j++) {
                     int pconA = (Integer) vec[i].get(j) + Ddiff;
