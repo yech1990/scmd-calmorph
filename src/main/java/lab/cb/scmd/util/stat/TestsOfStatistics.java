@@ -36,8 +36,7 @@ public class TestsOfStatistics {
     // x:	 累積する値
     // modified by sesejun based on nakatani's implementation
     public double cdfOfNormalDistribution(double x, double mean, double sd) {
-        double cdf = cdfOfNormalDistributionUsingHastingsApproximation((x - mean) / sd);
-        return cdf;
+        return cdfOfNormalDistributionUsingHastingsApproximation((x - mean) / sd);
     }
 
     // 標準正規分布に対する累積密度をHastingsの近似を利用して求める
@@ -48,19 +47,19 @@ public class TestsOfStatistics {
             isMinus = true;
         }
         Double[] coefficients = new Double[]{
-                new Double(0.0498673470),
-                new Double(0.0211410061),
-                new Double(0.0032776263),
-                new Double(0.0000380036),
-                new Double(0.0000488906),
-                new Double(0.0000053830)
+                0.0498673470,
+                0.0211410061,
+                0.0032776263,
+                0.0000380036,
+                0.0000488906,
+                0.0000053830
         };
 
         double sum = 1;
         double xpow = 1;
         for (int i = 0; i < 6; ++i) {
             xpow *= x;
-            sum += coefficients[i].doubleValue() * xpow;
+            sum += coefficients[i] * xpow;
         }
         double returnValue = 1 - 0.5 * Math.pow(sum, -16);
         if (isMinus) {

@@ -18,15 +18,16 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.MemoryImageSource;
+import java.awt.image.*;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import static java.util.Collections.min;
 
 class CellImage {
 
@@ -300,14 +301,49 @@ class CellImage {
 
     }
 
+    // calculate percentiles of array
+    public static short[] percentiles(short[] latencies, double... percentiles) {
+        short[] latenciesSorted = latencies.clone();
+        Arrays.sort(latenciesSorted, 0, latenciesSorted.length);
+        short[] values = new short[percentiles.length];
+        for (int i = 0; i < percentiles.length; i++) {
+            int index = (int) (percentiles[i] * latenciesSorted.length);
+            values[i] = latenciesSorted[index];
+        }
+        return values;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //Read image file
     ///////////////////////////////////////////////////////////////////////////
     private BufferedImage getBufferedImage(String filename) {
         try {
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
-            System.out.println(ImageIO.read(new File(filename)).getColorModel());
-            return ImageIO.read(new File(filename));
+            BufferedImage input = ImageIO.read(new File(filename));
+            //test
+            System.out.println(input.getColorModel());
+            short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
+            short[] per = percentiles(pixels, 0.8, 0.999);
+            short min = per[0];
+            short max = per[1];
+            double norm = 255 / ((max - min) * 1.0);
+            short[] pixelsNorm = new short[pixels.length];
+            for (int i = 0; i < pixels.length; i++) {
+                if (pixels[i] < min) {
+                    pixelsNorm[i] = 0;
+                } else if (pixels[i] > max) {
+                    pixelsNorm[i] = 255;
+                } else {
+                    pixelsNorm[i] = (short) ((pixels[i] - min) * norm);
+                }
+            }
+            //System.out.println(Arrays.toString(pixelsNorm));
+            BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
+            final short[] a = ((DataBufferUShort) output.getRaster().getDataBuffer()).getData();
+            System.arraycopy(pixelsNorm, 0, a, 0, pixelsNorm.length);
+            //test
+            System.out.println(output.getColorModel());
+            return output;
         } catch (IOException ioe) {
             _logger.error(ioe);
             return null;

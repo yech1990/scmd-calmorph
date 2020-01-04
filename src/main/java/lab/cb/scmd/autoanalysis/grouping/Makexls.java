@@ -17,8 +17,8 @@ package lab.cb.scmd.autoanalysis.grouping;
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 
-/**
- * @author sawai
+/*
+  @author sawai
  * <p>
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
@@ -139,24 +139,24 @@ public class Makexls {
     }
 
     public class Mutantprocess {
-        Vector<String> Cgroup;
-        Vector<String> Agroup;
-        Vector<String> Dgroup;
-        Vector[] versparam;
-        double[] versparammean;
-        Vector[] Cparam;
-        double[] Cparammean;
-        Vector[] Aparam;
-        double[] Aparammean;
-        Vector[] Dparam;
-        double[] Dparammean;
-        int[] countCgroup, countDgroup, countAgroup;
-        String mutant;
+        public Vector<String> Cgroup;
+        public Vector<String> Agroup;
+        public Vector<String> Dgroup;
+        public Vector[] versparam;
+        public double[] versparammean;
+        public Vector[] Cparam;
+        public double[] Cparammean;
+        public Vector[] Aparam;
+        public double[] Aparammean;
+        public Vector[] Dparam;
+        public double[] Dparammean;
+        public int[] countCgroup, countDgroup, countAgroup;
+        public String mutant;
 
         public Mutantprocess(String mutant) {
             this.mutant = mutant;
             Cgroup = new Vector<>();
-            Dgroup = new Vector<String>();
+            Dgroup = new Vector<>();
             Agroup = new Vector<>();
             versparam = new Vector[26];
             for (int i = 0; i < versparam.length; i++) {
@@ -238,7 +238,7 @@ public class Makexls {
                     for (int j = 0; j < 21; j++) {
                         data = new StringBuilder();
                         while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
-                        Cparam[j + 5].add(new Double(data.toString()));
+                        Cparam[j + 5].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
@@ -253,7 +253,7 @@ public class Makexls {
                     for (int j = 0; j < 5; j++) {
                         data = new StringBuilder();
                         while ((char) (ch = fr.read()) != '\t') data.append((char) ch);
-                        Aparam[j].add(new Double(data.toString()));
+                        Aparam[j].add(Double.parseDouble(data.toString()));
                     }
                     while ((char) (ch = fr.read()) != '\n') ;
                 }

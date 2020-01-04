@@ -29,28 +29,16 @@ public class BoxCox {
         originalData = d;
         getParamWhichMaximizeLogLikelihood();
         Double[] ESD = StatisticalTests.getEandSD(transformAll(bestP, bestA, originalData));
-        transformedMean = ESD[0].doubleValue();
-        transformedSD = ESD[1].doubleValue();
+        transformedMean = ESD[0];
+        transformedSD = ESD[1];
     }
 
     public Double[] getSTDTransformedData(Double[] data) {
         Double[] transformed = transformAll(bestP, bestA, data);
         for (int i = 0; i < transformed.length; ++i) {
-            transformed[i] = new Double((transformed[i].doubleValue() - transformedMean) / transformedSD);
+            transformed[i] = (transformed[i] - transformedMean) / transformedSD;
         }
         return transformed;
-    }
-
-    public Double[] getSTDTransformedData() {
-        Double[] transformed = transformAll(bestP, bestA, originalData);
-        for (int i = 0; i < transformed.length; ++i) {
-            transformed[i] = new Double((transformed[i].doubleValue() - transformedMean) / transformedSD);
-        }
-        return transformed;
-    }
-
-    public Double[] getTransformedData(Double[] data) {
-        return transformAll(bestP, bestA, data);
     }
 
     public Double[] getTransformedData() {
@@ -63,8 +51,8 @@ public class BoxCox {
         double maxP = 5.0;
         int partitionA = 1000;
         double minA = 0;
-        for (int i = 0; i < originalData.length; i++) {
-            if (minA > originalData[i].doubleValue()) minA = originalData[i].doubleValue();
+        for (Double originalDatum : originalData) {
+            if (minA > originalDatum) minA = originalDatum;
         }
         minA = -minA + TINY;
         double maxA = 100 + TINY;
@@ -75,8 +63,10 @@ public class BoxCox {
         //double maxLogLikelihood=-Double.MAX_VALUE;
         int direction = 1;
         try {
-            if (logLikelihood(1 + (maxP - minP) / (double) partitionP, minA) > logLikelihood(1, minA)) direction = 1;
-            else direction = -1;
+            if (logLikelihood(1 + (maxP - minP) / (double) partitionP, minA) > logLikelihood(1, minA)) {
+            } else {
+                direction = -1;
+            }
         } catch (Exception e1) {
             System.err.println("ありえなーい！");
             System.exit(-1);
@@ -98,9 +88,8 @@ public class BoxCox {
                     maxLogLikelihood = thisLL;
                     bestP = thisP;
                     bestA = thisA;
-                } else {
-                    //break;//LogLikelihood must? be increasing along the direction.
-                }
+                }  //break;//LogLikelihood must? be increasing along the direction.
+
                 //System.out.print(thisLL+",");break;
             }
             //System.out.println("},{");
@@ -116,9 +105,9 @@ public class BoxCox {
     private double logLikelihood(double p, double a) throws Exception {
         Double[] transformedData = transformAll(p, a, originalData);
         Double[] ESD = StatisticalTests.getEandSD(transformedData);
-        double value = -originalData.length / 2.0 * Math.log(2 * Math.PI * Math.pow(ESD[1].doubleValue(), 2)) - originalData.length * (originalData.length - 1) / 2.0;
-        for (int i = 0; i < originalData.length; ++i) {
-            value += (p - 1) * Math.log(originalData[i].doubleValue() + a);
+        double value = -originalData.length / 2.0 * Math.log(2 * Math.PI * Math.pow(ESD[1], 2)) - originalData.length * (originalData.length - 1) / 2.0;
+        for (Double originalDatum : originalData) {
+            value += (p - 1) * Math.log(originalDatum + a);
         }
         if (Double.isInfinite(value)) {
             //System.err.println("Error. BoxCox.logLikelihood() Infnity.");
@@ -136,17 +125,9 @@ public class BoxCox {
         return transformedData;
     }
 
-    public Double[] reverseTransformAll(double p, double a, Double[] d) {
-        Double[] reversedData = new Double[d.length];
-        for (int i = 0; i < d.length; ++i) {
-            reversedData[i] = reverseTransform(p, a, d[i]);
-        }
-        return reversedData;
-    }
-
     private Double transform(double p, double a, Double d) {
         //double a=TINY;
-        double x = d.doubleValue() + a;
+        double x = d + a;
         if (x <= 0) {
             System.err.println("Error: BoxCox.transform() x<=0");
             System.exit(-1);
@@ -162,12 +143,12 @@ public class BoxCox {
             System.err.println("BoxCox.transform() p=" + p + " y=" + y + " x-a=" + (x - a));
             System.exit(-1);
         }
-        return new Double(y);
+        return y;
     }
 
     private Double reverseTransform(double p, double a, Double d) {
         //double a=TINY;
-        double y = d.doubleValue();
+        double y = d;
         double x = Double.MAX_VALUE;
         if (y * p + 1 <= 0) {
             //System.out.println("Warning: BoxCox.reverseTransform() out of range. return -1.");
@@ -187,7 +168,7 @@ public class BoxCox {
         if (Double.isNaN(x)) {
             x = Double.MAX_VALUE;
         }
-        return new Double(x);
+        return x;
     }
 
     //0.0000118,0.000118 <-Grubbs test
@@ -196,7 +177,7 @@ public class BoxCox {
 
     public Double getOneSidedCriticalValueForP(double pvalue) {
         double y = StatisticalTests.HastingsApproximationForNormalDF_Reverse(transformedMean, transformedSD, pvalue);
-        return reverseTransform(bestP, bestA, new Double(y));
+        return reverseTransform(bestP, bestA, y);
     }
 
     static public void printHeader(PrintWriter pw) {
@@ -209,8 +190,8 @@ public class BoxCox {
         for (int i = 0; i < pValueList.length; ++i) {
             pw.print("(lower)" + pValueList[pValueList.length - 1 - i] + "\t");
         }
-        for (int i = 0; i < pValueList.length; ++i) {
-            pw.print("(upper)" + pValueList[i] + "\t");
+        for (double v : pValueList) {
+            pw.print("(upper)" + v + "\t");
         }
     }
 
@@ -219,10 +200,10 @@ public class BoxCox {
         pw.print(maxLogLikelihood + t + bestP + t + bestA + t + transformedMean + t + transformedSD + t);
 
         for (int i = 0; i < pValueList.length; ++i) {
-            pw.print(getOneSidedCriticalValueForP(pValueList[pValueList.length - 1 - i]).doubleValue() + t);
+            pw.print(getOneSidedCriticalValueForP(pValueList[pValueList.length - 1 - i]) + t);
         }
-        for (int i = 0; i < pValueList.length; ++i) {
-            pw.print(getOneSidedCriticalValueForP(1 - pValueList[i]).doubleValue() + t);
+        for (double v : pValueList) {
+            pw.print(getOneSidedCriticalValueForP(1 - v) + t);
         }
     }
 
@@ -230,30 +211,29 @@ public class BoxCox {
     public static final double[] sigmaValueList = {2.3263, 3.0902, 3.7190, 4.2649, 4.7534, 5.1993, 5.6120, 5.9978};
 
     public Double getOneSidedCriticalValueForMeanPlusDSigma(double dsigma) {
-        Double[] transformed = transformAll(bestP, bestA, originalData);
-        return reverseTransform(bestP, bestA, new Double(transformedMean + dsigma * transformedSD));
+        return reverseTransform(bestP, bestA, transformedMean + dsigma * transformedSD);
     }
 
     public Double getOneSidedCriticalValueForMaxPlusSigma(double dsigma) {
         Double[] transformed = transformAll(bestP, bestA, originalData);
         double maxValue = -Double.MAX_VALUE;
         for (int i = 0; i < originalData.length; ++i) {
-            if (maxValue < transformed[i].doubleValue()) {
-                maxValue = transformed[i].doubleValue();
+            if (maxValue < transformed[i]) {
+                maxValue = transformed[i];
             }
         }
-        return reverseTransform(bestP, bestA, new Double(maxValue + dsigma * transformedSD));
+        return reverseTransform(bestP, bestA, maxValue + dsigma * transformedSD);
     }
 
     public Double getOneSidedCriticalValueForMinMinusSigma(double dsigma) {
         Double[] transformed = transformAll(bestP, bestA, originalData);
         double minValue = Double.MAX_VALUE;
         for (int i = 0; i < originalData.length; ++i) {
-            if (minValue > transformed[i].doubleValue()) {
-                minValue = transformed[i].doubleValue();
+            if (minValue > transformed[i]) {
+                minValue = transformed[i];
             }
         }
-        return reverseTransform(bestP, bestA, new Double(minValue - dsigma * transformedSD));
+        return reverseTransform(bestP, bestA, minValue - dsigma * transformedSD);
     }
 
     static public void printHeaderSigma(PrintWriter pw) {
@@ -266,8 +246,8 @@ public class BoxCox {
         for (int i = 0; i < sigmaValueList.length; ++i) {
             pw.print("(lower)" + sigmaValueList[sigmaValueList.length - 1 - i] + "\t");
         }
-        for (int i = 0; i < sigmaValueList.length; ++i) {
-            pw.print("(upper)" + sigmaValueList[i] + "\t");
+        for (double v : sigmaValueList) {
+            pw.print("(upper)" + v + "\t");
         }
     }
 
@@ -276,11 +256,11 @@ public class BoxCox {
         pw.print(maxLogLikelihood + t + bestP + t + bestA + t + transformedMean + t + transformedSD + t);
 
         for (int i = 0; i < sigmaValueList.length; ++i) {
-            pw.print(getOneSidedCriticalValueForMeanPlusDSigma(-sigmaValueList[sigmaValueList.length - 1 - i]).doubleValue() + t);
+            pw.print(getOneSidedCriticalValueForMeanPlusDSigma(-sigmaValueList[sigmaValueList.length - 1 - i]) + t);
             //pw.print(getOneSidedCriticalValueForMinMinusSigma(sigmaValueList[sigmaValueList.length-1-i]).doubleValue()+t);
         }
-        for (int i = 0; i < sigmaValueList.length; ++i) {
-            pw.print(getOneSidedCriticalValueForMeanPlusDSigma(sigmaValueList[i]).doubleValue() + t);
+        for (double v : sigmaValueList) {
+            pw.print(getOneSidedCriticalValueForMeanPlusDSigma(v) + t);
             //pw.print(getOneSidedCriticalValueForMaxPlusSigma(sigmaValueList[i]).doubleValue()+t);
         }
     }

@@ -54,16 +54,16 @@ public class CalMorphClient {
             System.out.println("rmi://" + _servername + "/CalMorph");
             obj = (CalMorphInterface) Naming.lookup("rmi://" + _servername + "/CalMorph");
             // サーバから、ORFを取得する
-            String[] orflist = null;
+            String[] orflist;
             while (true) {
                 orflist = obj.getORFList(clientid);
                 if (orflist == null || orflist.length == 0)
                     break;
                 System.out.println("Achieving ORF list from server.");
                 System.out.println("ORF Size: " + orflist.length);
-                for (int i = 0; i < orflist.length; i++) {
-                    System.out.println("Running... " + orflist[i]);
-                    runCalMorphForOrf(orflist[i]);
+                for (String s : orflist) {
+                    System.out.println("Running... " + s);
+                    runCalMorphForOrf(s);
                 }
             }
         } catch (Exception e) {
@@ -92,9 +92,7 @@ public class CalMorphClient {
                 out.println(line);
             }
             process.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

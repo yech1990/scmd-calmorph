@@ -44,7 +44,7 @@ class CalMorph {
             parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
             parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
             parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
-            parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX", "specify the suffix of input image file");
+            parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX", "specify the suffix of input image file, default: tif");
             parser.addOptionWithArgument(Opt.STRAIN_NAME, "n", "strain", "STRAIN_NAME", "specify the strain name");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
             parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN", "actin mode, opt: [true / false], default false", "false");
@@ -81,10 +81,7 @@ class CalMorph {
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
             // image suffix
-            //String _image_suffix;
-            //if (parser.isSet(Opt.IMAGE_SUFFIX)) _image_suffix = parser.getValue(Opt.IMAGE_SUFFIX);
-            //else _image_suffix = "jpg";
-            String imageSuffix = "jpg";
+            String imageSuffix = "tif";
             if (parser.isSet(Opt.IMAGE_SUFFIX))
                 imageSuffix = parser.getValue(Opt.IMAGE_SUFFIX);
             calMorphOption.setImageSuffix(imageSuffix);
@@ -117,6 +114,7 @@ class CalMorph {
             calMorphOption.setMaxImageNumber(maxImage);
 
             _logger.info("max image# in the folder: " + calMorphOption.getMaxImageNumber());
+            _logger.debug("image suffix: " + calMorphOption.getImageSuffix());
             _logger.debug("strain name: " + calMorphOption.getStrainName());
             _logger.debug("input directory: " + calMorphOption.getInputDirectory());
             _logger.debug("output directory: " + calMorphOption.getOutputDirectory());
