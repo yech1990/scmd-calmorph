@@ -608,10 +608,8 @@ class Cell implements Serializable {
             int maxp = 0;
             for (Object o : bud_edge) {// 近い方のネックから一番とおい
                 int p = (Integer) o;
-                double d1 = Point2D.distance(neck[0] % w, neck[0] / w, p % w, p
-                        / w);
-                double d2 = Point2D.distance(neck[1] % w, neck[1] / w, p % w, p
-                        / w);
+                double d1 = Point2D.distance(neck[0] % w, neck[0] / w, p % w, p / w);
+                double d2 = Point2D.distance(neck[1] % w, neck[1] / w, p % w, p / w);
                 if (d1 >= d2) {// d2のが近い
                     if (maxk < d2) {
                         maxk = d2;

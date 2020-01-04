@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythonDouble
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2019 yech <yech1990@gmail.com>

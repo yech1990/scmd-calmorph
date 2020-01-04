@@ -2794,7 +2794,8 @@ class CellImage {
         BufferedImage bi = new BufferedImage(_width, _height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
         Point p = calDiffPoint(Ddiff);
-        if (p.x >= 0 && p.y >= 0) while (!g.drawImage(im, p.x, p.y, null)) {
+        if (p.x >= 0 && p.y >= 0)
+            while (!g.drawImage(im, p.x, p.y, null)) {
         }
         if (p.x >= 0 && p.y < 0)
             while (!g.drawImage(im, p.x, 0, _width, _height + p.y, 0, -p.y, _width, _height, null)) {
