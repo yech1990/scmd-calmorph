@@ -11,6 +11,7 @@
 package lab.cb.scmd.autoanalysis.grouping;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * TableTypeServer内で使用
@@ -56,11 +57,8 @@ public class TableTypeServer implements TableFileName {
     }
 
     static public int getTableType(String tableName) {
-        Integer tableTypeID = (Integer) _tableNameToTableType.get(tableName);
-        if (tableTypeID == null)
-            return -1;
-        else
-            return tableTypeID.intValue();
+        Integer tableTypeID = _tableNameToTableType.get(tableName);
+        return Objects.requireNonNullElse(tableTypeID, -1);
     }
 
     static public int getTypeMax() {
@@ -78,13 +76,9 @@ public class TableTypeServer implements TableFileName {
         return tableElement[tableType];
     }
 
-    static public String getTableSuffix(int tableType) {
-        return tableElement[tableType].getFileSuffix();
-    }
-
     private TableTypeServer() {
         for (int i = 0; i < tableElement.length; i++) {
-            _tableNameToTableType.put(tableElement[i].getTableTypeName(), new Integer(i));
+            _tableNameToTableType.put(tableElement[i].getTableTypeName(), i);
         }
     }
 
@@ -97,7 +91,7 @@ public class TableTypeServer implements TableFileName {
             new TableElement("T_DAPI_BIOLOGICAL", "_dapi_biological.xls"), new TableElement("T_UNDEFINED", ""),};
 
     static private TableTypeServer _instance = null;
-    static HashMap _tableNameToTableType = new HashMap();
+    static HashMap<String, Integer> _tableNameToTableType = new HashMap<>();
 }
 
 //--------------------------------------

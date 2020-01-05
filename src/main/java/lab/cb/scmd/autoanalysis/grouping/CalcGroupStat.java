@@ -517,7 +517,7 @@ public class CalcGroupStat implements TableFileName {
         // create a list of targeted parameter of calcurating averages and
         // counting the number of samples.
         Vector labelListOfOriginalTable = inputTable.getColLabelList();
-        Vector<String> parameter = new Vector<String>();
+        Vector<String> parameter = new Vector<>();
         String regex = "[\"]?[^_]+_" + groupName + "[\"]?";
         for (Object item : labelListOfOriginalTable) {
             String label = (String) item;
@@ -538,7 +538,7 @@ public class CalcGroupStat implements TableFileName {
 
         LinkedList<String> cvParameterList = new LinkedList<String>();
         // outputLabel中で、CVの含まれているものを取り出す
-        Pattern cvPattern = Pattern.compile("([A-Za-z]{1})CV([0-9][0-9-]*_(A|A1B|C))");
+        Pattern cvPattern = Pattern.compile("([A-Za-z])CV([0-9][0-9-]*_(A|A1B|C))");
         for (String s : outputLabel) {
             Matcher m = cvPattern.matcher(s);
             if (m.matches())

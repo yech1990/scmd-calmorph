@@ -30,8 +30,8 @@ import java.util.HashMap;
  */
 public class EliminateMergedGenes {
     private BasicTable morphTable = null;
-    private HashMap<String, String> changeList = new HashMap<String, String>();
-    private HashMap<String, String> changeReason = new HashMap<String, String>();
+    private HashMap<String, String> changeList = new HashMap<>();
+    private HashMap<String, String> changeReason = new HashMap<>();
     private PrintStream out = System.out; //new NullPrintStream();
     private PrintStream err = System.err;
 
@@ -80,12 +80,12 @@ public class EliminateMergedGenes {
     }
 
     /**
-     * @param morphdata
+     * @param morphData
      * @param changelist
      */
-    private void load(String morphdata, String changelist) {
+    private void load(String morphData, String changelist) {
         try {
-            morphTable = new FlatTable(morphdata, true, true);
+            morphTable = new FlatTable(morphData, true, true);
             BasicTable changeTable = new FlatTable(changelist, false, false);
 
             for (int i = 0; i < changeTable.getRowSize(); i++) {

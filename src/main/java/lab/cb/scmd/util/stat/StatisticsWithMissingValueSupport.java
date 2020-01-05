@@ -12,6 +12,7 @@ package lab.cb.scmd.util.stat;
 
 import lab.cb.scmd.util.table.Cell;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 /**
@@ -42,8 +43,7 @@ public class StatisticsWithMissingValueSupport extends Statistics {
     }
 
     protected void setMissingValues(String[] missingValueList) {
-        for (int i = 0; i < missingValueList.length; i++)
-            _missingValueSet.add(missingValueList[i]);
+        Collections.addAll(_missingValueSet, missingValueList);
     }
 
     protected boolean isValidAsString(Cell cell) {
@@ -61,7 +61,7 @@ public class StatisticsWithMissingValueSupport extends Statistics {
         return _missingValueSet.contains(stringValue);
     }
 
-    HashSet _missingValueSet = new HashSet();
+    HashSet<String> _missingValueSet = new HashSet<>();
 }
 
 

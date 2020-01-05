@@ -38,14 +38,14 @@ public class ToSystematicParamName {
     private void process(String[] args) {
         String origfile = args[0];
         String hashfile = args[1];
-        HashMap<String, String> toSysnameMap = new HashMap<String, String>();
+        HashMap<String, String> toSysnameMap = new HashMap<>();
 
         try {
             FlatTable pt = new FlatTable(hashfile, false, false);
             for (int row = 0; row < pt.getRowSize(); row++) {
-                String oldname = pt.getCell(row, OLDNAMECOL).toString();
-                String sysname = pt.getCell(row, SYSNAMECOL).toString();
-                toSysnameMap.put(oldname, sysname);
+                String oldName = pt.getCell(row, OLDNAMECOL).toString();
+                String sysName = pt.getCell(row, SYSNAMECOL).toString();
+                toSysnameMap.put(oldName, sysName);
             }
             BufferedReader fileReader = new BufferedReader(new FileReader(origfile));
             String line;

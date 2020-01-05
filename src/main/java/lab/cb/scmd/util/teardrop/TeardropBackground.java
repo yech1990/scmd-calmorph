@@ -53,7 +53,7 @@ public class TeardropBackground {
 
     // instances
     BasicTable _dataset = null;
-    Map _statisticsMap = new HashMap();
+    Map<String, TeardropStatistics> _statisticsMap = new HashMap<>();
 
     // program
     String _converter = "C:/Program Files/ImageMagick-6.0.3-Q16/convert.exe";
@@ -130,14 +130,14 @@ public class TeardropBackground {
 
 
     public void drawAllColumnTeardrop() {
-        List columnLabels = _dataset.getColLabelList();
+        List<String> columnLabels = _dataset.getColLabelList();
         int colSize = columnLabels.size();
         try {
-            for (int i = 0; i < colSize; i++) {
+            for (String columnLabel : columnLabels) {
                 //System.err.println(i + ":" + columnLabels.get(i));
-                String filename = PREFIX + columnLabels.get(i) + SUFFIX;
+                String filename = PREFIX + columnLabel + SUFFIX;
                 _out = new PrintStream(new BufferedOutputStream(new FileOutputStream(filename)));
-                drawTeardrop((String) columnLabels.get(i), _out);
+                drawTeardrop(columnLabel, _out);
                 _out.close();
             }
         } catch (FileNotFoundException e) {
@@ -147,17 +147,17 @@ public class TeardropBackground {
     }
 
     private void drawTeardrop(String columnLabel, PrintStream out) {
-        TeardropStatistics tds = (TeardropStatistics) _statisticsMap.get(columnLabel);
+        TeardropStatistics tds = _statisticsMap.get(columnLabel);
         int size = tds.getHistgramSize();
         int centerindex = tds.getIndex(tds.getAvg());
-        String drawCommand = "-fill " + BASE_COLOR;
+        StringBuilder drawCommand = new StringBuilder("-fill " + BASE_COLOR);
         for (int i = 0; i < size; i++) {
             int hpos = (centerindex - i) * BARHEIGHT + IMAGEHEIGHT / 2;
             double barwidth = Math.log(tds.getHistgram(i) + 1) * (IMAGEWIDTH - MARGIN) / Math.log(tds.getMaxCount() + 1);
             double middle = IMAGEWIDTH / 2.0;
             String stpos = (int) (middle - barwidth / 2.0) + "," + hpos;
             String edpos = (int) (middle + barwidth / 2.0) + "," + (hpos + BARHEIGHT);
-            drawCommand += " -draw \"rectangle " + stpos + " " + edpos + "\"";
+            drawCommand.append(" -draw \"rectangle ").append(stpos).append(" ").append(edpos).append("\"");
         }
         //drawCommand += " -font helvetica -draw \'color black text 5,5 \"" + columnLabel + "\"\'";
         String cmd = _converter + " " + BGFILE + " " + drawCommand + " -";

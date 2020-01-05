@@ -108,15 +108,15 @@ public class TeardropStatistics {
         }
         _count = new int[numOfBuckets];
 
-        for (Iterator it = samples.iterator(); it.hasNext(); ) {
-            double v = ((Double) it.next()).doubleValue();
+        for (Object sample : samples) {
+            double v = (Double) sample;
             int index = getIndex(v);
             _count[index]++;
         }
         int maxcount = 0;
-        for (int i = 0; i < _count.length; i++) {
-            if (maxcount < _count[i])
-                maxcount = _count[i];
+        for (int value : _count) {
+            if (maxcount < value)
+                maxcount = value;
         }
         _maxcount = maxcount;
     }

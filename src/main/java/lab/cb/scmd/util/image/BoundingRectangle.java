@@ -78,8 +78,8 @@ public class BoundingRectangle {
                 "&y2=" + getY2();
     }
 
-    public Map getQueryMap() {
-        TreeMap map = new TreeMap();
+    public Map<String, String> getQueryMap() {
+        TreeMap<String, String> map = new TreeMap<>();
         map.put("x1", Integer.toString(getX1()));
         map.put("x2", Integer.toString(getX2()));
         map.put("y1", Integer.toString(getY1()));

@@ -54,11 +54,11 @@ public class XMLAttributeMap extends TreeMap {
 
 
     public Object put(String key, int value) {
-        return super.put(key, new Integer(value));
+        return super.put(key, value);
     }
 
     public Object put(String key, double value) {
-        return super.put(key, new Double(value));
+        return super.put(key, value);
     }
 
 }

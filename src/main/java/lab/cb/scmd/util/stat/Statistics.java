@@ -220,8 +220,8 @@ public class Statistics {
         if (numElement == 0)
             return 0;
         double sum = 0;
-        for (Iterator it = c.iterator(); it.hasNext(); ) {
-            sum += ((Double) it.next()).doubleValue();
+        for (Object o : c) {
+            sum += (Double) o;
         }
         return sum / numElement;
     }
@@ -232,16 +232,14 @@ public class Statistics {
             return -1; // unable to compute the variance
 
         double squareSum = 0;
-        for (Iterator it = c.iterator(); it.hasNext(); ) {
-            double v = ((Double) it.next()).doubleValue();
+        for (Object value : c) {
+            double v = (Double) value;
             squareSum += v * v;
         }
         double sum = 0;
-        for (Iterator it = c.iterator(); it.hasNext(); )
-            sum += ((Double) it.next()).doubleValue();
+        for (Object o : c) sum += (Double) o;
 
-        double variance = (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
-        return variance;
+        return (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
     }
 
     static public double calcSD(Collection c) {
@@ -266,8 +264,8 @@ public class Statistics {
 
     static public double getMinValue(Collection c) {
         double min = Double.MAX_VALUE;
-        for (Iterator it = c.iterator(); it.hasNext(); ) {
-            double v = ((Double) it.next()).doubleValue();
+        for (Object o : c) {
+            double v = (Double) o;
             if (v < min)
                 min = v;
         }
@@ -276,8 +274,8 @@ public class Statistics {
 
     static public double getMaxValue(Collection c) {
         double max = -Double.MAX_VALUE;
-        for (Iterator it = c.iterator(); it.hasNext(); ) {
-            double v = ((Double) it.next()).doubleValue();
+        for (Object o : c) {
+            double v = (Double) o;
             if (v > max)
                 max = v;
         }

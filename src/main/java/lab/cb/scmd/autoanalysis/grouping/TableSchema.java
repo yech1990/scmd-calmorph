@@ -36,9 +36,6 @@ import java.util.*;
  * @author leo
  */
 public class TableSchema {
-    public TableSchema(String schemaFile) throws SCMDException {
-        loadFromFile(schemaFile);
-    }
 
     public TableSchema(String schemaStr, boolean isFile) throws SCMDException {
         if (isFile) {
@@ -55,23 +52,14 @@ public class TableSchema {
     public AttributePosition getAttributePosition(int ruleIndex) throws SCMDException {
         if (ruleIndex > _labelList.size())
             throw new SCMDException("invalid rule index: " + ruleIndex + " out of " + _labelList.size());
-        return (AttributePosition) _labelToSourcePosition.get(_labelList.get(ruleIndex));
-    }
-
-    public void outputContents(PrintStream out) {
-        for (Iterator li = _labelList.iterator(); li.hasNext(); ) {
-            String label = (String) li.next();
-            AttributePosition pos =
-                    (AttributePosition) _labelToSourcePosition.get(label);
-            out.println(label + "\t" + pos.toString());
-        }
+        return _labelToSourcePosition.get(_labelList.get(ruleIndex));
     }
 
     public void outputLabel(PrintWriter out) {
         for (int i = 0; i < _labelList.size() - 1; i++) {
             out.print(_labelList.get(i) + "\t");
         }
-        out.println((String) _labelList.get(_labelList.size() - 1));
+        out.println(_labelList.get(_labelList.size() - 1));
     }
 
     void loadFromFile(String schemaFile) throws SCMDException {
@@ -125,8 +113,8 @@ public class TableSchema {
         }
     }
 
-    Vector _labelList = new Vector();
-    HashMap _labelToSourcePosition = new HashMap();
+    Vector<String> _labelList = new Vector<>();
+    HashMap<String, AttributePosition> _labelToSourcePosition = new HashMap<>();
 }
 
 

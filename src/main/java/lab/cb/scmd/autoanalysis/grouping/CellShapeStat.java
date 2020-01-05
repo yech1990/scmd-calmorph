@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -124,7 +123,7 @@ public class CellShapeStat implements TableFileName {
             // load CalMorph tables
 
             // 最終的な結果を入れるテーブル の準備
-            Vector resultParamList = new Vector();
+            Vector<String> resultParamList = new Vector<>();
             for (int i = 0; i < _groupNamePattern.length; i++) {
                 for (int j = 0; j < _groupNamePattern[i].length; j++) {
                     resultParamList.add(getNumParamName(i, j));
@@ -143,6 +142,7 @@ public class CellShapeStat implements TableFileName {
 
             // for each orf
             File[] targetFile = _inputDir.listFiles();
+            assert targetFile != null;
             for (File file : targetFile) {
                 if (!file.isDirectory()) continue; // skip single files
                 String orf = file.getName();
@@ -162,7 +162,7 @@ public class CellShapeStat implements TableFileName {
                 BasicTable orfTable = new FlatTable(orfTableFile, false, true);
                 BasicTable cellParamTable = new FlatTable(cellParamTableFile, false, true);
 
-                HashMap result = new HashMap();
+                HashMap<String, Number> result = new HashMap<>();
 
                 // for each group
                 for (int group = 0; group < _groupParameter.length; group++) {
@@ -171,7 +171,7 @@ public class CellShapeStat implements TableFileName {
                     for (int p = 0; p < _groupNamePattern[group].length; p++) {
                         Pattern pattern = Pattern.compile(_groupNamePattern[group][p]);
                         // group pattern に対応するcell idを集める
-                        LinkedList targetCellIDList = new LinkedList();
+                        LinkedList<String> targetCellIDList = new LinkedList<>();
                         for (TableIterator ti = orfTable.getVerticalIterator(groupCol); ti.hasNext(); ) {
                             Cell cell = ti.nextCell();
                             Matcher matcher = pattern.matcher(cell.toString());
@@ -192,7 +192,7 @@ public class CellShapeStat implements TableFileName {
                             // cellIDに対応する行をiteratorを見つける
                             while (ti.hasNext()) {
                                 if (ti.nextCell().toString().equals(cellID)) {
-                                    Vector dataRow = new Vector();
+                                    Vector<String> dataRow = new Vector<>();
                                     for (String value : _correspondingParameter) {
                                         Cell cell = cellParamTable.getCell(ti.row(), value);
                                         dataRow.add(cell.toString());
@@ -208,7 +208,7 @@ public class CellShapeStat implements TableFileName {
                         }
                     }
                 }
-                Vector resultRow = new Vector();
+                Vector<String> resultRow = new Vector<>();
                 resultRow.add(orf);
                 for (Object o : resultParamList) {
                     String param = (String) o;
@@ -223,7 +223,7 @@ public class CellShapeStat implements TableFileName {
                 PrintStream dataOut = new PrintStream(new FileOutputStream(outputFile));
 
                 dataOut.print(statTable.getTableName());
-                Vector labels = statTable.getColLabelList();
+                Vector<String> labels = statTable.getColLabelList();
                 for (Object label : labels) {
                     dataOut.print("\t" + label);
                 }
@@ -245,7 +245,7 @@ public class CellShapeStat implements TableFileName {
         } catch (SCMDException e) {
             e.what();
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
 
     }

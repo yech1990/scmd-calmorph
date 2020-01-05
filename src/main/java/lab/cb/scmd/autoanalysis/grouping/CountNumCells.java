@@ -37,14 +37,9 @@ public class CountNumCells {
 
     String _baseDirName = ".";
     String _outputFileName = "cellNum.xls";
-    boolean _isVerbose = false;
 
     public CountNumCells() {
 
-    }
-
-    public CountNumCells(String baseDirName) {
-        _baseDirName = baseDirName;
     }
 
     public void loopForEachDirectory() throws SCMDException, IOException {
@@ -63,12 +58,13 @@ public class CountNumCells {
         resultOut.println("orf\tcount");
 
         File[] fileList = inputDir.listFiles();
-        for (int j = 0; j < fileList.length; j++) {
-            if (!fileList[j].isDirectory())
+        assert fileList != null;
+        for (File value : fileList) {
+            if (!value.isDirectory())
                 continue;
 
             // directory名からORFを切り出す
-            String orfName = fileList[j].getName();
+            String orfName = value.getName();
             File orfFile = new File(orfName);
 
             String inputTableFile = _baseDirName + File.separator + orfName + File.separator + orfName + ".xls";
@@ -86,15 +82,6 @@ public class CountNumCells {
         resultOut.close();
         _log.println("completed");
         globalTime.showElapsedTime(_log);
-    }
-
-    void outputLabel(PrintWriter out, String[] label) {
-        if (label.length < 1)
-            return;
-        out.print(label[0]);
-        for (int i = 1; i < label.length; i++)
-            out.print("\t" + label[i]);
-        out.println();
     }
 
     int calc_count(String inputTableFile) throws SCMDException {
@@ -121,7 +108,7 @@ public class CountNumCells {
         setupOptionParser();
         _parser.getContext(args);
         if (_parser.isSet(OPT_HELP))
-            printUsage(0);
+            printUsage();
 
         if (_parser.isSet(OPT_BASEDIR))
             _baseDirName = _parser.getValue(OPT_BASEDIR);
@@ -132,10 +119,10 @@ public class CountNumCells {
         }
     }
 
-    void printUsage(int exitCode) {
+    void printUsage() {
         System.out.println("Usage: > java -jar CountNumCells.jar [options] orf_directory");
         System.out.println(_parser.createHelpMessage());
-        System.exit(exitCode);
+        System.exit(0);
     }
 
     public static void main(String[] args) {
@@ -143,9 +130,7 @@ public class CountNumCells {
         try {
             cells.setupByArguments(args);
             cells.loopForEachDirectory();
-        } catch (SCMDException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SCMDException | IOException e) {
             e.printStackTrace();
         }
 

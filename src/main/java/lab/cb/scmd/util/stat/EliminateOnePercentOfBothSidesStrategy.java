@@ -35,13 +35,13 @@ public class EliminateOnePercentOfBothSidesStrategy extends SampleFilteringStrat
             Cell c = ti.nextCell();
             if (!getStatClass().isValidAsDouble(c))
                 continue;
-            list.add(new Double(c.doubleValue()));
+            list.add(c.doubleValue());
         }
         Collections.sort(list);
 
         double onePercent = list.size() * 0.01;
         int numEliminates = (int) Math.floor(onePercent);
-        numEliminates = numEliminates < 1 ? 1 : numEliminates;   // １未満なら１に繰上げ
+        numEliminates = Math.max(numEliminates, 1);   // １未満なら１に繰上げ
 
         // listの両端から除去
         for (int i = 0; i < numEliminates && list.size() > 2; i++) {

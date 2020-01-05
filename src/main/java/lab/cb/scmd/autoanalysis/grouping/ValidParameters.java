@@ -19,6 +19,9 @@ import lab.cb.scmd.util.table.TableIterator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * @author nakatani
@@ -46,7 +49,7 @@ public class ValidParameters implements DataFileName {
         _parser.getContext(args);
 
         if (_parser.isSet(OPT_HELP))
-            printUsage(0);
+            printUsage();
         if (_parser.isSet(OPT_MUTANTDIR))
             mutant_dir = _parser.getValue(OPT_MUTANTDIR);
         if (_parser.isSet(OPT_WILDDIR))
@@ -63,10 +66,10 @@ public class ValidParameters implements DataFileName {
                 "set mutant input directory base (default = current directory)"));
     }
 
-    private void printUsage(int exitCode) {
+    private void printUsage() {
         System.out.println("Usage: CalcGroupStat [option]");
         System.out.println(_parser.createHelpMessage());
-        System.exit(exitCode);
+        System.exit(0);
     }
 
     public static void main(String[] args) {
@@ -82,9 +85,9 @@ public class ValidParameters implements DataFileName {
     }
 
     private String _dir_name;
-    private java.util.HashMap<String, java.util.Vector<Cell>> _parameterToDataTable;
-    private java.util.Vector<String> _yukoParameterList;
-    private java.util.Vector<java.util.Vector<Cell>> _yukoDataTable;
+    private HashMap<String, Vector<Cell>> _parameterToDataTable;
+    private Vector<String> _yukoParameterList;
+    private Vector<Vector<Cell>> _yukoDataTable;
     private String[] missingValueList = {"NaN", "Infinity", "-1", "-1.0"};
     private int number_of_partitions = 20;
 
@@ -100,9 +103,9 @@ public class ValidParameters implements DataFileName {
 //	3.有効パラメーターを横軸、変異株ごとのデータを縦軸にとったテーブルを作る。
 //	4.出力する。
     private void init() {
-        _parameterToDataTable = new java.util.HashMap<String, java.util.Vector<Cell>>();
-        _yukoParameterList = new java.util.Vector<String>();
-        _yukoDataTable = new java.util.Vector<java.util.Vector<Cell>>();
+        _parameterToDataTable = new HashMap<>();
+        _yukoParameterList = new Vector<>();
+        _yukoDataTable = new Vector<>();
     }
 
     private void ProcessDir(String dir) {
@@ -136,12 +139,12 @@ public class ValidParameters implements DataFileName {
         int colSize = cmt.getColSize();
         int rowSize = cmt.getRowSize();
         System.out.println("reading " + filename + "\t" + colSize + " parameters" + "\t" + rowSize + " mutants");
-        java.util.Vector parameters = cmt.getColLabelList();
+        Vector<String> parameters = cmt.getColLabelList();
         for (Object parameter : parameters) {
             String parameter_name = (String) parameter;
 
             TableIterator ti = cmt.getVerticalIterator(parameter_name);
-            java.util.Vector<Cell> verticalData = new java.util.Vector<Cell>(rowSize);
+            Vector<Cell> verticalData = new Vector<Cell>(rowSize);
             while (ti.hasNext()) {
                 Cell c = ti.nextCell();
                 verticalData.add(c);
@@ -155,7 +158,7 @@ public class ValidParameters implements DataFileName {
         java.io.BufferedReader parameterListReader = new java.io.BufferedReader(new java.io.FileReader(_dir_name + SEP + PARAMETER_LIST));
         String line = "";
         while ((line = parameterListReader.readLine()) != null) {
-            java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(line, "\t");
+            StringTokenizer tokenizer = new StringTokenizer(line, "\t");
             while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
                 _yukoParameterList.add(token);
@@ -165,7 +168,7 @@ public class ValidParameters implements DataFileName {
 
     private void makeYukoDataTable() {
         for (String parameter : _yukoParameterList) {
-            java.util.Vector<Cell> verticalData = _parameterToDataTable.get(parameter);
+            Vector<Cell> verticalData = _parameterToDataTable.get(parameter);
             if (verticalData == null) {
                 System.err.println("Error(no data): " + parameter);//*****
                 System.exit(-1);
@@ -189,8 +192,8 @@ public class ValidParameters implements DataFileName {
 
         int tmp = 0;
         for (int row = 0; row < (_yukoDataTable.get(0)).size(); ++row) {
-            //if(((Cell)((java.util.Vector)_parameterToDataTable.get("cell_without_complex")).get(row)).doubleValue() < 200.0)continue;
-            for (java.util.Vector<Cell> verticalData : _yukoDataTable) {
+            //if(((Cell)((Vector)_parameterToDataTable.get("cell_without_complex")).get(row)).doubleValue() < 200.0)continue;
+            for (Vector<Cell> verticalData : _yukoDataTable) {
                 //if(row>1700)System.out.println(row+" "+i);
                 Cell c = (verticalData.get(row));
                 outfile.print(c.toString() + t);
@@ -204,18 +207,18 @@ public class ValidParameters implements DataFileName {
 
     //以下は有効パラメーター決定プログラム
     //細胞数が２００以下の株は無視する。
-    private void filter_by_sample_number(java.util.Vector data, String dir) {
-        java.util.Vector Anum = ReadFile(dir + NUM_FILE_NAME[0]);
-        java.util.Vector A1Bnum = ReadFile(dir + NUM_FILE_NAME[1]);
-        java.util.Vector Cnum = ReadFile(dir + NUM_FILE_NAME[2]);
+    private void filter_by_sample_number(Vector data, String dir) {
+        Vector Anum = ReadFile(dir + NUM_FILE_NAME[0]);
+        Vector A1Bnum = ReadFile(dir + NUM_FILE_NAME[1]);
+        Vector Cnum = ReadFile(dir + NUM_FILE_NAME[2]);
 
-        java.util.Vector new_data = new java.util.Vector();
+        Vector new_data = new Vector();
         for (int i = 1; i < data.size(); ++i) {
-            java.util.Vector orf_data = (java.util.Vector) data.get(i);
+            Vector orf_data = (Vector) data.get(i);
 
-            double Asize = Double.parseDouble((String) ((java.util.Vector) Anum.get(i)).get(1));
-            double A1Bsize = Double.parseDouble((String) ((java.util.Vector) A1Bnum.get(i)).get(1));
-            double Csize = Double.parseDouble((String) ((java.util.Vector) Cnum.get(i)).get(1));
+            double Asize = Double.parseDouble((String) ((Vector) Anum.get(i)).get(1));
+            double A1Bsize = Double.parseDouble((String) ((Vector) A1Bnum.get(i)).get(1));
+            double Csize = Double.parseDouble((String) ((Vector) Cnum.get(i)).get(1));
 
             if (Asize + A1Bsize + Csize < 200) continue;
             new_data.add(data.get(i));
@@ -224,17 +227,17 @@ public class ValidParameters implements DataFileName {
     }
 
     //縦横を逆にする＋String->Double＋missing_valueを消す。
-    private java.util.Vector transpose_ToDouble_IgnoreNaN(java.util.Vector v) {
+    private Vector transpose_ToDouble_IgnoreNaN(Vector v) {
         java.util.HashSet<String> missingValueSet = new java.util.HashSet<String>();
         Collections.addAll(missingValueSet, missingValueList);
 
-        int x = ((java.util.Vector) v.get(0)).size();
+        int x = ((Vector) v.get(0)).size();
         int y = v.size();
-        java.util.Vector t = new java.util.Vector();
+        Vector t = new Vector();
         for (int i = 1; i < x; ++i) {
-            java.util.Vector vertical = new java.util.Vector();
+            Vector vertical = new Vector();
             for (int j = 1; j < y; ++j) {
-                String s = (String) ((java.util.Vector) v.get(j)).get(i);
+                String s = (String) ((Vector) v.get(j)).get(i);
                 if (missingValueSet.contains(s)) continue;
                 vertical.add(Double.valueOf(s));
             }
@@ -243,7 +246,7 @@ public class ValidParameters implements DataFileName {
         return t;
     }
 
-    private java.util.Vector ReadFile(String filepath) {
+    private Vector ReadFile(String filepath) {
         //System.err.println("reading "+filepath);
         java.io.BufferedReader br = null;
         try {
@@ -253,11 +256,11 @@ public class ValidParameters implements DataFileName {
             System.exit(-1);
         }
         String input;
-        java.util.Vector data = new java.util.Vector();
+        Vector data = new Vector();
         try {
             while ((input = br.readLine()) != null) {
                 String[] line = input.split("\t");
-                java.util.Vector linevec = new java.util.Vector();
+                Vector linevec = new Vector();
                 Collections.addAll(linevec, line);
                 data.add(linevec);
             }
@@ -285,9 +288,9 @@ public class ValidParameters implements DataFileName {
         return "E";
     }
 
-    private java.util.Vector<Integer> getHistogram(java.util.Vector data, double min, double max, int n_box) {
+    private Vector<Integer> getHistogram(Vector data, double min, double max, int n_box) {
         double intervalSize = (max - min) / (double) n_box;
-        java.util.Vector<Integer> histogram = new java.util.Vector<Integer>();
+        Vector<Integer> histogram = new Vector<Integer>();
         for (int i = 0; i < n_box + 2; ++i) {
             histogram.add(0);
         }
@@ -304,14 +307,14 @@ public class ValidParameters implements DataFileName {
         return histogram;
     }
 
-    private double getMode(java.util.Vector data) {
+    private double getMode(Vector data) {
         double[] ESD = getEandSD(data);
         double E = ESD[0];
         double SD = ESD[1];
         double min = E - 3 * SD;
         double max = E + 3 * SD;
         double partitionSize = (max - min) / (double) number_of_partitions;
-        java.util.Vector<Integer> histogram = getHistogram(data, min, max, number_of_partitions);
+        Vector<Integer> histogram = getHistogram(data, min, max, number_of_partitions);
         int max_data = 0;
         double mode = 0;
         for (int i = 1; i < number_of_partitions; ++i) {
@@ -324,9 +327,9 @@ public class ValidParameters implements DataFileName {
         return mode;
     }
 
-    private double getMode(java.util.Vector data, double min, double max) {
+    private double getMode(Vector data, double min, double max) {
         double partitionSize = (max - min) / (double) number_of_partitions;
-        java.util.Vector<Integer> histogram = getHistogram(data, min, max, number_of_partitions);
+        Vector<Integer> histogram = getHistogram(data, min, max, number_of_partitions);
         int max_data = 0;
         double mode = 0;
         for (int i = 1; i < number_of_partitions; ++i) {
@@ -339,35 +342,35 @@ public class ValidParameters implements DataFileName {
         return mode;
     }
 
-    private double[] getEandSD(java.util.Vector data) {
-        double tmp_exp = 0;
-        double sum_of_squares = 0;
+    private double[] getEandSD(Vector data) {
+        double tmpExp = 0;
+        double sumOfSquares = 0;
         int n = 0;
         for (int i = 0; i < data.size(); ++i) {
             double x = (Double) data.get(i);
-            x -= tmp_exp;
-            tmp_exp += x / (i + 1);
-            sum_of_squares += i * x * x / (i + 1);
+            x -= tmpExp;
+            tmpExp += x / (i + 1);
+            sumOfSquares += (i * x * x) / (i + 1);
         }
-        sum_of_squares = Math.sqrt(sum_of_squares / (data.size() - 1));
+        sumOfSquares = Math.sqrt(sumOfSquares / (data.size() - 1));
         double[] result = new double[2];
-        result[0] = tmp_exp;//expectation
-        result[1] = (sum_of_squares == 0) ? 1 : sum_of_squares;//standard deviation
+        result[0] = tmpExp;//expectation
+        result[1] = (sumOfSquares == 0) ? 1 : sumOfSquares;//standard deviation
         return result;
     }
 
-    private double percentileRank(java.util.Vector data, double point) {
-        int count_bigger = 0;
-        int count_same = 0;
+    private double percentileRank(Vector data, double point) {
+        int countBigger = 0;
+        int countSame = 0;
         for (Object datum : data) {
             double d = (Double) datum;
-            if (d > point) ++count_bigger;
-            if (d == point) ++count_same;
+            if (d > point) ++countBigger;
+            if (d == point) ++countSame;
         }
-        return 100 * (count_bigger + count_same / 2.0) / (double) data.size();
+        return 100 * (countBigger + countSame / 2.0) / (double) data.size();
     }
 
-    private void MakeValidParamFile(String filename, java.util.Vector param_names, java.util.Vector wildtype_, java.util.Vector mutants_) {
+    private void MakeValidParamFile(String filename, Vector param_names, Vector wildtype_, Vector mutants_) {
         char t = '\t', n = '\n';
         try {
             java.io.PrintWriter wpw = new java.io.PrintWriter(new java.io.BufferedWriter(new java.io.FileWriter(wildtype_dir + SEP + PARAMETER_LIST, true)));
@@ -469,8 +472,8 @@ public class ValidParameters implements DataFileName {
                     }
                 }
 
-                java.util.Vector w = (java.util.Vector) wildtype_.get(i);
-                java.util.Vector m = (java.util.Vector) mutants_.get(i);
+                Vector w = (Vector) wildtype_.get(i);
+                Vector m = (Vector) mutants_.get(i);
                 if (w.size() == 0 || m.size() == 0)
                     System.err.println(
                             "Error: datasize=0 parameter="
@@ -518,9 +521,9 @@ public class ValidParameters implements DataFileName {
             System.exit(-1);
         }
         for (String s : GROUP_FILE_NAME) {
-            java.util.Vector wildtype = ReadFile(wildtype_dir + SEP + s);
-            java.util.Vector mutants = ReadFile(mutant_dir + SEP + s);
-            java.util.Vector parameter = ((java.util.Vector) wildtype.get(0));
+            Vector wildtype = ReadFile(wildtype_dir + SEP + s);
+            Vector mutants = ReadFile(mutant_dir + SEP + s);
+            Vector parameter = ((Vector) wildtype.get(0));
             filter_by_sample_number(wildtype, wildtype_dir);
             filter_by_sample_number(mutants, mutant_dir);
             wildtype = transpose_ToDouble_IgnoreNaN(wildtype);

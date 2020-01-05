@@ -53,6 +53,16 @@ class CellImage {
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
 
+    /**
+     * @param name    name of yeast strain
+     * @param path    directory of input images
+     * @param suffix  suffix/format of input images
+     * @param number  number of the input image file name
+     * @param outdir  directory for output images/report
+     * @param startid start number of the input image file name
+     * @param calD    whether to calculate DAPI
+     * @param calA    whether to calculate Actin
+     */
     CellImage(String name, String path, String suffix, int number, String outdir, int startid, boolean calD, boolean calA) {
         _width = 2040;            //Fixed for the time being
         _height = 2040;           //Fixed for the time being
@@ -2796,7 +2806,7 @@ class CellImage {
         Point p = calDiffPoint(Ddiff);
         if (p.x >= 0 && p.y >= 0)
             while (!g.drawImage(im, p.x, p.y, null)) {
-        }
+            }
         if (p.x >= 0 && p.y < 0)
             while (!g.drawImage(im, p.x, 0, _width, _height + p.y, 0, -p.y, _width, _height, null)) {
             }
