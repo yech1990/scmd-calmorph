@@ -28,7 +28,7 @@ class CalMorph {
     }
 
     enum Opt {
-        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
+        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_ASPECTRATIO, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
     }
 
     /**
@@ -44,6 +44,7 @@ class CalMorph {
             parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
             parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
             parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
+            parser.addOptionWithArgument(Opt.IMAGE_ASPECTRATIO, "r", "ratio", "IMAGE_ASPECTRATIO", "specify the aspect ratio of input image file, opt: [widthxheight], default: 2040x2040");
             parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX", "specify the suffix of input image file, default: tif");
             parser.addOptionWithArgument(Opt.STRAIN_NAME, "n", "strain", "STRAIN_NAME", "specify the strain name");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
@@ -80,6 +81,12 @@ class CalMorph {
             calMorphOption.setOutputDirectory(parser.getValue(Opt.OUTPUTDIR));
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
+            // image aspect ratio
+            String imageAspectRatio = "2080x2080";
+            if (parser.isSet(Opt.IMAGE_ASPECTRATIO))
+                imageAspectRatio = parser.getValue(Opt.IMAGE_ASPECTRATIO);
+            calMorphOption.setImageAspectRatio(imageAspectRatio);
+
             // image suffix
             String imageSuffix = "tif";
             if (parser.isSet(Opt.IMAGE_SUFFIX))
@@ -115,6 +122,7 @@ class CalMorph {
 
             _logger.info("max image# in the folder: " + calMorphOption.getMaxImageNumber());
             _logger.debug("image suffix: " + calMorphOption.getImageSuffix());
+            _logger.debug("image aspect ratio: " + calMorphOption.getImageAspectRatio());
             _logger.debug("strain name: " + calMorphOption.getStrainName());
             _logger.debug("input directory: " + calMorphOption.getInputDirectory());
             _logger.debug("output directory: " + calMorphOption.getOutputDirectory());

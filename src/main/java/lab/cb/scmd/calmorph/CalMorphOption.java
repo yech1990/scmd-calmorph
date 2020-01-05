@@ -10,6 +10,11 @@
 
 package lab.cb.scmd.calmorph;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * This class holds the information required to run CalMorph,
  * e.g. output d
@@ -38,6 +43,7 @@ package lab.cb.scmd.calmorph;
  */
 class CalMorphOption {
     private String strainName;
+    private String imageAspectRatio;
     private String imageSuffix;
     private String outputDirectory;
     private String inputDirectory;
@@ -63,6 +69,9 @@ class CalMorphOption {
     }
 
     void setOutputDirectory(String outputDirectory) {
+        File dir = new File(outputDirectory);
+        if (!dir.exists())
+            dir.mkdirs();
         this.outputDirectory = outputDirectory;
     }
 
@@ -80,6 +89,25 @@ class CalMorphOption {
 
     void setMaxImageNumber(int maxImageNumber) {
         this.maxImageNumber = maxImageNumber;
+    }
+
+    List<Integer> getImageAspectRatio() {
+        List<Integer> ratios = Arrays.stream(imageAspectRatio.split("x"))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+        return ratios;
+    }
+
+    Integer getImageWidth() {
+        return getImageAspectRatio().get(0);
+    }
+
+    Integer getImageHeight() {
+        return getImageAspectRatio().get(1);
+    }
+
+    void setImageAspectRatio(String imageAspectRatio) {
+        this.imageAspectRatio = imageAspectRatio;
     }
 
     String getImageSuffix() {

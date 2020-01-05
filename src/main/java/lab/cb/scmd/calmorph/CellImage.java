@@ -63,9 +63,9 @@ class CellImage {
      * @param calD    whether to calculate DAPI
      * @param calA    whether to calculate Actin
      */
-    CellImage(String name, String path, String suffix, int number, String outdir, int startid, boolean calD, boolean calA) {
-        _width = 2040;            //Fixed for the time being
-        _height = 2040;           //Fixed for the time being
+    CellImage(String name, String path, String suffix, int width, int height, int number, String outdir, int startid, boolean calD, boolean calA) {
+        _width = width;            //Fixed for the time being (2040)
+        _height = height;          //Fixed for the time being (2040)
         _size = _width * _height; //Fixed for the time being
         maxdiff = 5;              //Fixed for the time being
         this.name = name;

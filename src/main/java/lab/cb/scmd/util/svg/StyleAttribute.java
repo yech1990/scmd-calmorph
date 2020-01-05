@@ -27,7 +27,7 @@ public class StyleAttribute extends XMLAttribute {
     /**
      *
      */
-    public StyleAttribute() {
+    StyleAttribute() {
         super();
     }
 

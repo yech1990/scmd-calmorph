@@ -34,9 +34,7 @@ class MatOp {
         double[] b = {1, 1, 1, 1, 1};
         double[][] A = new double[5][5];
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                A[i][j] = B[i][j];
-            }
+            System.arraycopy(B[i], 0, A[i], 0, 5);
         }
         for (int i = 0; i < 5; i++) {
             for (int j = i + 1; j < 5; j++) {
@@ -78,9 +76,7 @@ class MatOp {
         double[] x = new double[5];
         double[][] A = new double[5][5];
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                A[i][j] = B[i][j];
-            }
+            System.arraycopy(B[i], 0, A[i], 0, 5);
         }
         for (int i = 0; i < 5; i++) {
             for (int j = i + 1; j < 5; j++) {
@@ -117,15 +113,13 @@ class MatOp {
         return x;
     }
 
-    public static double[] GE4(double[][] B, double[] b) {
+    private static double[] GE4(double[][] B, double[] b) {
         int n = 6;
         boolean flag = false;
         double[] x = new double[n];
         double[][] A = new double[n][n];
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                A[i][j] = B[i][j];
-            }
+            System.arraycopy(B[i], 0, A[i], 0, n);
         }
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
@@ -170,7 +164,7 @@ class MatOp {
         return x;
     }
 
-    public static double zannsa(double[][] A, double[] x) {
+    private static double zannsa(double[][] A, double[] x) {
         double r = 0;
         for (int i = 0; i < 5; i++) {
             double s = 0;
@@ -194,7 +188,7 @@ class MatOp {
         return A;
     }
 
-    public static double[][] BtB(double[][] B, int repnum) {
+    static double[][] BtB(double[][] B, int repnum) {
         int n = 6;
         double[][] A = new double[n][n];
         for (int i = 0; i < n; i++) {
@@ -207,7 +201,7 @@ class MatOp {
         return A;
     }
 
-    public static void invMat(double[][] A) {
+    private static void invMat(double[][] A) {
         int n = 6;
         for (int i = 0; i < n; i++) {
             double t = A[i][i];
@@ -246,7 +240,7 @@ class MatOp {
         }
     }
 
-    public static void cholesky(double[][] A) {
+    private static void cholesky(double[][] A) {
         int n = 6;
         double[][] L = new double[n][n];
         for (int i = 0; i < n; i++) {
@@ -264,9 +258,7 @@ class MatOp {
             }
         }
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                A[i][j] = L[i][j];
-            }
+            System.arraycopy(L[i], 0, A[i], 0, n);
         }
     }
 
@@ -283,7 +275,7 @@ class MatOp {
         return s;
     }
 
-    public static double[][] tennchi(double[][] A) {
+    private static double[][] tennchi(double[][] A) {
         int n = 6;
         double[][] B = new double[n][n];
         for (int i = 0; i < n; i++) {
@@ -294,7 +286,7 @@ class MatOp {
         return B;
     }
 
-    public static double[][] mul(double[][] A, double[][] B) {
+    private static double[][] mul(double[][] A, double[][] B) {
         int n = 6;
         double[][] C = new double[n][n];
         for (int i = 0; i < n; i++) {
@@ -307,7 +299,7 @@ class MatOp {
         return C;
     }
 
-    public static double[] generalEigenVector(double[][] A, double[][] B) {
+    static double[] generalEigenVector(double[][] A, double[][] B) {
         int n = 6;
         double[][] Bt1 = new double[n][n];
         double[][] Bt2 = new double[n][n];
@@ -338,7 +330,7 @@ class MatOp {
         return r;
     }
 
-    public static double[] jacobi(double[][] A) {
+    private static double[] jacobi(double[][] A) {
         int n = 6;
         double[][] check = new double[n][n];
         double[][] w = new double[n][n];

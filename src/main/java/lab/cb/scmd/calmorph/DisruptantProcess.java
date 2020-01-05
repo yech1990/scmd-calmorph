@@ -21,7 +21,7 @@ import java.io.*;
 class DisruptantProcess {
     private String name, path, suffix, outdir, xmldir;
     private boolean objectsave, outstate, calD, calA, outimage, outsheet;
-    private int maximage, objectload;
+    private int width, height, maximage, objectload;
 
     private String DATAFILESUFFIX = ".xls";
     private String SUMMARYFILE = "_data";
@@ -35,6 +35,8 @@ class DisruptantProcess {
     DisruptantProcess(CalMorphOption option) {
         this.name = option.getStrainName();
         this.path = option.getInputDirectory();
+        this.width = option.getImageWidth();
+        this.height = option.getImageHeight();
         this.suffix = option.getImageSuffix();
         this.outdir = option.getOutputDirectory();
         this.xmldir = option.getXmlOutputDirectory();
@@ -108,7 +110,7 @@ class DisruptantProcess {
         for (int i = 1; i <= maximage; i++) {
             try {
 
-                CellImage image = new CellImage(name, path, suffix, i, outdir, startid, calD, calA);
+                CellImage image = new CellImage(name, path, suffix, width, height, i, outdir, startid, calD, calA);
                 if (image.err) {
                     _logger.error("error = " + image.err);
                     if (!image.err_kind.equals("")) pw2.println(i + ": " + image.err_kind);

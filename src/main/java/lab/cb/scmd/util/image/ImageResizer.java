@@ -33,9 +33,9 @@ import java.io.InputStreamReader;
  * @author leo
  */
 public class ImageResizer {
-    static public void resizeImage(String fileName) {
+    private static void resizeImage(String fileName) {
         StopWatch sw = new StopWatch();
-        BufferedImage imageSource = null;
+        BufferedImage imageSource;
         try {
             imageSource = ImageIO.read(new File(fileName));
         } catch (IOException e) {
@@ -56,7 +56,6 @@ public class ImageResizer {
             ImageIO.write(scaledImage, "jpeg", System.out);
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            return;
         }
         
         /*
@@ -82,7 +81,7 @@ public class ImageResizer {
         */
     }
 
-    public static void resizeImageByConvert(String fileName) {
+    private static void resizeImageByConvert(String fileName) {
         String cmd = "m:/Program Files/ImageMagick-5.5.6-q16/convert.exe -scale 125% " + fileName + " -";
 
         try {
@@ -94,9 +93,7 @@ public class ImageResizer {
 
             }
             p.waitFor();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             System.err.println(e.getMessage());
         }
     }

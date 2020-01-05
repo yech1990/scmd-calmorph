@@ -18,9 +18,9 @@ import java.io.Writer;
 
 public class SVGOutputter extends XMLOutputter {
 
-    SVGColor foregroundColor = new SVGColor();
-    SVGColor backgroupndColor = new SVGColor();
-    String fontsize = "12pt";
+    private SVGColor foregroundColor = new SVGColor();
+    private SVGColor backgroupndColor = new SVGColor();
+    private String fontsize = "12pt";
 
     /**
      *
@@ -47,7 +47,7 @@ public class SVGOutputter extends XMLOutputter {
         header(300, 300);
     }
 
-    public void header(int width, int height) {
+    private void header(int width, int height) {
         if (_isRootTag) {
             _out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             outputDTD("svg PUBLIC '-//W3C//DTD SVG 1.0//EN' 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'");
@@ -93,7 +93,7 @@ public class SVGOutputter extends XMLOutputter {
         closeTag(); // svg
     }
 
-    public void startGroup() {
+    private void startGroup() {
         startTag("g");
     }
 
@@ -101,7 +101,7 @@ public class SVGOutputter extends XMLOutputter {
         startTag("g", att);
     }
 
-    public void closeGroup() throws InvalidXMLException {
+    private void closeGroup() throws InvalidXMLException {
         closeTag();
     }
 
@@ -134,7 +134,7 @@ public class SVGOutputter extends XMLOutputter {
         drawRect(x, y, width, height, att, new StyleAttribute());
     }
 
-    public void drawRect(int x, int y, int width, int height, XMLAttribute att, StyleAttribute style) {
+    private void drawRect(int x, int y, int width, int height, XMLAttribute att, StyleAttribute style) {
         att.add("x", x);
         att.add("y", y);
         att.add("width", width);
@@ -157,7 +157,7 @@ public class SVGOutputter extends XMLOutputter {
         drawString(str, x, y, style);
     }
 
-    public void drawString(String str, int x, int y, StyleAttribute style) throws InvalidXMLException {
+    private void drawString(String str, int x, int y, StyleAttribute style) throws InvalidXMLException {
         XMLAttribute att = new XMLAttribute();
         att.add("x", x);
         att.add("y", y);
