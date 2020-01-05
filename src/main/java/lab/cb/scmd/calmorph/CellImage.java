@@ -328,28 +328,36 @@ class CellImage {
     ///////////////////////////////////////////////////////////////////////////
     private BufferedImage getBufferedImage(String filename) {
         try {
+            //legacy
             //return JPEGCodec.createJPEGDecoder(new FileInputStream(file)).decodeAsBufferedImage();
-            BufferedImage input = ImageIO.read(new File(filename));
-            short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
-            short[] per = percentiles(pixels, 0.8, 0.999);
-            short min = per[0];
-            short max = per[1];
-            double norm = 255 / ((max - min) * 1.0);
-            short[] pixelsNorm = new short[pixels.length];
-            for (int i = 0; i < pixels.length; i++) {
-                if (pixels[i] < min) {
-                    pixelsNorm[i] = 0;
-                } else if (pixels[i] > max) {
-                    pixelsNorm[i] = 255;
-                } else {
-                    pixelsNorm[i] = (short) ((pixels[i] - min) * norm);
+
+            //tif format (16 bits -> 8 bits)
+            if (suffix.equals("tif")) {
+                BufferedImage input = ImageIO.read(new File(filename));
+                short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
+                short[] per = percentiles(pixels, 0.8, 0.999);
+                short min = per[0];
+                short max = per[1];
+                double norm = 255 / ((max - min) * 1.0);
+                short[] pixelsNorm = new short[pixels.length];
+                for (int i = 0; i < pixels.length; i++) {
+                    if (pixels[i] < min) {
+                        pixelsNorm[i] = 0;
+                    } else if (pixels[i] > max) {
+                        pixelsNorm[i] = 255;
+                    } else {
+                        pixelsNorm[i] = (short) ((pixels[i] - min) * norm);
+                    }
                 }
+                BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
+                final short[] a = ((DataBufferUShort) output.getRaster().getDataBuffer()).getData();
+                System.arraycopy(pixelsNorm, 0, a, 0, pixelsNorm.length);
+                return output;
             }
-            //System.out.println(Arrays.toString(pixelsNorm));
-            BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
-            final short[] a = ((DataBufferUShort) output.getRaster().getDataBuffer()).getData();
-            System.arraycopy(pixelsNorm, 0, a, 0, pixelsNorm.length);
-            return output;
+            //jpg format
+            else {
+                return ImageIO.read(new File(filename));
+            }
         } catch (IOException ioe) {
             _logger.error(ioe);
             return null;
