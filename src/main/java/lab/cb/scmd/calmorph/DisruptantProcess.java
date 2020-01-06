@@ -22,6 +22,7 @@ class DisruptantProcess {
     private String name, path, suffix, outdir, xmldir;
     private boolean objectsave, outstate, calD, calA, outimage, outsheet;
     private int width, height, maximage, objectload;
+    private double darkenBackground;
 
     private String DATAFILESUFFIX = ".xls";
     private String SUMMARYFILE = "_data";
@@ -46,6 +47,7 @@ class DisruptantProcess {
         this.outstate = false;
         this.calD = option.isCalD();
         this.calA = option.isCalA();
+        this.darkenBackground = option.getDarkenBackground();
         this.outimage = true;
         this.outsheet = true;
     }
@@ -59,15 +61,15 @@ class DisruptantProcess {
             f = new File(xmlResultFolderName);
             if (!f.exists()) f.mkdir();
         }
-        PrintWriter pwbaseC = null;
-        PrintWriter pwexpandC = null;
-        PrintWriter pwbaseD = null;
-        PrintWriter pwexpandD = null;
-        PrintWriter pwbaseA = null;
-        PrintWriter pwexpandA = null;
-        PrintWriter pwpatchA = null;
-        PrintWriter pwvers = null;
-        PrintWriter pw2 = null;
+        PrintWriter pwbaseC;
+        PrintWriter pwexpandC;
+        PrintWriter pwbaseD;
+        PrintWriter pwexpandD;
+        PrintWriter pwbaseA;
+        PrintWriter pwexpandA;
+        PrintWriter pwpatchA;
+        PrintWriter pwvers;
+        PrintWriter pw2;
         PrintWriter pwxml = null;
 
 
@@ -110,7 +112,8 @@ class DisruptantProcess {
         for (int i = 1; i <= maximage; i++) {
             try {
 
-                CellImage image = new CellImage(name, path, suffix, width, height, i, outdir, startid, calD, calA);
+                CellImage image = new CellImage(name, path, suffix, width, height, i, outdir, startid,
+                        calD, calA, darkenBackground);
                 if (image.err) {
                     _logger.error("error = " + image.err);
                     if (!image.err_kind.equals("")) pw2.println(i + ": " + image.err_kind);

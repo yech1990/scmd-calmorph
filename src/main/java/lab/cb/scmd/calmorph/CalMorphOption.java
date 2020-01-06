@@ -51,6 +51,7 @@ class CalMorphOption {
     private int maxImageNumber = 0;
     private boolean calD = true;
     private boolean calA = true;
+    private double darkenBackground = 0;
 
     CalMorphOption() {
 
@@ -140,6 +141,15 @@ class CalMorphOption {
     void setCalA(boolean calA) {
         this.calA = calA;
     }
+
+    double getDarkenBackground() {
+        return darkenBackground;
+    }
+
+    void setDarkenBackground(double darkenBackground) {
+        this.darkenBackground = darkenBackground;
+    }
+
 }
 
 

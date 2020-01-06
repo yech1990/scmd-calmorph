@@ -51,6 +51,8 @@ class CalMorph {
                     "actin mode, opt: [true / false], default false", "false");
             parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "DAPI",
                     "DAPI mode, opt: [true / false], default true", "true");
+            parser.addOptionWithArgument(Opt.DARKEN_BACKGROUND, "b", "background", "DARKEN_BACKGROUND",
+                    "make the background **darker** by percentage (%), opt: float number in 0~100, default 0", "0");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE",
                     "logger configuration file");
             parser.addOption(Opt.VERBOSE, "v", "verbose",
@@ -59,8 +61,8 @@ class CalMorph {
             parser.parse(args); // read the command line arguments
 
             if (parser.isSet(Opt.HELP) || args.length == 0) {
-                System.out.println("CalMorph version 2.0.1");
-                System.out.println("> A forked version of CalMorph in Helab by YC\n");
+                System.out.println("CalMorph version 2.0.2");
+                System.out.println("> A forked version of CalMorph in HeLab by YC\n");
                 System.out.println("Usage: java -jar CalMorph.jar [options]");
                 System.out.println("> [options]");
                 System.out.println(parser.helpMessage());
@@ -104,8 +106,18 @@ class CalMorph {
                 strainName = parser.getValue(Opt.STRAIN_NAME);
             calMorphOption.setStrainName(strainName);
 
+            // darken background by percentage (%)
+            double darkenBackground = 0.0;
+            if (parser.isSet(Opt.DARKEN_BACKGROUND))
+                darkenBackground = Double.parseDouble(parser.getValue(Opt.DARKEN_BACKGROUND)) / 100.0;
+            if (darkenBackground > 0.99999) {
+                darkenBackground = 0.99999;
+            }
+            calMorphOption.setDarkenBackground(darkenBackground);
+
             calMorphOption.setCalA(parser.isSet(Opt.ACTIN) && Boolean.parseBoolean(parser.getValue(Opt.ACTIN)));
             calMorphOption.setCalD(!parser.isSet(Opt.DAPI) || Boolean.parseBoolean(parser.getValue(Opt.DAPI)));
+
 
             Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\." + imageSuffix);
             File inputDir = new File(inputDirName);
@@ -142,7 +154,7 @@ class CalMorph {
     }
 
     enum Opt {
-        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_ASPECTRATIO, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
+        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_ASPECTRATIO, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI, DARKEN_BACKGROUND
     }
 
 }
