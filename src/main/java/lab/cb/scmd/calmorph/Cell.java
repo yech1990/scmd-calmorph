@@ -125,19 +125,19 @@ class Cell implements Serializable {
         fitness = -1;
     }
 
-    public String getCgroup() {
+    String getCgroup() {
         return Cgroup;
     }
 
-    public String getDgroup() {
+    String getDgroup() {
         return Dgroup;
     }
 
-    public String getAgroup() {
+    String getAgroup() {
         return Agroup;
     }
 
-    public void setAgroup(String ag) {
+    void setAgroup(String ag) {
         Agroup = ag;
     }
 
@@ -1851,7 +1851,7 @@ class Cell implements Serializable {
         farfromneckApoint = new Point[3];
         for (int i = 0; i < 3; i++)
             farfromneckApoint[i] = new Point(-1, -1);
-        if (Agroup != "N" && group > 1) {// 母細胞側、芽側、および細胞全体でネックの中点から最も遠いアクチン領域上の点を求める
+        if (!Agroup.equals("N") && group > 1) {// 母細胞側、芽側、および細胞全体でネックの中点から最も遠いアクチン領域上の点を求める
             double max = 0;
             int maxpoint = -1;
             double mmax = 0;
@@ -1943,7 +1943,7 @@ class Cell implements Serializable {
             }
         }
 
-        if (Agroup != "N" && group > 1) {// 母細胞と芽のアクチンの偏りを求める
+        if (!Agroup.equals("N") && group > 1) {// 母細胞と芽のアクチンの偏りを求める
             double distbr = 0;
             double total = 0;
             for (Object o : Acover) {
@@ -1985,7 +1985,7 @@ class Cell implements Serializable {
             }
         }
 
-        if (Agroup != "N" && group > 0) {
+        if (!Agroup.equals("N") && group > 0) {
             int c = 0;
             // c = 0, A2-1
             Apointparam[c] = Acenterpoint[0][0];// アクチン領域の重心（母）

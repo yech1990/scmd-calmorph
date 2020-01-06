@@ -258,7 +258,9 @@ class CellImage {
         medianim(ci);
         ci2 = ci.clone();
         vivid(ci, 3);
+        //changed by yechang 3 -> 3
         vivid(ci2, 7);
+        //changed by yechang 7 -> 7
         int[] difci = dif(ci, ci2);
         division(ci, ci2, difci);
         ci = gradim(ci);
@@ -333,7 +335,9 @@ class CellImage {
             if (suffix.equals("tif")) {
                 BufferedImage input = ImageIO.read(new File(filename));
                 short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
-                short[] per = percentiles(pixels, 0.8, 0.999);
+                double lowerBound = 0.001; // in python: 0.800
+                double upperBound = 0.999; // in python: 0.999
+                short[] per = percentiles(pixels, lowerBound, upperBound);
                 short min = per[0];
                 short max = per[1];
                 double norm = 255 / ((max - min) * 1.0);
@@ -607,7 +611,7 @@ class CellImage {
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    // take binary image and label color color
+    // take binary image and label color
     // minco--use anything smaller than this value
     // cornercut--true means everything on the edge of the image
     /////////////////////////////////////////////////////////////////////////////
@@ -2168,7 +2172,6 @@ class CellImage {
         for (Cell value : cell) {
             value.outCImage(g);
         }
-        //System.out.println(outdir+"/"+name+"/"+name+"-conA"+number+".jpg");
         writeJPEG(bi, outdir + "/" + name + "/" + name + "-conA" + number + ".jpg");
     }
 

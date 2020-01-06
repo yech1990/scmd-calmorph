@@ -21,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class CalMorph {
-    String name, path, outdir, xmldir;
 
     public CalMorph() {
     }
@@ -30,26 +29,37 @@ class CalMorph {
      * Usage > java -jar calmorph.jar [option] [image_number]
      */
     public static void main(String[] args) {
-        OptionParser<Opt> parser = new OptionParser<Opt>();
+        OptionParser<Opt> parser = new OptionParser<>();
         BasicConfigurator.configure();
         Logger _logger = Logger.getLogger(CalMorph.class);
         try {
-            parser.addOption(Opt.HELP, "h", "help", "display hyelp message");
-            parser.addOptionWithArgument(Opt.OUTPUT_DIR_IMAGE_XMLDATA, "x", "xout", "DIR", "output directory of XML image data", "xml");
-            parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR", "input photo directory", ".");
-            parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR", "output directory of the analysis results", "result");
-            parser.addOption(Opt.VERBOSE, "v", "verbose", "display verbose messages");
-            parser.addOptionWithArgument(Opt.IMAGE_ASPECTRATIO, "r", "ratio", "IMAGE_ASPECTRATIO", "specify the aspect ratio of input image file, opt: [widthxheight], default: 2040x2040");
-            parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX", "specify the suffix of input image file, default: tif");
-            parser.addOptionWithArgument(Opt.STRAIN_NAME, "n", "strain", "STRAIN_NAME", "specify the strain name");
-            parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE", "logger configuration file");
-            parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN", "actin mode, opt: [true / false], default false", "false");
-            parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "DAPI", "DAPI mode, opt: [true / false], default true", "true");
+            parser.addOption(Opt.HELP, "h", "help",
+                    "display this help message");
+            parser.addOptionWithArgument(Opt.INPUTDIR, "i", "input", "DIR",
+                    "input photo directory", ".");
+            parser.addOptionWithArgument(Opt.OUTPUTDIR, "o", "output", "DIR",
+                    "output directory of the analysis results", "result");
+            parser.addOptionWithArgument(Opt.OUTPUT_DIR_IMAGE_XMLDATA, "x", "xout", "DIR",
+                    "output directory of XML image data", "xml");
+            parser.addOptionWithArgument(Opt.STRAIN_NAME, "n", "strain", "STRAIN_NAME",
+                    "specify the strain name");
+            parser.addOptionWithArgument(Opt.IMAGE_SUFFIX, "s", "suffix", "IMAGE_SUFFIX",
+                    "specify the suffix of input image file, default: tif");
+            parser.addOptionWithArgument(Opt.IMAGE_ASPECTRATIO, "r", "ratio", "IMAGE_ASPECTRATIO",
+                    "specify the aspect ratio of input image file, opt: [widthxheight], default: 2040x2040");
+            parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN",
+                    "actin mode, opt: [true / false], default false", "false");
+            parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "DAPI",
+                    "DAPI mode, opt: [true / false], default true", "true");
+            parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE",
+                    "logger configuration file");
+            parser.addOption(Opt.VERBOSE, "v", "verbose",
+                    "display verbose messages");
 
             parser.parse(args); // read the command line arguments
 
             if (parser.isSet(Opt.HELP) || args.length == 0) {
-                System.out.println("CalMorph version 2.0.0");
+                System.out.println("CalMorph version 2.0.1");
                 System.out.println("> A forked version of CalMorph in Helab by YC\n");
                 System.out.println("Usage: java -jar CalMorph.jar [options]");
                 System.out.println("> [options]");
@@ -77,7 +87,7 @@ class CalMorph {
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 
             // image aspect ratio
-            String imageAspectRatio = "2080x2080";
+            String imageAspectRatio = "2040x2040";
             if (parser.isSet(Opt.IMAGE_ASPECTRATIO))
                 imageAspectRatio = parser.getValue(Opt.IMAGE_ASPECTRATIO);
             calMorphOption.setImageAspectRatio(imageAspectRatio);
@@ -94,8 +104,8 @@ class CalMorph {
                 strainName = parser.getValue(Opt.STRAIN_NAME);
             calMorphOption.setStrainName(strainName);
 
-            calMorphOption.setCalA(parser.isSet(Opt.ACTIN) ? Boolean.valueOf(parser.getValue(Opt.ACTIN)) : false);
-            calMorphOption.setCalD(parser.isSet(Opt.DAPI) ? Boolean.valueOf(parser.getValue(Opt.DAPI)) : true);
+            calMorphOption.setCalA(parser.isSet(Opt.ACTIN) && Boolean.parseBoolean(parser.getValue(Opt.ACTIN)));
+            calMorphOption.setCalD(!parser.isSet(Opt.DAPI) || Boolean.parseBoolean(parser.getValue(Opt.DAPI)));
 
             Pattern conAfileNamePattern = Pattern.compile("[\\w-]+-C([0-9]+)\\." + imageSuffix);
             File inputDir = new File(inputDirName);

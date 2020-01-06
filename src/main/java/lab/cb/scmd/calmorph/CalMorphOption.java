@@ -92,10 +92,9 @@ class CalMorphOption {
     }
 
     List<Integer> getImageAspectRatio() {
-        List<Integer> ratios = Arrays.stream(imageAspectRatio.split("x"))
+        return Arrays.stream(imageAspectRatio.split("x"))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
-        return ratios;
     }
 
     void setImageAspectRatio(String imageAspectRatio) {
