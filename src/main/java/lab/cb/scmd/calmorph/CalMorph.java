@@ -10,6 +10,7 @@
 
 package lab.cb.scmd.calmorph;
 
+import com.github.tomaslanger.chalk.Chalk;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -47,12 +48,12 @@ class CalMorph {
                     "specify the suffix of input image file, default: tif");
             parser.addOptionWithArgument(Opt.IMAGE_ASPECTRATIO, "r", "ratio", "IMAGE_ASPECTRATIO",
                     "specify the aspect ratio of input image file, opt: [widthxheight], default: 2040x2040");
-            parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ACTIN",
+            parser.addOptionWithArgument(Opt.ACTIN, "a", "actin", "ture/false",
                     "actin mode, opt: [true / false], default false", "false");
-            parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "DAPI",
+            parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "ture/false",
                     "DAPI mode, opt: [true / false], default true", "true");
-            parser.addOptionWithArgument(Opt.DARKEN_BACKGROUND, "b", "background", "DARKEN_BACKGROUND",
-                    "make the background **darker** by percentage (%), opt: float number in 0~100, default 0", "0");
+            parser.addOptionWithArgument(Opt.DARKEN_BACKGROUND, "b", "background", "PERCENTAGE",
+                    "make the background " + Chalk.on("darker").inverse().bold().bgWhite().gray() + " by percentage (%), opt: float number in 0~100, default 0", "0");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE",
                     "logger configuration file");
             parser.addOption(Opt.VERBOSE, "v", "verbose",
@@ -61,8 +62,8 @@ class CalMorph {
             parser.parse(args); // read the command line arguments
 
             if (parser.isSet(Opt.HELP) || args.length == 0) {
-                System.out.println("CalMorph version 2.0.2");
-                System.out.println("> A forked version of CalMorph in HeLab by YC\n");
+                System.out.println(Chalk.on("CalMorph").cyan().bold() + " version " + Chalk.on("2.0.2").cyan().bold());
+                System.out.println(Chalk.on("> A forked version of CalMorph in HeLab by YC\n").yellow());
                 System.out.println("Usage: java -jar CalMorph.jar [options]");
                 System.out.println("> [options]");
                 System.out.println(parser.helpMessage());

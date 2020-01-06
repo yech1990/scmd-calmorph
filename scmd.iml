@@ -24,6 +24,11 @@
     <orderEntry type="library" name="Maven: org.xerial:xerial-core:1.0.10" level="project" />
     <orderEntry type="library" name="Maven: org.xerial.thirdparty:org.antlr.antlr3:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: xpp3:xpp3:1.1.4c" level="project" />
+    <orderEntry type="library" name="Maven: com.github.tomas-langer:chalk:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.fusesource.hawtjni:hawtjni-runtime:1.11" level="project" />
+    <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi-native:1.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.fusesource.jansi:jansi-native:windows32:1.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.fusesource.jansi:jansi-native:windows64:1.5" level="project" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="renderExternalDocumentation" value="true" />
