@@ -29,14 +29,33 @@ import java.util.Vector;
 
 
 public class ValidParameters implements DataFileName {
-    private OptionParser _parser = new OptionParser();
-    private String wildtype_dir = ".";
-    private String mutant_dir = ".";
-
     // option IDs
     private final static int OPT_HELP = 0;
     private final static int OPT_WILDDIR = 1;
     private final static int OPT_MUTANTDIR = 2;
+    private OptionParser _parser = new OptionParser();
+    private String wildtype_dir = ".";
+    private String mutant_dir = ".";
+    private String _dir_name;
+    private HashMap<String, Vector<Cell>> _parameterToDataTable;
+    private Vector<String> _yukoParameterList;
+    private Vector<Vector<Cell>> _yukoDataTable;
+    private String[] missingValueList = {"NaN", "Infinity", "-1", "-1.0"};
+    private int number_of_partitions = 20;
+    private ValidParameters() {
+    }
+
+    public static void main(String[] args) {
+        try {
+            ValidParameters c = new ValidParameters();
+            c.setupByArguments(args);
+            c.MakeVPListAll();
+            c.MakeValidParamTable();
+        } catch (SCMDException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
 
     /**
      * @param args
@@ -71,30 +90,6 @@ public class ValidParameters implements DataFileName {
         System.out.println(_parser.createHelpMessage());
         System.exit(0);
     }
-
-    public static void main(String[] args) {
-        try {
-            ValidParameters c = new ValidParameters();
-            c.setupByArguments(args);
-            c.MakeVPListAll();
-            c.MakeValidParamTable();
-        } catch (SCMDException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
-    private String _dir_name;
-    private HashMap<String, Vector<Cell>> _parameterToDataTable;
-    private Vector<String> _yukoParameterList;
-    private Vector<Vector<Cell>> _yukoDataTable;
-    private String[] missingValueList = {"NaN", "Infinity", "-1", "-1.0"};
-    private int number_of_partitions = 20;
-
-
-    private ValidParameters() {
-    }
-
 
     //	有効パラメーター抽出プログラム
 //	引数はデータのあるディレクトリのパス。

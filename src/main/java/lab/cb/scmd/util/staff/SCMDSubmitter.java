@@ -21,14 +21,10 @@ import java.util.regex.Pattern;
 //import java.net.*;
 
 public class SCMDSubmitter extends JFrame implements ActionListener {
-    //static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
-    //static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
-    static String ORF_QUERY; // = SCMD_ROOT + "tools/get_orf.cgi?name=";
-    static String PHOTO_FOLDER;// = "staff/photo";
-    //static String PHOTO_FOLDER2 = "staff/images/new images/auto";
-    static String SERVER; // = SCMD_ROOT + PHOTO_FOLDER;
-    //static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
-    static String username = "birdstaff";
+    private final static int P_SCMD_ROOT = 0;
+    private final static int P_PHOTO_DIR = 1;
+    private final static int P_IRFAN_VIEW = 2;
+    private final static int P_IMAGE_MAGICK = 3;
     //static String username2 = "bird";
 //  	final static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
 //  	final static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
@@ -38,47 +34,52 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
 //  	final static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
 //	final static String username = "birdstaff";
 //	final static String username2 = "bird";
-
-    static String password;
-
-    static JFrame passFrame;
-    JFileChooser fc;
-
-
-    public final String[] photoCategory = {"A", "C", "D"};
-    public final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
-    public final int ACTINE = 0;
-    public final int CON_A = 1;
-    public final int DAPI = 2;
-
-    final String SLA = File.separator;
-    final String ROOTDIR = "C:" + SLA;
-    String newline = "\n";
-
-    JButton dirSelectButton;
-    JButton exitButton;
-
-    JTextField inputDir;
-    static JLabel label;
+    private final static int P_CONVERT = 4;
+    private final static int P_MOGRIFY = 5;
+    private final static int P_ORF_TABLE = 6;
+    private final static int P_PLATE_TABLE = 7;
+    private static String[] PropertyNames =
+            {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
+                    "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
+                    "ORF_TABLE", "PLATE_TABLE"};
+    private static String[] UserProperties;
+    //static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
+    //static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
+    private static String ORF_QUERY; // = SCMD_ROOT + "tools/get_orf.cgi?name=";
+    private static String PHOTO_FOLDER;// = "staff/photo";
+    //static String PHOTO_FOLDER2 = "staff/images/new images/auto";
+    private static String SERVER; // = SCMD_ROOT + PHOTO_FOLDER;
+    //static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
+    private static String username = "birdstaff";
+    private static String password;
+    private static JFrame passFrame;
+    private static JLabel label;
     static JRadioButton onlineButton;
     static JRadioButton offlineButton;
-
-    final String EXIT = "exit";
-    final String DIR_SELECT = "dir select";
-    final String DIR_CHANGE = "dir change";
-    final String SUBMIT = "submit";
-
-    JButton submitButton;
-    JFrame confirmFrame;
-
-    JProgressBar progress;
-
-    final String FILE_PATTERN =
+    public final String[] photoCategory = {"A", "C", "D"};
+    public final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
+    private final int ACTINE = 0;
+    private final int CON_A = 1;
+    private final int DAPI = 2;
+    private final String SLA = File.separator;
+    private final String ROOTDIR = "C:" + SLA;
+    private final String EXIT = "exit";
+    private final String DIR_SELECT = "dir select";
+    private final String DIR_CHANGE = "dir change";
+    private final String SUBMIT = "submit";
+    private final String FILE_PATTERN =
             "[-0-9a-z]*-(A|C|D)([1-9][0-9]*).jpg";
-    final int IMAGE_TYPE = 1;
-    final int PHOTO_NUM = 2;
-
-    public SCMDSubmitter(char[] pswd) {
+    private final int IMAGE_TYPE = 1;
+    private final int PHOTO_NUM = 2;
+    private JFileChooser fc;
+    private String newline = "\n";
+    private JButton dirSelectButton;
+    private JButton exitButton;
+    private JTextField inputDir;
+    private JButton submitButton;
+    JFrame confirmFrame;
+    private JProgressBar progress;
+    private SCMDSubmitter(char[] pswd) {
         super("SCMD Toolkit");
         JPanel directorySelectPane = new JPanel();
 
@@ -122,270 +123,6 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         });
 
     }
-
-
-    // GUIでパネルのサイズを固定しまうための関数
-    public void setPanelSize(JPanel pane, Dimension dim) {
-        pane.setMaximumSize(dim);
-        pane.setMinimumSize(dim);
-        pane.setPreferredSize(dim);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
-
-        if (command.equals(EXIT)) {
-            // exit
-            System.exit(0);
-        } else if (command.equals(DIR_SELECT)) {
-            // select directory
-            fc = new JFileChooser();
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fc.setCurrentDirectory(new File(inputDir.getText()));
-            int ret = fc.showOpenDialog(SCMDSubmitter.this);
-            if (ret == JFileChooser.APPROVE_OPTION) {
-                File dir = fc.getSelectedFile();
-                inputDir.setText(dir.getAbsolutePath());
-            }
-        } else if (command.equals(SUBMIT)) {
-            File path = new File(inputDir.getText());
-            String[] ls = path.list();
-            Pattern p = Pattern.compile(FILE_PATTERN);
-            TreeMap fileMap = new TreeMap(new PhotoNumComparator());
-            int imgfilenum = 0;
-            for (int i = 0; i < ls.length; i++) {
-                Matcher m = p.matcher(ls[i]);
-                if (m.matches()) {
-                    imgfilenum++;
-                    for (int j = 1; j <= m.groupCount(); j++) {
-                        Integer pn = new Integer(m.group(PHOTO_NUM));
-                        PhotoGroup pg;
-                        if (fileMap.containsKey(pn)) {
-                            pg = (PhotoGroup) fileMap.get(pn);
-                            fileMap.remove(pn);
-                        } else {
-                            pg = new PhotoGroup();
-                        }
-                        pg.add(ls[i], m.group(IMAGE_TYPE));
-                        fileMap.put(pn, pg);
-                    }
-                }
-            }
-            Collection c = fileMap.values();
-            Iterator ci = c.iterator();
-
-            try {
-                HttpURL httpURL = new HttpURL(SERVER);
-                //HttpURL httpURL2 = new HttpURL(SERVER2);
-                httpURL.setUserInfo(username, password);
-                //httpURL2.setUserInfo(username2, password);
-                WebdavResource wr = new WebdavResource(httpURL);
-                //WebdavResource wr2 = new WebdavResource(httpURL2);
-                String folder = path.getName();
-                wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
-                //wr2.setPath("/" + PHOTO_FOLDER2 + "/" + folder);
-                String logText = "";
-
-                progress = new JProgressBar(0, c.size());
-                progress.setValue(0);
-                progress.setStringPainted(true);
-                JPanel progressPane = new JPanel();
-                progressPane.add(progress);
-                setPanelSize(progressPane, new Dimension(400, 80));
-                ProgressFrame progressFrame = new ProgressFrame();
-                Container prPane = progressFrame.getContentPane();
-                progressFrame.setSize(300, 100);
-                prPane.add(progressPane);
-                int prcounter = 0;
-
-                if (!wr.exists()) {
-                    progressFrame.setVisible(true);
-                    wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder);
-                    //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder);
-                    while (ci.hasNext()) {
-                        PhotoGroup pg = (PhotoGroup) ci.next();
-                        for (int j = 0; j < 3; j++) {
-                            if (pg.File[j] != null) {
-                                File file = new File(inputDir.getText() + SLA + pg.File[j]);
-                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
-                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
-                                Calendar cl = Calendar.getInstance();
-                                logText += pg.File[j] + '\t' + pg.File[j] + '\t' + cl.getTime() + newline;
-                                prcounter++;
-                                progress.setValue(prcounter);
-                                progress.update(progress.getGraphics());
-
-                            }
-                        }
-                    }
-                    PrintWriter pw;
-                    pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
-                    pw.print(logText);
-                    pw.print('\t' + "finished");
-                    pw.flush();
-                    pw.close();
-                    File log = new File(inputDir.getText() + SLA + "rename_log");
-                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                    File unuse = new File(inputDir.getText() + SLA + "unusable");
-                    if (unuse.exists()) {
-                        wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                        //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
-                        String[] unusefiles = unuse.list();
-                        for (int i = 0; i < unusefiles.length; i++) {
-                            File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                        }
-                    }
-                    JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    int ans = JOptionPane.showConfirmDialog(null, "すでにサーバー上に同じORF名のついたフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
-                    if (ans == JOptionPane.YES_OPTION) {
-                        progressFrame.setVisible(true);
-                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
-                        if (!wr.exists()) {
-                            while (ci.hasNext()) {
-                                PhotoGroup pg = (PhotoGroup) ci.next();
-                                for (int j = 0; j < 3; j++) {
-                                    if (pg.File[j] != null) {
-                                        File file = new File(inputDir.getText() + SLA + pg.File[j]);
-                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
-                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
-                                        Calendar cl = Calendar.getInstance();
-                                        logText += pg.File[j] + '\t' + pg.File[j] + '\t' + cl.getTime() + newline;
-                                        prcounter++;
-                                        progress.setValue(prcounter);
-                                        progress.update(progress.getGraphics());
-                                    }
-                                }
-                            }
-                            PrintWriter pw;
-                            pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
-                            pw.print(logText);
-                            pw.print('\t' + "finished");
-                            pw.flush();
-                            pw.close();
-                            File log = new File(inputDir.getText() + SLA + "rename_log");
-                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                            File unuse = new File(inputDir.getText() + SLA + "unusable");
-                            if (unuse.exists()) {
-                                wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                                //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
-                                String[] unusefiles = unuse.list();
-                                for (int i = 0; i < unusefiles.length; i++) {
-                                    File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                }
-                            }
-                            JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            File log = new File(inputDir.getText() + SLA + "old_rename_log");
-                            wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                            PrintWriter pw;
-                            pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
-                            FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
-                            int ch;
-                            int counter = 0;
-                            String[] str = new String[1024];
-                            while ((char) (ch = fr.read()) != '\t') {
-                                pw.print((char) ch);
-                                while ((char) (ch = fr.read()) != '\t') pw.print((char) ch);
-                                pw.print('\t');
-                                str[counter] = "";
-                                while ((char) (ch = fr.read()) != '\t') {
-                                    str[counter] += (char) ch;
-                                    pw.print((char) ch);
-                                }
-                                pw.print('\t');
-                                counter++;
-                                while ((char) (ch = fr.read()) != '\n') pw.print((char) ch);
-                                pw.print('\n');
-                            }
-                            fr.close();
-                            log.delete();
-                            while (ci.hasNext()) {
-                                PhotoGroup pg = (PhotoGroup) ci.next();
-                                for (int j = 0; j < 3; j++) {
-                                    if (pg.File[j] != null) {
-                                        File file = new File(inputDir.getText() + SLA + pg.File[j]);
-                                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j]);
-                                        boolean flag = true;
-                                        if (wr.exists()) {
-                                            for (int k = 0; k < counter; k++) {
-                                                if (str[k].equals(pg.File[j])) flag = false;
-                                            }
-                                        }
-                                        if (flag) {
-                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
-                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
-                                            Calendar cl = Calendar.getInstance();
-                                            logText += pg.File[j] + '\t' + pg.File[j] + '\t' + cl.getTime() + newline;
-                                        }
-                                    }
-                                }
-                                prcounter++;
-                                progress.setValue(prcounter);
-                                progress.update(progress.getGraphics());
-                            }
-                            pw.print(logText);
-                            pw.print('\t' + "finished");
-                            pw.flush();
-                            pw.close();
-                            log = new File(inputDir.getText() + SLA + "rename_log");
-                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
-                            File unuse = new File(inputDir.getText() + SLA + "unusable");
-                            if (unuse.exists()) {
-                                wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                                if (!wr.exists()) {
-                                    wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
-                                    //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
-                                }
-                                String[] unusefiles = unuse.list();
-                                for (int i = 0; i < unusefiles.length; i++) {
-                                    File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
-                                }
-                            }
-                            JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "アップロードを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                }
-                progressFrame.dispose();
-                wr.close();
-                //wr2.close();
-            } catch (IOException e2) {
-                // yeastサーバーへの書き込みエラー
-                System.out.println(e2.getMessage());
-                JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-            } catch (HttpException e2) {
-                //yeastサーバーへのアクセスエラー
-                System.out.println(e2.getMessage());
-                JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    public static String[] PropertyNames =
-            {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
-                    "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
-                    "ORF_TABLE", "PLATE_TABLE"};
-    final static public int P_SCMD_ROOT = 0;
-    final static public int P_PHOTO_DIR = 1;
-    final static public int P_IRFAN_VIEW = 2;
-    final static public int P_IMAGE_MAGICK = 3;
-    final static public int P_CONVERT = 4;
-    final static public int P_MOGRIFY = 5;
-    final static public int P_ORF_TABLE = 6;
-    final static public int P_PLATE_TABLE = 7;
-
-    public static String[] UserProperties;
 
     public static void main(String[] args) {
         UserProperties = new String[PropertyNames.length];
@@ -434,29 +171,27 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         label = new JLabel("Enter the password: ");
         JPasswordField passwordField = new JPasswordField(10);
         passwordField.setEchoChar('*');
-        passwordField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JPasswordField input = (JPasswordField) e.getSource();
-                char[] pswd = input.getPassword();
-                password = new String(pswd);
-                boolean check = true;
-                try {
-                    HttpURL httpURL = new HttpURL(SERVER);
-                    httpURL.setUserInfo(username, password);
-                    WebdavResource wr = new WebdavResource(httpURL);
-                    wr.close();
-                } catch (IOException e2) {
-                } catch (HttpException e2) {
-                    label.setText("incorrect password: Enter again");
-                    check = false;
-                }
-                if (check) {
-                    passFrame.dispose();
-                    SCMDSubmitter main_frame = new SCMDSubmitter(pswd);
-                    main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    main_frame.setSize(500, 200);
-                    main_frame.setVisible(true);
-                }
+        passwordField.addActionListener(e -> {
+            JPasswordField input = (JPasswordField) e.getSource();
+            char[] pswd = input.getPassword();
+            password = new String(pswd);
+            boolean check = true;
+            try {
+                HttpURL httpURL = new HttpURL(SERVER);
+                httpURL.setUserInfo(username, password);
+                WebdavResource wr = new WebdavResource(httpURL);
+                wr.close();
+            } catch (IOException ignored) {
+            } catch (HttpException e2) {
+                label.setText("incorrect password: Enter again");
+                check = false;
+            }
+            if (check) {
+                passFrame.dispose();
+                SCMDSubmitter main_frame = new SCMDSubmitter(pswd);
+                main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                main_frame.setSize(500, 200);
+                main_frame.setVisible(true);
             }
         });
 
@@ -475,12 +210,264 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         passFrame.setVisible(true);
     }
 
+    // GUIでパネルのサイズを固定しまうための関数
+    private void setPanelSize(JPanel pane, Dimension dim) {
+        pane.setMaximumSize(dim);
+        pane.setMinimumSize(dim);
+        pane.setPreferredSize(dim);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        switch (command) {
+            case EXIT:
+                // exit
+                System.exit(0);
+            case DIR_SELECT:
+                // select directory
+                fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                fc.setCurrentDirectory(new File(inputDir.getText()));
+                int ret = fc.showOpenDialog(SCMDSubmitter.this);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File dir = fc.getSelectedFile();
+                    inputDir.setText(dir.getAbsolutePath());
+                }
+                break;
+            case SUBMIT:
+                File path = new File(inputDir.getText());
+                String[] ls = path.list();
+                Pattern p = Pattern.compile(FILE_PATTERN);
+                TreeMap<Integer, PhotoGroup> fileMap = new TreeMap<Integer, PhotoGroup>(new PhotoNumComparator());
+                for (String l : ls) {
+                    Matcher m = p.matcher(l);
+                    if (m.matches()) {
+                        for (int j = 1; j <= m.groupCount(); j++) {
+                            Integer pn = Integer.valueOf(m.group(PHOTO_NUM));
+                            PhotoGroup pg;
+                            if (fileMap.containsKey(pn)) {
+                                pg = fileMap.get(pn);
+                                fileMap.remove(pn);
+                            } else {
+                                pg = new PhotoGroup();
+                            }
+                            pg.add(l, m.group(IMAGE_TYPE));
+                            fileMap.put(pn, pg);
+                        }
+                    }
+                }
+                Collection<PhotoGroup> c = fileMap.values();
+                Iterator<PhotoGroup> ci = c.iterator();
+
+                try {
+                    HttpURL httpURL = new HttpURL(SERVER);
+                    //HttpURL httpURL2 = new HttpURL(SERVER2);
+                    httpURL.setUserInfo(username, password);
+                    //httpURL2.setUserInfo(username2, password);
+                    WebdavResource wr = new WebdavResource(httpURL);
+                    //WebdavResource wr2 = new WebdavResource(httpURL2);
+                    String folder = path.getName();
+                    wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
+                    //wr2.setPath("/" + PHOTO_FOLDER2 + "/" + folder);
+                    StringBuilder logText = new StringBuilder();
+
+                    progress = new JProgressBar(0, c.size());
+                    progress.setValue(0);
+                    progress.setStringPainted(true);
+                    JPanel progressPane = new JPanel();
+                    progressPane.add(progress);
+                    setPanelSize(progressPane, new Dimension(400, 80));
+                    ProgressFrame progressFrame = new ProgressFrame();
+                    Container prPane = progressFrame.getContentPane();
+                    progressFrame.setSize(300, 100);
+                    prPane.add(progressPane);
+                    int prcounter = 0;
+
+                    if (!wr.exists()) {
+                        progressFrame.setVisible(true);
+                        wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder);
+                        //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder);
+                        while (ci.hasNext()) {
+                            PhotoGroup pg = ci.next();
+                            for (int j = 0; j < 3; j++) {
+                                if (pg.File[j] != null) {
+                                    File file = new File(inputDir.getText() + SLA + pg.File[j]);
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
+                                    //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
+                                    Calendar cl = Calendar.getInstance();
+                                    logText.append(pg.File[j]).append('\t').append(pg.File[j]).append('\t').append(cl.getTime()).append(newline);
+                                    prcounter++;
+                                    progress.setValue(prcounter);
+                                    progress.update(progress.getGraphics());
+
+                                }
+                            }
+                        }
+                        PrintWriter pw;
+                        pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
+                        pw.print(logText);
+                        pw.print('\t' + "finished");
+                        pw.flush();
+                        pw.close();
+                        File log = new File(inputDir.getText() + SLA + "rename_log");
+                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                        File unuse = new File(inputDir.getText() + SLA + "unusable");
+                        if (unuse.exists()) {
+                            wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                            //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                            String[] unusefiles = unuse.list();
+                            for (String s : unusefiles) {
+                                File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + s);
+                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
+                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                            }
+                        }
+                        JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        int ans = JOptionPane.showConfirmDialog(null, "すでにサーバー上に同じORF名のついたフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
+                        if (ans == JOptionPane.YES_OPTION) {
+                            progressFrame.setVisible(true);
+                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
+                            if (!wr.exists()) {
+                                while (ci.hasNext()) {
+                                    PhotoGroup pg = ci.next();
+                                    for (int j = 0; j < 3; j++) {
+                                        if (pg.File[j] != null) {
+                                            File file = new File(inputDir.getText() + SLA + pg.File[j]);
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
+                                            //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
+                                            Calendar cl = Calendar.getInstance();
+                                            logText.append(pg.File[j]).append('\t').append(pg.File[j]).append('\t').append(cl.getTime()).append(newline);
+                                            prcounter++;
+                                            progress.setValue(prcounter);
+                                            progress.update(progress.getGraphics());
+                                        }
+                                    }
+                                }
+                                PrintWriter pw;
+                                pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
+                                pw.print(logText);
+                                pw.print('\t' + "finished");
+                                pw.flush();
+                                pw.close();
+                                File log = new File(inputDir.getText() + SLA + "rename_log");
+                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                                File unuse = new File(inputDir.getText() + SLA + "unusable");
+                                if (unuse.exists()) {
+                                    wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                    //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                                    String[] unusefiles = unuse.list();
+                                    assert unusefiles != null;
+                                    for (String s : unusefiles) {
+                                        File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + s);
+                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
+                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                    }
+                                }
+                                JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                File log = new File(inputDir.getText() + SLA + "old_rename_log");
+                                wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                PrintWriter pw;
+                                pw = new PrintWriter(new FileWriter(inputDir.getText() + SLA + "rename_log"));
+                                FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
+                                int ch;
+                                int counter = 0;
+                                String[] str = new String[1024];
+                                while ((char) (ch = fr.read()) != '\t') {
+                                    pw.print((char) ch);
+                                    while ((char) (ch = fr.read()) != '\t') pw.print((char) ch);
+                                    pw.print('\t');
+                                    str[counter] = "";
+                                    while ((char) (ch = fr.read()) != '\t') {
+                                        str[counter] += (char) ch;
+                                        pw.print((char) ch);
+                                    }
+                                    pw.print('\t');
+                                    counter++;
+                                    while ((char) (ch = fr.read()) != '\n') pw.print((char) ch);
+                                    pw.print('\n');
+                                }
+                                fr.close();
+                                log.delete();
+                                while (ci.hasNext()) {
+                                    PhotoGroup pg = ci.next();
+                                    for (int j = 0; j < 3; j++) {
+                                        if (pg.File[j] != null) {
+                                            File file = new File(inputDir.getText() + SLA + pg.File[j]);
+                                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j]);
+                                            boolean flag = true;
+                                            if (wr.exists()) {
+                                                for (int k = 0; k < counter; k++) {
+                                                    if (str[k].equals(pg.File[j])) {
+                                                        flag = false;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (flag) {
+                                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + pg.File[j], file);
+                                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + pg.File[j], file);
+                                                Calendar cl = Calendar.getInstance();
+                                                logText.append(pg.File[j]).append('\t').append(pg.File[j]).append('\t').append(cl.getTime()).append(newline);
+                                            }
+                                        }
+                                    }
+                                    prcounter++;
+                                    progress.setValue(prcounter);
+                                    progress.update(progress.getGraphics());
+                                }
+                                pw.print(logText);
+                                pw.print('\t' + "finished");
+                                pw.flush();
+                                pw.close();
+                                log = new File(inputDir.getText() + SLA + "rename_log");
+                                wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "rename_log", log);
+                                File unuse = new File(inputDir.getText() + SLA + "unusable");
+                                if (unuse.exists()) {
+                                    wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                    if (!wr.exists()) {
+                                        wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
+                                        //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
+                                    }
+                                    String[] unusefiles = unuse.list();
+                                    assert unusefiles != null;
+                                    for (String s : unusefiles) {
+                                        File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + s);
+                                        wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
+                                        //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                    }
+                                }
+                                JOptionPane.showMessageDialog(null, "yeastサーバーへのファイルのアップロードを完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "アップロードを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
+                    progressFrame.dispose();
+                    wr.close();
+                    //wr2.close();
+                } catch (IOException | HttpException e2) {
+                    // yeastサーバーへの書き込みエラー
+                    System.out.println(e2.getMessage());
+                    JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
+                } //yeastサーバーへのアクセスエラー
+
+
+                break;
+        }
+    }
+
     class PhotoGroup {
         public String[] File;
 
         private int count;
 
-        public PhotoGroup() {
+        PhotoGroup() {
             File = new String[3];
             count = 0;
         }
@@ -490,21 +477,25 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         }
 
         public void add(String file, String type) {
-            if (type.equals("C")) {
-                File[CON_A] = file;
-            } else if (type.equals("A")) {
-                File[ACTINE] = file;
-            } else if (type.equals("D")) {
-                File[DAPI] = file;
+            switch (type) {
+                case "C":
+                    File[CON_A] = file;
+                    break;
+                case "A":
+                    File[ACTINE] = file;
+                    break;
+                case "D":
+                    File[DAPI] = file;
+                    break;
             }
         }
     }
 
-    class PhotoNumComparator implements Comparator {
+    static class PhotoNumComparator implements Comparator {
         public int compare(Object a, Object b) {
             Integer ai = (Integer) a;
             Integer bi = (Integer) b;
-            return ai.intValue() - bi.intValue();
+            return ai - bi;
         }
 
         public boolean equal(Object a, Object b) {
@@ -514,8 +505,8 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         }
     }
 
-    class ProgressFrame extends JFrame {
-        public ProgressFrame() {
+    static class ProgressFrame extends JFrame {
+        ProgressFrame() {
             super("Progress");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 

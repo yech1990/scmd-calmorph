@@ -15,6 +15,29 @@ package lab.cb.scmd.util.morphologicalarray;
  */
 public class ChiSquareGoodnessOfFitTest {
 
+    private static final double[] partition_le30 = {-Double.MAX_VALUE, -1.0, 0, 1.0, Double.MAX_VALUE};
+    private static final double[] partition_g30 = {-Double.MAX_VALUE, -1.2, -0.4, 0.4, 1.2, Double.MAX_VALUE};
+    private static final double[] partition_g50 = {-Double.MAX_VALUE, -1.5, -0.75, 0, 0.75, 1.5, Double.MAX_VALUE};
+    private static final double[] partition_g75 = {-Double.MAX_VALUE, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, Double.MAX_VALUE};
+    private static final double[] partition_g120 = {-Double.MAX_VALUE, -2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0, Double.MAX_VALUE};
+    private static final double[] prob_le30 = {0.159, 0.341, 0.341, 0.159};
+    private static final double[] prob_g30 = {0.115, 0.230, 0.311, 0.230, 0.115};
+    private static final double[] prob_g50 = {0.067, 0.160, 0.273, 0.273, 0.160, 0.067};
+    private static final double[] prob_g75 = {0.036, 0.079, 0.159, 0.226, 0.226, 0.159, 0.079, 0.036};
+    private static final double[] prob_g120 = {0.023, 0.044, 0.092, 0.150, 0.191, 0.191, 0.150, 0.092, 0.044, 0.023};
+    private Double[] standardizedData;
+    private int[] sampleFrequency;
+    private double[] expectedFrequency;
+    private double[] partition;
+    private double[] prob;
+    private int degreeOfFreedom;
+    public ChiSquareGoodnessOfFitTest(Double[] originalData) {
+        makePartition(originalData.length);
+        standardizedData = StatisticalTests.getStandardizedData(originalData);
+        sampleFrequency = getSampleFrequency(standardizedData);
+        expectedFrequency = getExpectedFrequency(standardizedData.length);
+    }
+
     private void printStatus() {
         for (int i = 0; i < sampleFrequency.length; ++i) {
             System.out.print(partition[i - 1] + "--" + partition[i]);
@@ -25,31 +48,6 @@ public class ChiSquareGoodnessOfFitTest {
         System.out.print(" statistics=" + getStatistics());
         System.out.println(" significance=" + isSignificant(0.01));
     }
-
-    Double[] standardizedData;
-    int[] sampleFrequency;
-    double[] expectedFrequency;
-
-    public ChiSquareGoodnessOfFitTest(Double[] originalData) {
-        makePartition(originalData.length);
-        standardizedData = StatisticalTests.getStandardizedData(originalData);
-        sampleFrequency = getSampleFrequency(standardizedData);
-        expectedFrequency = getExpectedFrequency(standardizedData.length);
-    }
-
-    static final double[] partition_le30 = {-Double.MAX_VALUE, -1.0, 0, 1.0, Double.MAX_VALUE};
-    static final double[] partition_g30 = {-Double.MAX_VALUE, -1.2, -0.4, 0.4, 1.2, Double.MAX_VALUE};
-    static final double[] partition_g50 = {-Double.MAX_VALUE, -1.5, -0.75, 0, 0.75, 1.5, Double.MAX_VALUE};
-    static final double[] partition_g75 = {-Double.MAX_VALUE, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, Double.MAX_VALUE};
-    static final double[] partition_g120 = {-Double.MAX_VALUE, -2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0, Double.MAX_VALUE};
-    double[] partition;
-    static final double[] prob_le30 = {0.159, 0.341, 0.341, 0.159};
-    static final double[] prob_g30 = {0.115, 0.230, 0.311, 0.230, 0.115};
-    static final double[] prob_g50 = {0.067, 0.160, 0.273, 0.273, 0.160, 0.067};
-    static final double[] prob_g75 = {0.036, 0.079, 0.159, 0.226, 0.226, 0.159, 0.079, 0.036};
-    static final double[] prob_g120 = {0.023, 0.044, 0.092, 0.150, 0.191, 0.191, 0.150, 0.092, 0.044, 0.023};
-    double[] prob;
-    int degreeOfFreedom;
 
     private void makePartition(int data_size) {
         if (data_size > 120) {
@@ -101,7 +99,7 @@ public class ChiSquareGoodnessOfFitTest {
         return freq;
     }
 
-    protected double getStatistics() {
+    double getStatistics() {
         double statistics = 0;
         for (int i = 0; i < sampleFrequency.length; ++i) {
             statistics += (sampleFrequency[i] - expectedFrequency[i]) * (sampleFrequency[i] - expectedFrequency[i]) / expectedFrequency[i];

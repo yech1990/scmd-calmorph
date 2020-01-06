@@ -21,28 +21,28 @@ import java.util.HashMap;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class PlainTable {
-    String FIELD_SEPARATOR = "\t";
-    ArrayList<ArrayList<String>> dataArray = new ArrayList<ArrayList<String>>();
-    int rowsize = 0;
-    int colsize = 0;
-    HashMap<String, Integer> colnameMap = new HashMap<String, Integer>();
-    ArrayList<String> colnameList = new ArrayList<String>();
-    HashMap<String, Integer> rownameMap = new HashMap<String, Integer>();
-    ArrayList<String> rownameList = new ArrayList<String>();
+    private String FIELD_SEPARATOR = "\t";
+    private ArrayList<ArrayList<String>> dataArray = new ArrayList<ArrayList<String>>();
+    private int rowsize = 0;
+    private int colsize = 0;
+    private HashMap<String, Integer> colnameMap = new HashMap<String, Integer>();
+    private ArrayList<String> colnameList = new ArrayList<String>();
+    private HashMap<String, Integer> rownameMap = new HashMap<String, Integer>();
+    private ArrayList<String> rownameList = new ArrayList<String>();
+
+    PlainTable() {
+    }
 
     public static void main(String[] args) {
         PlainTable t = new PlainTable();
         t.load(args[0], "\t", false, false);
     }
 
-    public PlainTable() {
-    }
-
     public void load(String filename, String separator) {
         load(filename, FIELD_SEPARATOR, false, false);
     }
 
-    public Integer getRowNumber(String str) {
+    private Integer getRowNumber(String str) {
         return rownameMap.get(str);
     }
 
@@ -50,12 +50,12 @@ public class PlainTable {
         return colnameMap.get(str);
     }
 
-    public ArrayList getOneRow(int n) {
+    private ArrayList getOneRow(int n) {
         return dataArray.get(n);
     }
 
     public ArrayList getOneRow(String str) {
-        return getOneRow(getRowNumber(str).intValue());
+        return getOneRow(getRowNumber(str));
     }
 
     public ArrayList getOneCol(int n) {
@@ -86,15 +86,15 @@ public class PlainTable {
         try {
             BufferedReader in = new BufferedReader(new FileReader(filename));
 
-            if (rowname == true) {
+            if (rowname) {
                 startcol = 1;
             }
             String[] strvector;
-            if (colname == true) {
+            if (colname) {
                 str = in.readLine();
                 strvector = str.split(separator);
                 for (int i = startcol; i < strvector.length; i++) {
-                    colnameMap.put(strvector[i], new Integer(i - startcol));
+                    colnameMap.put(strvector[i], i - startcol);
                     colnameList.add(strvector[i]);
                 }
             }
@@ -103,8 +103,8 @@ public class PlainTable {
             while ((str = in.readLine()) != null) {
                 strvector = str.split(separator);
                 ArrayList<String> v = new ArrayList<String>();
-                if (rowname == true) {
-                    rownameMap.put(strvector[0], new Integer(n));
+                if (rowname) {
+                    rownameMap.put(strvector[0], n);
                     rownameList.add(strvector[0]);
                 }
                 if (maxrowsize == 0)

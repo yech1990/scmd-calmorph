@@ -9,7 +9,10 @@ package lab.cb.scmd.autoanalysis.transform;
 import lab.cb.scmd.exception.SCMDException;
 import lab.cb.scmd.util.table.FlatTable;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 
 /**

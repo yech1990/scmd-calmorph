@@ -19,6 +19,9 @@ import lab.cb.scmd.exception.SCMDException;
  */
 public class AttributePosition {
 
+    private int _tableType;
+    private String _attributeName;
+
     AttributePosition(int tableType, String attributeName) throws SCMDException {
         if (_tableType >= TableTypeServer.getTypeMax())
             throw new SCMDException("invalid table type: " + tableType);
@@ -38,9 +41,5 @@ public class AttributePosition {
         return "(" + TableTypeServer.getTableTypeName(_tableType) + ", "
                 + _attributeName + ")";
     }
-
-    private int _tableType;
-
-    private String _attributeName;
 }
 

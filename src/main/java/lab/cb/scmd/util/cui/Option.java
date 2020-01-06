@@ -16,6 +16,12 @@ import lab.cb.scmd.exception.SCMDException;
  * @author leo
  */
 public class Option extends OptionComposite {
+    String _shortOptionName;
+    String _longOptionName;
+    private int _optionID;
+    private boolean _isSet = false;
+    private String _description;
+
     /**
      * @param optionID        オプションにアクセスするためにユーザが与えるID
      * @param shortOptionName -h など、1文字オプション. 使わない場合は ""にする
@@ -32,7 +38,6 @@ public class Option extends OptionComposite {
     public void collectOptionDescriptions(OptionDescriptionContainer container) {
         container.addDescription(getShortName(), getLongName(), getDescription());
     }
-
 
     /**
      * オプションをセットする
@@ -71,11 +76,11 @@ public class Option extends OptionComposite {
             return "--" + _longOptionName;
     }
 
-    public String getDescription() {
+    private String getDescription() {
         return _description;
     }
 
-    public int getOptionID() {
+    int getOptionID() {
         return _optionID;
     }
 
@@ -85,12 +90,6 @@ public class Option extends OptionComposite {
         _shortOptionName = shortOptionName;
         _longOptionName = longOptionName;
     }
-
-    private int _optionID;
-    private boolean _isSet = false;
-    protected String _shortOptionName;
-    protected String _longOptionName;
-    private String _description;
 
     /* (non-Javadoc)
      * @see lab.cb.scmd.util.cui.OptionComposite#findByLongOptionName(java.lang.String)

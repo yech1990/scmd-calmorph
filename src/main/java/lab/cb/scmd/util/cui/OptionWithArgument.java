@@ -17,6 +17,9 @@ import lab.cb.scmd.exception.SCMDException;
  */
 
 public class OptionWithArgument extends Option {
+    private String _argumentName;
+    private String _argumentValue = "";
+
     public OptionWithArgument(int optionID, String shortName, String longName, String argumentName, String description) throws SCMDException {
         super(optionID, shortName, longName, description);
         _argumentName = argumentName;
@@ -40,16 +43,13 @@ public class OptionWithArgument extends Option {
         return true;
     }
 
-    public void setArgument(String value) {
+    void setArgument(String value) {
         _argumentValue = value;
     }
 
     public String getArgumentValue() {
         return _argumentValue;
     }
-
-    private String _argumentName;
-    private String _argumentValue = "";
 }
 
 

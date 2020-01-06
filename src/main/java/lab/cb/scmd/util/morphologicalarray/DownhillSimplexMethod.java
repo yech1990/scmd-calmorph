@@ -12,23 +12,48 @@ package lab.cb.scmd.util.morphologicalarray;
 
 import lab.cb.scmd.exception.SCMDException;
 
+import java.util.Arrays;
+
 /**
  * @author nakatani
  */
 public class DownhillSimplexMethod {
-    static final int NMAX = 5000;//maximum allowed number of function evaluations.
-    static final int MAX_RESTART = 10;
-    static final double TINY = 1.0e-10;
-    static final int mpts = 3;
-    static final int ndim = 2;
-    static final double ftol = 1.0e-10;
-    double[] y;
-    double[] psum;
-    double[][] p;
+    private static final int NMAX = 5000;//maximum allowed number of function evaluations.
+    private static final int MAX_RESTART = 10;
+    private static final double TINY = 1.0e-10;
+    private static final int mpts = 3;
+    private static final int ndim = 2;
+    private static final double ftol = 1.0e-10;
+    private double[] y;
+    private double[] psum;
+    private double[][] p;
 
-    PowerTransformation transform;
-    double minX;
+    private PowerTransformation transform;
+    private double minX;
     Double[] transformThis;
+
+    //MLE
+//	private double funk(double[] parameters) throws SCMDException{
+//		double[] param=translate(parameters);//get (p,a)
+//		//Double[] transformedData=transform.transform(param[0],param[1]);
+//		Double[] normalizedData=transform.normalizedTransform(param[0],param[1]);
+//		//Double[] standardizedData=StatisticalTests.getStandardizedData(normalizedData);
+//		Double[] EandSD=StatisticalTests.getEandSD(normalizedData);
+//		return EandSD[1].doubleValue();
+//	}
+//	//debug
+//	private double funk(double[] parameters){
+//		double[] param=translate(parameters);
+//		return (param[0]-Math.PI)*(param[0]-Math.PI)/*+(param[1]-Math.E)*(param[1]-Math.E)*/;
+//	}
+    public DownhillSimplexMethod(PowerTransformation caller) {
+        transform = caller;
+        //minX=StatisticalTests.min(transform.getOriginalData() );
+        minX = StatisticalTests.min(transform.getStandardizedData());
+        y = new double[mpts];
+        psum = new double[ndim];
+        p = new double[mpts][ndim];
+    }
 
     //(x,y)-->(p,a): a=-e^{y}+min(X)
     private double[] translate(double[] parameters) {
@@ -54,7 +79,7 @@ public class DownhillSimplexMethod {
             try {
                 startAmoeba(stepSize);
                 if (p[0][0] < -10 || p[0][0] > 10)
-                    throw new SCMDException("too large p=" + p + ", give up PowerTransformation.");
+                    throw new SCMDException("too large p=" + Arrays.deepToString(p) + ", give up PowerTransformation.");
                 //if(p[0][0]<-10)throw new SCMDException("too small p="+p+", give up PowerTransformation.");
                 return;
             } catch (SCMDException e) {
@@ -65,26 +90,6 @@ public class DownhillSimplexMethod {
             }
         }
         throw new SCMDException("Maximum allowed number of restarts.");
-    }
-
-    public void startAmoeba(double step) throws SCMDException {
-        double[] startPoint = new double[ndim];
-        startPoint[0] = 0;
-        startPoint[1] = 0;
-        double[] secondPoint = new double[ndim];
-        secondPoint[0] = step;
-        secondPoint[1] = 0;
-        double[] thirdPoint = new double[ndim];
-        thirdPoint[0] = 0;
-        thirdPoint[1] = step;
-
-        p[0] = startPoint;
-        p[1] = secondPoint;
-        p[2] = thirdPoint;
-        for (int i = 0; i < mpts; ++i) {
-            y[i] = funk(p[i]);
-        }
-        amoeba();
     }
     //chi square
 //	private double funk(double[] parameters) throws SCMDException{
@@ -116,36 +121,32 @@ public class DownhillSimplexMethod {
 //	}
     //skewness
 
+    private void startAmoeba(double step) throws SCMDException {
+        double[] startPoint = new double[ndim];
+        startPoint[0] = 0;
+        startPoint[1] = 0;
+        double[] secondPoint = new double[ndim];
+        secondPoint[0] = step;
+        secondPoint[1] = 0;
+        double[] thirdPoint = new double[ndim];
+        thirdPoint[0] = 0;
+        thirdPoint[1] = step;
+
+        p[0] = startPoint;
+        p[1] = secondPoint;
+        p[2] = thirdPoint;
+        for (int i = 0; i < mpts; ++i) {
+            y[i] = funk(p[i]);
+        }
+        amoeba();
+    }
+
     private double funk(double[] parameters) throws SCMDException {
         double[] param = translate(parameters);
         Double[] transformedData = transform.transform(param[0], param[1]);
         double x = StatisticalTests.getSampleSkewness(transformedData);
         return x * x;
     }
-
-    //MLE
-//	private double funk(double[] parameters) throws SCMDException{
-//		double[] param=translate(parameters);//get (p,a)
-//		//Double[] transformedData=transform.transform(param[0],param[1]);
-//		Double[] normalizedData=transform.normalizedTransform(param[0],param[1]);
-//		//Double[] standardizedData=StatisticalTests.getStandardizedData(normalizedData);
-//		Double[] EandSD=StatisticalTests.getEandSD(normalizedData);
-//		return EandSD[1].doubleValue();
-//	}
-//	//debug
-//	private double funk(double[] parameters){
-//		double[] param=translate(parameters);
-//		return (param[0]-Math.PI)*(param[0]-Math.PI)/*+(param[1]-Math.E)*(param[1]-Math.E)*/;
-//	}
-    public DownhillSimplexMethod(PowerTransformation caller) {
-        transform = caller;
-        //minX=StatisticalTests.min(transform.getOriginalData() );
-        minX = StatisticalTests.min(transform.getStandardizedData());
-        y = new double[mpts];
-        psum = new double[ndim];
-        p = new double[mpts][ndim];
-    }
-
 
     private double[] get_psum(double[][] p) {
         double[] psum = new double[ndim];
@@ -224,12 +225,12 @@ public class DownhillSimplexMethod {
                                 p[i][j] = newValue;
                             }
                             y[i] = funk(psum);
-                            if (changed == false) stopLooping = true;
+                            if (!changed) stopLooping = true;
                         }
                     }
                     nfunk += ndim;//Keep track of function evaluations.
                     psum = get_psum(p);//recompute psum.
-                    if (stopLooping == true) break;
+                    if (stopLooping) break;
                 }
             } else --nfunk;//Correct the evaluation count.
         }//Go back for the test of doneness and the next iteration.

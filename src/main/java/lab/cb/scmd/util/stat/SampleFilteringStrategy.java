@@ -23,12 +23,7 @@ import java.util.Collection;
  * @author leo
  */
 abstract public class SampleFilteringStrategy {
-    /**
-     * @param statClass この戦略をつかうStatisticsクラス
-     */
-    public void setStatClass(Statistics statClass) {
-        _statClass = statClass;
-    }
+    private Statistics _statClass;
 
     abstract public Collection filter(TableIterator ti);
 
@@ -38,11 +33,16 @@ abstract public class SampleFilteringStrategy {
      *
      * @return
      */
-    protected Statistics getStatClass() {
+    Statistics getStatClass() {
         return _statClass;
     }
 
-    Statistics _statClass;
+    /**
+     * @param statClass この戦略をつかうStatisticsクラス
+     */
+    void setStatClass(Statistics statClass) {
+        _statClass = statClass;
+    }
 }
 
 

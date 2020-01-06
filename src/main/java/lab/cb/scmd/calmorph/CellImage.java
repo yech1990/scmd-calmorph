@@ -31,27 +31,25 @@ import java.util.zip.GZIPOutputStream;
 
 class CellImage {
 
+    //private static final String _image_suffix = ".jpg";
+    private static final String _cell_wall = "cell_wall";
+    private static final String _nucleus = "nucleus";
+    private static final String _actin = "actin";
+    Cell[] cell;                                                 //cells in the image
+    boolean err, calD, calA;                                     //Whether err has occurred, whether to process DAPI images or actin images
+    String err_kind;
     private Logger _logger = Logger.getLogger(this.getClass());
-
     private int _width, _height, _size;                          //Image width, height, number of pixels
     private int number, Ddiff, Adiff, startid;                   //Image number, DAPI image shift, actin image shift, start cell number
     private String name, suffix, path, outdir;                           //knockout strain name, image directory, output directory
     private int[] _cell_points, _nucleus_points, _actin_points;  //3 types of metric points
     private int[] ci, ci2, di, ai;                               //Brightness of 3 types of images during processing
     private int[] pixeltocell, pixeltocell2;                     //which cell is inside a certain pixel
-    Cell[] cell;                                                 //cells in the image
-    boolean err, calD, calA;                                     //Whether err has occurred, whether to process DAPI images or actin images
     private boolean objectsave, outimage, outsheet;              //Whether to save in the middle of an object, output an image, or output basic and biological sheets
+    //int[] actindiv;//テスト
     private int objectload;                                      //How to retrieve the saved object
     private int maxdiff;
     private boolean flag_tmp;
-    String err_kind;
-    //int[] actindiv;//テスト
-
-    //private static final String _image_suffix = ".jpg";
-    private static final String _cell_wall = "cell_wall";
-    private static final String _nucleus = "nucleus";
-    private static final String _actin = "actin";
 
     /**
      * @param name    name of yeast strain
@@ -162,6 +160,18 @@ class CellImage {
                 }
             }
         }
+    }
+
+    // calculate percentiles of array
+    public static short[] percentiles(short[] latencies, double... percentiles) {
+        short[] latenciesSorted = latencies.clone();
+        Arrays.sort(latenciesSorted, 0, latenciesSorted.length);
+        short[] values = new short[percentiles.length];
+        for (int i = 0; i < percentiles.length; i++) {
+            int index = (int) (percentiles[i] * latenciesSorted.length);
+            values[i] = latenciesSorted[index];
+        }
+        return values;
     }
 
     /**
@@ -309,18 +319,6 @@ class CellImage {
         setAState();
 
 
-    }
-
-    // calculate percentiles of array
-    public static short[] percentiles(short[] latencies, double... percentiles) {
-        short[] latenciesSorted = latencies.clone();
-        Arrays.sort(latenciesSorted, 0, latenciesSorted.length);
-        short[] values = new short[percentiles.length];
-        for (int i = 0; i < percentiles.length; i++) {
-            int index = (int) (percentiles[i] * latenciesSorted.length);
-            values[i] = latenciesSorted[index];
-        }
-        return values;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1926,7 +1924,7 @@ class CellImage {
             if (flag_out) {//vec[0]が外部
                 if (cell[c].cover.size() / 2 >= vec[1].size() + b.size()) {//芽の領域確定
                     for (int i = 0; i < cell[c].cover.size(); i++) {
-                        int p = (Integer) cell[c].cover.get(i);
+                        int p = cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (y * wid + x + 1 + wid >= 0 && y * wid + x + 1 + wid < wid * hei)
@@ -1948,7 +1946,7 @@ class CellImage {
                         greytemp[p] = 0;
                     }
                     for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                        int p = (Integer) cell[c].cover.get(i);
+                        int p = cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
@@ -1958,7 +1956,7 @@ class CellImage {
             } else {//vec[1]が外部
                 if (cell[c].cover.size() / 2 >= vec[0].size() + b.size()) {//芽の領域確定
                     for (int i = 0; i < cell[c].cover.size(); i++) {
-                        int p = (Integer) cell[c].cover.get(i);
+                        int p = cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (y * wid + x + 1 + wid > 0 && y * wid + x + 1 + wid < wid * hei)
@@ -1980,7 +1978,7 @@ class CellImage {
                         greytemp[p] = 0;
                     }
                     for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                        int p = (Integer) cell[c].cover.get(i);
+                        int p = cell[c].cover.get(i);
                         int x = p % _width - left;
                         int y = p / _width - top;
                         if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
@@ -1996,7 +1994,7 @@ class CellImage {
             }
             if (cell[c].cover.size() / 2 >= v + b.size()) {//芽の領域確定
                 for (int i = 0; i < cell[c].cover.size(); i++) {
-                    int p = (Integer) cell[c].cover.get(i);
+                    int p = cell[c].cover.get(i);
                     int x = p % _width - left;
                     int y = p / _width - top;
                     if (y * wid + x + 1 + wid > 0 && y * wid + x + 1 + wid < wid * hei)
@@ -2022,7 +2020,7 @@ class CellImage {
                     }
                 }
                 for (int i = 0; i < cell[c].cover.size(); i++) {//cover領域でbudにされなかったものをいれる
-                    int p = (Integer) cell[c].cover.get(i);
+                    int p = cell[c].cover.get(i);
                     int x = p % _width - left;
                     int y = p / _width - top;
                     if (greytemp[y * wid + x + 1 + wid] == 255) ba.add(p);
@@ -2215,7 +2213,7 @@ class CellImage {
         cover(ci_tmp);
         for (Cell element : cell) {
             for (int j = 0; j < element.cover.size(); j++) {
-                int p = (Integer) element.cover.get(j);
+                int p = element.cover.get(j);
                 ci_tmp[p] = 0;
             }
         }
@@ -2290,7 +2288,7 @@ class CellImage {
         for (int i = 0; i < 4; i++) partedge[i] = new Vector();
         for (Cell item : cell) {
             for (int j = 0; j < item.cover.size(); j++) {
-                int p = (Integer) item.cover.elementAt(j);
+                int p = item.cover.elementAt(j);
                 if (pixeltocell[p - 1] < 0) partedge[0].add(p);
                 if (pixeltocell[p + 1] < 0) partedge[1].add(p);
                 if (pixeltocell[p - _width] < 0) partedge[2].add(p);
@@ -2384,13 +2382,13 @@ class CellImage {
         for (Cell value : cell) {
             int[] cellarea = new int[value.cover.size()];
             for (int j = 0; j < value.cover.size(); j++) {
-                int p = (Integer) value.cover.get(j) - diff;
+                int p = value.cover.get(j) - diff;
                 if (p < _size && p >= 0 && p / _width == (p + diffx) / _width) cellarea[j] = oriimage[p];
                 else cellarea[j] = 0;
             }
             blockthreshold(cellarea);
             for (int j = 0; j < value.cover.size(); j++) {
-                int p = (Integer) value.cover.get(j) - diff;
+                int p = value.cover.get(j) - diff;
                 if (p < _size && p >= 0 && p / _width == (p + diffx) / _width) image[p] = cellarea[j];
             }
         }
@@ -2872,7 +2870,7 @@ class CellImage {
         cover(ci_tmp);
         for (Cell element : cell) {
             for (int j = 0; j < element.cover.size(); j++) {
-                int p = (Integer) element.cover.get(j);
+                int p = element.cover.get(j);
                 ci_tmp[p] = 0;
             }
         }
@@ -2947,7 +2945,7 @@ class CellImage {
         for (int i = 0; i < 4; i++) partedge[i] = new Vector();
         for (Cell item : cell) {
             for (int j = 0; j < item.cover.size(); j++) {
-                int p = (Integer) item.cover.elementAt(j);
+                int p = item.cover.elementAt(j);
                 if (pixeltocell[p - 1] < 0) partedge[0].add(p);
                 if (pixeltocell[p + 1] < 0) partedge[1].add(p);
                 if (pixeltocell[p - _width] < 0) partedge[2].add(p);
@@ -3031,7 +3029,7 @@ class CellImage {
             long total3 = 0;
             long total4 = 0;
             for (int j = 0; j < value.cover.size(); j++) {
-                int p = (Integer) value.cover.get(j);
+                int p = value.cover.get(j);
                 if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width && ai[p - Adiff] == 0) {
                     value.Acover.add(p);
                     flag_tmp = false;
@@ -3126,7 +3124,7 @@ class CellImage {
                     long btotal3 = 0;
                     long btotal4 = 0;
                     for (int j = 0; j < value.cover.size(); j++) {
-                        int p = (Integer) value.cover.get(j);
+                        int p = value.cover.get(j);
                         if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width && ai[p - Adiff] == 0) {
                             long br = _actin_points[p - Adiff];
                             if (value.inmother(p)) {
@@ -3364,7 +3362,7 @@ class CellImage {
             actinbrightofcell[i] = 255;
             int count = 0;
             for (int j = 0; j < cell[i].cover.size(); j++) {
-                int p = (Integer) cell[i].cover.get(j);
+                int p = cell[i].cover.get(j);
                 if (p - Adiff >= 0 && p - Adiff < _size && p / _width == (p - diffx) / _width) {
                     actinbrightofcell[i] += _actin_points[p - Adiff];
                     count++;
@@ -3488,7 +3486,7 @@ class CellImage {
             long btotal3 = 0;
             long btotal4 = 0;
             for (int j = 0; j < item.actinpatchpoint.size(); j++) {
-                int p = (Integer) item.actinpatchpoint.get(j);
+                int p = item.actinpatchpoint.get(j);
                 long br = _actin_points[p - Adiff];
                 x += p % _width;
                 y += p / _width;

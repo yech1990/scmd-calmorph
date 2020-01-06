@@ -46,6 +46,20 @@ import java.util.regex.Pattern;
 
 public class SCMDConverter extends JFrame implements ActionListener {
 
+    final static public int P_SCMD_ROOT = 0;
+    final static public int P_PHOTO_DIR = 1;
+    final static public int P_IRFAN_VIEW = 2;
+    final static public int P_IMAGE_MAGICK = 3;
+    //static String username2 = "bird";
+    final static public int P_CONVERT = 4;
+    final static public int P_MOGRIFY = 5;
+    final static public int P_ORF_TABLE = 6;
+    final static public int P_PLATE_TABLE = 7;
+    public static String[] PropertyNames =
+            {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
+                    "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
+                    "ORF_TABLE", "PLATE_TABLE"};
+    public static String[] UserProperties;
     //--------------------------------------------------------------------------------
     // ORF_QUERY: ORFを入手するCGIページ
     //
@@ -73,25 +87,27 @@ public class SCMDConverter extends JFrame implements ActionListener {
     static String SERVER; // = SCMD_ROOT + PHOTO_FOLDER;
     //static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
     static String username = "birdstaff";
-    //static String username2 = "bird";
-
     static String password;
-
     static JFrame passFrame;
-    JMenuBar menuBar;
-    JFileChooser fc, fc2;
-    String newline = "\n";
-
-    final int MENU_FILE = 0;
-    final int MENU_CONVERT = 1;
-
+    static String ORF_DESCRIPTIONS; // = "." + SLA + "orf_descriptions.tab";
+    static String PLATE_TABLE; // = "." + SLA + "platetable.tab";
+    static String IRFAN_VIEW; // = "." + SLA + "i_view32" + SLA + "i_view32.exe";
+    static String CONVERT; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "convert.exe";
+    static String MOGRIFY; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "mogrify.exe";
+    static JRadioButton onlineButton;
+    static JRadioButton offlineButton;
+    //final String CONVERT = "convert.exe";
+    //final String MOGRIFY = "mogrify.exe";
+    static JLabel label;
+    static boolean online;
     // Actin, ConA, DAPIのための配列
     public final String[] photoCategory = {"A", "C", "D"};
     public final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
     public final int ACTINE = 0;
     public final int CON_A = 1;
     public final int DAPI = 2;
-
+    final int MENU_FILE = 0;
+    final int MENU_CONVERT = 1;
     // WindowsとLinuxでパスの区切り文字が違うので、File.separatorを使う
     final String SLA = File.separator;
     /*final String ROOTDIR =
@@ -109,39 +125,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
             + SLA
             + "img";*/
     final String ROOTDIR = "C:" + SLA;
-
-    static String ORF_DESCRIPTIONS; // = "." + SLA + "orf_descriptions.tab";
-    static String PLATE_TABLE; // = "." + SLA + "platetable.tab";
-    static String IRFAN_VIEW; // = "." + SLA + "i_view32" + SLA + "i_view32.exe";
-    static String CONVERT; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "convert.exe";
-    static String MOGRIFY; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "mogrify.exe";
-    //final String CONVERT = "convert.exe";
-    //final String MOGRIFY = "mogrify.exe";
-
-    static JRadioButton onlineButton;
-    static JRadioButton offlineButton;
-    static JLabel label;
-
-    static boolean online;
-
-    String[] menuList;
-    JMenu[] menu;
-    JMenu help_menu;
-
-    JButton dirSelectButton;
-
-    JTextField inputDir;
-    JRadioButton manipButton, autoButton, localButton, plateButton;
-
-    JFrame plateFrame;
-    JTextField plateField1, plateField2, plateField3;
-    String[] plateposition;
-
-
-    JTextField backupDir;
-    JButton budirSelectButton;
-
-
     // GUIでボタンクリックが起こったときのコマンド名
     final String EXIT = "exit";
     final String DIR_SELECT = "dir select";
@@ -153,32 +136,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
     final String RENAME = "rename";
     final String SELECT_PHOTO = "select photo";
     final String SUBMIT = "submit";
-
-    JButton selectButton, submitButton, renameButton;
-    JTextField orfField; // ORFのテキストボックス
-    JTextField geneNameField; // Standard Nameのテキストボックス
-    JLabel orfMessage;
-    JButton orfGetButton;
-    JFrame confirmFrame;
-    JSpinner firstNumber;
-    SpinnerNumberModel sNm;
-
-    JProgressBar progress;
-    JFrame progressFrame;
-    JFrame settingFrame;
-
-    JCheckBox[] usecheck;
-    JFrame usecheckFrame;
-    int unusefileNum;
-
-    int imgfilenum;
-    JSpinner Currentspinner;
-    int counter;
-    String[] oldfiles;
-    String[] newfiles;
-    PhotoGroup[] pgs;
-    PhotoGroup[] pgs2;
-
     // 顕微鏡の写真ファイルをmatchするための正規表現
     final String FILE_PATTERN =
             "([1-9][0-9]*)_w[1-3](FITC|Rh|DAPI)"
@@ -188,14 +145,45 @@ public class SCMDConverter extends JFrame implements ActionListener {
     final int FP_WAVE_TYPE = 2;
     final int FP_SECOND_PHOTO_NUM = 4;
     final int FP_PHOTO_TYPE = 5;
-
+    JMenuBar menuBar;
+    JFileChooser fc, fc2;
+    String newline = "\n";
+    String[] menuList;
+    JMenu[] menu;
+    JMenu help_menu;
+    JButton dirSelectButton;
+    JTextField inputDir;
+    JRadioButton manipButton, autoButton, localButton, plateButton;
+    JFrame plateFrame;
+    JTextField plateField1, plateField2, plateField3;
+    String[] plateposition;
+    JTextField backupDir;
+    JButton budirSelectButton;
+    JButton selectButton, submitButton, renameButton;
+    JTextField orfField; // ORFのテキストボックス
+    JTextField geneNameField; // Standard Nameのテキストボックス
+    JLabel orfMessage;
+    JButton orfGetButton;
+    JFrame confirmFrame;
+    JSpinner firstNumber;
+    SpinnerNumberModel sNm;
+    JProgressBar progress;
+    JFrame progressFrame;
+    JFrame settingFrame;
+    JCheckBox[] usecheck;
+    JFrame usecheckFrame;
+    int unusefileNum;
+    int imgfilenum;
+    JSpinner Currentspinner;
+    int counter;
+    String[] oldfiles;
+    String[] newfiles;
+    PhotoGroup[] pgs;
+    PhotoGroup[] pgs2;
     boolean isReadyORF = false; // ORFがわかっているかどうか
-
-
     int currentimage;
     int currentkind;
     boolean renamed = false;
-
     String imagedir;
     Image[] img;
     SpinnerNumberModel sNm2;
@@ -204,10 +192,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
     JLabel photoLabel;
     JRadioButton conAButton, ActinButton, DAPIButton, compositeButton;
     JCheckBox checkUseornot;
-
-    void displayErrorDialog(Exception e) {
-        JOptionPane.showMessageDialog(null, "Exception", e.getMessage(), JOptionPane.ERROR_MESSAGE);
-    }
 
     public SCMDConverter(char[] pswd) {
         super("SCMD Toolkit");
@@ -471,6 +455,114 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
     }
 
+    public static void main(String[] args) {
+        UserProperties = new String[PropertyNames.length];
+        // default values
+        UserProperties[P_SCMD_ROOT] = "http://yeast.gi.k.u-tokyo.ac.jp/";
+        UserProperties[P_PHOTO_DIR] = "staff/photo";
+        UserProperties[P_IRFAN_VIEW] = "./i_view32/i_view32.exe";
+        UserProperties[P_IMAGE_MAGICK] = "C:/Program Files/ImageMagick-5.5.6-Q16/";
+        UserProperties[P_CONVERT] = "convert.exe";
+        UserProperties[P_MOGRIFY] = "mogrify.exe";
+        UserProperties[P_ORF_TABLE] = "orf_descriptions.tab";
+        UserProperties[P_PLATE_TABLE] = "platetable.tab";
+
+        if (args.length >= 1) {
+            // load a setting file
+            try {
+                FileInputStream input = new FileInputStream(args[0]);
+                Properties property = new Properties();
+                property.load(input);
+
+                for (int i = 0; i < PropertyNames.length; i++) {
+                    String argument = property.getProperty(PropertyNames[i]);
+                    if (argument != null)
+                        UserProperties[i] = argument;
+                }
+                input.close();
+
+            } catch (IOException e) {
+                // cannot read file correctly
+                System.out.println("invalid setting files");
+            }
+        }
+        // set parameters
+        PHOTO_FOLDER = UserProperties[P_PHOTO_DIR];
+        ORF_QUERY = UserProperties[P_SCMD_ROOT] + "tools/get_orf.cgi?name=";
+        SERVER = UserProperties[P_SCMD_ROOT] + UserProperties[P_PHOTO_DIR];
+        ORF_DESCRIPTIONS = UserProperties[P_ORF_TABLE];
+        PLATE_TABLE = UserProperties[P_PLATE_TABLE];
+        IRFAN_VIEW = UserProperties[P_IRFAN_VIEW];
+        CONVERT = UserProperties[P_IMAGE_MAGICK] + UserProperties[P_CONVERT];
+        MOGRIFY = UserProperties[P_IMAGE_MAGICK] + UserProperties[P_MOGRIFY];
+
+        //Make sure we have nice window decorations.
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        JDialog.setDefaultLookAndFeelDecorated(true);
+        onlineButton = new JRadioButton("online");
+        offlineButton = new JRadioButton("offline");
+        ButtonGroup group = new ButtonGroup();
+        onlineButton.setSelected(true);
+        group.add(onlineButton);
+        group.add(offlineButton);
+        JPanel SelectPane = new JPanel();
+        SelectPane.add(onlineButton);
+        SelectPane.add(offlineButton);
+        passFrame = new JFrame("Password");
+        label = new JLabel("Enter the password: ");
+        JPasswordField passwordField = new JPasswordField(10);
+        passwordField.setEchoChar('*');
+        passwordField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JPasswordField input = (JPasswordField) e.getSource();
+                char[] pswd = input.getPassword();
+                password = new String(pswd);
+                boolean check = true;
+                online = false;
+                if (onlineButton.isSelected()) {
+                    online = true;
+                    try {
+                        HttpURL httpURL = new HttpURL(SERVER);
+                        httpURL.setUserInfo(username, password);
+                        WebdavResource wr = new WebdavResource(httpURL);
+                        wr.close();
+                    } catch (IOException e2) {
+                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
+                        check = false;
+                    } catch (HttpException e2) {
+                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
+                        check = false;
+                    }
+                }
+                if (check) {
+                    passFrame.dispose();
+                    SCMDConverter main_frame = new SCMDConverter(pswd);
+                    main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    main_frame.setSize(620, 400);
+                    main_frame.setVisible(true);
+                }
+            }
+        });
+
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        contentPane.add(SelectPane, BorderLayout.NORTH);
+        contentPane.add(label, BorderLayout.WEST);
+        contentPane.add(passwordField, BorderLayout.CENTER);
+
+        passFrame.setContentPane(contentPane);
+        passFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+        passFrame.pack();
+        passFrame.setVisible(true);
+    }
+
+    void displayErrorDialog(Exception e) {
+        JOptionPane.showMessageDialog(null, "Exception", e.getMessage(), JOptionPane.ERROR_MESSAGE);
+    }
 
     // GUIでパネルのサイズを固定しまうための関数
     public void setPanelSize(JPanel pane, Dimension dim) {
@@ -1569,24 +1661,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
         }
     }
 
-    class PhotoCanvas extends Canvas {
-        public void paint(Graphics g) {
-            if (currentkind != 3) {
-                if (pgs2[currentimage].newFile[currentkind] != null) {
-                    g.drawImage(img[currentkind], 100, 10, 647, 490, this);
-                } else {
-                    g.drawString("No file", 400, 200);
-                }
-            } else {
-                if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                    g.drawImage(img[currentkind], 100, 10, 647, 490, this);
-                } else {
-                    g.drawString("Can't draw", 400, 200);
-                }
-            }
-        }
-    }
-
     public void photoselectupdate() {
 
         if (currentkind != 3) {
@@ -1604,100 +1678,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
         }
         checkUseornot.setSelected(pgs2[currentimage].useornot);
         photocanvas.repaint();
-    }
-
-    // MetaMorphの写真ファイル名に含まれる二つの数を合成したもの
-    class PhotoNum {
-        public PhotoNum(int n1, int n2) {
-            headerNum = n1;
-            sNum = n2;
-        }
-
-        public int headerNum;
-        public int sNum;
-    }
-
-    // A,C,D3枚の写真の新旧のファイル名を入れておくコンテナ
-    class PhotoGroup {
-        public String[] origFile;
-        public String[] newFile;
-
-        private int count;
-        public boolean useornot;
-
-        public PhotoGroup() {
-            origFile = new String[3];
-            newFile = new String[3];
-            count = 0;
-            useornot = true;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        // originalの写真名を加える typeは、{FITC, Rh, DAPI}にpattern matchした部分
-        public void add(String file, String type) {
-            switch (type) {
-                case "FITC":
-                    origFile[CON_A] = file;
-                    break;
-                case "Rh":
-                    origFile[ACTINE] = file;
-                    break;
-                case "DAPI":
-                    origFile[DAPI] = file;
-                    break;
-                default:
-                    // do nothing
-                    return;
-            }
-            count++;
-        }
-
-        // renameされた後の写真名を加える
-        public void addNewFile(String file, String type) {
-            switch (type) {
-                case "FITC":
-                    newFile[CON_A] = file;
-                    break;
-                case "Rh":
-                    newFile[ACTINE] = file;
-                    break;
-                case "DAPI":
-                    newFile[DAPI] = file;
-                    break;
-            }
-        }
-    }
-
-    // 2つのPhotoNumクラスの大小を比較するcomparator
-    // headerNum, sNumの順で比較する
-    class PhotoNumComparator implements Comparator {
-        public int compare(Object a, Object b) {
-            PhotoNum ai = (PhotoNum) a;
-            PhotoNum bi = (PhotoNum) b;
-            if (ai.headerNum == bi.headerNum) {
-                return ai.sNum - bi.sNum;
-            } else {
-                return ai.headerNum - bi.headerNum;
-            }
-        }
-
-        public boolean equal(Object a, Object b) {
-            PhotoNum ai = (PhotoNum) a;
-            PhotoNum bi = (PhotoNum) b;
-            return ((ai.headerNum == bi.headerNum) && (ai.sNum == bi.sNum));
-        }
-    }
-
-    // とりあえず未使用
-    class JPEGFilter implements FilenameFilter {
-        public boolean accept(File dir, String name) {
-            Pattern p = Pattern.compile(FILE_PATTERN);
-            Matcher m = p.matcher(name);
-            return m.matches();
-        }
     }
 
     // ORFをweb(あるいは、local file)から取得する
@@ -1764,168 +1744,6 @@ public class SCMDConverter extends JFrame implements ActionListener {
             }
         }
         return flag;
-    }
-
-    public static String[] PropertyNames =
-            {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
-                    "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
-                    "ORF_TABLE", "PLATE_TABLE"};
-    final static public int P_SCMD_ROOT = 0;
-    final static public int P_PHOTO_DIR = 1;
-    final static public int P_IRFAN_VIEW = 2;
-    final static public int P_IMAGE_MAGICK = 3;
-    final static public int P_CONVERT = 4;
-    final static public int P_MOGRIFY = 5;
-    final static public int P_ORF_TABLE = 6;
-    final static public int P_PLATE_TABLE = 7;
-
-    public static String[] UserProperties;
-
-
-    public static void main(String[] args) {
-        UserProperties = new String[PropertyNames.length];
-        // default values
-        UserProperties[P_SCMD_ROOT] = "http://yeast.gi.k.u-tokyo.ac.jp/";
-        UserProperties[P_PHOTO_DIR] = "staff/photo";
-        UserProperties[P_IRFAN_VIEW] = "./i_view32/i_view32.exe";
-        UserProperties[P_IMAGE_MAGICK] = "C:/Program Files/ImageMagick-5.5.6-Q16/";
-        UserProperties[P_CONVERT] = "convert.exe";
-        UserProperties[P_MOGRIFY] = "mogrify.exe";
-        UserProperties[P_ORF_TABLE] = "orf_descriptions.tab";
-        UserProperties[P_PLATE_TABLE] = "platetable.tab";
-
-        if (args.length >= 1) {
-            // load a setting file
-            try {
-                FileInputStream input = new FileInputStream(args[0]);
-                Properties property = new Properties();
-                property.load(input);
-
-                for (int i = 0; i < PropertyNames.length; i++) {
-                    String argument = property.getProperty(PropertyNames[i]);
-                    if (argument != null)
-                        UserProperties[i] = argument;
-                }
-                input.close();
-
-            } catch (IOException e) {
-                // cannot read file correctly
-                System.out.println("invalid setting files");
-            }
-        }
-        // set parameters
-        PHOTO_FOLDER = UserProperties[P_PHOTO_DIR];
-        ORF_QUERY = UserProperties[P_SCMD_ROOT] + "tools/get_orf.cgi?name=";
-        SERVER = UserProperties[P_SCMD_ROOT] + UserProperties[P_PHOTO_DIR];
-        ORF_DESCRIPTIONS = UserProperties[P_ORF_TABLE];
-        PLATE_TABLE = UserProperties[P_PLATE_TABLE];
-        IRFAN_VIEW = UserProperties[P_IRFAN_VIEW];
-        CONVERT = UserProperties[P_IMAGE_MAGICK] + UserProperties[P_CONVERT];
-        MOGRIFY = UserProperties[P_IMAGE_MAGICK] + UserProperties[P_MOGRIFY];
-
-        //Make sure we have nice window decorations.
-        JFrame.setDefaultLookAndFeelDecorated(true);
-        JDialog.setDefaultLookAndFeelDecorated(true);
-        onlineButton = new JRadioButton("online");
-        offlineButton = new JRadioButton("offline");
-        ButtonGroup group = new ButtonGroup();
-        onlineButton.setSelected(true);
-        group.add(onlineButton);
-        group.add(offlineButton);
-        JPanel SelectPane = new JPanel();
-        SelectPane.add(onlineButton);
-        SelectPane.add(offlineButton);
-        passFrame = new JFrame("Password");
-        label = new JLabel("Enter the password: ");
-        JPasswordField passwordField = new JPasswordField(10);
-        passwordField.setEchoChar('*');
-        passwordField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JPasswordField input = (JPasswordField) e.getSource();
-                char[] pswd = input.getPassword();
-                password = new String(pswd);
-                boolean check = true;
-                online = false;
-                if (onlineButton.isSelected()) {
-                    online = true;
-                    try {
-                        HttpURL httpURL = new HttpURL(SERVER);
-                        httpURL.setUserInfo(username, password);
-                        WebdavResource wr = new WebdavResource(httpURL);
-                        wr.close();
-                    } catch (IOException e2) {
-                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
-                        check = false;
-                    } catch (HttpException e2) {
-                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
-                        check = false;
-                    }
-                }
-                if (check) {
-                    passFrame.dispose();
-                    SCMDConverter main_frame = new SCMDConverter(pswd);
-                    main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    main_frame.setSize(620, 400);
-                    main_frame.setVisible(true);
-                }
-            }
-        });
-
-        JPanel contentPane = new JPanel(new BorderLayout());
-        contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        contentPane.add(SelectPane, BorderLayout.NORTH);
-        contentPane.add(label, BorderLayout.WEST);
-        contentPane.add(passwordField, BorderLayout.CENTER);
-
-        passFrame.setContentPane(contentPane);
-        passFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-        passFrame.pack();
-        passFrame.setVisible(true);
-    }
-
-    // Help画面
-    class HelpFrame extends JFrame {
-        public HelpFrame() {
-            super("Help");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        }
-    }
-
-    // Rename画面
-    class RenameFrame extends JFrame {
-        public RenameFrame() {
-            super("Rename Files");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        }
-    }
-
-    class UsecheckFrame extends JFrame {
-        public UsecheckFrame() {
-            super("Select usable images");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        }
-    }
-
-    class ProgressFrame extends JFrame {
-        public ProgressFrame() {
-            super("Progress");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        }
-    }
-
-    class PhotoselectFrame extends JFrame {
-        public PhotoselectFrame() {
-            super("Select Photo");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        }
     }
 
     // ORFをSCMD(http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi" から取得
@@ -2110,6 +1928,157 @@ public class SCMDConverter extends JFrame implements ActionListener {
             return new GeneName("", "", GeneName.ST_NONE);
         }
     }
+
+    class PhotoCanvas extends Canvas {
+        public void paint(Graphics g) {
+            if (currentkind != 3) {
+                if (pgs2[currentimage].newFile[currentkind] != null) {
+                    g.drawImage(img[currentkind], 100, 10, 647, 490, this);
+                } else {
+                    g.drawString("No file", 400, 200);
+                }
+            } else {
+                if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                    g.drawImage(img[currentkind], 100, 10, 647, 490, this);
+                } else {
+                    g.drawString("Can't draw", 400, 200);
+                }
+            }
+        }
+    }
+
+    // MetaMorphの写真ファイル名に含まれる二つの数を合成したもの
+    class PhotoNum {
+        public int headerNum;
+        public int sNum;
+        public PhotoNum(int n1, int n2) {
+            headerNum = n1;
+            sNum = n2;
+        }
+    }
+
+    // A,C,D3枚の写真の新旧のファイル名を入れておくコンテナ
+    class PhotoGroup {
+        public String[] origFile;
+        public String[] newFile;
+        public boolean useornot;
+        private int count;
+
+        public PhotoGroup() {
+            origFile = new String[3];
+            newFile = new String[3];
+            count = 0;
+            useornot = true;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        // originalの写真名を加える typeは、{FITC, Rh, DAPI}にpattern matchした部分
+        public void add(String file, String type) {
+            switch (type) {
+                case "FITC":
+                    origFile[CON_A] = file;
+                    break;
+                case "Rh":
+                    origFile[ACTINE] = file;
+                    break;
+                case "DAPI":
+                    origFile[DAPI] = file;
+                    break;
+                default:
+                    // do nothing
+                    return;
+            }
+            count++;
+        }
+
+        // renameされた後の写真名を加える
+        public void addNewFile(String file, String type) {
+            switch (type) {
+                case "FITC":
+                    newFile[CON_A] = file;
+                    break;
+                case "Rh":
+                    newFile[ACTINE] = file;
+                    break;
+                case "DAPI":
+                    newFile[DAPI] = file;
+                    break;
+            }
+        }
+    }
+
+    // 2つのPhotoNumクラスの大小を比較するcomparator
+    // headerNum, sNumの順で比較する
+    class PhotoNumComparator implements Comparator {
+        public int compare(Object a, Object b) {
+            PhotoNum ai = (PhotoNum) a;
+            PhotoNum bi = (PhotoNum) b;
+            if (ai.headerNum == bi.headerNum) {
+                return ai.sNum - bi.sNum;
+            } else {
+                return ai.headerNum - bi.headerNum;
+            }
+        }
+
+        public boolean equal(Object a, Object b) {
+            PhotoNum ai = (PhotoNum) a;
+            PhotoNum bi = (PhotoNum) b;
+            return ((ai.headerNum == bi.headerNum) && (ai.sNum == bi.sNum));
+        }
+    }
+
+    // とりあえず未使用
+    class JPEGFilter implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            Pattern p = Pattern.compile(FILE_PATTERN);
+            Matcher m = p.matcher(name);
+            return m.matches();
+        }
+    }
+
+    // Help画面
+    class HelpFrame extends JFrame {
+        public HelpFrame() {
+            super("Help");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        }
+    }
+
+    // Rename画面
+    class RenameFrame extends JFrame {
+        public RenameFrame() {
+            super("Rename Files");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        }
+    }
+
+    class UsecheckFrame extends JFrame {
+        public UsecheckFrame() {
+            super("Select usable images");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        }
+    }
+
+    class ProgressFrame extends JFrame {
+        public ProgressFrame() {
+            super("Progress");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        }
+    }
+
+    class PhotoselectFrame extends JFrame {
+        public PhotoselectFrame() {
+            super("Select Photo");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        }
+    }
 }
 
 class GeneName {
@@ -2121,14 +2090,12 @@ class GeneName {
     public static final String ST_FILEREAD_ERROR = "fileread error";
     public static final String ST_NOFILE_ERROR2 = "no file2";
     public static final String ST_FILEREAD_ERROR2 = "fileread error2";
-
+    public String orf;
+    public String gene_name;
+    public String status = null;
     GeneName(String orf_string, String gname_string, String status_string) {
         orf = orf_string;
         gene_name = gname_string;
         status = status_string;
     }
-
-    public String orf;
-    public String gene_name;
-    public String status = null;
 }

@@ -20,6 +20,9 @@ import java.util.Date;
  */
 public class StopWatch {
 
+    private Date _date;
+    private long _beginTime;
+
     /**
      *
      */
@@ -32,7 +35,7 @@ public class StopWatch {
         _beginTime = _date.getTime();
     }
 
-    public String elapsed() {
+    private String elapsed() {
         Date current = new Date();
         long currentTime = current.getTime();
         long miliSec = currentTime - _beginTime;
@@ -43,9 +46,6 @@ public class StopWatch {
     public void showElapsedTime(PrintStream out) {
         out.println("elapsed time: " + elapsed() + " sec.");
     }
-
-    Date _date;
-    long _beginTime;
 
 }
 

@@ -12,7 +12,6 @@ package lab.cb.scmd.util.cui;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -42,9 +41,11 @@ public abstract class OptionComposite {
      *
      * @author leo
      */
-    class OptionDescriptionContainer {
+    static class OptionDescriptionContainer {
 
-        public void addDescription(String shortOptionColumn, String longOptionColumn, String descriptionColumn) {
+        LinkedList<String[]> _columnList = new LinkedList<>();
+
+        void addDescription(String shortOptionColumn, String longOptionColumn, String descriptionColumn) {
             String[] column = new String[3];
             column[0] = shortOptionColumn;
             column[1] = longOptionColumn;
@@ -52,7 +53,7 @@ public abstract class OptionComposite {
             _columnList.add(column);
         }
 
-        public void addDescription(String groupName) {
+        void addDescription(String groupName) {
             String[] singleColumn = new String[1];
             singleColumn[0] = groupName;
             _columnList.add(singleColumn);
@@ -61,20 +62,20 @@ public abstract class OptionComposite {
         public String toString() {
             // calculate necessary width for each column
             int[] width = {0, 0, 0};
-            for (Iterator ci = _columnList.iterator(); ci.hasNext(); ) {
-                String[] line = (String[]) ci.next();
+            for (Object value : _columnList) {
+                String[] line = (String[]) value;
                 if (line.length != 3)
                     continue; // single line
                 for (int i = 0; i < line.length; i++)
-                    width[i] = width[i] < line[i].length() ? line[i].length() : width[i];
+                    width[i] = Math.max(width[i], line[i].length());
             }
             for (int i = 0; i < width.length; i++)
                 width[i]++;
             // print each options
             StringWriter strWriter = new StringWriter();
             PrintWriter out = new PrintWriter(strWriter);
-            for (Iterator ci = _columnList.iterator(); ci.hasNext(); ) {
-                String[] line = (String[]) ci.next();
+            for (Object o : _columnList) {
+                String[] line = (String[]) o;
                 if (line.length == 1)
                     out.print(line[0]);  // group name
                 else {
@@ -90,8 +91,6 @@ public abstract class OptionComposite {
             }
             return strWriter.toString();
         }
-
-        LinkedList _columnList = new LinkedList();
     }
 
 }

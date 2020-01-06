@@ -22,6 +22,9 @@ import java.util.Vector;
  * @author leo
  */
 public class CalMorphTable extends lab.cb.scmd.util.table.FlatTable {
+    static final private String NEWLINE = System.getProperty("line.separator");
+    static final private String TAB = "\t";
+
     /**
      * @param fileName
      * @throws SCMDException
@@ -29,7 +32,6 @@ public class CalMorphTable extends lab.cb.scmd.util.table.FlatTable {
     public CalMorphTable(String fileName) throws SCMDException {
         super(fileName);
     }
-
 
     /**
      * @param out
@@ -42,7 +44,7 @@ public class CalMorphTable extends lab.cb.scmd.util.table.FlatTable {
         out.print(labelNameList.get(getColSize() - 1) + NEWLINE);
     }
 
-    public String getCellData(int row, String labelName) throws SCMDException {
+    String getCellData(int row, String labelName) throws SCMDException {
         if (row < 0 || row >= getRowSize())
             throw new SCMDException("row " + row + " is out of range (max = " + getRowSize() + ")");
         int col = getColIndex(labelName);
@@ -50,10 +52,6 @@ public class CalMorphTable extends lab.cb.scmd.util.table.FlatTable {
             throw new SCMDException("col " + labelName + " does not exist");
         return getCell(row, labelName).toString();
     }
-
-
-    static final private String NEWLINE = System.getProperty("line.separator");
-    static final private String TAB = "\t";
 
 }
 

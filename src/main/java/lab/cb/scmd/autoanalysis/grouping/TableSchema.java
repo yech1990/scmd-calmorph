@@ -13,7 +13,10 @@ package lab.cb.scmd.autoanalysis.grouping;
 import lab.cb.scmd.exception.SCMDException;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * schemaファイルは、以下の形式 （空白orTAB区切りで一行ずつ対応を記述する)
@@ -35,9 +38,12 @@ import java.util.*;
  *
  * @author leo
  */
-public class TableSchema {
+class TableSchema {
 
-    public TableSchema(String schemaStr, boolean isFile) throws SCMDException {
+    private Vector<String> _labelList = new Vector<>();
+    private HashMap<String, AttributePosition> _labelToSourcePosition = new HashMap<>();
+
+    TableSchema(String schemaStr, boolean isFile) throws SCMDException {
         if (isFile) {
             loadFromFile(schemaStr);
         } else {
@@ -45,24 +51,24 @@ public class TableSchema {
         }
     }
 
-    public int numRule() {
+    int numRule() {
         return _labelList.size();
     }
 
-    public AttributePosition getAttributePosition(int ruleIndex) throws SCMDException {
+    AttributePosition getAttributePosition(int ruleIndex) throws SCMDException {
         if (ruleIndex > _labelList.size())
             throw new SCMDException("invalid rule index: " + ruleIndex + " out of " + _labelList.size());
         return _labelToSourcePosition.get(_labelList.get(ruleIndex));
     }
 
-    public void outputLabel(PrintWriter out) {
+    void outputLabel(PrintWriter out) {
         for (int i = 0; i < _labelList.size() - 1; i++) {
             out.print(_labelList.get(i) + "\t");
         }
         out.println(_labelList.get(_labelList.size() - 1));
     }
 
-    void loadFromFile(String schemaFile) throws SCMDException {
+    private void loadFromFile(String schemaFile) throws SCMDException {
         try {
             Reader fileReader = new FileReader(schemaFile);
             loadSchema(fileReader);
@@ -73,12 +79,12 @@ public class TableSchema {
         }
     }
 
-    void loadSchema(String schemaStr) throws SCMDException {
+    private void loadSchema(String schemaStr) throws SCMDException {
         Reader reader = new StringReader(schemaStr);
         loadSchema(reader);
     }
 
-    void loadSchema(Reader schema) throws SCMDException {
+    private void loadSchema(Reader schema) throws SCMDException {
         try {
             BufferedReader fileReader =
                     new BufferedReader(schema);
@@ -112,9 +118,6 @@ public class TableSchema {
                     "error occured while loading schema file");
         }
     }
-
-    Vector<String> _labelList = new Vector<>();
-    HashMap<String, AttributePosition> _labelToSourcePosition = new HashMap<>();
 }
 
 

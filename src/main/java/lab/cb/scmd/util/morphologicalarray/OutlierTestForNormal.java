@@ -14,13 +14,16 @@ package lab.cb.scmd.util.morphologicalarray;
  * @author nakatani
  */
 public class OutlierTestForNormal {
-    Double[] data;
-
+    private Double[] data;
+    private double E;
+    //Double[] criticalValue;
+    private double SD;
+    private double MAX;
+    private double MIN;
     public OutlierTestForNormal(Double[] givenData) {
         data = givenData;
         getEandSD(data);
     }
-    //Double[] criticalValue;
 
     /**
      * critical value のテーブルをセットする。
@@ -48,11 +51,6 @@ public class OutlierTestForNormal {
         //return 3.7190;//upper 0.0001
     }
 
-    double E;
-    double SD;
-    double MAX;
-    double MIN;
-
     /**
      * 平均値と標準偏差、max,minも計算する。
      *
@@ -66,10 +64,10 @@ public class OutlierTestForNormal {
         double tmp_exp = 0;
         double sum_of_squares = 0;
         int n = 0;
-        MAX = data[0].doubleValue();
+        MAX = data[0];
         MIN = MAX;
         for (int i = 0; i < data.length; ++i) {
-            double x = data[i].doubleValue();
+            double x = data[i];
             if (MAX < x) MAX = x;
             if (x < MIN) MIN = x;
             x -= tmp_exp;

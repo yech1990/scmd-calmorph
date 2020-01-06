@@ -31,14 +31,7 @@ import java.util.*;
  * 501のパラメータ（param.xlsで指定したパラメータ）を抽出する
  */
 public class Summarize {
-    private OptionParser parser = new OptionParser();
-    private String targetDir = null;
-    private String parameterFile = null;
-    private String orfFile = null;
-    private String outputFile = null;
-    private int ignoreThreshold = 0;
     private static final String SEP = File.separator;
-
     // option IDs
     private final static int OPT_HELP = 0;
     private final static int OPT_VERBOSE = 1;
@@ -47,10 +40,30 @@ public class Summarize {
     private final static int OPT_ORF = 4;
     private final static int OPT_OUTPUT = 5;
     private final static int OPT_IGNORETHRESHOLD = 6;
-
+    private OptionParser parser = new OptionParser();
+    private String targetDir = null;
+    private String parameterFile = null;
+    private String orfFile = null;
+    private String outputFile = null;
+    private int ignoreThreshold = 0;
     private PrintStream _log = new NullPrintStream();
+    private Vector<String> outputParams = new Vector<>();
+    private Vector<String> outputOrfList = new Vector<>();
+    private OutputResult result = new OutputResult();
 
     private Summarize() {
+    }
+
+    public static void main(String[] args) {
+        try {
+            Summarize s = new Summarize();
+            s.setupByArguments(args);
+            s.readAllData();
+            s.outputSummary();
+        } catch (SCMDException | IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     private TreeSet<String> getOrfIgnore(int threshold) throws SCMDException {
@@ -126,77 +139,6 @@ public class Summarize {
         System.out.println("Usage: Summarize [option]");
         System.out.println(parser.createHelpMessage());
         System.exit(exitCode);
-    }
-
-
-    public static void main(String[] args) {
-        try {
-            Summarize s = new Summarize();
-            s.setupByArguments(args);
-            s.readAllData();
-            s.outputSummary();
-        } catch (SCMDException | IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
-
-    private Vector<String> outputParams = new Vector<>();
-    private Vector<String> outputOrfList = new Vector<>();
-    private OutputResult result = new OutputResult();
-
-    //取り出した値を格納するコンテナ
-    static class OutputResult {
-        Map<String, Map<String, String>> table = new TreeMap<>();
-        TreeSet<String> cols = new TreeSet<>();
-        String TABLENAME = "";
-        String NULLVALUE = ".";
-
-        void setTableName(String name) {
-            TABLENAME = name;
-        }
-
-        String getTableName() {
-            return TABLENAME;
-        }
-
-        public String get(String rowname, String colname) {
-            Map<String, String> onerow = table.get(rowname);
-            if (onerow == null)
-                return NULLVALUE;
-            String str = onerow.get(colname);
-            if (str == null)
-                return NULLVALUE;
-            return str;
-        }
-
-        public void set(String rowname, String colname, String value) {
-            if (!table.containsKey(rowname))
-                table.put(rowname, new TreeMap<>());
-            Map<String, String> onerow = table.get(rowname);
-            onerow.put(colname, value);
-            cols.add(colname);
-        }
-
-        boolean colExists(String colname) {
-            return cols.contains(colname);
-        }
-
-        /**
-         * @return
-         */
-        Vector<String> getRowList() {
-            int size = table.keySet().size();
-            String[] liststr = new String[size];
-            int n = 0;
-            for (String r : table.keySet()) {
-                liststr[n++] = r;
-            }
-            Arrays.sort(liststr);
-            Vector<String> list = new Vector<>(Arrays.asList(liststr));
-            return list;
-        }
     }
 
     private void readOutputParameterList() throws IOException {
@@ -291,6 +233,59 @@ public class Summarize {
                 outfile.print("\t" + result.get(o, p));
             }
             outfile.println();
+        }
+    }
+
+    //取り出した値を格納するコンテナ
+    static class OutputResult {
+        Map<String, Map<String, String>> table = new TreeMap<>();
+        TreeSet<String> cols = new TreeSet<>();
+        String TABLENAME = "";
+        String NULLVALUE = ".";
+
+        String getTableName() {
+            return TABLENAME;
+        }
+
+        void setTableName(String name) {
+            TABLENAME = name;
+        }
+
+        public String get(String rowname, String colname) {
+            Map<String, String> onerow = table.get(rowname);
+            if (onerow == null)
+                return NULLVALUE;
+            String str = onerow.get(colname);
+            if (str == null)
+                return NULLVALUE;
+            return str;
+        }
+
+        public void set(String rowname, String colname, String value) {
+            if (!table.containsKey(rowname))
+                table.put(rowname, new TreeMap<>());
+            Map<String, String> onerow = table.get(rowname);
+            onerow.put(colname, value);
+            cols.add(colname);
+        }
+
+        boolean colExists(String colname) {
+            return cols.contains(colname);
+        }
+
+        /**
+         * @return
+         */
+        Vector<String> getRowList() {
+            int size = table.keySet().size();
+            String[] liststr = new String[size];
+            int n = 0;
+            for (String r : table.keySet()) {
+                liststr[n++] = r;
+            }
+            Arrays.sort(liststr);
+            Vector<String> list = new Vector<>(Arrays.asList(liststr));
+            return list;
         }
     }
 

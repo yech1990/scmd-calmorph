@@ -17,7 +17,7 @@ public class CalMorphClient {
     /**
      * @param server
      */
-    public CalMorphClient(String server) {
+    private CalMorphClient(String server) {
         _servername = server;
         String randomkey = System.currentTimeMillis() + ((int) (Math.random() * 1000.0) + "");
         clientid = randomkey + "@" + _servername;
@@ -31,6 +31,13 @@ public class CalMorphClient {
         CalMorphClient client = new CalMorphClient(args[0]);
         client.inoutdir(args[1], args[2], args[3]);
         client.runCalmorphOnServer();
+    }
+
+    /**
+     *
+     */
+    private static void usage() {
+        System.out.println("CalMorphClient <servername> <calmorph args>");
     }
 
     /**
@@ -95,12 +102,5 @@ public class CalMorphClient {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     *
-     */
-    private static void usage() {
-        System.out.println("CalMorphClient <servername> <calmorph args>");
     }
 }

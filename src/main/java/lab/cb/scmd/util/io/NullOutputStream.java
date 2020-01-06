@@ -23,7 +23,7 @@ public class NullOutputStream extends OutputStream {
     /**
      *
      */
-    public NullOutputStream() {
+    NullOutputStream() {
         super();
         // do nothing
     }

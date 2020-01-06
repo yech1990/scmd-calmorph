@@ -4,9 +4,9 @@ import java.util.Vector;
 
 public class Line {
 
+    private final static double _vertical = Double.MAX_VALUE;
     // start　と end　を通る直線に垂直で、start と end の中点middle　を通る直線を求める。
     private double _gradient, _intercept;
-    private final static double _vertical = Double.MAX_VALUE;
 
     Line() {
     }
@@ -14,28 +14,6 @@ public class Line {
     private Line(double gradient, double intercept) {
         _gradient = gradient;
         _intercept = intercept;
-    }
-
-    private double getGradient() {
-        return _gradient;
-    }
-
-    private double getIntercept() {
-        return _intercept;
-    }
-
-    public Line calculateLine(int start, int end, int width) {
-        int[] xy = calculateXY(start, end, width);
-        double gradient = calculateGradient(xy[0], xy[1], xy[2], xy[3]);
-        double intercept = calculateIntercept(gradient, start, width);
-        return new Line(gradient, intercept);
-    }
-
-    Line calculatePerpendicularLine(int start, int middle, int end, int width) {
-        int[] xy = calculateXY(start, end, width);
-        double gradient = calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]);
-        double intercept = calculateIntercept(gradient, middle, width);
-        return new Line(gradient, intercept);
     }
 
     private static int[] calculateXY(int start, int end, int width) {
@@ -106,5 +84,27 @@ public class Line {
             }
         }
         return result;
+    }
+
+    private double getGradient() {
+        return _gradient;
+    }
+
+    private double getIntercept() {
+        return _intercept;
+    }
+
+    public Line calculateLine(int start, int end, int width) {
+        int[] xy = calculateXY(start, end, width);
+        double gradient = calculateGradient(xy[0], xy[1], xy[2], xy[3]);
+        double intercept = calculateIntercept(gradient, start, width);
+        return new Line(gradient, intercept);
+    }
+
+    Line calculatePerpendicularLine(int start, int middle, int end, int width) {
+        int[] xy = calculateXY(start, end, width);
+        double gradient = calculatePerpendicularGradient(xy[0], xy[1], xy[2], xy[3]);
+        double intercept = calculateIntercept(gradient, middle, width);
+        return new Line(gradient, intercept);
     }
 }

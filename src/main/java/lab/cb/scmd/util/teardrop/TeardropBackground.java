@@ -34,15 +34,19 @@ import java.util.Map;
 // Teardropの背景を作成する
 public class TeardropBackground {
 
-    OptionParser _parser = new OptionParser();
-    final static int OPT_HELP = 0;
-    final static int OPT_IMAGEMAGICK = 1;
+    private final static int OPT_HELP = 0;
+    private final static int OPT_IMAGEMAGICK = 1;
+    private OptionParser _parser = new OptionParser();
+    // instances
+    private BasicTable _dataset = null;
+    private Map<String, TeardropStatistics> _statisticsMap = new HashMap<>();
+    // program
+    private String _converter = "C:/Program Files/ImageMagick-6.0.3-Q16/convert.exe";
     // File Name
     private String PREFIX = "td_";
     private String SUFFIX = ".png";
     private PrintStream _out = System.out;
     private String BGFILE = "TeardropBackground.png";
-
     // color table
     private String BASE_COLOR = "#8888FF";
     //private String STANDARD_POSISION_COLOR 	= "#8888FF";
@@ -50,13 +54,6 @@ public class TeardropBackground {
     private int IMAGEHEIGHT = 300;
     private int BARHEIGHT = 4;
     private int MARGIN = 4;
-
-    // instances
-    BasicTable _dataset = null;
-    Map<String, TeardropStatistics> _statisticsMap = new HashMap<>();
-
-    // program
-    String _converter = "C:/Program Files/ImageMagick-6.0.3-Q16/convert.exe";
 
     public static void main(String[] args) {
 
@@ -96,7 +93,7 @@ public class TeardropBackground {
         _dataset = bt;
     }
 
-    public void computeStatistics() {
+    private void computeStatistics() {
         System.out.println("Paramname" + "\t" + "Average" + "\t" + "SD" + "\t" + "MAX" + "\t" + "MIN");
         int rowSize = _dataset.getRowSize();
         int colSize = _dataset.getColSize();
@@ -129,7 +126,7 @@ public class TeardropBackground {
     }
 
 
-    public void drawAllColumnTeardrop() {
+    private void drawAllColumnTeardrop() {
         List<String> columnLabels = _dataset.getColLabelList();
         int colSize = columnLabels.size();
         try {

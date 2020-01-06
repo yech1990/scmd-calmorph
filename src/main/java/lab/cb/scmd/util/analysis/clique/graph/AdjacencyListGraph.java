@@ -19,14 +19,40 @@ import java.util.TreeSet;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class AdjacencyListGraph extends GraphStructure {
-    protected HashMap<Integer, VertexDescriptor> vertexList = new HashMap<>();
+    private HashMap<Integer, VertexDescriptor> vertexList = new HashMap<>();
     /*
      * adjacencyList -- (id, TreeSet (id1, id2,...))
      */
-    protected HashMap<Integer, TreeSet<Integer>> adjacencyList = new HashMap<>();
+    private HashMap<Integer, TreeSet<Integer>> adjacencyList = new HashMap<>();
 
     public AdjacencyListGraph() {
 
+    }
+
+    public static void main(String[] args) {
+        AdjacencyListGraph g = new AdjacencyListGraph();
+
+        VertexDescriptor v1 = new VertexDescriptor(1, "a");
+        VertexDescriptor v2 = new VertexDescriptor(2, "b");
+        VertexDescriptor v3 = new VertexDescriptor(3, "c");
+        VertexDescriptor v4 = new VertexDescriptor(4, "d");
+        VertexDescriptor v5 = new VertexDescriptor(5, "e");
+        VertexDescriptor v6 = new VertexDescriptor(6, "f");
+
+        g.addVertex(v1);
+        g.addVertex(v2);
+        g.addVertex(v3);
+        g.addVertex(v4);
+        g.addVertex(v5);
+        g.addVertex(v6);
+
+        g.addAdjacency(v1, v2);
+        g.addAdjacency(v1, v3);
+        g.addAdjacency(v1, v4);
+        g.addAdjacency(v2, v5);
+        g.addAdjacency(v2, v4);
+
+        g.print();
     }
 
     public void addVertex(VertexDescriptor v) {
@@ -65,7 +91,7 @@ public class AdjacencyListGraph extends GraphStructure {
         addAdjacency(vs.getId(), ve.getId());
     }
 
-    public Object[] getAdjacency(Integer vertexId) {
+    private Object[] getAdjacency(Integer vertexId) {
         return (adjacencyList.get(vertexId)).toArray();
     }
 
@@ -78,10 +104,10 @@ public class AdjacencyListGraph extends GraphStructure {
         Object[] adjs = getAdjacency(v1);
         for (Object adj : adjs) {
             if (v2.equals(adj)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public void print() {
@@ -107,31 +133,5 @@ public class AdjacencyListGraph extends GraphStructure {
 
     public Set<Integer> getVertexIds() {
         return vertexList.keySet();
-    }
-
-    public static void main(String[] args) {
-        AdjacencyListGraph g = new AdjacencyListGraph();
-
-        VertexDescriptor v1 = new VertexDescriptor(1, "a");
-        VertexDescriptor v2 = new VertexDescriptor(2, "b");
-        VertexDescriptor v3 = new VertexDescriptor(3, "c");
-        VertexDescriptor v4 = new VertexDescriptor(4, "d");
-        VertexDescriptor v5 = new VertexDescriptor(5, "e");
-        VertexDescriptor v6 = new VertexDescriptor(6, "f");
-
-        g.addVertex(v1);
-        g.addVertex(v2);
-        g.addVertex(v3);
-        g.addVertex(v4);
-        g.addVertex(v5);
-        g.addVertex(v6);
-
-        g.addAdjacency(v1, v2);
-        g.addAdjacency(v1, v3);
-        g.addAdjacency(v1, v4);
-        g.addAdjacency(v2, v5);
-        g.addAdjacency(v2, v4);
-
-        g.print();
     }
 }

@@ -19,6 +19,7 @@ import java.util.HashMap;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class DataMatrix {
+    private PrintStream fOut = System.out;
     private String name = "";
     private ArrayList<String>[] axisNameList = new ArrayList[2];
     private double[][] dataMatrix;
@@ -26,10 +27,39 @@ public class DataMatrix {
     private int rowsize = 0;
     private int colsize = 0;
     private double MISSINGVALUE = Double.MIN_VALUE;
-
-    PrintStream fOut = System.out;
     private String FIELD_SEPARATOR = "\t";
     private String NULLVALUE = "";
+
+    public DataMatrix() {
+        axisNameList[0] = new ArrayList<>();
+        axisNameList[1] = new ArrayList<>();
+        axisNameToNumber[0] = new HashMap<>();
+        axisNameToNumber[1] = new HashMap<>();
+    }
+
+    private DataMatrix(int row, int column) {
+        dataMatrix = new double[row][column];
+        rowsize = row;
+        colsize = column;
+
+        axisNameList[0] = new ArrayList<>();
+        axisNameList[1] = new ArrayList<>();
+        axisNameToNumber[0] = new HashMap<>();
+        axisNameToNumber[1] = new HashMap<>();
+    }
+
+    public DataMatrix(String str, double[][] data) {
+        name = str;
+
+        rowsize = data.length;
+        colsize = data[0].length;
+        dataMatrix = data;
+
+        axisNameList[0] = new ArrayList<>();
+        axisNameList[1] = new ArrayList<>();
+        axisNameToNumber[0] = new HashMap<>();
+        axisNameToNumber[1] = new HashMap<>();
+    }
 
     public static void main(String[] args) {
         int argc = 0;
@@ -47,37 +77,6 @@ public class DataMatrix {
         dm.load(args[argc++], columnFile, rowFile);
     }
 
-    public DataMatrix() {
-        axisNameList[0] = new ArrayList<String>();
-        axisNameList[1] = new ArrayList<String>();
-        axisNameToNumber[0] = new HashMap<String, Integer>();
-        axisNameToNumber[1] = new HashMap<String, Integer>();
-    }
-
-    public DataMatrix(int row, int column) {
-        dataMatrix = new double[row][column];
-        rowsize = row;
-        colsize = column;
-
-        axisNameList[0] = new ArrayList<String>();
-        axisNameList[1] = new ArrayList<String>();
-        axisNameToNumber[0] = new HashMap<String, Integer>();
-        axisNameToNumber[1] = new HashMap<String, Integer>();
-    }
-
-    public DataMatrix(String str, double[][] data) {
-        name = str;
-
-        rowsize = data.length;
-        colsize = data[0].length;
-        dataMatrix = data;
-
-        axisNameList[0] = new ArrayList<String>();
-        axisNameList[1] = new ArrayList<String>();
-        axisNameToNumber[0] = new HashMap<String, Integer>();
-        axisNameToNumber[1] = new HashMap<String, Integer>();
-    }
-
     /**
      * @return
      */
@@ -88,7 +87,7 @@ public class DataMatrix {
     /*
      *
      */
-    public boolean isMissingValueAt(int row, int column) {
+    private boolean isMissingValueAt(int row, int column) {
         return this.get(row, column) == MISSINGVALUE;
     }
 
@@ -123,7 +122,7 @@ public class DataMatrix {
     /**
      * @param str
      */
-    public void addColumnName(String str) {
+    private void addColumnName(String str) {
         axisNameToNumber[0].put(str, new Integer(axisNameList[0].size()));
         axisNameList[0].add(str);
     }
@@ -147,7 +146,7 @@ public class DataMatrix {
     /**
      * @return
      */
-    public Integer getColumnNumber(String str) {
+    private Integer getColumnNumber(String str) {
         return axisNameToNumber[0].get(str);
     }
 
@@ -173,7 +172,7 @@ public class DataMatrix {
     /**
      * @param str
      */
-    public void addRowName(String str) {
+    private void addRowName(String str) {
         axisNameToNumber[1].put(str, new Integer(axisNameList[1].size()));
         axisNameList[1].add(str);
     }
@@ -197,7 +196,7 @@ public class DataMatrix {
     /**
      * @return
      */
-    public Integer getRowNumber(String str) {
+    private Integer getRowNumber(String str) {
         return axisNameToNumber[1].get(str);
     }
 
@@ -209,7 +208,7 @@ public class DataMatrix {
         return dataMatrix[row][column];
     }
 
-    public double[] getOneRow(int row) {
+    private double[] getOneRow(int row) {
         return dataMatrix[row];
     }
 
@@ -272,14 +271,14 @@ public class DataMatrix {
 
     public void load(Reader reader, String nullvalue, String fieldSeparator, boolean rowComment, boolean columnComment) {
 
-        ArrayList<ArrayList> dataArray = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> dataArray = new ArrayList<>();
         String str = "";
         try {
 
             BufferedReader in = new BufferedReader(reader);
 
             String[] strvector;
-            if (columnComment == true) {
+            if (columnComment) {
                 str = in.readLine();
                 strvector = str.split(FIELD_SEPARATOR);
                 setName(strvector[0]);
@@ -289,16 +288,16 @@ public class DataMatrix {
             }
 
             int dataStartColumn = 0;
-            if (rowComment == true)
+            if (rowComment)
                 dataStartColumn = 1;
             int maxrowsize = 0;
             while ((str = in.readLine()) != null) {
                 strvector = str.split(FIELD_SEPARATOR);
-                if (rowComment == true)
+                if (rowComment)
                     addRowName(strvector[0]);
                 if (maxrowsize == 0)
                     maxrowsize = strvector.length;
-                ArrayList<Double> v = new ArrayList<Double>();
+                ArrayList<Double> v = new ArrayList<>();
                 for (int i = dataStartColumn; i < strvector.length; i++) {
                     if (strvector[i].equals(nullvalue))
                         v.add(new Double(Double.NaN));
@@ -332,7 +331,7 @@ public class DataMatrix {
         DataMatrix tmpdm = new DataMatrix();
         tmpdm.load(string);
 
-        ArrayList<String> colparams = new ArrayList<String>();
+        ArrayList<String> colparams = new ArrayList<>();
         if (columnFile.length() != 0) {
             PlainTable ct = new PlainTable();
             ct.load(columnFile, "\t", false, false);
@@ -343,7 +342,7 @@ public class DataMatrix {
             colparams = tmpdm.getAllColumnName();
         }
 
-        ArrayList<String> rowparams = new ArrayList<String>();
+        ArrayList<String> rowparams = new ArrayList<>();
         if (rowFile.length() != 0) {
             PlainTable rt = new PlainTable();
             rt.load(rowFile, "\t", false, false);
@@ -355,15 +354,13 @@ public class DataMatrix {
         }
 
         System.out.print(tmpdm.getName());
-        for (int col = 0; col < colparams.size(); col++) {
-            System.out.print("\t" + colparams.get(col));
+        for (String colparam : colparams) {
+            System.out.print("\t" + colparam);
         }
         System.out.println();
-        for (int row = 0; row < rowparams.size(); row++) {
-            String rowname = rowparams.get(row);
+        for (String rowname : rowparams) {
             System.out.print(rowname);
-            for (int col = 0; col < colparams.size(); col++) {
-                String colname = colparams.get(col);
+            for (String colname : colparams) {
                 System.out.print("\t" + tmpdm.get(tmpdm.getRowNumber(rowname), tmpdm.getColumnNumber(colname)));
             }
             System.out.println();
@@ -375,18 +372,18 @@ public class DataMatrix {
         return centerOfGravity();
     }
 
-    public double[] avg(boolean col) {
+    private double[] avg(boolean col) {
         return centerOfGravity(col);
     }
 
     /**
      * @return
      */
-    public double[] centerOfGravity() {
+    private double[] centerOfGravity() {
         return centerOfGravity(true);
     }
 
-    public double[] centerOfGravity(boolean col) {
+    private double[] centerOfGravity(boolean col) {
         double[] center = new double[0];
         int rowsize = getRowSize();
         int colsize = getColumnSize();
@@ -484,7 +481,7 @@ public class DataMatrix {
         return stddev(true);
     }
 
-    public double[] stddev(boolean col) {
+    private double[] stddev(boolean col) {
         double[] var = this.var(col);
         for (int i = 0; i < var.length; i++) {
             var[i] = Math.sqrt(var[i]);
@@ -499,7 +496,7 @@ public class DataMatrix {
         return cv(true);
     }
 
-    public double[] cv(boolean col) {
+    private double[] cv(boolean col) {
         double[] cv = this.stddev(col);
         double[] avg = this.avg(col);
         for (int i = 0; i < cv.length; i++) {
@@ -590,8 +587,8 @@ public class DataMatrix {
                 nm.set(i, j, this.get(rowNumber, colNumber));
             }
         }
-        for (int i = 0; i < cols.length; i++) {
-            nm.addColumnName((String) cols[i]);
+        for (Object col : cols) {
+            nm.addColumnName((String) col);
         }
         return nm;
     }
@@ -611,7 +608,7 @@ public class DataMatrix {
      */
     public void print(boolean printRowName, boolean printColName) {
         double data = 0.0;
-        if (printColName == true) {
+        if (printColName) {
             fOut.print(name);
             for (int i = 0; i < axisNameList[0].size(); i++) {
                 fOut.print(FIELD_SEPARATOR + axisNameList[0].get(i));
@@ -619,7 +616,7 @@ public class DataMatrix {
             fOut.println();
         }
         for (int i = 0; i < rowsize; i++) {
-            if (printRowName == true) {
+            if (printRowName) {
                 fOut.print(axisNameList[1].get(i) + FIELD_SEPARATOR);
             }
             for (int j = 0; j < colsize - 1; j++) {
@@ -645,7 +642,7 @@ public class DataMatrix {
      * @param member
      */
     public void print(String matrixname, boolean printRowName, boolean printColName, ArrayList member) {
-        if (printColName == true) {
+        if (printColName) {
             fOut.print(matrixname);
             for (int i = 0; i < axisNameList[0].size(); i++) {
                 fOut.print(FIELD_SEPARATOR + axisNameList[0].get(i));
@@ -653,9 +650,9 @@ public class DataMatrix {
             fOut.println();
         }
 
-        for (int i = 0; i < member.size(); i++) {
-            int n = ((Integer) member.get(i)).intValue();
-            if (printRowName == true) {
+        for (Object o : member) {
+            int n = ((Integer) o).intValue();
+            if (printRowName) {
                 fOut.print(axisNameList[1].get(n) + FIELD_SEPARATOR);
             }
             for (int j = 0; j < colsize - 1; j++) {

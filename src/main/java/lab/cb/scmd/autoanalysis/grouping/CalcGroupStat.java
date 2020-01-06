@@ -37,13 +37,6 @@ import java.util.regex.Pattern;
  */
 public class CalcGroupStat implements TableFileName {
 
-    private OptionParser _parser = new OptionParser();
-    private String[] _missingValue = {"-1", "-1.0", "Infinity", "NaN"};
-    private Statistics _stat = new StatisticsWithMissingValueSupport(_missingValue);
-    private PrintStream _log = new NullPrintStream();
-    private boolean _eliminateSample = false;
-    private boolean _shortVariables = false;
-
     // option IDs
     private final static int OPT_HELP = 0;
     private final static int OPT_VERBOSE = 1;
@@ -52,15 +45,167 @@ public class CalcGroupStat implements TableFileName {
     private final static int OPT_ELIMINATE = 4;
     private final static int OPT_SHORTVARIABLES = 5;
     private final static int OPT_CALCORFSTAT = 6;
-
+    private OptionParser _parser = new OptionParser();
+    private String[] _missingValue = {"-1", "-1.0", "Infinity", "NaN"};
+    private Statistics _stat = new StatisticsWithMissingValueSupport(_missingValue);
+    private PrintStream _log = new NullPrintStream();
+    private boolean _eliminateSample = false;
+    private boolean _shortVariables = false;
     private String _baseDirName = ".";
     private boolean _isVerbose = false;
+    private String[] outputLabel_A;
+    private String[] outputLabel_SRT_A = {
+            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "CCV11-1_A",
+            "CCV115_A", "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
+            "A123_A", "ACV101_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
+            "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A", "D176_A", "D179_A", "D182_A", "D188_A",
+            "D191_A", "D194_A", "DCV14-1_A", "DCV105_A", "DCV147_A", "DCV182_A"};
+    private String[] outputLabel_ALL_A = {
+            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A",
+            "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
+            "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
+            "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A", "D176_A", "D179_A", "D182_A", "D188_A",
+            "D191_A", "D194_A",
+            "CCV11-1_A", "CCV12-1_A", "CCV13_A", "CCV103_A", "CCV104_A", "CCV115_A", "CCV126_A", "CCV127_A",
+            "ACV7-1_A", "ACV8-1_A", "ACV101_A", "ACV120_A", "ACV121_A", "ACV122_A",
+            "ACV123_A", "DCV14-1_A", "DCV15-1_A", "DCV16-1_A", "DCV17-1_A", "DCV102_A", "DCV105_A", "DCV117_A", "DCV127_A",
+            "DCV135_A", "DCV147_A", "DCV148_A", "DCV154_A", "DCV155_A", "DCV173_A", "DCV176_A", "DCV179_A", "DCV182_A", "DCV188_A",
+            "DCV191_A", "DCV194_A"};
+    // unification of parameter names
+    // "D17-1,D17-3_A1B" => "D17-3_A1B"
+    // "D160,D161_A1B" => "D161_A1B"
+    // "D164,D165_A1B" => "D165_A1B"
+    // "D171,D172_A1B" => "D172_A1B"
+    // "D188,D190_A1B" => "D190_A1B"
+    private String[] outputLabel_A1B;
+    private String[] outputLabel_SRT_A1B = {
+            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
+            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
+            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
+            "C125_A1B", "C126_A1B", "C127_A1B", "C128_A1B", "CCV11-1_A1B", "CCV11-2_A1B", "CCV105_A1B", "CCV106_A1B",
+            "CCV109_A1B", "CCV114_A1B", "CCV115_A1B", "CCV118_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B",
+            "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B", "A104_A1B", "A120_A1B", "A121_A1B",
+            "A122_A1B", "A123_A1B", "ACV101_A1B", "ACV102_A1B",
+            "ACV103_A1B", "ACV104_A1B", "D14-3_A1B", "D15-3_A1B", "D16-3_A1B", "D17-3_A1B", "D104_A1B",
+            "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B", "D132_A1B", "D136_A1B", "D142_A1B",
+            "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B", "D155_A1B", "D161_A1B",
+            "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B", "D178_A1B", "D181_A1B", "D184_A1B",
+            "D190_A1B", "D193_A1B", "D196_A1B", "DCV14-3_A1B", "DCV107_A1B", "DCV114_A1B", "DCV147_A1B",
+            "DCV184_A1B"};
+    private String[] outputLabel_ALL_A1B = {
+            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
+            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
+            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
+            "C125_A1B", "C126_A1B", "C127_A1B", "C128_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B",
+            "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B", "A104_A1B", "A107_A1B", "A108_A1B", "A109_A1B", "A110_A1B",
+            "A112_A1B", "A113_A1B", "A120_A1B", "A121_A1B", "A122_A1B", "A123_A1B",
+            "D14-3_A1B", "D15-3_A1B", "D16-3_A1B", "D17-3_A1B", "D104_A1B",
+            "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B", "D132_A1B", "D136_A1B", "D142_A1B",
+            "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B", "D155_A1B", "D161_A1B",
+            "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B", "D178_A1B", "D181_A1B", "D184_A1B",
+            "D190_A1B", "D193_A1B", "D196_A1B",
+            "CCV11-1_A1B", "CCV11-2_A1B", "CCV12-1_A1B", "CCV12-2_A1B", "CCV13_A1B", "CCV101_A1B", "CCV102_A1B",
+            "CCV103_A1B", "CCV104_A1B", "CCV105_A1B", "CCV106_A1B", "CCV107_A1B", "CCV108_A1B", "CCV109_A1B", "CCV110_A1B", "CCV111_A1B",
+            "CCV112_A1B", "CCV113_A1B", "CCV114_A1B", "CCV115_A1B", "CCV116_A1B", "CCV117_A1B", "CCV118_A1B", "CCV126_A1B", "CCV127_A1B",
+            "CCV128_A1B", "ACV7-1_A1B", "ACV7-2_A1B", "ACV8-1_A1B", "ACV8-2_A1B",
+            "ACV9_A1B", "ACV101_A1B", "ACV102_A1B", "ACV103_A1B", "ACV104_A1B",
+            "ACV120_A1B", "ACV121_A1B", "ACV122_A1B", "ACV123_A1B",
+            "DCV14-3_A1B", "DCV15-3_A1B", "DCV16-3_A1B", "DCV17-3_A1B", "DCV104_A1B",
+            "DCV107_A1B", "DCV110_A1B", "DCV114_A1B", "DCV118_A1B", "DCV126_A1B", "DCV129_A1B", "DCV132_A1B", "DCV136_A1B", "DCV142_A1B",
+            "DCV143_A1B", "DCV145_A1B", "DCV147_A1B", "DCV148_A1B", "DCV152_A1B", "DCV154_A1B", "DCV155_A1B", "DCV161_A1B",
+            "DCV165_A1B", "DCV169_A1B", "DCV170_A1B", "DCV172_A1B", "DCV175_A1B", "DCV178_A1B", "DCV181_A1B", "DCV184_A1B",
+            "DCV190_A1B", "DCV193_A1B", "DCV196_A1B"};
+    private String[] outputLabel_C;
+    private String[] outputLabel_SRT_C = {
+            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
+            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
+            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C",
+            "CCV11-1_C", "CCV11-2_C", "CCV105_C", "CCV106_C", "CCV109_C", "CCV114_C", "CCV115_C", "CCV118_C", "A7-1_C",
+            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
+            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C", "ACV101_C", "ACV102_C", "ACV103_C",
+            "ACV104_C", "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
+            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
+            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
+            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
+            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
+            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
+            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
+            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C", "DCV14-1_C", "DCV14-2_C", "DCV14-3_C",
+            "DCV106_C", "DCV112_C", "DCV113_C", "DCV116_C", "DCV123_C", "DCV147_C", "DCV149_C", "DCV182_C", "DCV183_C"};
+    private String[] outputLabel_ALL_C = {
+            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
+            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
+            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
+            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
+            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C",
+            "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
+            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
+            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
+            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
+            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
+            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
+            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
+            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C",
+            "CCV11-1_C", "CCV11-2_C", "CCV12-1_C", "CCV12-2_C", "CCV13_C", "CCV101_C", "CCV102_C", "CCV103_C", "CCV104_C",
+            "CCV105_C", "CCV106_C", "CCV107_C", "CCV108_C", "CCV109_C", "CCV110_C", "CCV111_C", "CCV112_C", "CCV113_C", "CCV114_C",
+            "CCV115_C", "CCV116_C", "CCV117_C", "CCV118_C", "CCV126_C", "CCV127_C", "CCV128_C",
+            "ACV7-1_C", "ACV7-2_C", "ACV8-1_C", "ACV8-2_C", "ACV9_C", "ACV101_C", "ACV102_C", "ACV103_C", "ACV104_C",
+            "ACV120_C", "ACV121_C", "ACV122_C", "ACV123_C",
+            "DCV14-1_C", "DCV14-2_C", "DCV14-3_C", "DCV15-1_C", "DCV15-2_C", "DCV15-3_C", "DCV16-1_C", "DCV16-2_C",
+            "DCV16-3_C", "DCV17-1_C", "DCV17-2_C", "DCV103_C", "DCV106_C", "DCV108_C", "DCV109_C", "DCV112_C", "DCV113_C", "DCV116_C",
+            "DCV117_C", "DCV119_C", "DCV121_C", "DCV123_C", "DCV125_C", "DCV128_C", "DCV130_C", "DCV131_C", "DCV134_C", "DCV135_C",
+            "DCV137_C", "DCV139_C", "DCV141_C", "DCV143_C", "DCV144_C", "DCV145_C", "DCV146_C", "DCV147_C", "DCV148_C", "DCV149_C",
+            "DCV150_C", "DCV151_C", "DCV152_C", "DCV153_C", "DCV154_C", "DCV155_C", "DCV156_C", "DCV157_C", "DCV158_C", "DCV159_C",
+            "DCV162_C", "DCV163_C", "DCV166_C", "DCV167_C", "DCV169_C", "DCV170_C", "DCV173_C", "DCV174_C", "DCV176_C", "DCV177_C",
+            "DCV179_C", "DCV180_C", "DCV182_C", "DCV183_C", "DCV185_C", "DCV186_C", "DCV188_C", "DCV189_C", "DCV191_C", "DCV192_C",
+            "DCV193_C", "DCV194_C", "DCV195_C", "DCV196_C", "DCV197_C", "DCV198_C"};
+    private String[] outputNumLabel_A = {
+            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "A7-1_A",
+            "A8-1_A", "A101_A", "A120_A", "A121_A", "A122_A", "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A",
+            "D102_A", "D105_A", "D117_A", "D127_A", "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A",
+            "D176_A", "D179_A", "D182_A", "D188_A", "D191_A", "D194_A"};
+    private String[] outputNumLabel_A1B = {
+            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
+            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
+            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C126_A1B", "C127_A1B",
+            "C128_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B", "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B",
+            "A104_A1B", "A120_A1B", "A121_A1B", "A122_A1B", "A123_A1B", "D14-3_A1B", "D15-3_A1B", "D16-3_A1B",
+            "D17-3_A1B", "D104_A1B", "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B",
+            "D132_A1B", "D136_A1B", "D142_A1B", "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B",
+            "D155_A1B", "D161_A1B", "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B",
+            "D178_A1B", "D181_A1B", "D184_A1B", "D190_A1B", "D193_A1B", "D196_A1B"};
+    private String[] outputNumLabel_C = {
+            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
+            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
+            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
+            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
+            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C",
+            "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
+            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
+            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
+            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
+            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
+            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
+            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
+            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C"};
 
     CalcGroupStat() {
     }
 
     public CalcGroupStat(String baseDirName) {
         _baseDirName = baseDirName;
+    }
+
+    public static void main(String[] args) {
+        CalcGroupStat c = new CalcGroupStat();
+        try {
+            c.setupByArguments(args);
+            c.loopForEachDirectory();
+        } catch (SCMDException e) {
+            e.what();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     /**
@@ -78,36 +223,6 @@ public class CalcGroupStat implements TableFileName {
             return m.group(1) + "CV" + m.group(2);
         else
             throw new SCMDException("cannot translate given parameter name " + parameterName + " to CV name");
-    }
-
-    /**
-     * 統計値の計算結果を格納するコンテナ
-     *
-     * @author leo
-     */
-    static class OutputResult {
-
-        OutputResult(HashMap resultHash, HashMap numValidSampleHash) {
-            _resultHash = resultHash;
-            _numValidSampleHash = numValidSampleHash;
-        }
-
-        HashMap _resultHash;
-        HashMap _numValidSampleHash;
-
-        /**
-         * @return Returns the _numValidSampleHash.
-         */
-        HashMap get_numValidSampleHash() {
-            return _numValidSampleHash;
-        }
-
-        /**
-         * @return Returns the _resultHash.
-         */
-        HashMap get_resultHash() {
-            return _resultHash;
-        }
     }
 
     /**
@@ -222,151 +337,6 @@ public class CalcGroupStat implements TableFileName {
         out.println();
     }
 
-    private String[] outputLabel_A;
-    private String[] outputLabel_SRT_A = {
-            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "CCV11-1_A",
-            "CCV115_A", "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
-            "A123_A", "ACV101_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
-            "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A", "D176_A", "D179_A", "D182_A", "D188_A",
-            "D191_A", "D194_A", "DCV14-1_A", "DCV105_A", "DCV147_A", "DCV182_A"};
-
-    private String[] outputLabel_ALL_A = {
-            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A",
-            "A7-1_A", "A8-1_A", "A101_A", "A105_A", "A106_A", "A113_A", "A120_A", "A121_A", "A122_A",
-            "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A", "D102_A", "D105_A", "D117_A", "D127_A",
-            "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A", "D176_A", "D179_A", "D182_A", "D188_A",
-            "D191_A", "D194_A",
-            "CCV11-1_A", "CCV12-1_A", "CCV13_A", "CCV103_A", "CCV104_A", "CCV115_A", "CCV126_A", "CCV127_A",
-            "ACV7-1_A", "ACV8-1_A", "ACV101_A", "ACV120_A", "ACV121_A", "ACV122_A",
-            "ACV123_A", "DCV14-1_A", "DCV15-1_A", "DCV16-1_A", "DCV17-1_A", "DCV102_A", "DCV105_A", "DCV117_A", "DCV127_A",
-            "DCV135_A", "DCV147_A", "DCV148_A", "DCV154_A", "DCV155_A", "DCV173_A", "DCV176_A", "DCV179_A", "DCV182_A", "DCV188_A",
-            "DCV191_A", "DCV194_A"};
-
-
-    // unification of parameter names
-    // "D17-1,D17-3_A1B" => "D17-3_A1B"
-    // "D160,D161_A1B" => "D161_A1B"
-    // "D164,D165_A1B" => "D165_A1B"
-    // "D171,D172_A1B" => "D172_A1B"
-    // "D188,D190_A1B" => "D190_A1B"
-    private String[] outputLabel_A1B;
-    private String[] outputLabel_SRT_A1B = {
-            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
-            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
-            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
-            "C125_A1B", "C126_A1B", "C127_A1B", "C128_A1B", "CCV11-1_A1B", "CCV11-2_A1B", "CCV105_A1B", "CCV106_A1B",
-            "CCV109_A1B", "CCV114_A1B", "CCV115_A1B", "CCV118_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B",
-            "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B", "A104_A1B", "A120_A1B", "A121_A1B",
-            "A122_A1B", "A123_A1B", "ACV101_A1B", "ACV102_A1B",
-            "ACV103_A1B", "ACV104_A1B", "D14-3_A1B", "D15-3_A1B", "D16-3_A1B", "D17-3_A1B", "D104_A1B",
-            "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B", "D132_A1B", "D136_A1B", "D142_A1B",
-            "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B", "D155_A1B", "D161_A1B",
-            "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B", "D178_A1B", "D181_A1B", "D184_A1B",
-            "D190_A1B", "D193_A1B", "D196_A1B", "DCV14-3_A1B", "DCV107_A1B", "DCV114_A1B", "DCV147_A1B",
-            "DCV184_A1B"};
-
-    private String[] outputLabel_ALL_A1B = {
-            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
-            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
-            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C123_A1B", "C124_A1B",
-            "C125_A1B", "C126_A1B", "C127_A1B", "C128_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B",
-            "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B", "A104_A1B", "A107_A1B", "A108_A1B", "A109_A1B", "A110_A1B",
-            "A112_A1B", "A113_A1B", "A120_A1B", "A121_A1B", "A122_A1B", "A123_A1B",
-            "D14-3_A1B", "D15-3_A1B", "D16-3_A1B", "D17-3_A1B", "D104_A1B",
-            "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B", "D132_A1B", "D136_A1B", "D142_A1B",
-            "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B", "D155_A1B", "D161_A1B",
-            "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B", "D178_A1B", "D181_A1B", "D184_A1B",
-            "D190_A1B", "D193_A1B", "D196_A1B",
-            "CCV11-1_A1B", "CCV11-2_A1B", "CCV12-1_A1B", "CCV12-2_A1B", "CCV13_A1B", "CCV101_A1B", "CCV102_A1B",
-            "CCV103_A1B", "CCV104_A1B", "CCV105_A1B", "CCV106_A1B", "CCV107_A1B", "CCV108_A1B", "CCV109_A1B", "CCV110_A1B", "CCV111_A1B",
-            "CCV112_A1B", "CCV113_A1B", "CCV114_A1B", "CCV115_A1B", "CCV116_A1B", "CCV117_A1B", "CCV118_A1B", "CCV126_A1B", "CCV127_A1B",
-            "CCV128_A1B", "ACV7-1_A1B", "ACV7-2_A1B", "ACV8-1_A1B", "ACV8-2_A1B",
-            "ACV9_A1B", "ACV101_A1B", "ACV102_A1B", "ACV103_A1B", "ACV104_A1B",
-            "ACV120_A1B", "ACV121_A1B", "ACV122_A1B", "ACV123_A1B",
-            "DCV14-3_A1B", "DCV15-3_A1B", "DCV16-3_A1B", "DCV17-3_A1B", "DCV104_A1B",
-            "DCV107_A1B", "DCV110_A1B", "DCV114_A1B", "DCV118_A1B", "DCV126_A1B", "DCV129_A1B", "DCV132_A1B", "DCV136_A1B", "DCV142_A1B",
-            "DCV143_A1B", "DCV145_A1B", "DCV147_A1B", "DCV148_A1B", "DCV152_A1B", "DCV154_A1B", "DCV155_A1B", "DCV161_A1B",
-            "DCV165_A1B", "DCV169_A1B", "DCV170_A1B", "DCV172_A1B", "DCV175_A1B", "DCV178_A1B", "DCV181_A1B", "DCV184_A1B",
-            "DCV190_A1B", "DCV193_A1B", "DCV196_A1B"};
-
-    private String[] outputLabel_C;
-    private String[] outputLabel_SRT_C = {
-            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
-            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
-            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C",
-            "CCV11-1_C", "CCV11-2_C", "CCV105_C", "CCV106_C", "CCV109_C", "CCV114_C", "CCV115_C", "CCV118_C", "A7-1_C",
-            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
-            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C", "ACV101_C", "ACV102_C", "ACV103_C",
-            "ACV104_C", "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
-            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
-            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
-            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
-            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
-            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
-            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
-            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C", "DCV14-1_C", "DCV14-2_C", "DCV14-3_C",
-            "DCV106_C", "DCV112_C", "DCV113_C", "DCV116_C", "DCV123_C", "DCV147_C", "DCV149_C", "DCV182_C", "DCV183_C"};
-
-    private String[] outputLabel_ALL_C = {
-            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
-            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
-            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
-            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
-            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C",
-            "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
-            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
-            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
-            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
-            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
-            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
-            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
-            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C",
-            "CCV11-1_C", "CCV11-2_C", "CCV12-1_C", "CCV12-2_C", "CCV13_C", "CCV101_C", "CCV102_C", "CCV103_C", "CCV104_C",
-            "CCV105_C", "CCV106_C", "CCV107_C", "CCV108_C", "CCV109_C", "CCV110_C", "CCV111_C", "CCV112_C", "CCV113_C", "CCV114_C",
-            "CCV115_C", "CCV116_C", "CCV117_C", "CCV118_C", "CCV126_C", "CCV127_C", "CCV128_C",
-            "ACV7-1_C", "ACV7-2_C", "ACV8-1_C", "ACV8-2_C", "ACV9_C", "ACV101_C", "ACV102_C", "ACV103_C", "ACV104_C",
-            "ACV120_C", "ACV121_C", "ACV122_C", "ACV123_C",
-            "DCV14-1_C", "DCV14-2_C", "DCV14-3_C", "DCV15-1_C", "DCV15-2_C", "DCV15-3_C", "DCV16-1_C", "DCV16-2_C",
-            "DCV16-3_C", "DCV17-1_C", "DCV17-2_C", "DCV103_C", "DCV106_C", "DCV108_C", "DCV109_C", "DCV112_C", "DCV113_C", "DCV116_C",
-            "DCV117_C", "DCV119_C", "DCV121_C", "DCV123_C", "DCV125_C", "DCV128_C", "DCV130_C", "DCV131_C", "DCV134_C", "DCV135_C",
-            "DCV137_C", "DCV139_C", "DCV141_C", "DCV143_C", "DCV144_C", "DCV145_C", "DCV146_C", "DCV147_C", "DCV148_C", "DCV149_C",
-            "DCV150_C", "DCV151_C", "DCV152_C", "DCV153_C", "DCV154_C", "DCV155_C", "DCV156_C", "DCV157_C", "DCV158_C", "DCV159_C",
-            "DCV162_C", "DCV163_C", "DCV166_C", "DCV167_C", "DCV169_C", "DCV170_C", "DCV173_C", "DCV174_C", "DCV176_C", "DCV177_C",
-            "DCV179_C", "DCV180_C", "DCV182_C", "DCV183_C", "DCV185_C", "DCV186_C", "DCV188_C", "DCV189_C", "DCV191_C", "DCV192_C",
-            "DCV193_C", "DCV194_C", "DCV195_C", "DCV196_C", "DCV197_C", "DCV198_C"};
-
-    private String[] outputNumLabel_A = {
-            "Stage_A", "C11-1_A", "C12-1_A", "C13_A", "C103_A", "C104_A", "C115_A", "C126_A", "C127_A", "A7-1_A",
-            "A8-1_A", "A101_A", "A120_A", "A121_A", "A122_A", "A123_A", "D14-1_A", "D15-1_A", "D16-1_A", "D17-1_A",
-            "D102_A", "D105_A", "D117_A", "D127_A", "D135_A", "D147_A", "D148_A", "D154_A", "D155_A", "D173_A",
-            "D176_A", "D179_A", "D182_A", "D188_A", "D191_A", "D194_A"};
-
-    private String[] outputNumLabel_A1B = {
-            "Stage_A1B", "C11-1_A1B", "C11-2_A1B", "C12-1_A1B", "C12-2_A1B", "C13_A1B", "C101_A1B", "C102_A1B",
-            "C103_A1B", "C104_A1B", "C105_A1B", "C106_A1B", "C107_A1B", "C108_A1B", "C109_A1B", "C110_A1B", "C111_A1B",
-            "C112_A1B", "C113_A1B", "C114_A1B", "C115_A1B", "C116_A1B", "C117_A1B", "C118_A1B", "C126_A1B", "C127_A1B",
-            "C128_A1B", "A7-1_A1B", "A7-2_A1B", "A8-1_A1B", "A8-2_A1B", "A9_A1B", "A101_A1B", "A102_A1B", "A103_A1B",
-            "A104_A1B", "A120_A1B", "A121_A1B", "A122_A1B", "A123_A1B", "D14-3_A1B", "D15-3_A1B", "D16-3_A1B",
-            "D17-3_A1B", "D104_A1B", "D107_A1B", "D110_A1B", "D114_A1B", "D118_A1B", "D126_A1B", "D129_A1B",
-            "D132_A1B", "D136_A1B", "D142_A1B", "D143_A1B", "D145_A1B", "D147_A1B", "D148_A1B", "D152_A1B", "D154_A1B",
-            "D155_A1B", "D161_A1B", "D165_A1B", "D169_A1B", "D170_A1B", "D172_A1B", "D175_A1B",
-            "D178_A1B", "D181_A1B", "D184_A1B", "D190_A1B", "D193_A1B", "D196_A1B"};
-
-    private String[] outputNumLabel_C = {
-            "Stage_C", "C11-1_C", "C11-2_C", "C12-1_C", "C12-2_C", "C13_C", "C101_C", "C102_C", "C103_C", "C104_C",
-            "C105_C", "C106_C", "C107_C", "C108_C", "C109_C", "C110_C", "C111_C", "C112_C", "C113_C", "C114_C",
-            "C115_C", "C116_C", "C117_C", "C118_C", "C123_C", "C124_C", "C125_C", "C126_C", "C127_C", "C128_C", "A7-1_C",
-            "A7-2_C", "A8-1_C", "A8-2_C", "A9_C", "A101_C", "A102_C", "A103_C", "A104_C", "A107_C", "A108_C", "A109_C",
-            "A110_C", "A112_C", "A113_C", "A120_C", "A121_C", "A122_C", "A123_C",
-            "D14-1_C", "D14-2_C", "D14-3_C", "D15-1_C", "D15-2_C", "D15-3_C", "D16-1_C", "D16-2_C",
-            "D16-3_C", "D17-1_C", "D17-2_C", "D103_C", "D106_C", "D108_C", "D109_C", "D112_C", "D113_C", "D116_C",
-            "D117_C", "D119_C", "D121_C", "D123_C", "D125_C", "D128_C", "D130_C", "D131_C", "D134_C", "D135_C",
-            "D137_C", "D139_C", "D141_C", "D143_C", "D144_C", "D145_C", "D146_C", "D147_C", "D148_C", "D149_C",
-            "D150_C", "D151_C", "D152_C", "D153_C", "D154_C", "D155_C", "D156_C", "D157_C", "D158_C", "D159_C",
-            "D162_C", "D163_C", "D166_C", "D167_C", "D169_C", "D170_C", "D173_C", "D174_C", "D176_C", "D177_C",
-            "D179_C", "D180_C", "D182_C", "D183_C", "D185_C", "D186_C", "D188_C", "D189_C", "D191_C", "D192_C",
-            "D193_C", "D194_C", "D195_C", "D196_C", "D197_C", "D198_C"};
-
     private void calc_A(File tableFile, String orfName, PrintWriter out, PrintWriter numOut) throws SCMDException {
         FlatTable table_A = new FlatTable(tableFile);
         //String[] targetedParameterOfCV_A = {"C11-1_A", "C115_A", "A101_A",
@@ -451,11 +421,7 @@ public class CalcGroupStat implements TableFileName {
         HashMap<String, Integer> countResult = new HashMap<String, Integer>();
         for (TableIterator ti = inputTable.getVerticalIterator(targetColumnLabel); ti.hasNext(); ) {
             String group = ti.nextCell().toString();
-            Integer count = countResult.get(group);
-            if (count != null)
-                countResult.put(group, count + 1);
-            else
-                countResult.put(group, 1);
+            countResult.merge(group, 1, Integer::sum);
         }
 
         // patternCount - 結果の出力先
@@ -469,10 +435,9 @@ public class CalcGroupStat implements TableFileName {
             String keyElem = (String) o;
             for (String s : groupTypePattern) {
                 if (keyElem.matches(s)) {
-                    String matchedPattern = s;
                     int countToAdd = countResult.get(keyElem); // keyElemの出現回数
-                    int prevCount = (Integer) patternCount.get(matchedPattern); // 既に計上されているカウント
-                    patternCount.put(matchedPattern, prevCount + countToAdd);
+                    int prevCount = (Integer) patternCount.get(s); // 既に計上されているカウント
+                    patternCount.put(s, prevCount + countToAdd);
                 }
             }
         }
@@ -516,16 +481,14 @@ public class CalcGroupStat implements TableFileName {
 
         // create a list of targeted parameter of calcurating averages and
         // counting the number of samples.
-        Vector labelListOfOriginalTable = inputTable.getColLabelList();
+        Vector<String> labelListOfOriginalTable = inputTable.getColLabelList();
         Vector<String> parameter = new Vector<>();
         String regex = "[\"]?[^_]+_" + groupName + "[\"]?";
         for (Object item : labelListOfOriginalTable) {
             String label = (String) item;
             if (label.matches(regex)) // 末尾に"_" + groupNameがついたものを取り出す
                 parameter.add(label);
-            else {
                 //   _log.println("parameter " + label + " is removed");
-            }
         }
 
         // calc average
@@ -611,24 +574,41 @@ public class CalcGroupStat implements TableFileName {
         System.exit(exitCode);
     }
 
-    public static void main(String[] args) {
-        CalcGroupStat c = new CalcGroupStat();
-        try {
-            c.setupByArguments(args);
-            c.loopForEachDirectory();
-        } catch (SCMDException e) {
-            e.what();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
     void setBaseDir(String dirname) {
         _baseDirName = dirname;
     }
 
     void setVerbose() {
         _isVerbose = true;
+    }
+
+    /**
+     * 統計値の計算結果を格納するコンテナ
+     *
+     * @author leo
+     */
+    static class OutputResult {
+
+        HashMap _resultHash;
+        HashMap _numValidSampleHash;
+        OutputResult(HashMap resultHash, HashMap numValidSampleHash) {
+            _resultHash = resultHash;
+            _numValidSampleHash = numValidSampleHash;
+        }
+
+        /**
+         * @return Returns the _numValidSampleHash.
+         */
+        HashMap get_numValidSampleHash() {
+            return _numValidSampleHash;
+        }
+
+        /**
+         * @return Returns the _resultHash.
+         */
+        HashMap get_resultHash() {
+            return _resultHash;
+        }
     }
 }
 //--------------------------------------

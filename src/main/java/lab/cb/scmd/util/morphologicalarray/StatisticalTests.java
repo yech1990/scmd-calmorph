@@ -18,6 +18,83 @@ import lab.cb.scmd.exception.SCMDException;
  */
 public class StatisticalTests {
 
+    public static final double standardNormalUpper6 = 4.7534;//upper 0.000001
+    public static final double standardNormalUpper5 = 4.2649;//upper 0.00001
+    public static final double standardNormalUpper4 = 3.7190;//upper 0.0001
+    public static final double standardNormalUpper3 = 3.0902;//upper 0.001
+    public static final double standardNormalUpper2 = 2.3263;//upper 0.01
+    static final int numberOfPartitions = 20;
+    //reference http://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
+    static final double[] ChiSquareTableUpper0_1 = {
+            -1,
+            2.706,
+            4.605,
+            6.251,
+            7.779,
+            9.236,
+            10.645,
+            12.017,
+            13.362,
+            14.684,
+            15.987,
+            17.275,
+            18.549,
+            19.812,
+            21.064,
+            22.307,
+            23.542,
+            24.769,
+            25.989,
+            27.204,
+            28.412
+    };
+    static final double[] ChiSquareTableUpper0_01 = {
+            -1,
+            6.635,
+            9.210,
+            11.345,
+            13.277,
+            15.086,
+            16.812,
+            18.475,
+            20.090,
+            21.666,
+            23.209,
+            24.725,
+            26.217,
+            27.688,
+            29.141,
+            30.578,
+            32.000,
+            33.409,
+            34.805,
+            36.191,
+            37.565
+    };
+    static final double[] ChiSquareTableUpper0_001 = {
+            -1,
+            10.828,
+            13.816,
+            16.266,
+            18.467,
+            20.515,
+            22.458,
+            24.322,
+            26.125,
+            27.877,
+            29.588,
+            31.264,
+            32.910,
+            34.528,
+            36.123,
+            37.697,
+            39.252,
+            40.790,
+            42.312,
+            43.820,
+            45.315
+    };
+
     StatisticalTests() {
     }
 
@@ -172,8 +249,6 @@ public class StatisticalTests {
         return histogram;
     }
 
-    static final int numberOfPartitions = 20;
-
     static public double getMode(Double[] data) {
         Double[] ESD = getEandSD(data);
         double E = ESD[0];
@@ -209,7 +284,6 @@ public class StatisticalTests {
         }
         return mode;
     }
-
 
     static public double HastingsApproximationForStandardNormalDF(double x) {
         boolean isMinus = false;
@@ -274,83 +348,6 @@ public class StatisticalTests {
         double x = HastingsApproximationForStandardNormalDF_Reverse(p);
         return sd * x + mean;
     }
-
-    public static final double standardNormalUpper6 = 4.7534;//upper 0.000001
-    public static final double standardNormalUpper5 = 4.2649;//upper 0.00001
-    public static final double standardNormalUpper4 = 3.7190;//upper 0.0001
-    public static final double standardNormalUpper3 = 3.0902;//upper 0.001
-    public static final double standardNormalUpper2 = 2.3263;//upper 0.01
-
-    //reference http://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
-    static final double[] ChiSquareTableUpper0_1 = {
-            -1,
-            2.706,
-            4.605,
-            6.251,
-            7.779,
-            9.236,
-            10.645,
-            12.017,
-            13.362,
-            14.684,
-            15.987,
-            17.275,
-            18.549,
-            19.812,
-            21.064,
-            22.307,
-            23.542,
-            24.769,
-            25.989,
-            27.204,
-            28.412
-    };
-    static final double[] ChiSquareTableUpper0_01 = {
-            -1,
-            6.635,
-            9.210,
-            11.345,
-            13.277,
-            15.086,
-            16.812,
-            18.475,
-            20.090,
-            21.666,
-            23.209,
-            24.725,
-            26.217,
-            27.688,
-            29.141,
-            30.578,
-            32.000,
-            33.409,
-            34.805,
-            36.191,
-            37.565
-    };
-    static final double[] ChiSquareTableUpper0_001 = {
-            -1,
-            10.828,
-            13.816,
-            16.266,
-            18.467,
-            20.515,
-            22.458,
-            24.322,
-            26.125,
-            27.877,
-            29.588,
-            31.264,
-            32.910,
-            34.528,
-            36.123,
-            37.697,
-            39.252,
-            40.790,
-            42.312,
-            43.820,
-            45.315
-    };
 
     static public double upperCriticalValueOfChiSquareDistribution(int degreeOfFreedom, double prob) {
         if (degreeOfFreedom < 1 || 20 < degreeOfFreedom) {

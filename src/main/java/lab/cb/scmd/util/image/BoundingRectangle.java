@@ -19,6 +19,11 @@ import java.util.TreeMap;
  * @author leo
  */
 public class BoundingRectangle {
+    private int x1 = 0;
+    private int x2 = 0;
+    private int y1 = 0;
+    private int y2 = 0;
+
     /**
      *
      */
@@ -45,7 +50,7 @@ public class BoundingRectangle {
         return xRange + "x" + yRange + "+" + x1 + "+" + y1;
     }
 
-    public String getGeometry(int borderSize) throws InvalidParameterException {
+    String getGeometry(int borderSize) throws InvalidParameterException {
         if (borderSize < 0) throw new InvalidParameterException("invalid border size: " + borderSize);
         int xRange = x2 - x1 + borderSize * 2;
         int yRange = y2 - y1 + borderSize * 2;
@@ -87,7 +92,7 @@ public class BoundingRectangle {
         return map;
     }
 
-    public int getX1() {
+    private int getX1() {
         return x1;
     }
 
@@ -95,7 +100,7 @@ public class BoundingRectangle {
         this.x1 = x1;
     }
 
-    public int getX2() {
+    private int getX2() {
         return x2;
     }
 
@@ -103,7 +108,7 @@ public class BoundingRectangle {
         this.x2 = x2;
     }
 
-    public int getY1() {
+    private int getY1() {
         return y1;
     }
 
@@ -111,18 +116,13 @@ public class BoundingRectangle {
         this.y1 = y1;
     }
 
-    public int getY2() {
+    private int getY2() {
         return y2;
     }
 
     public void setY2(int y2) {
         this.y2 = y2;
     }
-
-    int x1 = 0;
-    int x2 = 0;
-    int y1 = 0;
-    int y2 = 0;
 }
 
 //--------------------------------------

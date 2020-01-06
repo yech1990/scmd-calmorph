@@ -15,7 +15,7 @@ package lab.cb.scmd.util.analysis.clique.graph;
 public class GraphStructure {
     //	List vertexList;
 //	List edgeList;
-    VertexDescriptor root = null;
+    private VertexDescriptor root = null;
     /*
      * isDirectedGraph -- true: directed graph, false: undirected
      */
@@ -25,12 +25,15 @@ public class GraphStructure {
      */
     boolean allowParallelEdge = false;
 
-    public void setRoot(VertexDescriptor v) {
-        root = v;
+    public static void main(String[] args) {
     }
 
     public VertexDescriptor getRoot() {
         return root;
+    }
+
+    public void setRoot(VertexDescriptor v) {
+        root = v;
     }
 
     public void setUndirected() {
@@ -50,9 +53,5 @@ public class GraphStructure {
 
     public VertexDescriptor getVertex(Integer vertexId) {
         return null;
-    }
-
-
-    public static void main(String[] args) {
     }
 }

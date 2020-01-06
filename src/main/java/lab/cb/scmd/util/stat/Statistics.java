@@ -15,7 +15,6 @@ import lab.cb.scmd.util.table.TableIterator;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * TableIteratorを入力するメソッドは全て、SampleFilteringStrategyで、サンプルにfilter（１％除去など）が掛けられ、
@@ -26,12 +25,12 @@ import java.util.Iterator;
  */
 public class Statistics {
 
-    protected SampleFilteringStrategy _sampleFilteringStrategy = new DoNotFilterStrategy();
+    private SampleFilteringStrategy _sampleFilteringStrategy = new DoNotFilterStrategy();
 
     /**
      * デフォルト （サンプルにフィルターはかからない）
      */
-    public Statistics() {
+    Statistics() {
         getFilteringStrategy().setStatClass(this);
     }
 
@@ -40,9 +39,82 @@ public class Statistics {
      *
      * @param filteringStrategy
      */
-    public Statistics(SampleFilteringStrategy filteringStrategy) {
+    Statistics(SampleFilteringStrategy filteringStrategy) {
         _sampleFilteringStrategy = filteringStrategy;
         getFilteringStrategy().setStatClass(this);
+    }
+
+    /**
+     * cの平均を返す
+     *
+     * @param c Doubleのコレクション （nullを含まないことが前提)
+     * @return 平均値
+     */
+    private static double calcMean(Collection c) {
+        int numElement = c.size();
+        if (numElement == 0)
+            return 0;
+        double sum = 0;
+        for (Object o : c) {
+            sum += (Double) o;
+        }
+        return sum / numElement;
+    }
+
+    private static double calcVariance(Collection c) {
+        int numElement = c.size();
+        if (numElement < 2)
+            return -1; // unable to compute the variance
+
+        double squareSum = 0;
+        for (Object value : c) {
+            double v = (Double) value;
+            squareSum += v * v;
+        }
+        double sum = 0;
+        for (Object o : c) sum += (Double) o;
+
+        return (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
+    }
+
+    private static double calcSD(Collection c) {
+        double variance = calcVariance(c);
+        if (variance < 0)
+            return -1; // unable to compute the standard deviation
+
+        return Math.sqrt(variance);
+    }
+
+    private static double calcCV(Collection c) {
+        double mean = calcMean(c);
+        if (mean == 0)
+            return -1; // unable to compute the CV
+
+        double SD = calcSD(c);
+        if (SD < 0)
+            return -1; // unable to compute SD
+
+        return SD / mean;
+    }
+
+    private static double getMinValue(Collection c) {
+        double min = Double.MAX_VALUE;
+        for (Object o : c) {
+            double v = (Double) o;
+            if (v < min)
+                min = v;
+        }
+        return min;
+    }
+
+    private static double getMaxValue(Collection c) {
+        double max = -Double.MAX_VALUE;
+        for (Object o : c) {
+            double v = (Double) o;
+            if (v > max)
+                max = v;
+        }
+        return max;
     }
 
     public SampleFilteringStrategy getFilteringStrategy() {
@@ -63,12 +135,11 @@ public class Statistics {
         return (cell.toString() != null);
     }
 
-
     public double calcAverage(TableIterator ti) {
         return calcMean(ti);
     }
 
-    public double calcMean(TableIterator ti) {
+    private double calcMean(TableIterator ti) {
         Collection sampleCollection = getFilteringStrategy().filter(ti);
         return calcMean(sampleCollection);
         //		NumElementAndValuePair numElementAndMean = calcMean_internal(ti);
@@ -108,6 +179,48 @@ public class Statistics {
         Collection sampleCollection = getFilteringStrategy().filter(ti);
         return calcSD(sampleCollection);
     }
+
+
+//	/**
+//	 * 平均からの差の二乗の和を計算
+//	 * 
+//	 * @param ti
+//	 * @param mean
+//	 * @return
+//	 */
+//	protected double calcDiffSquare(TableIterator ti, double mean)
+//	{
+//		int numElement = 0;
+//		double diffSquare = 0;
+//		for (; ti.hasNext();)
+//		{
+//			Cell c = ti.next();
+//			if(!isValidAsDouble(c))
+//				continue;
+//			double v = c.doubleValue();
+//			diffSquare += (v - mean) * (v - mean);
+//			numElement++;
+//		}
+//		return diffSquare;
+//	}
+//
+//	protected NumElementAndValuePair calcMean_internal(TableIterator ti)
+//	{
+//		double sum = 0;
+//		int numElement = 0;
+//		for (; ti.hasNext();)
+//		{
+//			Cell c = ti.next();
+//			if(!isValidAsDouble(c))
+//				continue; // skip invalid value
+//			sum += c.doubleValue();
+//			numElement++;
+//		}
+//		if(numElement == 0)
+//			return new NumElementAndValuePair(0, 0);
+//		else
+//			return new NumElementAndValuePair(numElement, sum / numElement);
+//	}
 
     /**
      * CV（変動係数）＝ 標準偏差 / 平均 を返す
@@ -165,121 +278,6 @@ public class Statistics {
                 count++;
         }
         return count;
-    }
-
-
-//	/**
-//	 * 平均からの差の二乗の和を計算
-//	 * 
-//	 * @param ti
-//	 * @param mean
-//	 * @return
-//	 */
-//	protected double calcDiffSquare(TableIterator ti, double mean)
-//	{
-//		int numElement = 0;
-//		double diffSquare = 0;
-//		for (; ti.hasNext();)
-//		{
-//			Cell c = ti.next();
-//			if(!isValidAsDouble(c))
-//				continue;
-//			double v = c.doubleValue();
-//			diffSquare += (v - mean) * (v - mean);
-//			numElement++;
-//		}
-//		return diffSquare;
-//	}
-//
-//	protected NumElementAndValuePair calcMean_internal(TableIterator ti)
-//	{
-//		double sum = 0;
-//		int numElement = 0;
-//		for (; ti.hasNext();)
-//		{
-//			Cell c = ti.next();
-//			if(!isValidAsDouble(c))
-//				continue; // skip invalid value
-//			sum += c.doubleValue();
-//			numElement++;
-//		}
-//		if(numElement == 0)
-//			return new NumElementAndValuePair(0, 0);
-//		else
-//			return new NumElementAndValuePair(numElement, sum / numElement);
-//	}
-
-    /**
-     * cの平均を返す
-     *
-     * @param c Doubleのコレクション （nullを含まないことが前提)
-     * @return 平均値
-     */
-    static public double calcMean(Collection c) {
-        int numElement = c.size();
-        if (numElement == 0)
-            return 0;
-        double sum = 0;
-        for (Object o : c) {
-            sum += (Double) o;
-        }
-        return sum / numElement;
-    }
-
-    static public double calcVariance(Collection c) {
-        int numElement = c.size();
-        if (numElement < 2)
-            return -1; // unable to compute the variance
-
-        double squareSum = 0;
-        for (Object value : c) {
-            double v = (Double) value;
-            squareSum += v * v;
-        }
-        double sum = 0;
-        for (Object o : c) sum += (Double) o;
-
-        return (numElement * squareSum - (sum * sum)) / (numElement * (numElement - 1));
-    }
-
-    static public double calcSD(Collection c) {
-        double variance = calcVariance(c);
-        if (variance < 0)
-            return -1; // unable to compute the standard deviation
-
-        return Math.sqrt(variance);
-    }
-
-    static public double calcCV(Collection c) {
-        double mean = calcMean(c);
-        if (mean == 0)
-            return -1; // unable to compute the CV
-
-        double SD = calcSD(c);
-        if (SD < 0)
-            return -1; // unable to compute SD
-
-        return SD / mean;
-    }
-
-    static public double getMinValue(Collection c) {
-        double min = Double.MAX_VALUE;
-        for (Object o : c) {
-            double v = (Double) o;
-            if (v < min)
-                min = v;
-        }
-        return min;
-    }
-
-    static public double getMaxValue(Collection c) {
-        double max = -Double.MAX_VALUE;
-        for (Object o : c) {
-            double v = (Double) o;
-            if (v > max)
-                max = v;
-        }
-        return max;
     }
 
 }

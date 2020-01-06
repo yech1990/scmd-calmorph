@@ -22,6 +22,11 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
 
     private PrintStream out = System.out;
 
+    // コンストラクタ
+    public CalMorphDespatcher(String dir) throws RemoteException {
+        makeORFlist(dir);
+    }
+
     public static void main(String[] args) {
         if (args.length > 1)
             System.exit(1);
@@ -41,11 +46,6 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // コンストラクタ
-    public CalMorphDespatcher(String dir) throws RemoteException {
-        makeORFlist(dir);
     }
 
     /**

@@ -29,10 +29,13 @@ import java.util.Arrays;
 import java.util.Vector;
 
 public class Makexls {
-    String path;
-    File dir;
-    String[] mutants;
-    Mutantprocess mp;
+    private String path;
+    private File dir;
+    private String[] mutants;
+    private Mutantprocess mp;
+
+    private Makexls() {
+    }
 
     public static void main(String[] s) {
         Makexls mx = new Makexls();
@@ -51,9 +54,6 @@ public class Makexls {
         mx.process();
     }
 
-    public Makexls() {
-    }
-
     public void process() {
         setPrintFile();
         Arrays.sort(mutants);
@@ -69,7 +69,7 @@ public class Makexls {
         }
     }
 
-    public void setPrintFile() {
+    private void setPrintFile() {
         try {
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path + "/versatile.xls")));
             pw.print("name\tcell_without_complex\t");
@@ -142,41 +142,33 @@ public class Makexls {
         public Vector<String> Cgroup;
         public Vector<String> Agroup;
         public Vector<String> Dgroup;
-        public Vector[] versparam;
-        public double[] versparammean;
-        public Vector[] Cparam;
-        public double[] Cparammean;
-        public Vector[] Aparam;
-        public double[] Aparammean;
-        public Vector[] Dparam;
-        public double[] Dparammean;
-        public int[] countCgroup, countDgroup, countAgroup;
-        public String mutant;
+        Vector[] versparam;
+        double[] versparammean;
+        Vector[] Cparam;
+        double[] Cparammean;
+        Vector[] Aparam;
+        double[] Aparammean;
+        Vector[] Dparam;
+        double[] Dparammean;
+        int[] countCgroup, countDgroup, countAgroup;
+        String mutant;
 
-        public Mutantprocess(String mutant) {
+        Mutantprocess(String mutant) {
             this.mutant = mutant;
             Cgroup = new Vector<>();
             Dgroup = new Vector<>();
             Agroup = new Vector<>();
             versparam = new Vector[26];
-            for (int i = 0; i < versparam.length; i++) {
-                versparam[i] = new Vector();
-            }
+            Arrays.fill(versparam, new Vector());
             Cparam = new Vector[26];
-            for (int i = 0; i < Cparam.length; i++) {
-                Cparam[i] = new Vector();
-            }
+            Arrays.fill(Cparam, new Vector());
             Aparam = new Vector[13];
-            for (int i = 0; i < Aparam.length; i++) {
-                Aparam[i] = new Vector();
-            }
+            Arrays.fill(Aparam, new Vector());
             Dparam = new Vector[110];
-            for (int i = 0; i < Dparam.length; i++) {
-                Dparam[i] = new Vector();
-            }
+            Arrays.fill(Dparam, new Vector());
         }
 
-        public void getcellData(String mutant) {
+        void getcellData(String mutant) {
             int ch;
             StringBuilder data;
             try {
@@ -310,7 +302,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //data.xlsを出力
         //////////////////////////////////////////////////////////////////////////////////////////
-        public void printDataXLS() {
+        void printDataXLS() {
             try {
                 PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path + "/versatile.xls", true)));
                 calParamMean();
@@ -424,7 +416,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //SDdata.xlsを出力
         //////////////////////////////////////////////////////////////////////////////////////////
-        public void printSDDataXLS() {
+        void printSDDataXLS() {
             try {
                 PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path + "/versatile_SD.xls", true)));
                 pw.print(mutant + "\t");
@@ -468,7 +460,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //平均値をセット
         //////////////////////////////////////////////////////////////////////////////////////////
-        public void calParamMean() {
+        void calParamMean() {
             versparammean = new double[versparam.length];
             for (int i = 0; i < versparam.length; i++) {
                 versparammean[i] = mean(versparam[i]);
@@ -490,7 +482,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //グループ分けの数をセット
         //////////////////////////////////////////////////////////////////////////////////////////
-        public void setCountGroup() {
+        void setCountGroup() {
             countCgroup = new int[6];
             for (String g : Cgroup) {
                 switch (g) {
@@ -594,7 +586,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //-1以外のデータの平均値
         //////////////////////////////////////////////////////////////////////////////////////////
-        public double mean(Vector v) {
+        double mean(Vector v) {
             double r = 0;
             int count = 0;
             for (Object o : v) {
@@ -610,7 +602,7 @@ public class Makexls {
         //////////////////////////////////////////////////////////////////////////////////////////
         //-1以外のデータの標準偏差(=sqrt(分散))
         //////////////////////////////////////////////////////////////////////////////////////////
-        public double SD(Vector v, double mean) {
+        double SD(Vector v, double mean) {
             double r = 0;
             int count = 0;
             for (Object o : v) {

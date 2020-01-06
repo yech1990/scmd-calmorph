@@ -30,17 +30,24 @@ import java.util.Vector;
  * @author nakatani
  */
 public class ArrayImage {
-    CalMorphTable tableW;
-    int orfSizeW;
-    CalMorphTable tableM;
-    int orfSizeM;
-    int parameterSize;
-
-    BufferedImage image;
-    int[][] colorTable;
-
-
-    ArrayImage(String CalmorphTableFilename_Wildtype, String CalmorphTableFilename_Mutant, String transformLogFilename) throws SCMDException, IOException {
+    private static final int RED = toRGB(255, 20, 20);
+    static final int Red = toRGB(255, 80, 80);
+    static final int red = toRGB(255, 150, 150);
+    static final int redwhite = toRGB(255, 200, 200);
+    private static final int GREEN = toRGB(0, 255, 0);
+    static final int Green = toRGB(60, 255, 60);
+    static final int green = toRGB(120, 255, 120);
+    static final int greenwhite = toRGB(200, 255, 200);
+    private static final int white = toRGB(255, 255, 255);
+    private static final int backgroundColor = toRGB(255, 255, 255);
+    private CalMorphTable tableW;
+    private int orfSizeW;
+    private CalMorphTable tableM;
+    private int orfSizeM;
+    private int parameterSize;
+    private BufferedImage image;
+    private int[][] colorTable;
+    private ArrayImage(String CalmorphTableFilename_Wildtype, String CalmorphTableFilename_Mutant, String transformLogFilename) throws SCMDException, IOException {
         tableW = new CalMorphTable(CalmorphTableFilename_Wildtype);
         orfSizeW = tableW.getRowSize();
         parameterSize = tableW.getColSize();
@@ -52,6 +59,33 @@ public class ArrayImage {
 
         makeArrayImage(transformLogFilename);
 //		makeWildtypeArray();
+    }
+
+    static private int toRGB(int r, int g, int b) {
+        return (r << 16) | (g << 8) | b;
+    }
+
+    /**
+     * 引数は、野生株valid.xls, 変異株valid.xls, 変異株.jpeg
+     *
+     * @author nakatani
+     */
+    public static void main(String[] args) {
+        ArrayImage ai;
+        try {
+            ai = new ArrayImage(args[0], args[1], args[3]);
+            ai.writeExcelArray(args[4]);
+            ai.writeImageArray(args[2]);
+            ai.toTransformedWildtypeTable(args[5]);
+
+        } catch (SCMDException | IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+            //} catch (ImageFormatException e1) {
+            //    e1.printStackTrace();
+            //    System.exit(-1);
+        }
+
     }
 
     private void toTransformedWildtypeTable(String filename) throws SCMDException, IOException {
@@ -82,22 +116,6 @@ public class ArrayImage {
         }
         transformed.close();
     }
-
-    static final int RED = toRGB(255, 20, 20);
-    static final int Red = toRGB(255, 80, 80);
-    static final int red = toRGB(255, 150, 150);
-    static final int redwhite = toRGB(255, 200, 200);
-    static final int GREEN = toRGB(0, 255, 0);
-    static final int Green = toRGB(60, 255, 60);
-    static final int green = toRGB(120, 255, 120);
-    static final int greenwhite = toRGB(200, 255, 200);
-    static final int white = toRGB(255, 255, 255);
-    static final int backgroundColor = toRGB(255, 255, 255);
-
-    static private int toRGB(int r, int g, int b) {
-        return (r << 16) | (g << 8) | b;
-    }
-
 
     /**
      * 指定されたパラメーターのデータと、指定されたORFに対して
@@ -278,11 +296,11 @@ public class ArrayImage {
      * @throws IOException
      * @author nakatani
      */
-    public void writeImageArray(String filenameM) throws IOException {
+    private void writeImageArray(String filenameM) throws IOException {
         ImageIO.write(image, "png", new File(filenameM));
     }
 
-    public void writeExcelArray(String excelFilename) throws IOException {
+    private void writeExcelArray(String excelFilename) throws IOException {
         PrintWriter excel = new PrintWriter(new FileWriter(excelFilename));
         for (int i = 0; i < tableM.getColSize(); ++i) {
             excel.print(tableM.getColLabel(i) + "\t");
@@ -297,29 +315,6 @@ public class ArrayImage {
             excel.println();
         }
         excel.close();
-    }
-
-    /**
-     * 引数は、野生株valid.xls, 変異株valid.xls, 変異株.jpeg
-     *
-     * @author nakatani
-     */
-    public static void main(String[] args) {
-        ArrayImage ai;
-        try {
-            ai = new ArrayImage(args[0], args[1], args[3]);
-            ai.writeExcelArray(args[4]);
-            ai.writeImageArray(args[2]);
-            ai.toTransformedWildtypeTable(args[5]);
-
-        } catch (SCMDException | IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-            //} catch (ImageFormatException e1) {
-            //    e1.printStackTrace();
-            //    System.exit(-1);
-        }
-
     }
 }
 

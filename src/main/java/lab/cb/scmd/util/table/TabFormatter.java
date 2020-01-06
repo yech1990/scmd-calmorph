@@ -21,6 +21,8 @@ import java.io.PrintStream;
  * @author leo
  */
 public class TabFormatter {
+    private PrintStream _out;
+
     public TabFormatter() {
         _out = System.out;
     }
@@ -30,20 +32,18 @@ public class TabFormatter {
     }
 
     public void outputMatrix(String[][] matrix) {
-        for (int row = 0; row < matrix.length; row++) {
+        for (String[] strings : matrix) {
             int col = 0;
-            for (; col < matrix[row].length - 1; col++) {
-                _out.print(matrix[row][col] + "\t");
+            for (; col < strings.length - 1; col++) {
+                _out.print(strings[col] + "\t");
             }
-            _out.println(matrix[row][col]);
+            _out.println(strings[col]);
         }
     }
 
     public void close() {
         _out.close();
     }
-
-    PrintStream _out;
 }
 
 

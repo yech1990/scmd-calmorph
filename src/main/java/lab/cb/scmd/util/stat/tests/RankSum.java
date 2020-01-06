@@ -16,12 +16,13 @@ import lab.cb.scmd.util.table.TableIterator;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 
 
 public class RankSum {
+    private SampleFilteringStrategy _sampleFilteringStrategy = new DoNotFilterStrategy();
     private Object[] _g1, _g2;
     private double g1ranksum = 0, g2ranksum = 0;
-    protected SampleFilteringStrategy _sampleFilteringStrategy = new DoNotFilterStrategy();
 
     public RankSum(TableIterator g1, TableIterator g2) {
         this._g1 = (getFilteringStrategy().filter(g1)).toArray();
@@ -34,7 +35,7 @@ public class RankSum {
         this._g2 = g2.toArray();
     }
 
-    public SampleFilteringStrategy getFilteringStrategy() {
+    private SampleFilteringStrategy getFilteringStrategy() {
         return _sampleFilteringStrategy;
     }
 
@@ -47,36 +48,26 @@ public class RankSum {
         if (g1size < 10 || g2size < 10) {
             //TODO cannot approx. normal distribution
         }
-        Arrays.sort(_g1,
-                new java.util.Comparator() {
-                    public int compare(Object a, Object b) {
-                        double avalue = ((Double) a).doubleValue();
-                        double bvalue = ((Double) b).doubleValue();
-                        if (avalue < bvalue) {
-                            return -1;
-                        } else if (avalue == bvalue) {
-                            return 0;
-                        }
-                        return 1;
-                    }
-                });
-        Arrays.sort(_g2,
-                new java.util.Comparator() {
-                    public int compare(Object a, Object b) {
-                        double avalue = ((Double) a).doubleValue();
-                        double bvalue = ((Double) b).doubleValue();
-                        if (avalue < bvalue) {
-                            return -1;
-                        } else if (avalue == bvalue) {
-                            return 0;
-                        }
-                        return 1;
-                    }
-                });
+        sortArrayCustom(_g1);
+        sortArrayCustom(_g2);
 
         computeRankSum(_g1, _g2);
         double rvalue = computeZvalue();
         return rvalue;
+    }
+
+    private void sortArrayCustom(Object[] g) {
+        Arrays.sort(g,
+                (a, b) -> {
+                    double avalue = (Double) a;
+                    double bvalue = (Double) b;
+                    if (avalue < bvalue) {
+                        return -1;
+                    } else if (avalue == bvalue) {
+                        return 0;
+                    }
+                    return 1;
+                });
     }
 
     /**
@@ -102,15 +93,15 @@ public class RankSum {
         double g2sum = 0.0;
         double rank = 1;
 
-        double g1value = ((Double) g1[g1cursor]).doubleValue();
-        double g2value = ((Double) g2[g2cursor]).doubleValue();
+        double g1value = (Double) g1[g1cursor];
+        double g2value = (Double) g2[g2cursor];
 
         for (; g1cursor < g1.length || g2cursor < g2.length; ) {
             if (g2cursor == g2size || g1value < g2value) {
                 g1sum += rank;
                 g1cursor++;
                 if (g1cursor < g1.length)
-                    g1value = ((Double) g1[g1cursor]).doubleValue();
+                    g1value = (Double) g1[g1cursor];
                 else
                     g1value = Double.MAX_VALUE;
                 rank++;
@@ -118,16 +109,16 @@ public class RankSum {
                 g2sum += rank;
                 g2cursor++;
                 if (g2cursor < g2.length)
-                    g2value = ((Double) g2[g2cursor]).doubleValue();
+                    g2value = (Double) g2[g2cursor];
                 else
                     g2value = Double.MAX_VALUE;
                 rank++;
             } else {
                 int g1endcursor = g1cursor + 1;
                 int g2endcursor = g2cursor + 1;
-                while (g1endcursor < g1size && g1value == ((Double) g1[g1endcursor]).doubleValue())
+                while (g1endcursor < g1size && g1value == (Double) g1[g1endcursor])
                     g1endcursor++;
-                while (g2endcursor < g2size && g2value == ((Double) g2[g2endcursor]).doubleValue())
+                while (g2endcursor < g2size && g2value == (Double) g2[g2endcursor])
                     g2endcursor++;
                 int g1diff = g1endcursor - g1cursor;
                 int g2diff = g2endcursor - g2cursor;
@@ -137,11 +128,11 @@ public class RankSum {
                 g1cursor = g1endcursor;
                 g2cursor = g2endcursor;
                 if (g1cursor < g1.length)
-                    g1value = ((Double) g1[g1cursor]).doubleValue();
+                    g1value = (Double) g1[g1cursor];
                 else
                     g1value = Double.MAX_VALUE;
                 if (g2cursor < g2.length)
-                    g2value = ((Double) g2[g2cursor]).doubleValue();
+                    g2value = (Double) g2[g2cursor];
                 else
                     g2value = Double.MAX_VALUE;
                 rank += g1diff + g2diff;

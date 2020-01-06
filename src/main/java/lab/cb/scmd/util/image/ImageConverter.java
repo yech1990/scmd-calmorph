@@ -22,6 +22,8 @@ import java.net.URL;
  * @author leo
  */
 public class ImageConverter {
+    private File _convertProgram;
+
     /**
      *
      */
@@ -56,7 +58,7 @@ public class ImageConverter {
         ProcessRunner.run(imageURL.openStream(), out, _convertProgram + getClippingOption(clipRegion, border) + getScalingOption(scalingPercentage) + " - -");
     }
 
-    void validateScalingPercentage(int scalingPercentage) throws InvalidParameterException {
+    private void validateScalingPercentage(int scalingPercentage) throws InvalidParameterException {
         if (scalingPercentage < 0 || scalingPercentage > 200)
             throw new InvalidParameterException("invalid scaling percentage: " + scalingPercentage + "%");
     }
@@ -70,18 +72,18 @@ public class ImageConverter {
      */
     public void clipAndCombineImages(PrintStream out, File[] imageFile, BoundingRectangle clipRegion,
                                      int scalingPercentage) throws FileNotFoundException, InvalidParameterException, UnfinishedTaskException {
-        String fileArgument = "";
+        StringBuilder fileArgument = new StringBuilder();
         // TODO Even if part of the image file is missing, it should be handled so that it can be displayed properly
-        for (int i = 0; i < imageFile.length; i++) {
-            FileUtil.testExistence(imageFile[i]);
-            fileArgument += " -append " + imageFile[i];
+        for (File file : imageFile) {
+            FileUtil.testExistence(file);
+            fileArgument.append(" -append ").append(file);
         }
 
         ProcessRunner.run(out, _convertProgram + getClippingOption(clipRegion, 4) + getScalingOption(scalingPercentage)
                 + fileArgument + " -");
     }
 
-    String getScalingOption(int scalingPercentage) throws InvalidParameterException {
+    private String getScalingOption(int scalingPercentage) throws InvalidParameterException {
         validateScalingPercentage(scalingPercentage);
         if (scalingPercentage == 100)
             return " ";
@@ -90,15 +92,13 @@ public class ImageConverter {
 
     }
 
-    String getClippingOption(BoundingRectangle clipRegion, int borderSize) throws InvalidParameterException {
+    private String getClippingOption(BoundingRectangle clipRegion, int borderSize) throws InvalidParameterException {
         return " -crop " + clipRegion.getGeometry(borderSize) + " ";
     }
 
     public File getConvertProgram() {
         return _convertProgram;
     }
-
-    File _convertProgram;
 }
 
 //--------------------------------------

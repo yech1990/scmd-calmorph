@@ -11,7 +11,6 @@
 package lab.cb.scmd.util.teardrop;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Teardrop描画用のデータを格納している
@@ -31,7 +30,7 @@ public class TeardropStatistics {
 
     private double DIVISIONNUMOFSD = 5.0;
 
-    public TeardropStatistics(double average, double sd, double min, double max) {
+    TeardropStatistics(double average, double sd, double min, double max) {
         setAvg(average);
         setSD(sd);
         setMin(min);
@@ -41,14 +40,14 @@ public class TeardropStatistics {
     /**
      * @return Returns the avg.
      */
-    public double getAvg() {
+    double getAvg() {
         return _avg;
     }
 
     /**
      * @param avg The avg to set.
      */
-    public void setAvg(double avg) {
+    private void setAvg(double avg) {
         this._avg = avg;
     }
 
@@ -83,21 +82,21 @@ public class TeardropStatistics {
     /**
      * @return Returns the sd.
      */
-    public double getSD() {
+    private double getSD() {
         return _sd;
     }
 
     /**
      * @param sd The sd to set.
      */
-    public void setSD(double sd) {
+    private void setSD(double sd) {
         this._sd = sd;
     }
 
     /**
      * @param samples
      */
-    public void calcHistgram(Collection samples) {
+    void calcHistgram(Collection samples) {
         double diff = getMax() - getMin();
         _bucketSize = getSD() / DIVISIONNUMOFSD;
         int numOfBuckets = (int) Math.ceil(diff / _bucketSize);
@@ -121,19 +120,19 @@ public class TeardropStatistics {
         _maxcount = maxcount;
     }
 
-    public int getHistgram(int n) {
+    int getHistgram(int n) {
         return _count[n];
     }
 
-    public int getHistgramSize() {
+    int getHistgramSize() {
         return _count.length;
     }
 
-    public int getMaxCount() {
+    int getMaxCount() {
         return _maxcount;
     }
 
-    public int getIndex(double value) {
+    int getIndex(double value) {
         if (_bucketSize == 0.0) {
             _bucketSize = getSD() / DIVISIONNUMOFSD;
         }

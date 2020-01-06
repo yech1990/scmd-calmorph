@@ -17,7 +17,10 @@ import lab.cb.scmd.util.cui.OptionWithArgument;
 import lab.cb.scmd.util.io.NullPrintStream;
 import lab.cb.scmd.util.time.StopWatch;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * @author sesejun
@@ -26,19 +29,28 @@ import java.io.*;
  */
 public class CountNumCells {
 
-    OptionParser _parser = new OptionParser();
-    PrintStream _log = new NullPrintStream();
-
     // option IDs
     final static int OPT_HELP = 0;
     final static int OPT_VERBOSE = 1;
     final static int OPT_BASEDIR = 2;
     final static int OPT_OUTFILE = 3;
-
+    OptionParser _parser = new OptionParser();
+    PrintStream _log = new NullPrintStream();
     String _baseDirName = ".";
     String _outputFileName = "cellNum.xls";
 
     public CountNumCells() {
+
+    }
+
+    public static void main(String[] args) {
+        CountNumCells cells = new CountNumCells();
+        try {
+            cells.setupByArguments(args);
+            cells.loopForEachDirectory();
+        } catch (SCMDException | IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -123,17 +135,6 @@ public class CountNumCells {
         System.out.println("Usage: > java -jar CountNumCells.jar [options] orf_directory");
         System.out.println(_parser.createHelpMessage());
         System.exit(0);
-    }
-
-    public static void main(String[] args) {
-        CountNumCells cells = new CountNumCells();
-        try {
-            cells.setupByArguments(args);
-            cells.loopForEachDirectory();
-        } catch (SCMDException | IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
 }

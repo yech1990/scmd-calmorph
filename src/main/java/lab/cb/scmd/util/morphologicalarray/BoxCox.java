@@ -17,13 +17,17 @@ import java.io.PrintWriter;
  * @author nakatani
  */
 public class BoxCox {
-    double TINY = 1.0E-10;
-    Double[] originalData;
-    double bestP;
-    double bestA;
-    double maxLogLikelihood;
-    double transformedMean;
-    double transformedSD;
+    //0.0000118,0.000118 <-Grubbs test
+    public static final double[] pValueList = {0.0000118, 0.000118, 0.01, 0.005, 0.001, 0.0005, 0.0002, 0.0001, 0.00005, 0.00001, 0.000005, 0.000001, 1E-10};
+    //public static final double[] sigmaValueList={0.5,1,1.5,2,2.5,3};
+    public static final double[] sigmaValueList = {2.3263, 3.0902, 3.7190, 4.2649, 4.7534, 5.1993, 5.6120, 5.9978};
+    private double TINY = 1.0E-10;
+    private Double[] originalData;
+    private double bestP;
+    private double bestA;
+    private double maxLogLikelihood;
+    private double transformedMean;
+    private double transformedSD;
 
     public BoxCox(Double[] d) {
         originalData = d;
@@ -31,6 +35,36 @@ public class BoxCox {
         Double[] ESD = StatisticalTests.getEandSD(transformAll(bestP, bestA, originalData));
         transformedMean = ESD[0];
         transformedSD = ESD[1];
+    }
+
+    static public void printHeader(PrintWriter pw) {
+        String t = "\t";
+        pw.print("LogLikelihood" + t + "p" + t + "a" + t + "transformedMean" + t + "transformedSD" + t);
+        printPValueListHeader(pw);
+    }
+
+    static public void printPValueListHeader(PrintWriter pw) {
+        for (int i = 0; i < pValueList.length; ++i) {
+            pw.print("(lower)" + pValueList[pValueList.length - 1 - i] + "\t");
+        }
+        for (double v : pValueList) {
+            pw.print("(upper)" + v + "\t");
+        }
+    }
+
+    static public void printHeaderSigma(PrintWriter pw) {
+        String t = "\t";
+        pw.print("LogLikelihood" + t + "p" + t + "a" + t + "transformedMean" + t + "transformedSD" + t);
+        printPValueListHeaderSigma(pw);
+    }
+
+    static public void printPValueListHeaderSigma(PrintWriter pw) {
+        for (int i = 0; i < sigmaValueList.length; ++i) {
+            pw.print("(lower)" + sigmaValueList[sigmaValueList.length - 1 - i] + "\t");
+        }
+        for (double v : sigmaValueList) {
+            pw.print("(upper)" + v + "\t");
+        }
     }
 
     public Double[] getSTDTransformedData(Double[] data) {
@@ -44,6 +78,7 @@ public class BoxCox {
     public Double[] getTransformedData() {
         return transformAll(bestP, bestA, originalData);
     }
+    //public static final double[] pValueList={0.01,0.001,0.0001,0.00001,0.000001};
 
     private void getParamWhichMaximizeLogLikelihood() {
         int partitionP = 1000;
@@ -117,7 +152,7 @@ public class BoxCox {
         return value;
     }
 
-    public Double[] transformAll(double p, double a, Double[] d) {
+    private Double[] transformAll(double p, double a, Double[] d) {
         Double[] transformedData = new Double[d.length];
         for (int i = 0; i < d.length; ++i) {
             transformedData[i] = transform(p, a, d[i]);
@@ -171,28 +206,9 @@ public class BoxCox {
         return x;
     }
 
-    //0.0000118,0.000118 <-Grubbs test
-    public static final double[] pValueList = {0.0000118, 0.000118, 0.01, 0.005, 0.001, 0.0005, 0.0002, 0.0001, 0.00005, 0.00001, 0.000005, 0.000001, 1E-10};
-    //public static final double[] pValueList={0.01,0.001,0.0001,0.00001,0.000001};
-
     public Double getOneSidedCriticalValueForP(double pvalue) {
         double y = StatisticalTests.HastingsApproximationForNormalDF_Reverse(transformedMean, transformedSD, pvalue);
         return reverseTransform(bestP, bestA, y);
-    }
-
-    static public void printHeader(PrintWriter pw) {
-        String t = "\t";
-        pw.print("LogLikelihood" + t + "p" + t + "a" + t + "transformedMean" + t + "transformedSD" + t);
-        printPValueListHeader(pw);
-    }
-
-    static public void printPValueListHeader(PrintWriter pw) {
-        for (int i = 0; i < pValueList.length; ++i) {
-            pw.print("(lower)" + pValueList[pValueList.length - 1 - i] + "\t");
-        }
-        for (double v : pValueList) {
-            pw.print("(upper)" + v + "\t");
-        }
     }
 
     public void print(PrintWriter pw) {
@@ -206,9 +222,6 @@ public class BoxCox {
             pw.print(getOneSidedCriticalValueForP(1 - v) + t);
         }
     }
-
-    //public static final double[] sigmaValueList={0.5,1,1.5,2,2.5,3};
-    public static final double[] sigmaValueList = {2.3263, 3.0902, 3.7190, 4.2649, 4.7534, 5.1993, 5.6120, 5.9978};
 
     public Double getOneSidedCriticalValueForMeanPlusDSigma(double dsigma) {
         return reverseTransform(bestP, bestA, transformedMean + dsigma * transformedSD);
@@ -234,21 +247,6 @@ public class BoxCox {
             }
         }
         return reverseTransform(bestP, bestA, minValue - dsigma * transformedSD);
-    }
-
-    static public void printHeaderSigma(PrintWriter pw) {
-        String t = "\t";
-        pw.print("LogLikelihood" + t + "p" + t + "a" + t + "transformedMean" + t + "transformedSD" + t);
-        printPValueListHeaderSigma(pw);
-    }
-
-    static public void printPValueListHeaderSigma(PrintWriter pw) {
-        for (int i = 0; i < sigmaValueList.length; ++i) {
-            pw.print("(lower)" + sigmaValueList[sigmaValueList.length - 1 - i] + "\t");
-        }
-        for (double v : sigmaValueList) {
-            pw.print("(upper)" + v + "\t");
-        }
     }
 
     public void printSigma(PrintWriter pw) {

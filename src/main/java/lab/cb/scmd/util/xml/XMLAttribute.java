@@ -19,7 +19,9 @@ import java.util.*;
  * @author leo
  */
 public class XMLAttribute {
-    static TextContentFilter _filter = new HTMLFilter();
+    private static TextContentFilter _filter = new HTMLFilter();
+    protected LinkedList<String> _attributeNameList = new LinkedList<>();
+    protected HashMap<String, String> _attributeValue = new HashMap<String, String>();
 
     public XMLAttribute(String attributeName, String attributeValue) {
         add(attributeName, attributeValue);
@@ -40,6 +42,24 @@ public class XMLAttribute {
     public XMLAttribute() {
     }
 
+    public XMLAttribute(Properties properties) {
+        Set keySet = properties.keySet();
+        for (Object o : keySet) {
+            String attribute = (String) o;
+            String value = properties.getProperty(attribute);
+            this.add(attribute, value);
+        }
+    }
+
+    public XMLAttribute(Map properties) {
+        Set keySet = properties.keySet();
+        for (Object o : keySet) {
+            String attribute = (String) o;
+            String value = properties.get(attribute).toString();
+            this.add(attribute, value);
+        }
+    }
+
     public XMLAttribute add(String attributeName, String attributeValue) {
         _attributeNameList.add(attributeName);
         _attributeValue.put(attributeName, attributeValue);
@@ -58,27 +78,8 @@ public class XMLAttribute {
         return this.add(attributeName, attributeValue.toString());
     }
 
-
-    public XMLAttribute(Properties properties) {
-        Set keySet = properties.keySet();
-        for (Iterator it = keySet.iterator(); it.hasNext(); ) {
-            String attribute = (String) it.next();
-            String value = properties.getProperty(attribute);
-            this.add(attribute, value);
-        }
-    }
-
-    public XMLAttribute(Map properties) {
-        Set keySet = properties.keySet();
-        for (Iterator it = keySet.iterator(); it.hasNext(); ) {
-            String attribute = (String) it.next();
-            String value = properties.get(attribute).toString();
-            this.add(attribute, value);
-        }
-    }
-
     public String getValue(String attributeName) {
-        return (String) _attributeValue.get(attributeName);
+        return _attributeValue.get(attributeName);
     }
 
     public int length() {
@@ -90,22 +91,19 @@ public class XMLAttribute {
     }
 
     public String toString(TextContentFilter filter) {
-        String returnString = "";
-        Iterator ni = _attributeNameList.iterator();
+        StringBuilder returnString = new StringBuilder();
+        Iterator<String> ni = _attributeNameList.iterator();
         for (; ni.hasNext(); ) {
-            String attributeName = (String) ni.next();
-            String attributeValue = (String) _attributeValue.get(attributeName);
-            returnString += attributeName + "=\"" + filter.filter(attributeValue) + "\" ";
+            String attributeName = ni.next();
+            String attributeValue = _attributeValue.get(attributeName);
+            returnString.append(attributeName).append("=\"").append(filter.filter(attributeValue)).append("\" ");
         }
-        if (!returnString.equals("")) {
+        if (!returnString.toString().equals("")) {
             // remove the unnecessary white space
             return returnString.substring(0, returnString.length() - 1);
         } else
-            return returnString;
+            return returnString.toString();
     }
-
-    protected LinkedList _attributeNameList = new LinkedList();
-    protected HashMap _attributeValue = new HashMap();
 }
 
 

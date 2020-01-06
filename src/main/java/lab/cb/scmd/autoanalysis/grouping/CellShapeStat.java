@@ -35,21 +35,25 @@ import java.util.regex.Pattern;
  * @author leo
  */
 public class CellShapeStat implements TableFileName {
-    private OptionParser _optionParser = new OptionParser();
-
-    private PrintStream _log = new NullPrintStream();
-
     private static final int OPT_HELP = 0;
     private static final int OPT_INPUTDIR = 1;
     private static final int OPT_OUTPUTDIR = 2;
     private static final int OPT_VERBOSE = 3;
-
+    private OptionParser _optionParser = new OptionParser();
+    private PrintStream _log = new NullPrintStream();
     private File _inputDir = null;
     private File _outputDir = null;
 
     private Statistics _stat = new StatisticsWithMissingValueSupport(new String[]{".", "-1", "-1.0"},
             new EliminateOnePercentOfBothSidesStrategy());
-
+    private String[] _groupParameter = new String[]{"Cgroup", "Dgroup", "Agroup"};          // T_ORF
+    private String[] _prefix = new String[]{"C", "D", "A"};
+    // テーブルに載っているパラメータ
+    private String[][] _groupNamePattern = new String[][]{{"no", "small", "medium", "large"},
+            {"A", "A1", "A1|B", "B", "C", "D", "E", "F"}, {"A", "B", "api", "iso", "E", "F"}};
+    private String[] _shapeParameter = new String[]{"longAxis", "roundness", "budNeckPosition",
+            "budGrowthDirection", "areaRatio"};
+    private String[] _correspondingParameter = new String[]{"C103", "C115", "C105", "C106", "C118"};
     /**
      * C-num-no, D-num-C などのグループの組み合わせの値を求めるクラス
      *
@@ -77,16 +81,6 @@ public class CellShapeStat implements TableFileName {
         System.out.println("[usage] CellShapeStat");
         System.out.println(_optionParser.createHelpMessage());
     }
-
-    private String[] _groupParameter = new String[]{"Cgroup", "Dgroup", "Agroup"};          // T_ORF
-    private String[] _prefix = new String[]{"C", "D", "A"};
-    // テーブルに載っているパラメータ
-    private String[][] _groupNamePattern = new String[][]{{"no", "small", "medium", "large"},
-            {"A", "A1", "A1|B", "B", "C", "D", "E", "F"}, {"A", "B", "api", "iso", "E", "F"}};
-
-    private String[] _shapeParameter = new String[]{"longAxis", "roundness", "budNeckPosition",
-            "budGrowthDirection", "areaRatio"};
-    private String[] _correspondingParameter = new String[]{"C103", "C115", "C105", "C106", "C118"};
 
     private String getParamName(int CDAgroup, int shapeType, int patternType) {
         return _prefix[CDAgroup] + "-" + _shapeParameter[shapeType] + "_" + _groupNamePattern[CDAgroup][patternType];

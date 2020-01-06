@@ -12,7 +12,6 @@ package lab.cb.scmd.util.cui;
 
 import lab.cb.scmd.exception.SCMDException;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
@@ -20,6 +19,10 @@ import java.util.TreeMap;
  * @author leo
  */
 public class OptionGroup extends OptionComposite {
+    private String _groupName;
+    private boolean _isExclusive = false;
+    private LinkedList _optionList = new LinkedList();
+
     /**
      * @param groupName オプショングループの名前
      */
@@ -27,6 +30,7 @@ public class OptionGroup extends OptionComposite {
         super();
         _groupName = groupName;
     }
+
 
     /**
      * @param groupName   オプショングループの名前
@@ -45,7 +49,6 @@ public class OptionGroup extends OptionComposite {
     String getGroupName() {
         return _groupName;
     }
-
 
     boolean isExclusive() {
         return _isExclusive;
@@ -86,10 +89,6 @@ public class OptionGroup extends OptionComposite {
             optionID2GroupMap.put(element.getOptionID(), _groupName);
         }
     }
-
-    private String _groupName;
-    private boolean _isExclusive = false;
-    private LinkedList _optionList = new LinkedList();
 
     /* (non-Javadoc)
      * @see lab.cb.scmd.util.cui.OptionComposite#findByLongOptionName(java.lang.String)

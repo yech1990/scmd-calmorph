@@ -26,6 +26,15 @@ import java.util.TreeMap;
  * @author leo
  */
 public class OptionParser {
+    private TreeMap<Integer, Option> _optionMap = new TreeMap<>();
+    private TreeMap _optionIDToGroupMap = new TreeMap();
+    private LinkedList<String> _incompatibleGroup = new LinkedList<>();
+    private HashSet<String> _setGroupHash = new HashSet<>();
+    private OptionGroup _globalOption = new OptionGroup("");
+    private String[] _args = {""};
+    private LinkedList<String> _argumentList = new LinkedList<>();
+    private boolean _requireNonOptionArgument = false;
+
     public OptionParser() {
     }
 
@@ -133,9 +142,8 @@ public class OptionParser {
 
         // validate incompatible group options
         int incompatibleGroupCount = 0;
-        LinkedList incompatibleGroupNameList = new LinkedList();
-        for (Iterator hi = _setGroupHash.iterator(); hi.hasNext(); ) {
-            String groupName = (String) hi.next();
+        LinkedList<String> incompatibleGroupNameList = new LinkedList<>();
+        for (String groupName : _setGroupHash) {
             if (_incompatibleGroup.contains(groupName)) {
                 incompatibleGroupCount++;
                 incompatibleGroupNameList.add(groupName);
@@ -152,7 +160,7 @@ public class OptionParser {
 
     }
 
-    public LinkedList getArgumentList() {
+    public LinkedList<String> getArgumentList() {
         return _argumentList;
     }
 
@@ -163,11 +171,11 @@ public class OptionParser {
      * @return
      */
     public String getArgument(int index) {
-        LinkedList argList = getArgumentList();
+        LinkedList<String> argList = getArgumentList();
         if (index >= argList.size()) {
             return "";
         } else
-            return (String) argList.get(index);
+            return argList.get(index);
     }
 
     public boolean isSet(int optionID) {
@@ -181,21 +189,11 @@ public class OptionParser {
     }
 
     private Option findOption(int optionID) {
-        OptionComposite opt = (OptionComposite) _optionMap.get(optionID);
+        OptionComposite opt = _optionMap.get(optionID);
         if (opt == null)
             return null;
-        return (opt instanceof Option) ? (Option) opt : null;
+        return (Option) opt;
     }
-
-    private TreeMap _optionMap = new TreeMap();
-    private TreeMap _optionIDToGroupMap = new TreeMap();
-    private LinkedList _incompatibleGroup = new LinkedList();
-    private HashSet _setGroupHash = new HashSet();
-
-    private OptionGroup _globalOption = new OptionGroup("");
-    private String[] _args = {""};
-    private LinkedList _argumentList = new LinkedList();
-    private boolean _requireNonOptionArgument = false;
 }
 
 //--------------------------------------

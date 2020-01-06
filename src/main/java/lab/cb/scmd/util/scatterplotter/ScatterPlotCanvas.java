@@ -12,7 +12,9 @@ package lab.cb.scmd.util.scatterplotter;
 
 import lab.cb.scmd.util.table.FlatTable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -27,29 +29,59 @@ import java.util.ArrayList;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class ScatterPlotCanvas extends Canvas {
-    boolean _mouseDown;
-    Color _fgColor = new Color(null, 0, 0, 0);
-    Color _bgColor = new Color(null, 255, 255, 255);
-    Color _pointColor = new Color(null, 0, 0, 255);
-    Color _focusedColor = new Color(null, 255, 0, 0);
-    FlatTable _flatTable = null;
-    boolean _selectingRegion = false;
-    int[] _selectedRegionStart = {0, 0};
-    int[] _selectedRegionEnd = {0, 0};
-    int[] _axisColIndex = {0, 1};
-    double[] _realMax = {0.0, 0.0};
-    double[] _realMin = {0.0, 0.0};
-    int[] _canvasSize = {0, 0};
-    int[] _selectedPoints = new int[0];
-    Table _tableViewer;
-    Label _statusBar;
-    int TOPMARGIN = 30;
-    int BOTTOMMARGIN = 30; // including axis
-    int LEFTMARGIN = 30; // including axis
-    int RIGHTMARGIN = 5;
-    int OVALSIZE = 5;
+    private boolean _mouseDown;
+    private Color _fgColor = new Color(null, 0, 0, 0);
+    private Color _bgColor = new Color(null, 255, 255, 255);
+    private Color _pointColor = new Color(null, 0, 0, 255);
+    private Color _focusedColor = new Color(null, 255, 0, 0);
+    private FlatTable _flatTable = null;
+    private boolean _selectingRegion = false;
+    private int[] _selectedRegionStart = {0, 0};
+    private int[] _selectedRegionEnd = {0, 0};
+    private int[] _axisColIndex = {0, 1};
+    private double[] _realMax = {0.0, 0.0};
+    private double[] _realMin = {0.0, 0.0};
+    private int[] _canvasSize = {0, 0};
+    private int[] _selectedPoints = new int[0];
+    private Table _tableViewer;
+    private Label _statusBar;
+    private int TOPMARGIN = 30;
+    private int BOTTOMMARGIN = 30; // including axis
+    private int LEFTMARGIN = 30; // including axis
+    private int RIGHTMARGIN = 5;
+    private int OVALSIZE = 5;
+    private MouseAdapter mouseAdapter = new MouseAdapter() {
+        public void mouseDown(MouseEvent e) {
+            _mouseDown = true;
+        }
 
-    public ScatterPlotCanvas(Composite comp, int flag) {
+        public void mouseUp(MouseEvent e) {
+            _mouseDown = false;
+            if (_selectingRegion) {
+                _selectingRegion = false;
+                ArrayList<Integer> selectedrows = selectRows();
+                //System.out.println("Mouse Up at " + _selectedRegionEnd[0] + ":" + _selectedRegionEnd[1] );
+            }
+        }
+
+    };
+    private MouseMoveListener mouseMoveListener = new MouseMoveListener() {
+        public void mouseMove(MouseEvent e) {
+            if (_mouseDown) {
+                if (!_selectingRegion) {
+                    //System.out.println("Mouse Down at " + e.x + ":" + e.y);
+                    _selectingRegion = true;
+                    _selectedRegionStart[0] = e.x;
+                    _selectedRegionStart[1] = e.y;
+                }
+                _selectedRegionEnd[0] = e.x;
+                _selectedRegionEnd[1] = e.y;
+                redraw();
+            }
+        }
+    };
+
+    ScatterPlotCanvas(Composite comp, int flag) {
         super(comp, flag);
 
         // event listener
@@ -60,14 +92,14 @@ public class ScatterPlotCanvas extends Canvas {
         this.addMouseMoveListener(mouseMoveListener);
     }
 
-    public void setFlatTable(FlatTable flatTable) {
+    void setFlatTable(FlatTable flatTable) {
         _flatTable = flatTable;
         for (int i = 0; i < _axisColIndex.length; i++) {
             setMaxAndMinValues(i);
         }
     }
 
-    public void setAxisColIndex(int dim, int n) {
+    void setAxisColIndex(int dim, int n) {
         _axisColIndex[dim] = n;
         setMaxAndMinValues(dim);
     }
@@ -91,22 +123,6 @@ public class ScatterPlotCanvas extends Canvas {
         _realMin[dim] = _realMin[dim] - diff * 0.05;
         _realMax[dim] = _realMax[dim] + diff * 0.05;
     }
-
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-        public void mouseDown(MouseEvent e) {
-            _mouseDown = true;
-        }
-
-        public void mouseUp(MouseEvent e) {
-            _mouseDown = false;
-            if (_selectingRegion) {
-                _selectingRegion = false;
-                ArrayList<Integer> selectedrows = selectRows();
-                //System.out.println("Mouse Up at " + _selectedRegionEnd[0] + ":" + _selectedRegionEnd[1] );
-            }
-        }
-
-    };
 
     private ArrayList<Integer> selectRows() {
         if (_flatTable == null) {
@@ -141,22 +157,6 @@ public class ScatterPlotCanvas extends Canvas {
         }
         return rows;
     }
-
-    MouseMoveListener mouseMoveListener = new MouseMoveListener() {
-        public void mouseMove(MouseEvent e) {
-            if (_mouseDown) {
-                if (!_selectingRegion) {
-                    //System.out.println("Mouse Down at " + e.x + ":" + e.y);
-                    _selectingRegion = true;
-                    _selectedRegionStart[0] = e.x;
-                    _selectedRegionStart[1] = e.y;
-                }
-                _selectedRegionEnd[0] = e.x;
-                _selectedRegionEnd[1] = e.y;
-                redraw();
-            }
-        }
-    };
 
     public void redraw() {
         int width = this.getClientArea().width;
@@ -268,21 +268,21 @@ public class ScatterPlotCanvas extends Canvas {
     /**
      * @param tableViewer
      */
-    public void setTableView(Table tableViewer) {
+    void setTableView(Table tableViewer) {
         _tableViewer = tableViewer;
     }
 
     /**
      * @param statusBar
      */
-    public void setStatusBar(Label statusBar) {
+    void setStatusBar(Label statusBar) {
         _statusBar = statusBar;
     }
 
     /**
      * @param selectedRows
      */
-    public void setSelectedPoints(TableItem[] selectedRows) {
+    void setSelectedPoints(TableItem[] selectedRows) {
         String rowLabel;
         int count = 0;
         for (TableItem row : selectedRows) {
@@ -303,7 +303,7 @@ public class ScatterPlotCanvas extends Canvas {
         }
     }
 
-    public void setSelectedPoints(String[] selectedRowLabels) {
+    void setSelectedPoints(String[] selectedRowLabels) {
         int count = 0;
         for (String rowLabel : selectedRowLabels) {
             if (_flatTable.getRowIndex(rowLabel) >= 0) {
@@ -324,7 +324,7 @@ public class ScatterPlotCanvas extends Canvas {
     /**
      *
      */
-    public void removeSelectedPoints() {
+    void removeSelectedPoints() {
         _selectedPoints = new int[0];
     }
 

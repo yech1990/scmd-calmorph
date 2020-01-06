@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
  * @author leo
  */
 public class HTMLFilter implements TextContentFilter {
-    Pattern cdataPattern = Pattern.compile("<!\\[CDATA\\[([^\\]]*)\\]\\]>");
+    private Pattern cdataPattern = Pattern.compile("<!\\[CDATA\\[([^\\]]*)\\]\\]>");
 
     /**
      *
      */
-    public HTMLFilter() {
+    HTMLFilter() {
     }
 
     /**

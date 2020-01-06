@@ -15,6 +15,9 @@ package lab.cb.scmd.util.xml;
  */
 public class DTDDeclaration {
 
+    private String _rootElement;
+    private String _uri;
+
     public DTDDeclaration(String rootElement, String uri) {
         this._rootElement = rootElement;
         this._uri = uri;
@@ -24,7 +27,7 @@ public class DTDDeclaration {
         return "<!DOCTYPE " + getRootElement() + " SYSTEM \"" + getUri() + "\">";
     }
 
-    public String getRootElement() {
+    private String getRootElement() {
         return _rootElement;
     }
 
@@ -32,16 +35,13 @@ public class DTDDeclaration {
         this._rootElement = rootElement;
     }
 
-    public String getUri() {
+    private String getUri() {
         return _uri;
     }
 
     public void setUri(String uri) {
         this._uri = uri;
     }
-
-    String _rootElement;
-    String _uri;
 }
 
 

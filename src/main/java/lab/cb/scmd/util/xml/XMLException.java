@@ -14,26 +14,26 @@ import lab.cb.scmd.exception.SCMDException;
 /**
  * @author leo
  */
-public class XMLException extends SCMDException {
+class XMLException extends SCMDException {
 
     /**
      *
      */
-    public XMLException() {
+    XMLException() {
         super();
     }
 
     /**
      * @param arg0
      */
-    public XMLException(String arg0) {
+    XMLException(String arg0) {
         super(arg0);
     }
 
     /**
      * @param arg0
      */
-    public XMLException(Throwable arg0) {
+    XMLException(Throwable arg0) {
         super(arg0);
     }
 
@@ -41,7 +41,7 @@ public class XMLException extends SCMDException {
      * @param arg0
      * @param arg1
      */
-    public XMLException(String arg0, Throwable arg1) {
+    XMLException(String arg0, Throwable arg1) {
         super(arg0, arg1);
     }
 

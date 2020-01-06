@@ -10,10 +10,9 @@
 parse tif image from hcs of yeast
 """
 
-import sys
-
 import cv2
 import numpy as np
+import sys
 from skimage import restoration
 
 

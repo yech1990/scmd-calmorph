@@ -159,7 +159,7 @@ public class MaximumCliques {
         baseVertexIds = nodes.get(i);
         for (int j = i + 1; j < size; j++) {
             objVertexIds = nodes.get(j);
-            if (!adjGraph.hasAdjacency(baseVertexIds[0], objVertexIds[0]))
+            if (adjGraph.hasAdjacency(baseVertexIds[0], objVertexIds[0]))
                 continue;
             if (!nodes.contains(objVertexIds))
                 continue;
@@ -198,7 +198,7 @@ public class MaximumCliques {
             objVertexIds = nodes.get(j);
             if (i == objVertexIds[0])
                 continue;
-            if (!adjGraph.hasAdjacency(baseVertexIds[0], objVertexIds[0]))
+            if (adjGraph.hasAdjacency(baseVertexIds[0], objVertexIds[0]))
                 continue;
             if (nnodes.contains(objVertexIds))
                 continue;
@@ -269,7 +269,7 @@ public class MaximumCliques {
     private boolean hasCompleteLinkage(Integer[] baseVertex, Integer objVertex, AdjacencyListGraph adjGraph) {
 
         for (Integer vertex : baseVertex) {
-            if (!adjGraph.hasAdjacency(vertex, objVertex)) {
+            if (adjGraph.hasAdjacency(vertex, objVertex)) {
                 return false;
             }
         }

@@ -30,24 +30,6 @@ import java.util.Vector;
  * @author nakatani
  */
 public class ParameterStatistics {
-    private OptionParser parser = new OptionParser();
-    private boolean verbose = true;
-    private boolean SIGMA = false;
-
-    private CalMorphTable wildtypeTable;
-    private CalMorphTable mutantTable;
-    private int parameterSize;
-    private int orfSizeWildtype;
-    private int orfSizeMutant;
-
-    private BoxCox[] transformedWildtypeList;
-
-    private String outputFile = null;
-    private String transformedWildtypeFile = null;
-    private String transformedMutantFile = null;
-    private String orfStatFile = null;
-    private String excelMutantFile = null;
-
     // option IDs
     private final static int OPT_HELP = 0;
     private final static int OPT_VERBOSE = 1;
@@ -60,9 +42,38 @@ public class ParameterStatistics {
     private final static int OPT_OUTPUT_ORF_STAT = 8;
     private final static int OPT_SIGMA = 9;
     private final static int OPT_EXCEL_MUTANT_FILE = 10;
+    private OptionParser parser = new OptionParser();
+    private boolean verbose = true;
+    private boolean SIGMA = false;
+    private CalMorphTable wildtypeTable;
+    private CalMorphTable mutantTable;
+    private int parameterSize;
+    private int orfSizeWildtype;
+    private int orfSizeMutant;
+    private BoxCox[] transformedWildtypeList;
+    private String outputFile = null;
+    private String transformedWildtypeFile = null;
+    private String transformedMutantFile = null;
+    private String orfStatFile = null;
+    private String excelMutantFile = null;
 
 
     private ParameterStatistics() {
+    }
+
+    public static void main(String[] args) {
+        ParameterStatistics ps = new ParameterStatistics();
+        try {
+            ps.setupByArguments(args);
+            ps.transformAllParameters();
+            ps.outputStatistics();
+            ps.outputTransformedTable();
+            ps.outputOrfStat();
+            ps.outputExcelTable();
+        } catch (SCMDException | IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     /**
@@ -145,22 +156,6 @@ public class ParameterStatistics {
         System.out.println("Usage: ParameterStatistics [option]");
         System.out.println(parser.createHelpMessage());
         System.exit(exitCode);
-    }
-
-
-    public static void main(String[] args) {
-        ParameterStatistics ps = new ParameterStatistics();
-        try {
-            ps.setupByArguments(args);
-            ps.transformAllParameters();
-            ps.outputStatistics();
-            ps.outputTransformedTable();
-            ps.outputOrfStat();
-            ps.outputExcelTable();
-        } catch (SCMDException | IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
     }
 
     private void transformAllParameters() {

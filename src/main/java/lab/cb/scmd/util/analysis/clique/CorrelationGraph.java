@@ -23,17 +23,17 @@ import java.util.HashSet;
  * 2005/05/10 add cramer's v option
  */
 public class CorrelationGraph {
-    protected DataMatrix dm = new DataMatrix();
-    protected DataMatrix nm = new DataMatrix();
-    protected AdjacencyListGraph adjGraph = new AdjacencyListGraph();
-    protected double THRESHOLD = 0.90;
-    protected boolean isSmallerCorrelation = false;
-    boolean findclique = false;
-    boolean countComponents = false;
-    boolean coloredNodes = false;
-    boolean showTable = false;
-    protected double[][] corMatrix;
-    boolean USECRAMERSV = true;
+    private DataMatrix dm = new DataMatrix();
+    private DataMatrix nm = new DataMatrix();
+    private AdjacencyListGraph adjGraph = new AdjacencyListGraph();
+    private double THRESHOLD = 0.90;
+    private boolean isSmallerCorrelation = false;
+    private double[][] corMatrix;
+    private boolean findclique = false;
+    private boolean countComponents = false;
+    private boolean coloredNodes = false;
+    private boolean showTable = false;
+    private boolean USECRAMERSV = true;
 
     public static void main(String[] args) {
         int num = 0;
@@ -318,8 +318,8 @@ public class CorrelationGraph {
 
         System.err.println("Threshold: " + THRESHOLD + "\t" + "Components: " + cliques.size());
         System.out.println("graph CLIQUE { ");
-        for (int i = 0; i < cliques.size(); i++) {
-            Integer[] list = (Integer[]) cliques.get(i);
+        for (Object clique : cliques) {
+            Integer[] list = (Integer[]) clique;
             /*
             for(int j = 0; j < list.length; j++ ) {
                 System.out.print("\t" + list[j] + "(" + dm.getColumnName(list[j].intValue()) + ")");
@@ -328,11 +328,11 @@ public class CorrelationGraph {
             */
             for (int j = 0; j < list.length; j++) {
                 for (int k = j + 1; k < list.length; k++) {
-                    System.out.print("\t\"" + dm.getColumnName(list[j].intValue()) + "\" -- ");
-                    System.out.print("\"" + dm.getColumnName(list[k].intValue()) + "\"");
+                    System.out.print("\t\"" + dm.getColumnName(list[j]) + "\" -- ");
+                    System.out.print("\"" + dm.getColumnName(list[k]) + "\"");
                     DecimalFormat exFormat = new DecimalFormat("##.#####");
-                    int n = list[j].intValue();
-                    int m = list[k].intValue();
+                    int n = list[j];
+                    int m = list[k];
                     if (n > m) {
                         int tmp = n;
                         n = m;
@@ -354,8 +354,8 @@ public class CorrelationGraph {
         MaximumCliques mc = new MaximumCliques();
         ArrayList cliques = mc.maximumCliques(adjGraph);
         System.out.println("graph CLIQUE { ");
-        for (int i = 0; i < cliques.size(); i++) {
-            Integer[] list = (Integer[]) cliques.get(i);
+        for (Object clique : cliques) {
+            Integer[] list = (Integer[]) clique;
             /*
             for(int j = 0; j < list.length; j++ ) {
                 System.out.print("\t" + list[j] + "(" + dm.getColumnName(list[j].intValue()) + ")");
@@ -364,10 +364,10 @@ public class CorrelationGraph {
             */
             for (int j = 0; j < list.length; j++) {
                 for (int k = j + 1; k < list.length; k++) {
-                    System.out.print("\t\"" + dm.getColumnName(list[j].intValue()) + "\" -- ");
-                    System.out.print("\"" + dm.getColumnName(list[k].intValue()) + "\"");
+                    System.out.print("\t\"" + dm.getColumnName(list[j]) + "\" -- ");
+                    System.out.print("\"" + dm.getColumnName(list[k]) + "\"");
                     DecimalFormat exFormat = new DecimalFormat("##.#####");
-                    System.out.print(" [label=\"" + exFormat.format(corMatrix[list[j].intValue()][list[k].intValue()]) + "\"];\n");
+                    System.out.print(" [label=\"" + exFormat.format(corMatrix[list[j]][list[k]]) + "\"];\n");
                 }
             }
             System.out.println();

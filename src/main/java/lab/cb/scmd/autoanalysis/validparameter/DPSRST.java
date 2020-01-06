@@ -13,35 +13,33 @@ import java.util.Vector;
 
 
 public class DPSRST {
-    OptionParser parser = new OptionParser();
     // option IDs
-    final static int OPT_HELP = 0;
-    final static int OPT_VERBOSE = 1;
-    final static int OPT_CONTROL = 2;
-    final static int OPT_MUTANT = 3;
+    private final static int OPT_HELP = 0;
+    private final static int OPT_VERBOSE = 1;
+    private final static int OPT_CONTROL = 2;
+    private final static int OPT_MUTANT = 3;
     //final static int    OPT_PARAMETER       = 4;
-    final static int OPT_PVALUE_OUTPUT = 5;
-    final static int OPT_DS_STAT_OUTPUT = 6;
-    final static int OPT_PARAM_STAT_OUTPUT = 7;
+    private final static int OPT_PVALUE_OUTPUT = 5;
+    private final static int OPT_DS_STAT_OUTPUT = 6;
+    private final static int OPT_PARAM_STAT_OUTPUT = 7;
+    private final static double NODATA = -1;
+    private final static double[] criticalValue = {0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
+    private static final double[] pvalueList = {0.01, 0.001, 0.0001, 0.00001, 0.000001};
+    private OptionParser parser = new OptionParser();
+    private boolean verbose = false;
+    private CalMorphTable controlTable;
+    private CalMorphTable mutantTable;
+    private int parameterSize;
+    private int orfSizeControl;
+    private int orfSizeMutant;
+    private String pvalueTableOutputFile = null;
+    private String dsStatOutputFile = null;
+    private String paramStatOutputFile = null;
+    private double[][] pvalue = null;
+    private int uniqueGsnameSize;
+    private Vector<String> uniqueDsnameList = new Vector<>();
 
-    final static double NODATA = -1;
-    final static double[] criticalValue = {0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
-    boolean verbose = false;
-    CalMorphTable controlTable;
-    CalMorphTable mutantTable;
-    int parameterSize;
-    int orfSizeControl;
-    int orfSizeMutant;
-
-    String pvalueTableOutputFile = null;
-    String dsStatOutputFile = null;
-    String paramStatOutputFile = null;
-
-    double[][] pvalue = null;
-    int uniqueGsnameSize;
-    Vector uniqueDsnameList = new Vector();
-
-    DPSRST() {
+    private DPSRST() {
     }
 
     public static void main(String[] args) {
@@ -66,7 +64,7 @@ public class DPSRST {
      * @throws IOException
      * @throws SCMDException
      */
-    public void setupByArguments(String[] args) throws IOException, SCMDException {
+    private void setupByArguments(String[] args) throws IOException, SCMDException {
         setupOptionParser();
         parser.getContext(args);
 
@@ -112,7 +110,7 @@ public class DPSRST {
         }
     }
 
-    void setupOptionParser() throws SCMDException {
+    private void setupOptionParser() throws SCMDException {
         parser.setOption(new Option(OPT_HELP, "h", "help", "diaplay help message"));
         parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
         parser.setOption(new OptionWithArgument(OPT_CONTROL, "C", "control_file", "FILE", "set control input file"));
@@ -123,12 +121,11 @@ public class DPSRST {
 
     }
 
-    public void printUsage(int exitCode) {
+    private void printUsage(int exitCode) {
         System.out.println("Usage: DPSRST [option]");
         System.out.println(parser.createHelpMessage());
         System.exit(exitCode);
     }
-
 
     /**
      * CalMorphTableから指定されたパラメータ、
@@ -137,8 +134,8 @@ public class DPSRST {
      *
      * @author nakatani
      */
-    private Vector getDataByParameter(CalMorphTable cmt, int parameter, int begin, int end) {
-        Vector data = new Vector();
+    private Vector<Double> getDataByParameter(CalMorphTable cmt, int parameter, int begin, int end) {
+        Vector<Double> data = new Vector<>();
         for (int orf = begin; orf < end; ++orf) {
             lab.cb.scmd.util.table.Cell c = cmt.getCell(orf, parameter);
             //System.out.println(parameter+"\t"+orf+"\t"+c.toString());
@@ -150,15 +147,15 @@ public class DPSRST {
         return data;
     }
 
-    private Vector getAllDataByParameter(CalMorphTable cmt, int parameter) {
+    private Vector<Double> getAllDataByParameter(CalMorphTable cmt, int parameter) {
         return getDataByParameter(cmt, parameter, 0, cmt.getRowSize());
     }
 
     private double[] foreachMutant(int begin, int end) throws IOException {
         double[] pvalueList = new double[parameterSize];
         for (int parameter = 1; parameter < parameterSize; ++parameter) {
-            Vector controlData = getAllDataByParameter(controlTable, parameter);
-            Vector mutantData = getDataByParameter(mutantTable, parameter, begin, end);
+            Vector<Double> controlData = getAllDataByParameter(controlTable, parameter);
+            Vector<Double> mutantData = getDataByParameter(mutantTable, parameter, begin, end);
             if (controlData.size() < 10 && mutantData.size() < 10) {
                 pvalueList[parameter] = NODATA;
                 continue;
@@ -178,7 +175,8 @@ public class DPSRST {
         String orfName = table.getCell(begin, 0).toString();
         int orf = begin;
         for (; orf < table.getRowSize(); ++orf) {
-            if (table.getCell(orf, 0).toString().equals(orfName)) continue;
+            if (table.getCell(orf, 0).toString().equals(orfName)) {
+            }
             else break;
         }
         return orf;
@@ -195,7 +193,7 @@ public class DPSRST {
         return unique;
     }
 
-    public void testAllMutant() throws IOException {
+    private void testAllMutant() throws IOException {
         pvalue = new double[uniqueGsnameSize][parameterSize];
         int orfEnd, i = 0;
         for (int orfBegin = 0; orfBegin < mutantTable.getRowSize(); orfBegin = orfEnd) {
@@ -206,13 +204,13 @@ public class DPSRST {
         }
     }
 
-    public void printPvalueTable() throws IOException {
+    private void printPvalueTable() throws IOException {
         if (pvalueTableOutputFile == null) return;
         PrintWriter pw = new PrintWriter(new FileWriter(pvalueTableOutputFile));
         //print parameter
-        Vector paramList = mutantTable.getColLabelList();
-        for (int i = 0; i < paramList.size(); ++i) {
-            pw.print(paramList.get(i).toString() + "\t");
+        Vector<String> paramList = mutantTable.getColLabelList();
+        for (Object o : paramList) {
+            pw.print(o.toString() + "\t");
         }
         pw.println();
 
@@ -230,9 +228,7 @@ public class DPSRST {
         pw.close();
     }
 
-    static final double[] pvalueList = {0.01, 0.001, 0.0001, 0.00001, 0.000001};
-
-    public void printParameterStat() throws IOException {
+    private void printParameterStat() throws IOException {
         if (paramStatOutputFile == null) return;
         PrintWriter pw = new PrintWriter(new FileWriter(paramStatOutputFile));
 
@@ -251,8 +247,8 @@ public class DPSRST {
         }
 
         pw.print("count" + "\t");
-        for (int i = 0; i < pvalueList.length; ++i) {
-            pw.print(pvalueList[i] + "\t");
+        for (double v : pvalueList) {
+            pw.print(v + "\t");
         }
         pw.println();
 
@@ -268,12 +264,12 @@ public class DPSRST {
 
     }
 
-    public void printGsnameStat() throws IOException {
+    private void printGsnameStat() throws IOException {
         if (dsStatOutputFile == null) return;
         PrintWriter pw = new PrintWriter(new FileWriter(dsStatOutputFile));
         pw.print("gsname\t");
-        for (int i = 0; i < criticalValue.length; ++i) {
-            pw.print(criticalValue[i] + "\t");
+        for (double value : criticalValue) {
+            pw.print(value + "\t");
         }
         pw.println();
 
@@ -303,8 +299,8 @@ public class DPSRST {
         }
         pw.println();
         pw.print("count\t");
-        for (int j = 0; j < criticalValue.length; ++j) {
-            pw.print(criticalValue[j] + "\t");
+        for (double v : criticalValue) {
+            pw.print(v + "\t");
         }
         pw.println();
         for (int i = 0; i < parameterSize + 1; ++i) {

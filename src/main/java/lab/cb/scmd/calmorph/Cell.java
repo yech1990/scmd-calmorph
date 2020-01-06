@@ -23,138 +23,81 @@ class Cell implements Serializable {
     int[] neck_and_bud_middle; // temporary data for bud validation
     double[] grad_cept_middle;
     boolean neck_change;
-
-    private int w, h, size, id;// 画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
-
-    private int group;
-
-    private String Cgroup, Dgroup, Agroup;
-
     int budcrush;
-
-    Vector cover, edge, mother_edge, bud_edge, bud_cover, edge_2, cover_2;
-
+    Vector<Integer> cover;
+    Vector edge;
+    Vector mother_edge;
+    Vector bud_edge;
+    Vector<Integer> bud_cover;
+    Vector edge_2;
+    Vector<Integer> cover_2;
     int[] neck;
-
     double bud_ratio;
-
-    private double fitness;
-
-    private double[] mother_ellipse, bud_ellipse;// 楕円パラメータ
-
-    private boolean budell_flag, bud_short_flag;
-
-    private Point point;// 細胞の左上の位置
-
-    private Point bottomrightPoint;
-
-    private Point neckpoint, centerpoint, hippoint, budcenterpoint, budtop;
-
-    private Point[] longpoint, shortpoint, budlongpoint, budshortpoint;// 楕円の端点
-
-    private double long_length;
-
-    private double short_length;
-
-    private double budlong_length;
-
-    private double budshort_length;
-
-    private Point farfromneckpoint;
-
     Vector brightestCpoint, darkestCpoint;
-
     int Cmaxbright;
-
     int Cminbright;
-
     Vector widestCpoint, narrowestCpoint;
-
     int Cmaxwidth;
-
     int Cminwidth;
-
-    private boolean flag_ud; // if nuclei is on both modhter and bud cells,
-    // true.
-
     Vector Dpoint;
-
     Vector Dbrightpoint;
-
     Vector DpointB;
-
     Vector DbrightpointB;
-
     Vector[] D345point;
-
     Vector Dedge;
-
     Vector Dcover;
-
     Vector DcoverB;
-
     Vector Dtotalbright;
-
     Vector Dmaxbright;
-
     Vector DtotalbrightB;
-
     Vector DmaxbrightB;
-
     Vector Acover;
-
     int[] Aregionsize;
-
     int[] Atotalbright;
-
     Point[][] Acenterpoint;
-
-    private Point[] farfromneckApoint;
-
+    // true.
     double actinonneckline;
-
-    private double budactincenterposition;
-
-    private double motheractincenterposition;
-
-    Vector actinpatchpoint, actinpatchbright, actinpatchsize;
-
+    Vector<Integer> actinpatchpoint;
+    Vector<Integer> actinpatchbright;
+    Vector<Integer> actinpatchsize;
     Point[][] Apatchcenterpoint;
-
-    private int[] actinpatchorder;
-
-    private double maxpatchdistance;
-
     int totalpatchsize;
-
-    private Vector actinpatchpath;
-
-    private double actinpathlength;
-
-    private int brightpatchnumber;
-
-    private Point[] Cpointparam;
-
-    private Vector[] Cpointsparam;
-
     double[] Cbaseparam;
-
     double[] Cexpandparam;
-
-    //	Point[] Dpointparam;
-    private HashMap<String, Point> dPointParamMap = new HashMap<String, Point>();
-
     double[] Dbaseparam;
-
     double[] Dexpandparam;
-
-    private Point[] Apointparam;
-
     double[] Abaseparam;
-
     double[] Aexpandparam;
-
     double[] versparam;
+    private int w, h, size, id;// 画像サイズ、細胞の大きさ、bud_ratioの大きさわけ、cell番号
+    private int group;
+    private String Cgroup, Dgroup, Agroup;
+    private double fitness;
+    private double[] mother_ellipse, bud_ellipse;// 楕円パラメータ
+    private boolean budell_flag, bud_short_flag;
+    private Point point;// 細胞の左上の位置
+    private Point bottomrightPoint;
+    private Point neckpoint, centerpoint, hippoint, budcenterpoint, budtop;
+    private Point[] longpoint, shortpoint, budlongpoint, budshortpoint;// 楕円の端点
+    private double long_length;
+    private double short_length;
+    private double budlong_length;
+    private double budshort_length;
+    private Point farfromneckpoint;
+    private boolean flag_ud; // if nuclei is on both modhter and bud cells,
+    private Point[] farfromneckApoint;
+    private double budactincenterposition;
+    private double motheractincenterposition;
+    private int[] actinpatchorder;
+    private double maxpatchdistance;
+    private Vector<Point> actinpatchpath;
+    private double actinpathlength;
+    private int brightpatchnumber;
+    private Point[] Cpointparam;
+    private Vector[] Cpointsparam;
+    //	Point[] Dpointparam;
+    private HashMap<String, Point> dPointParamMap = new HashMap<>();
+    private Point[] Apointparam;
 
     Cell(int w, int h, int id) {
         this.w = w;
@@ -167,23 +110,19 @@ class Cell implements Serializable {
     private void init() {
         edge = new Vector();
         edge_2 = new Vector();
-        cover = new Vector();
-        cover_2 = new Vector();
+        cover = new Vector<>();
+        cover_2 = new Vector<>();
         mother_edge = new Vector();
         bud_edge = new Vector();
-        bud_cover = new Vector();
+        bud_cover = new Vector<>();
         longpoint = new Point[2];
         shortpoint = new Point[2];
         budlongpoint = new Point[2];
         budshortpoint = new Point[2];
-        actinpatchpoint = new Vector();
-        actinpatchbright = new Vector();
-        actinpatchsize = new Vector();
+        actinpatchpoint = new Vector<>();
+        actinpatchbright = new Vector<>();
+        actinpatchsize = new Vector<>();
         fitness = -1;
-    }
-
-    public void setGroup(int n) {
-        group = n;
     }
 
     public String getCgroup() {
@@ -204,6 +143,10 @@ class Cell implements Serializable {
 
     public int getGroup() {
         return group;
+    }
+
+    public void setGroup(int n) {
+        group = n;
     }
 
     boolean getFlagUD() {
@@ -1866,11 +1809,11 @@ class Cell implements Serializable {
                 double mx = (neckpoint.x * 4 - (budtop.x)) / 3;
                 double my = (neckpoint.y * 4 - (budtop.y)) / 3;
                 for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    int po = (Integer) actinpatchpoint.elementAt(i);
+                    int po = actinpatchpoint.elementAt(i);
                     int px = po % w;
                     int py = po / w;
-                    int br = (Integer) actinpatchbright.elementAt(i)
-                            * (Integer) actinpatchbright.elementAt(i);
+                    int br = actinpatchbright.elementAt(i)
+                            * actinpatchbright.elementAt(i);
                     if (!inmother(po)) {
                         buds += br;
                         if ((a * (py - sy) + b * (px - sx))
@@ -1952,12 +1895,12 @@ class Cell implements Serializable {
                         check2 = true;
                 }
             }
-            if (check1 == false || check2 == false) {
+            if (!check1 || !check2) {
                 double max = 0;
                 for (int i = 0; i < actinpatchpoint.size(); i++) {
-                    int p1 = (Integer) actinpatchpoint.get(i);
+                    int p1 = actinpatchpoint.get(i);
                     for (int j = i + 1; j < actinpatchpoint.size(); j++) {
-                        int p2 = (Integer) actinpatchpoint.get(j);
+                        int p2 = actinpatchpoint.get(j);
                         if (distance(p1, p2) > max)
                             max = distance(p1, p2);
                     }
@@ -1980,7 +1923,7 @@ class Cell implements Serializable {
             int max = 0;
             int min = 255;
             for (int i = 0; i < actinpatchpoint.size(); i++) {
-                int br = (Integer) actinpatchbright.get(i);
+                int br = actinpatchbright.get(i);
                 actinpatchorder[i] = br * 100 + i;// 1、10の位がパッチの番号、100以上の位が輝度を表すようにセット
                 if (br > max)
                     max = br;
@@ -1995,7 +1938,7 @@ class Cell implements Serializable {
 
             brightpatchnumber = 0;
             for (int value : actinpatchorder) {// 輝度が、その細胞のアクチンパッチの平均輝度以上であるアクチンパッチの数
-                if ((Integer) actinpatchbright.get(value) > (max + min) / 2)
+                if (actinpatchbright.get(value) > (max + min) / 2)
                     brightpatchnumber++;
             }
         }
@@ -2630,13 +2573,13 @@ class Cell implements Serializable {
                 pw.print(num + "\t");
                 pw.print(id + "\t");
                 pw.print("["
-                        + (Integer) actinpatchpoint.get(value)
+                        + actinpatchpoint.get(value)
                         % w
                         + ","
-                        + (Integer) actinpatchpoint.get(value) / w + "]\t");
-                pw.print((Integer) actinpatchsize.get(value)
+                        + actinpatchpoint.get(value) / w + "]\t");
+                pw.print(actinpatchsize.get(value)
                         + "\t");
-                pw.println((Integer) actinpatchbright.get(value)
+                pw.println(actinpatchbright.get(value)
                         + "\t");
             }
         }
@@ -2803,10 +2746,10 @@ class Cell implements Serializable {
         if (actinpatchpoint != null && actinpatchpoint.size() > 0) {
             pw2.print("   <actin>");
             for (int i = 0; i < actinpatchpoint.size() - 1; i++) {
-                int p = (Integer) actinpatchpoint.get(i);
+                int p = actinpatchpoint.get(i);
                 pw2.print((p % w) + "," + (p / w) + " ");
             }
-            int p = (Integer) actinpatchpoint.get(actinpatchpoint.size() - 1);
+            int p = actinpatchpoint.get(actinpatchpoint.size() - 1);
             pw2.println((p % w) + "," + (p / w) + "</actin>");
         }
         pw2.println("  </celldata>");
@@ -2814,19 +2757,19 @@ class Cell implements Serializable {
 
     //	アクチンパッチをノードとしたときの最小TSPパスの近似解を求める
     void calcActinpathlength() {
-        this.actinpatchpath = new Vector();
+        this.actinpatchpath = new Vector<>();
         if (this.actinpatchpoint.size() > 0) {
             if (this.getGroup() == 1) {
                 int[] path = new int[this.actinpatchpoint.size()];
                 this.actinpathlength = shortestpathlength(
-                        (Vector) this.actinpatchpoint.clone(), path);
+                        (Vector<Integer>) this.actinpatchpoint.clone(), path);
                 for (int i : path) {
                     this.actinpatchpath.add(new Point(i % w, i
                             / w));
                 }
             } else if (this.getGroup() > 1) {
-                Vector mpatch = new Vector();
-                Vector bpatch = new Vector();
+                Vector<Integer> mpatch = new Vector<>();
+                Vector<Integer> bpatch = new Vector<>();
                 for (Object o : this.actinpatchpoint) {
                     int p = (Integer) o;
                     if (this.inmother(p))
@@ -2885,10 +2828,10 @@ class Cell implements Serializable {
     ///////////////////////////////////////////////////////////////////////////
     //近似アルゴリズムで最小TSPパスを求める
     ///////////////////////////////////////////////////////////////////////////
-    private double shortestpathlength(Vector points, int[] ps) {
+    private double shortestpathlength(Vector<Integer> points, int[] ps) {
         int n = points.size();
         for (int i = 0; i < n; i++)
-            ps[i] = (Integer) points.get(i);
+            ps[i] = points.get(i);
         double length = 0;
         for (int i = 0; i < n; i++)
             length += distance(ps[i], ps[(i + 1) % n]);

@@ -17,17 +17,36 @@ import java.util.ArrayList;
 
 public class RankSumTest {
 
+    private static RankSumExactProbTable exact = new RankSumExactProbTable();
     private int data_size1;
     private int data_size2;
     private java.util.Vector all = null;
     private double rank_sum1 = 0;
     private double rank_sum2 = 0;
-
     private double test_statistic_z;
-
     private ArrayList probTable;
     private int minRankSum;
-    private static RankSumExactProbTable exact = new RankSumExactProbTable();
+
+    RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
+        data_size1 = f.size();
+        data_size2 = g.size();
+        if (data_size1 < 10 || data_size2 < 10) {
+            //System.out.println("error. can not approx by normal.");
+        }
+
+        all = new java.util.Vector();//LabeledData[data_size1+data_size2];
+        for (int i = 0; i < data_size1; ++i) {
+            all.add(new LabeledData((Double) f.get(i), -1));
+        }
+        for (int i = 0; i < data_size2; ++i) {
+            all.add(new LabeledData((Double) g.get(i), 1));
+        }
+
+        get_test_statistics();
+
+        probTable = exact.getTable(data_size1, data_size2);
+        minRankSum = data_size2 * (data_size2 + 1) / 2;
+    }
 
     //	public void readExactProbTable(String filename) throws IOException{
 //		BufferedReader br=new BufferedReader(new FileReader(filename));
@@ -79,27 +98,6 @@ public class RankSumTest {
             return getExactProb(rank_sum2);
         }
         //return StatisticalTests.HastingsApproximationForStandardNormalDF(get_value());
-    }
-
-    RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
-        data_size1 = f.size();
-        data_size2 = g.size();
-        if (data_size1 < 10 || data_size2 < 10) {
-            //System.out.println("error. can not approx by normal.");
-        }
-
-        all = new java.util.Vector();//LabeledData[data_size1+data_size2];
-        for (int i = 0; i < data_size1; ++i) {
-            all.add(new LabeledData((Double) f.get(i), -1));
-        }
-        for (int i = 0; i < data_size2; ++i) {
-            all.add(new LabeledData((Double) g.get(i), 1));
-        }
-
-        get_test_statistics();
-
-        probTable = exact.getTable(data_size1, data_size2);
-        minRankSum = data_size2 * (data_size2 + 1) / 2;
     }
 
     public double get_value() {

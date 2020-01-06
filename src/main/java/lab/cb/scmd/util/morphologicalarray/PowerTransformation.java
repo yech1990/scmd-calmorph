@@ -20,10 +20,28 @@ import java.io.PrintWriter;
  * @author nakatani
  */
 public class PowerTransformation {
+    private static final double up8 = 5.6120;//upper 0.00000001
+    private static final double up7 = 5.1993;//upper 0.0000001
+    private static final double up6 = 4.7534;//upper 0.000001
+    private static final double up5 = 4.2649;//upper 0.00001
+    private static final double up4 = 3.7190;//upper 0.0001
+    private static final double up32 = 3.5401;//upper 0.0002
+    private static final double up35 = 3.2950;//upper 0.0005
+    private static final double up3 = 3.0902;//upper 0.001
+    private static final double up25 = 2.5758;//upper 0.005
+    private static final double up2 = 2.3263;//upper 0.01
     double originalMean;
     double originalSD;
     Double[] originalData;
 
+//	private void findBestParameter() throws SCMDException{
+//		DownhillSimplexMethod dsm=new DownhillSimplexMethod(this);
+//		dsm.startAmoeba();
+//		double[] bestParam=dsm.getBestParamters();
+//		bestP=bestParam[0];
+//		bestA=bestParam[1];
+//		optimizedValueForTransform=dsm.getBestValue();
+//	}
     Double[] standardizedData;
     double bestP;
     double bestA;
@@ -38,6 +56,26 @@ public class PowerTransformation {
         standardizedData = StatisticalTests.getStandardizedData(originalData);
         findBestParameter();
 
+    }
+
+    //	public Double[] /*MINMAX*/getOneSidedCriticalValues(){
+//		Double[] criticalValues=new Double[6];
+//		criticalValues[0]=criticalValues[1]=criticalValues[2]=new Double(StatisticalTests.max(originalData));
+//		criticalValues[3]=criticalValues[4]=criticalValues[5]=new Double(StatisticalTests.min(originalData));
+//		return criticalValues;
+//	}
+    static public void printHeader(PrintWriter pw) {
+        String t = "\t";
+        pw.print("optimizedValue" + t + "p" + t + "a" + t);
+        pw.print("transformedE" + t + "transformedSD" + t);
+        pw.print("normality" + t);
+        pw.print("lower(0.00001)" + t + "lower(0.0001)" + t + "lower(0.001)" + t + "lower(0.01)" + t);
+        pw.print("upper(0.01)" + t + "upper(0.001)" + t + "upper(0.0001)" + t + "upper(0.00001)");
+    }
+
+    static public void printlnHeader(PrintWriter pw) {
+        printHeader(pw);
+        pw.println();
     }
 
     private Double[] reverseStandardize(Double[] data) {
@@ -59,15 +97,6 @@ public class PowerTransformation {
     public Double[] getTransformedData() throws SCMDException {
         return transform(bestP, bestA);
     }
-
-//	private void findBestParameter() throws SCMDException{
-//		DownhillSimplexMethod dsm=new DownhillSimplexMethod(this);
-//		dsm.startAmoeba();
-//		double[] bestParam=dsm.getBestParamters();
-//		bestP=bestParam[0];
-//		bestA=bestParam[1];
-//		optimizedValueForTransform=dsm.getBestValue();
-//	}
 
     //いくつかのポイントの中で最適な値を求める。
     private void findBestParameter() throws SCMDException, IOException {
@@ -182,17 +211,6 @@ public class PowerTransformation {
         return cs.getStatistics();
     }
 
-    private static final double up8 = 5.6120;//upper 0.00000001
-    private static final double up7 = 5.1993;//upper 0.0000001
-    private static final double up6 = 4.7534;//upper 0.000001
-    private static final double up5 = 4.2649;//upper 0.00001
-    private static final double up4 = 3.7190;//upper 0.0001
-    private static final double up32 = 3.5401;//upper 0.0002
-    private static final double up35 = 3.2950;//upper 0.0005
-    private static final double up3 = 3.0902;//upper 0.001
-    private static final double up25 = 2.5758;//upper 0.005
-    private static final double up2 = 2.3263;//upper 0.01
-
     public Double[] getOneSidedCriticalValues() throws SCMDException {
         Double[] transformedData = getTransformedData();//***
         //System.err.println("no power transfomation.");
@@ -218,26 +236,6 @@ public class PowerTransformation {
         criticalValues = reverseTransform(criticalValues);//***
         criticalValues = reverseStandardize(criticalValues);//only if standardized -1116
         return criticalValues;
-    }
-
-    //	public Double[] /*MINMAX*/getOneSidedCriticalValues(){
-//		Double[] criticalValues=new Double[6];
-//		criticalValues[0]=criticalValues[1]=criticalValues[2]=new Double(StatisticalTests.max(originalData));
-//		criticalValues[3]=criticalValues[4]=criticalValues[5]=new Double(StatisticalTests.min(originalData));
-//		return criticalValues;
-//	}
-    static public void printHeader(PrintWriter pw) {
-        String t = "\t";
-        pw.print("optimizedValue" + t + "p" + t + "a" + t);
-        pw.print("transformedE" + t + "transformedSD" + t);
-        pw.print("normality" + t);
-        pw.print("lower(0.00001)" + t + "lower(0.0001)" + t + "lower(0.001)" + t + "lower(0.01)" + t);
-        pw.print("upper(0.01)" + t + "upper(0.001)" + t + "upper(0.0001)" + t + "upper(0.00001)");
-    }
-
-    static public void printlnHeader(PrintWriter pw) {
-        printHeader(pw);
-        pw.println();
     }
 
     public void print(PrintWriter pw) throws SCMDException {

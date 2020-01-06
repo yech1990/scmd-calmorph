@@ -10,11 +10,10 @@
 remove background of image
 """
 
-from sys import argv
-
 import cv2
 import numpy as np
 from PIL import Image
+from sys import argv
 
 # Init
 I = Image.open(argv[1])
@@ -54,7 +53,6 @@ for i in range(A):
     a = (Bh[i // W] + Bv[i % W]) / 2
     if D[i] >= a:
         D[i] = Background
-
 
 D = (np.reshape(D, [H, W]) / 3).astype("uint8")
 print(D)

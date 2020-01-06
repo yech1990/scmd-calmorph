@@ -82,7 +82,7 @@ public class StyleAttribute extends XMLAttribute {
         Iterator ni = _attributeNameList.iterator();
         for (; ni.hasNext(); ) {
             String attributeName = (String) ni.next();
-            String attributeValue = (String) _attributeValue.get(attributeName);
+            String attributeValue = _attributeValue.get(attributeName);
             returnString += attributeName + ":" + filter.filter(attributeValue) + "; ";
         }
         if (!returnString.equals("")) {

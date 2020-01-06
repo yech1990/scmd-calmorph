@@ -15,7 +15,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.xerial.util.cui.OptionParser;
-import org.xerial.util.cui.OptionParserException;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -25,10 +24,6 @@ class CalMorph {
     String name, path, outdir, xmldir;
 
     public CalMorph() {
-    }
-
-    enum Opt {
-        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_ASPECTRATIO, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
     }
 
     /**
@@ -134,6 +129,10 @@ class CalMorph {
             System.err.println(e.getMessage());
             _logger.error(e.getMessage());
         }
+    }
+
+    enum Opt {
+        HELP, OUTPUT_DIR_IMAGE_XMLDATA, INPUTDIR, OUTPUTDIR, VERBOSE, IMAGE_ASPECTRATIO, IMAGE_SUFFIX, LOG_CONFIG, STRAIN_NAME, ACTIN, DAPI
     }
 
 }

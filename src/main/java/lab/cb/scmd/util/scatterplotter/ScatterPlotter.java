@@ -46,6 +46,19 @@ public class ScatterPlotter {
     private String[] EXTENSIONS = {"*.txt", "*.xls"};
     private String DELIMITER = ",";
 
+    public static void main(String[] args) {
+        Display display = new Display();
+
+        ScatterPlotter viewer = new ScatterPlotter();
+        Shell shell = viewer.open(display);
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+    }
+
     public Shell open(Display display) {
         this.display = display;
         shell = new Shell(display);
@@ -285,18 +298,5 @@ public class ScatterPlotter {
     private void close() {
         shell.close();
         shell.dispose();
-    }
-
-    public static void main(String[] args) {
-        Display display = new Display();
-
-        ScatterPlotter viewer = new ScatterPlotter();
-        Shell shell = viewer.open(display);
-
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
-        display.dispose();
     }
 }

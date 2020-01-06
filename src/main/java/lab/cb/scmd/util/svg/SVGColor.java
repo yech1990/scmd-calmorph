@@ -13,14 +13,13 @@ package lab.cb.scmd.util.svg;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class SVGColor {
-    private int[] color = {0, 0, 0}; // red, green, blue
-
     static public final int[] WHITE = new int[]{255, 255, 255};
     static public final int[] BLACK = new int[]{0, 0, 0};
     static public final int[] BLUE = new int[]{0, 0, 255};
     static public final int[] GREEN = new int[]{0, 255, 0};
     static public final int[] RED = new int[]{255, 0, 0};
     static public final int[] NONE = new int[]{-1, -1, -1};
+    private int[] color = {0, 0, 0}; // red, green, blue
 
     SVGColor() {
 

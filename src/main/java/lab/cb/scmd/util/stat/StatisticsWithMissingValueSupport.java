@@ -23,6 +23,8 @@ import java.util.HashSet;
  * @author leo
  */
 public class StatisticsWithMissingValueSupport extends Statistics {
+    private HashSet<String> _missingValueSet = new HashSet<>();
+
     /**
      * @param missingValueList 欠損値として扱う文字列のリスト
      */
@@ -42,7 +44,7 @@ public class StatisticsWithMissingValueSupport extends Statistics {
         setMissingValues(missingValueList);
     }
 
-    protected void setMissingValues(String[] missingValueList) {
+    private void setMissingValues(String[] missingValueList) {
         Collections.addAll(_missingValueSet, missingValueList);
     }
 
@@ -56,12 +58,10 @@ public class StatisticsWithMissingValueSupport extends Statistics {
         return isValid && !(isMissingValue(cell));
     }
 
-    protected boolean isMissingValue(Cell cell) {
+    private boolean isMissingValue(Cell cell) {
         String stringValue = cell.toString();
         return _missingValueSet.contains(stringValue);
     }
-
-    HashSet<String> _missingValueSet = new HashSet<>();
 }
 
 

@@ -98,16 +98,16 @@ class CalMorphOption {
         return ratios;
     }
 
+    void setImageAspectRatio(String imageAspectRatio) {
+        this.imageAspectRatio = imageAspectRatio;
+    }
+
     Integer getImageWidth() {
         return getImageAspectRatio().get(0);
     }
 
     Integer getImageHeight() {
         return getImageAspectRatio().get(1);
-    }
-
-    void setImageAspectRatio(String imageAspectRatio) {
-        this.imageAspectRatio = imageAspectRatio;
     }
 
     String getImageSuffix() {

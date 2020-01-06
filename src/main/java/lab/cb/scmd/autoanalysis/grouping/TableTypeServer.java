@@ -19,25 +19,24 @@ import java.util.Objects;
  * @author leo
  */
 class TableElement {
-    public TableElement(String tableTypeName, String fileSuffix) {
+    private String _tableTypeName;
+    private String _fileSuffix;
+    TableElement(String tableTypeName, String fileSuffix) {
         _tableTypeName = tableTypeName;
         _fileSuffix = fileSuffix;
     }
 
-    String _tableTypeName;
-    String _fileSuffix;
-
     /**
      * @return
      */
-    public String getFileSuffix() {
+    String getFileSuffix() {
         return _fileSuffix;
     }
 
     /**
      * @return
      */
-    public String getTableTypeName() {
+    String getTableTypeName() {
         return _tableTypeName;
     }
 
@@ -50,31 +49,17 @@ class TableElement {
  * @author leo
  */
 
-public class TableTypeServer implements TableFileName {
+class TableTypeServer implements TableFileName {
 
-    static public void Initialize() {
-        _instance = new TableTypeServer();
-    }
-
-    static public int getTableType(String tableName) {
-        Integer tableTypeID = _tableNameToTableType.get(tableName);
-        return Objects.requireNonNullElse(tableTypeID, -1);
-    }
-
-    static public int getTypeMax() {
-        return tableElement.length - 1;
-    }
-
-    static public String getTableTypeName(int tableType) {
-        if (tableType >= tableElement.length || tableType < 0)
-            return tableElement[tableElement.length - 1].getTableTypeName();
-        else
-            return tableElement[tableType].getTableTypeName();
-    }
-
-    static public TableElement getTableElement(int tableType) {
-        return tableElement[tableType];
-    }
+    private static final TableElement[] tableElement = {new TableElement("T_ORF", ".xls"),
+            new TableElement("T_CONA_BASIC", "_conA_basic.xls"),
+            new TableElement("T_CONA_BIOLOGICAL", "_conA_biological.xls"),
+            new TableElement("T_ACTIN_BASIC", "_actin_basic.xls"),
+            new TableElement("T_ACTIN_BIOLOGICAL", "_actin_biological.xls"),
+            new TableElement("T_DAPI_BASIC", "_dapi_basic.xls"),
+            new TableElement("T_DAPI_BIOLOGICAL", "_dapi_biological.xls"), new TableElement("T_UNDEFINED", ""),};
+    private static HashMap<String, Integer> _tableNameToTableType = new HashMap<>();
+    static private TableTypeServer _instance = null;
 
     private TableTypeServer() {
         for (int i = 0; i < tableElement.length; i++) {
@@ -82,16 +67,29 @@ public class TableTypeServer implements TableFileName {
         }
     }
 
-    static final TableElement[] tableElement = {new TableElement("T_ORF", ".xls"),
-            new TableElement("T_CONA_BASIC", "_conA_basic.xls"),
-            new TableElement("T_CONA_BIOLOGICAL", "_conA_biological.xls"),
-            new TableElement("T_ACTIN_BASIC", "_actin_basic.xls"),
-            new TableElement("T_ACTIN_BIOLOGICAL", "_actin_biological.xls"),
-            new TableElement("T_DAPI_BASIC", "_dapi_basic.xls"),
-            new TableElement("T_DAPI_BIOLOGICAL", "_dapi_biological.xls"), new TableElement("T_UNDEFINED", ""),};
+    static void Initialize() {
+        _instance = new TableTypeServer();
+    }
 
-    static private TableTypeServer _instance = null;
-    static HashMap<String, Integer> _tableNameToTableType = new HashMap<>();
+    static int getTableType(String tableName) {
+        Integer tableTypeID = _tableNameToTableType.get(tableName);
+        return Objects.requireNonNullElse(tableTypeID, -1);
+    }
+
+    static int getTypeMax() {
+        return tableElement.length - 1;
+    }
+
+    static String getTableTypeName(int tableType) {
+        if (tableType >= tableElement.length || tableType < 0)
+            return tableElement[tableElement.length - 1].getTableTypeName();
+        else
+            return tableElement[tableType].getTableTypeName();
+    }
+
+    static TableElement getTableElement(int tableType) {
+        return tableElement[tableType];
+    }
 }
 
 //--------------------------------------

@@ -27,6 +27,20 @@ public class XMLOutputter {
     /**
      * デフォルトでは、standard outに出力
      */
+    protected PrintWriter _out;
+    private String L_BRACE = "<";
+    private String R_BRACE = ">";
+    private String ENDTAG_MARK = "/";
+    protected boolean _isRootTag = true;
+    private Stack _tagNameStack = new Stack();
+    private boolean _previousIsTag = false;
+    private boolean _previousIsTextContent = false;
+    String _DTDFile = null;
+    private boolean _omitHeader = false;
+    private DTDDeclaration _dtdDeclaration = null;
+    private TextContentFilter _contentFilter = new HTMLFilter();
+
+
     /**
      *
      */
@@ -45,17 +59,15 @@ public class XMLOutputter {
         _out = new PrintWriter(writer);
     }
 
-
     public void omitHeader() {
         _omitHeader = true;
     }
-
 
     public void setDTDDeclaration(DTDDeclaration dtdDeclaration) {
         _dtdDeclaration = dtdDeclaration;
     }
 
-    public void setOutputStream(OutputStream outputStream) {
+    private void setOutputStream(OutputStream outputStream) {
         _out = new PrintWriter(outputStream);
     }
 
@@ -76,7 +88,7 @@ public class XMLOutputter {
         }
     }
 
-    protected void startTagInit(String startTag) {
+    private void startTagInit(String startTag) {
         if (_isRootTag) {
             header();
             outputDTD(startTag);
@@ -90,7 +102,7 @@ public class XMLOutputter {
             indent();
     }
 
-    public XMLOutputter startTag(String tagName) {
+    protected XMLOutputter startTag(String tagName) {
         startTagInit(tagName);
 
         _out.print(L_BRACE + tagName + R_BRACE);
@@ -114,13 +126,12 @@ public class XMLOutputter {
         return this;
     }
 
-
     /**
      * @param tagName
      * @param attributes
      * @return
      */
-    public XMLOutputter startTag(String tagName, XMLAttribute attributes) {
+    protected XMLOutputter startTag(String tagName, XMLAttribute attributes) {
         startTagInit(tagName);
 
         _out.print(L_BRACE + tagName);
@@ -143,7 +154,7 @@ public class XMLOutputter {
         return this;
     }
 
-    public XMLOutputter selfCloseTag(String tagName, XMLAttribute attributes) {
+    protected XMLOutputter selfCloseTag(String tagName, XMLAttribute attributes) {
         startTagInit(tagName);
         _out.print(L_BRACE + tagName + " " + attributes.toString(_contentFilter) + ENDTAG_MARK + R_BRACE);
         linefeed();
@@ -161,7 +172,7 @@ public class XMLOutputter {
         return this;
     }
 
-    public XMLOutputter closeTag() throws InvalidXMLException {
+    protected XMLOutputter closeTag() throws InvalidXMLException {
         if (_tagNameStack.empty())
             throw new InvalidXMLException("too many closeTag invokation");
         String closedTagName = (String) _tagNameStack.pop();
@@ -179,7 +190,7 @@ public class XMLOutputter {
         return this;
     }
 
-    public XMLOutputter textContent(String elementContent) throws InvalidXMLException {
+    private XMLOutputter textContent(String elementContent) throws InvalidXMLException {
         boolean isLongContent = elementContent.length() > 40;
         if (_previousIsTag && isLongContent) {
             linefeed();
@@ -201,7 +212,6 @@ public class XMLOutputter {
         _out.print(XMLUtil.createCDATA(cdataContent));
         return this;
     }
-
 
     public XMLOutputter PI(String target, String content) {
         _out.print("<?");
@@ -226,34 +236,19 @@ public class XMLOutputter {
         _out.close();
     }
 
-    void indent() {
+    private void indent() {
         int depth = _tagNameStack.size();
         for (int i = 0; i < depth * 2; i++)
             _out.print(" ");
     }
 
-    void linefeed() {
+    private void linefeed() {
         _out.println();
     }
 
     public void setContentFilter(TextContentFilter filter) {
         _contentFilter = filter;
     }
-
-    protected PrintWriter _out;
-    Stack _tagNameStack = new Stack();
-    boolean _previousIsTag = false;
-    boolean _previousIsTextContent = false;
-    protected String L_BRACE = "<";
-    protected String R_BRACE = ">";
-    protected String ENDTAG_MARK = "/";
-    String _DTDFile = null;
-    protected boolean _isRootTag = true;
-    boolean _omitHeader = false;
-
-    DTDDeclaration _dtdDeclaration = null;
-
-    TextContentFilter _contentFilter = new HTMLFilter();
 }
 
 //--------------------------------------

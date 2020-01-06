@@ -16,12 +16,22 @@ import java.util.*;
 
 public class BasicTable implements Table {
 
-    protected void setColLabel(AbstractCollection labelList) {
+    String _tableName = "";
+    Vector<Vector> _rows = new Vector<>();
+    int _colSize = 0;
+    private Vector<String> _colLabel = new Vector<>();
+    Vector<String> _rowLabel = new Vector<>();
+    private HashMap<String, Integer> _colLabelToColIndexMap = new HashMap<>();
+    HashMap<String, Integer> _rowLabelToRowIndexMap = new HashMap<>();
+    private boolean _hasRowLabel = false;
+    String DELIMITER = "\t";
+
+    void setColLabel(AbstractCollection labelList) {
         Object[] labelArray = labelList.toArray();
         setColLabel(labelArray);
     }
 
-    protected void setColLabel(Object[] labelArray) {
+    void setColLabel(Object[] labelArray) {
         _colSize = labelArray.length;
         for (int i = 0; i < _colSize; i++) {
             String colLabel = (String) labelArray[i];
@@ -34,12 +44,12 @@ public class BasicTable implements Table {
         return _colLabel.get(n);
     }
 
-    protected void setRowLabel(AbstractCollection labelList) {
+    void setRowLabel(AbstractCollection labelList) {
         Object[] labelArray = labelList.toArray();
         setRowLabel(labelArray);
     }
 
-    protected void setRowLabel(Object[] labelArray) {
+    private void setRowLabel(Object[] labelArray) {
         for (int i = 0; i < _rows.size(); i++) {
             String rowLabel = (String) labelArray[i];
             _rowLabelToRowIndexMap.put(rowLabel, i);
@@ -103,7 +113,7 @@ public class BasicTable implements Table {
         }
     }
 
-    protected boolean isValidCoordinates(int row, int col) {
+    private boolean isValidCoordinates(int row, int col) {
         return row >= 0 && row < _rows.size() && col >= 0 && col < _colSize;
     }
 
@@ -115,8 +125,7 @@ public class BasicTable implements Table {
         return _rowLabel;
     }
 
-
-    public TableIterator getHorisontalIterator(int rowIndex) {
+    private TableIterator getHorisontalIterator(int rowIndex) {
         return new HorisontalTableRangeIterator(this, rowIndex);
     }
 
@@ -182,30 +191,19 @@ public class BasicTable implements Table {
     /*
      *
      */
-    public String setTableName(String tableName) {
+    String setTableName(String tableName) {
         String oldName = _tableName;
         _tableName = tableName;
         return oldName;
     }
 
-    public boolean hasRowLabel() {
+    boolean hasRowLabel() {
         return _hasRowLabel;
     }
 
-    protected void setHasRowLabel(boolean flag) {
+    void setHasRowLabel(boolean flag) {
         _hasRowLabel = flag;
     }
-
-    String _tableName = "";
-    Vector<Vector> _rows = new Vector<>();
-    int _colSize = 0;
-    Vector<String> _colLabel = new Vector<>();
-    Vector<String> _rowLabel = new Vector<>();
-    HashMap<String, Integer> _colLabelToColIndexMap = new HashMap<>();
-    HashMap<String, Integer> _rowLabelToRowIndexMap = new HashMap<>();
-    boolean _hasRowLabel = false;
-
-    String DELIMITER = "\t";
 
     /*
      * (non-Javadoc)

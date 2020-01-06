@@ -14,6 +14,12 @@ package lab.cb.scmd.util.table;
  * @author leo
  */
 public class VerticalTableRangeIterator implements TableIterator {
+    private Table _table;
+    private int _rowCursor;
+    private int _colIndex;
+    private int _rowIndexBegin;
+    private int _rowIndexEnd;
+
     VerticalTableRangeIterator(Table table, int colIndex) {
         _table = table;
         _colIndex = colIndex;
@@ -30,7 +36,6 @@ public class VerticalTableRangeIterator implements TableIterator {
         _rowIndexEnd = rowIndexEnd - 1;
     }
 
-
     /* (non-Javadoc)
      * @see lab.cb.scmd.util.table.TableIterator#hasNext()
      */
@@ -38,14 +43,12 @@ public class VerticalTableRangeIterator implements TableIterator {
         return _rowCursor < _rowIndexEnd;
     }
 
-
     /* (non-Javadoc)
      * @see lab.cb.scmd.util.table.TableIterator#next()
      */
     public Cell nextCell() {
         return _table.getCell(++_rowCursor, _colIndex);
     }
-
 
     /* (non-Javadoc)
      * @see java.lang.Object#clone()
@@ -65,14 +68,6 @@ public class VerticalTableRangeIterator implements TableIterator {
     public int col() {
         return _colIndex;
     }
-
-
-    Table _table;
-    int _rowCursor;
-
-    int _colIndex;
-    int _rowIndexBegin;
-    int _rowIndexEnd;
 
     public void remove() {
         throw new UnsupportedOperationException();

@@ -14,6 +14,12 @@ package lab.cb.scmd.util.table;
  * @author leo
  */
 public class HorisontalTableRangeIterator implements TableIterator {
+    private int _colCursor;
+    private Table _table;
+    private int _rowIndex;
+    private int _colIndexBegin;
+    private int _colIndexEnd;
+
     /**
      * 一行をフルにトレースするItratorを作成
      *
@@ -27,7 +33,6 @@ public class HorisontalTableRangeIterator implements TableIterator {
         _colIndexBegin = 0;
         _colIndexEnd = table.getColSize() - 1;
     }
-
     /**
      * 一行の特定の範囲内を動くIterator
      *
@@ -58,7 +63,6 @@ public class HorisontalTableRangeIterator implements TableIterator {
         return _table.getCell(_rowIndex, ++_colCursor);
     }
 
-
     public Object clone() {
         HorisontalTableRangeIterator it =
                 new HorisontalTableRangeIterator(_table, _rowIndex);
@@ -67,12 +71,6 @@ public class HorisontalTableRangeIterator implements TableIterator {
         it._colIndexEnd = this._colIndexEnd;
         return it;
     }
-
-    int _colCursor;
-    Table _table;
-    int _rowIndex;
-    int _colIndexBegin;
-    int _colIndexEnd;
 
     /* (non-Javadoc)
      * @see java.util.Iterator#remove()

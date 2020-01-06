@@ -15,6 +15,11 @@ package lab.cb.scmd.util.table;
  * @author leo
  */
 public class Cell {
+    private String _value = "";
+    private double _dvalue = Double.NaN;
+    private boolean _haveTriedToTransformToDouble = false;
+
+
     public Cell() {
         setValue("");
     }
@@ -26,7 +31,6 @@ public class Cell {
     public Cell(Double dvalue) {
         setValue(dvalue);
     }
-
 
     public boolean equals(Cell other) {
         return this.toString().equals(other.toString());
@@ -66,7 +70,7 @@ public class Cell {
         return _value;
     }
 
-    double transformToDouble() {
+    private double transformToDouble() {
         try {
             if (!_haveTriedToTransformToDouble) {
                 _haveTriedToTransformToDouble = true;
@@ -77,10 +81,6 @@ public class Cell {
         }
         return _dvalue;
     }
-
-    String _value = "";
-    double _dvalue = Double.NaN;
-    boolean _haveTriedToTransformToDouble = false;
 
 }
 

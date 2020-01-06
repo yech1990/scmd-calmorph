@@ -13,11 +13,8 @@ package lab.cb.scmd.util.analysis.clique.graph;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class VertexDescriptor {
-    Integer id; /* enumerate vertex */
-    String name;
-
-    public static void main(String[] args) {
-    }
+    private Integer id; /* enumerate vertex */
+    private String name;
 
     public VertexDescriptor() {
     }
@@ -32,20 +29,23 @@ public class VertexDescriptor {
         setName(str);
     }
 
-    public void setId(Integer i) {
-        id = i;
+    public static void main(String[] args) {
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setName(String str) {
-        name = str;
+    public void setId(Integer i) {
+        id = i;
     }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String str) {
+        name = str;
     }
 
 }

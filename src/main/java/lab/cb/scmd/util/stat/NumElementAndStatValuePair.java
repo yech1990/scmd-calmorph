@@ -17,14 +17,12 @@ package lab.cb.scmd.util.stat;
  */
 public class NumElementAndStatValuePair {
 
-    public NumElementAndStatValuePair(int numElement_, double value_) {
+    private int numElement;
+    public double value;
+    NumElementAndStatValuePair(int numElement_, double value_) {
         numElement = numElement_;
         value = value_;
     }
-
-
-    public int numElement;
-    public double value;
 
     /**
      * @return Returns the numElement.
