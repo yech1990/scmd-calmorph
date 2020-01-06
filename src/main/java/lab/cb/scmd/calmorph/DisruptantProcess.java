@@ -167,7 +167,7 @@ class DisruptantProcess {
     /**
      * FILENAME_conA_basic.xls
      *
-     * @param pw
+     * @param pw printerWriter object for writing
      */
     public void setXLSHeaderBaseC(PrintWriter pw) {
         String[] headerBaseC = {
@@ -201,7 +201,7 @@ class DisruptantProcess {
     /**
      * FILENAME_conA_biological.xls
      *
-     * @param pw
+     * @param pw printerWriter object for writing
      */
     public void setXLSHeaderExpandC(PrintWriter pw) {
         pw.print("image_number\tcell_id\tCgroup\t");
@@ -213,7 +213,7 @@ class DisruptantProcess {
     /**
      * FILENAME_dapi_basic.xls
      *
-     * @param pw
+     * @param pw printerWriter object for writing
      */
     public void setXLSHeaderBaseD(PrintWriter pw) {
         String[] headerBaseD = {
@@ -334,8 +334,8 @@ class DisruptantProcess {
                 "A122",
                 "A123"
         };
-        for (int i = 0; i < headerExpandA.length; i++) {
-            pw.print(headerExpandA[i] + "\t");
+        for (String s : headerExpandA) {
+            pw.print(s + "\t");
         }
         pw.println();
     }

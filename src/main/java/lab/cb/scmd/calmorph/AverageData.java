@@ -16,7 +16,9 @@ import java.io.PrintWriter;
 import java.util.Vector;
 
 class AverageData {
-    private Vector Cgroup, Agroup, Dgroup;
+    private Vector<String> Cgroup;
+    private Vector<String> Agroup;
+    private Vector<String> Dgroup;
     private Vector[] versparam;
     private double[] versparammean;
     private Vector[] Cparam;
@@ -39,9 +41,9 @@ class AverageData {
     private String DAPIFILE = "dapi";
 
     AverageData(String name, String outdir) {
-        Cgroup = new Vector();
-        Dgroup = new Vector();
-        Agroup = new Vector();
+        Cgroup = new Vector<>();
+        Dgroup = new Vector<>();
+        Agroup = new Vector<>();
         versparam = new Vector[26];
         for (int i = 0; i < versparam.length; i++) {
             versparam[i] = new Vector();
@@ -117,30 +119,25 @@ class AverageData {
             for (int i = 0; i < 8; i++) {
                 pw.print(versparammean[i] + "\t");
             }
-            pw.print((double) countCgroup[1] / Ctotal + "\t");
-            pw.print((double) countCgroup[2] / Ctotal + "\t");
-            pw.print((double) countCgroup[3] / Ctotal + "\t");
-            pw.print((double) countCgroup[4] / Ctotal + "\t");
+            // 1 2 3 4
+            for (int i = 1; i <= 4; i++) {
+                pw.print((double) countCgroup[i] / Ctotal + "\t");
+            }
             for (int i = 8; i < 12; i++) {
                 pw.print(versparammean[i] + "\t");
             }
-            pw.print((double) countAgroup[1] / Ctotal + "\t");
-            pw.print((double) countAgroup[2] / Ctotal + "\t");
-            pw.print((double) countAgroup[3] / Ctotal + "\t");
-            pw.print((double) countAgroup[4] / Ctotal + "\t");
-            pw.print((double) countAgroup[5] / Ctotal + "\t");
-            pw.print((double) countAgroup[6] / Ctotal + "\t");
-            pw.print((double) countAgroup[7] / Ctotal + "\t");
+            // 1 2 3 4 5 6 7
+            for (int i = 1; i <= 7; i++) {
+                pw.print((double) countAgroup[i] / Ctotal + "\t");
+            }
             for (int i = 12; i < 26; i++) {
                 pw.print(versparammean[i] + "\t");
             }
-            pw.print((double) countDgroup[1] / Ctotal + "\t");
-            pw.print((double) countDgroup[2] / Ctotal + "\t");
-            pw.print((double) countDgroup[3] / Ctotal + "\t");
-            pw.print((double) countDgroup[4] / Ctotal + "\t");
-            pw.print((double) countDgroup[5] / Ctotal + "\t");
-            pw.print((double) countDgroup[6] / Ctotal + "\t");
-            pw.println((double) countDgroup[7] / Ctotal + "\t");
+            // 1 2 3 4 5 6 7
+            for (int i = 1; i <= 7; i++) {
+                pw.print((double) countDgroup[i] / Ctotal + "\t");
+            }
+            pw.println();
             pw.flush();
             pw.close();
 
@@ -148,8 +145,9 @@ class AverageData {
                 pw = new PrintWriter(new BufferedWriter(new FileWriter(outdir
                         + "/" + CONAFILE + SUMMARYFILE + DATAFILESUFFIX, true)));
                 pw.print(name + "\t");
-                for (int i = 0; i < 23; i++)
+                for (int i = 0; i < 23; i++) {
                     pw.print(Cparammean[i] + "\t");
+                }
                 pw.print((double) countCgroup[1] / Ctotal + "\t");
                 pw.print((double) countCgroup[2] / Ctotal + "\t");
                 pw.print((double) countCgroup[3] / Ctotal + "\t");
@@ -157,8 +155,9 @@ class AverageData {
                 pw.print((double) countCgroup[2] / Ctotal_budded + "\t");
                 pw.print((double) countCgroup[3] / Ctotal_budded + "\t");
                 pw.print((double) countCgroup[4] / Ctotal_budded + "\t");
-                for (int i = 23; i < 26; i++)
+                for (int i = 23; i < 26; i++) {
                     pw.print(Cparammean[i] + "\t");
+                }
                 pw.println();
                 pw.flush();
                 pw.close();
@@ -167,8 +166,9 @@ class AverageData {
                     pw = new PrintWriter(new BufferedWriter(new FileWriter(
                             outdir + "/" + ACTINFILE + SUMMARYFILE + DATAFILESUFFIX, true)));
                     pw.print(name + "\t");
-                    for (int i = 0; i < 9; i++)
+                    for (int i = 0; i < 9; i++) {
                         pw.print(Aparammean[i] + "\t");
+                    }
                     pw.print((double) countAgroup[1] / Ctotal + "\t");
                     pw.print((double) countAgroup[2] / Ctotal + "\t");
                     pw.print((double) countAgroup[3] / Ctotal + "\t");
@@ -187,8 +187,9 @@ class AverageData {
                     pw.print((double) countAgroup[4] / Atotal_budded + "\t");
                     pw.print((double) countAgroup[5] / Atotal_budded + "\t");
                     pw.print((double) countAgroup[6] / Atotal_budded + "\t");
-                    for (int i = 9; i < 13; i++)
+                    for (int i = 9; i < 13; i++) {
                         pw.print(Aparammean[i] + "\t");
+                    }
                     pw.println();
                     pw.flush();
                     pw.close();
@@ -197,8 +198,9 @@ class AverageData {
                     pw = new PrintWriter(new BufferedWriter(new FileWriter(
                             outdir + "/" + DAPIFILE + SUMMARYFILE + DATAFILESUFFIX, true)));
                     pw.print(name + "\t");
-                    for (int i = 0; i < 110; i++)
+                    for (int i = 0; i < 110; i++) {
                         pw.print(Dparammean[i] + "\t");
+                    }
                     pw.print((double) countDgroup[1] / Ctotal + "\t");
                     pw.print((double) countDgroup[2] / Ctotal + "\t");
                     pw.print((double) countDgroup[3] / Ctotal + "\t");

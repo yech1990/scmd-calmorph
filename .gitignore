@@ -1,6 +1,9 @@
 target/
 data/
 test/zzz_out/
+test/zzz_xml/
+test/sss_out/
+test/sss_xml/
 
 # User-specific stuff
 .idea/workspace.xml
