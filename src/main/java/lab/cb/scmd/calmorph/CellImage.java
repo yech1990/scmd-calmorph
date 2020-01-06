@@ -50,18 +50,21 @@ class CellImage {
     private int objectload;                                      //How to retrieve the saved object
     private int maxdiff;
     private boolean flag_tmp;
+    private final double darkenBackground;                      //set bellow x% into zero
 
     /**
-     * @param name    name of yeast strain
-     * @param path    directory of input images
-     * @param suffix  suffix/format of input images
-     * @param number  number of the input image file name
-     * @param outdir  directory for output images/report
-     * @param startid start number of the input image file name
-     * @param calD    whether to calculate DAPI
-     * @param calA    whether to calculate Actin
+     * @param name             name of yeast strain
+     * @param path             directory of input images
+     * @param suffix           suffix/format of input images
+     * @param number           number of the input image file name
+     * @param outdir           directory for output images/report
+     * @param startid          start number of the input image file name
+     * @param calD             whether to calculate DAPI
+     * @param calA             whether to calculate Actin
+     * @param darkenBackground
      */
-    CellImage(String name, String path, String suffix, int width, int height, int number, String outdir, int startid, boolean calD, boolean calA) {
+    CellImage(String name, String path, String suffix, int width, int height, int number, String outdir, int startid,
+              boolean calD, boolean calA, double darkenBackground) {
         _width = width;            //Fixed for the time being (2040)
         _height = height;          //Fixed for the time being (2040)
         _size = _width * _height; //Fixed for the time being
@@ -74,12 +77,13 @@ class CellImage {
         this.startid = startid;
         this.calD = calD;
         this.calA = calA;
+        this.darkenBackground = darkenBackground;
         err = false;
         err_kind = "";
         BufferedImage bi;
         DataBuffer db = null;
 
-        _logger.debug("process a photo: " + number);
+        _logger.info("process a set of photos for field: " + number);
 
         String prefix = path + File.separator + new File(path).getName();
         //String prefix = path;
@@ -335,8 +339,9 @@ class CellImage {
             if (suffix.equals("tif")) {
                 BufferedImage input = ImageIO.read(new File(filename));
                 short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
-                double lowerBound = 0.001; // in python: 0.800
                 double upperBound = 0.999; // in python: 0.999
+                double lowerBound = 0.001; // in python: 0.8
+                lowerBound += (upperBound - lowerBound) * darkenBackground;
                 short[] per = percentiles(pixels, lowerBound, upperBound);
                 short min = per[0];
                 short max = per[1];
