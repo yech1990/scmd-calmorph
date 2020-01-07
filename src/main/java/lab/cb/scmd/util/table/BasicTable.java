@@ -19,12 +19,12 @@ public class BasicTable implements Table {
     String _tableName = "";
     Vector<Vector> _rows = new Vector<>();
     int _colSize = 0;
-    private Vector<String> _colLabel = new Vector<>();
     Vector<String> _rowLabel = new Vector<>();
-    private HashMap<String, Integer> _colLabelToColIndexMap = new HashMap<>();
     HashMap<String, Integer> _rowLabelToRowIndexMap = new HashMap<>();
-    private boolean _hasRowLabel = false;
     String DELIMITER = "\t";
+    private Vector<String> _colLabel = new Vector<>();
+    private HashMap<String, Integer> _colLabelToColIndexMap = new HashMap<>();
+    private boolean _hasRowLabel = false;
 
     void setColLabel(AbstractCollection labelList) {
         Object[] labelArray = labelList.toArray();

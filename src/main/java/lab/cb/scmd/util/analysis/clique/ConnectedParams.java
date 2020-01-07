@@ -13,7 +13,7 @@ import java.util.Iterator;
  */
 public class ConnectedParams {
     String name = "";
-    HashSet<ConnectedParams> connections = new HashSet<ConnectedParams>();
+    HashSet<ConnectedParams> connections = new HashSet<>();
 
     public ConnectedParams(String name) {
         this.name = name;
@@ -32,9 +32,7 @@ public class ConnectedParams {
     }
 
     public boolean contains(String name) {
-        Iterator<ConnectedParams> it = connections.iterator();
-        while (it.hasNext()) {
-            ConnectedParams conn = it.next();
+        for (ConnectedParams conn : connections) {
             if (conn.getName().equals(name)) {
                 return true;
             }

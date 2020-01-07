@@ -34,7 +34,7 @@ public class PowerTransformation {
     double originalSD;
     Double[] originalData;
 
-//	private void findBestParameter() throws SCMDException{
+    //	private void findBestParameter() throws SCMDException{
 //		DownhillSimplexMethod dsm=new DownhillSimplexMethod(this);
 //		dsm.startAmoeba();
 //		double[] bestParam=dsm.getBestParamters();

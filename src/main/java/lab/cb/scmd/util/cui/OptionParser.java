@@ -13,7 +13,6 @@ package lab.cb.scmd.util.cui;
 import lab.cb.scmd.exception.SCMDException;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
@@ -189,10 +188,10 @@ public class OptionParser {
     }
 
     private Option findOption(int optionID) {
-        OptionComposite opt = _optionMap.get(optionID);
+        Option opt = _optionMap.get(optionID);
         if (opt == null)
             return null;
-        return (Option) opt;
+        return opt;
     }
 }
 

@@ -70,7 +70,7 @@ public class AppendableTable extends BasicTable {
             }
 
             // read data
-            LinkedList<String> rowLabelList = new LinkedList<String>();
+            LinkedList<String> rowLabelList = new LinkedList<>();
             while ((line = fileReader.readLine()) != null) {
                 if (!columnSizeFlag) {
                     _colSize = line.split(DELIMITER).length;

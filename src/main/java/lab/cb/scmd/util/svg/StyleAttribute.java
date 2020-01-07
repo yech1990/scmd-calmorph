@@ -78,18 +78,18 @@ public class StyleAttribute extends XMLAttribute {
     }
 
     public String toString(TextContentFilter filter) {
-        String returnString = "";
+        StringBuilder returnString = new StringBuilder();
         Iterator ni = _attributeNameList.iterator();
         for (; ni.hasNext(); ) {
             String attributeName = (String) ni.next();
             String attributeValue = _attributeValue.get(attributeName);
-            returnString += attributeName + ":" + filter.filter(attributeValue) + "; ";
+            returnString.append(attributeName).append(":").append(filter.filter(attributeValue)).append("; ");
         }
-        if (!returnString.equals("")) {
+        if (!returnString.toString().equals("")) {
             // remove the unnecessary white space
             return returnString.substring(0, returnString.length() - 1);
         } else
-            return returnString;
+            return returnString.toString();
     }
 
 }

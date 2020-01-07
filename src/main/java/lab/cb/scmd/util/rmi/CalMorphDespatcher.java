@@ -32,7 +32,7 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
             System.exit(1);
         if (System.getSecurityManager() == null) {
             // セキュリティマネージャーの設定
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
         }
         try {
             // サーバー側のリモートオブジェクトを生成
@@ -59,11 +59,11 @@ public class CalMorphDespatcher extends UnicastRemoteObject implements
             System.exit(1);
         }
         File[] file = baseDir.listFiles();
-        for (int i = 0; i < file.length; i++) {
-            if (!file[i].isDirectory())
+        for (File value : file) {
+            if (!value.isDirectory())
                 continue; // skip non directory files
 
-            String orfName = file[i].getName();
+            String orfName = value.getName();
             inputORFList.add(orfName);
         }
         System.out.println("ORF size:" + inputORFList.size());

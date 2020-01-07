@@ -24,9 +24,9 @@ import org.eclipse.swt.widgets.Composite;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class AxisCombo {
-    Combo axisCombo;
+    private Combo axisCombo;
 
-    public AxisCombo(Composite comp, int flag) {
+    AxisCombo(Composite comp, int flag) {
         axisCombo = new Combo(comp, flag);
         axisCombo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -37,7 +37,7 @@ public class AxisCombo {
     /**
      * @param table
      */
-    public void setColNames(FlatTable table, int selectPos) {
+    void setColNames(FlatTable table, int selectPos) {
         int colsize = table.getColSize();
         axisCombo.removeAll();
         for (int i = 0; i < colsize; i++) {
@@ -56,18 +56,18 @@ public class AxisCombo {
     /**
      * @param i
      */
-    public void select(int i) {
+    void select(int i) {
         axisCombo.select(i);
     }
 
     /**
      * @param xaxisGrid
      */
-    public void setLayoutData(GridData xaxisGrid) {
+    void setLayoutData(GridData xaxisGrid) {
         axisCombo.setLayoutData(xaxisGrid);
     }
 
-    public int getSelectionIndex() {
+    int getSelectionIndex() {
         return axisCombo.getSelectionIndex();
     }
 }

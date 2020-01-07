@@ -30,16 +30,16 @@ import java.io.PrintStream;
 public class CountNumCells {
 
     // option IDs
-    final static int OPT_HELP = 0;
-    final static int OPT_VERBOSE = 1;
-    final static int OPT_BASEDIR = 2;
-    final static int OPT_OUTFILE = 3;
-    OptionParser _parser = new OptionParser();
-    PrintStream _log = new NullPrintStream();
-    String _baseDirName = ".";
-    String _outputFileName = "cellNum.xls";
+    private final static int OPT_HELP = 0;
+    private final static int OPT_VERBOSE = 1;
+    private final static int OPT_BASEDIR = 2;
+    private final static int OPT_OUTFILE = 3;
+    private OptionParser _parser = new OptionParser();
+    private PrintStream _log = new NullPrintStream();
+    private String _baseDirName = ".";
+    private String _outputFileName = "cellNum.xls";
 
-    public CountNumCells() {
+    private CountNumCells() {
 
     }
 
@@ -54,7 +54,7 @@ public class CountNumCells {
 
     }
 
-    public void loopForEachDirectory() throws SCMDException, IOException {
+    private void loopForEachDirectory() throws SCMDException, IOException {
         StopWatch globalTime = new StopWatch();
 
         File inputDir = new File(_baseDirName);
@@ -96,7 +96,7 @@ public class CountNumCells {
         globalTime.showElapsedTime(_log);
     }
 
-    int calc_count(String inputTableFile) throws SCMDException {
+    private int calc_count(String inputTableFile) throws SCMDException {
         CalMorphTable table = new CalMorphTable(inputTableFile);
         int cgroupIdx = table.getColIndex("Cgroup");
         int numcount = 0;
@@ -108,7 +108,7 @@ public class CountNumCells {
         return numcount;
     }
 
-    void setupOptionParser() throws SCMDException {
+    private void setupOptionParser() throws SCMDException {
         _parser.setOption(new Option(OPT_HELP, "h", "help", "diaplay help message"));
         _parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
         _parser.setOption(new OptionWithArgument(OPT_BASEDIR, "b", "basedir", "DIR",
@@ -116,7 +116,7 @@ public class CountNumCells {
         _parser.setOption(new OptionWithArgument(OPT_OUTFILE, "o", "output", "FILE", "set output file (default = cellNum.xls)"));
     }
 
-    public void setupByArguments(String[] args) throws SCMDException {
+    private void setupByArguments(String[] args) throws SCMDException {
         setupOptionParser();
         _parser.getContext(args);
         if (_parser.isSet(OPT_HELP))
@@ -131,7 +131,7 @@ public class CountNumCells {
         }
     }
 
-    void printUsage() {
+    private void printUsage() {
         System.out.println("Usage: > java -jar CountNumCells.jar [options] orf_directory");
         System.out.println(_parser.createHelpMessage());
         System.exit(0);

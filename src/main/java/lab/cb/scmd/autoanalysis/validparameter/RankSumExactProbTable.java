@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 
 class RankSumExactProbTable {
-    private HashMap<Integer, HashMap<Object, ArrayList<Double>>> tableList = new HashMap<Integer, HashMap<Object, ArrayList<Double>>>();
+    private HashMap<Integer, HashMap<Object, ArrayList<Double>>> tableList = new HashMap<>();
 
     RankSumExactProbTable() {
     }

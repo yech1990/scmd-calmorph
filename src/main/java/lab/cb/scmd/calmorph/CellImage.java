@@ -35,6 +35,7 @@ class CellImage {
     private static final String _cell_wall = "cell_wall";
     private static final String _nucleus = "nucleus";
     private static final String _actin = "actin";
+    private final double darkenBackground;                      //set bellow x% into zero
     Cell[] cell;                                                 //cells in the image
     boolean err, calD, calA;                                     //Whether err has occurred, whether to process DAPI images or actin images
     String err_kind;
@@ -50,7 +51,6 @@ class CellImage {
     private int objectload;                                      //How to retrieve the saved object
     private int maxdiff;
     private boolean flag_tmp;
-    private final double darkenBackground;                      //set bellow x% into zero
 
     /**
      * @param name             name of yeast strain
@@ -1875,7 +1875,7 @@ class CellImage {
     //////////////////////////////////////////////////////////////////////////////
     //Returns a Vector containing the bud area pixels
     //////////////////////////////////////////////////////////////////////////////
-    private Vector<Integer> getAreainBud(int c, Vector n, Vector m, Vector b) {
+    private Vector<Integer> getAreainBud(int c, Vector<Integer> n, Vector m, Vector b) {
         int top = _height, bottom = 0, left = _width, right = 0;//coverする長方形
         for (Object o1 : m) {
             int p = (Integer) o1;
@@ -1891,8 +1891,8 @@ class CellImage {
             if (left > p % _width) left = p % _width;
             if (right < p % _width) right = p % _width;
         }
-        for (Object element : n) {
-            int p = (Integer) element;
+        for (Integer element : n) {
+            int p = element;
             if (top > p / _width) top = p / _width;
             if (bottom < p / _width) bottom = p / _width;
             if (left > p % _width) left = p % _width;
@@ -1914,8 +1914,8 @@ class CellImage {
             int y = p / _width - top;
             greytemp[y * wid + x + 1 + wid] = 0;//小さいほうの座標
         }
-        for (Object value : n) {
-            int p = (Integer) value;
+        for (Integer value : n) {
+            int p = value;
             int x = p % _width - left;
             int y = p / _width - top;
             greytemp[y * wid + x + 1 + wid] = 0;//小さいほうの座標
@@ -2565,8 +2565,8 @@ class CellImage {
                 int s = 0;
                 int pointx = 0;
                 int pointy = 0;
-                for (Object o : bpoint) {
-                    int pconA = (Integer) o + Ddiff;
+                for (Integer o : bpoint) {
+                    int pconA = o + Ddiff;
                     pointx += pconA % _width;
                     pointy += pconA / _width;
                     s++;
@@ -2608,8 +2608,8 @@ class CellImage {
                     int s = 0;
                     int pointx = 0;
                     int pointy = 0;
-                    for (Object o : bpoint1) {
-                        int pconA = (Integer) o + Ddiff;
+                    for (Integer o : bpoint1) {
+                        int pconA = o + Ddiff;
                         pointx += pconA % _width;
                         pointy += pconA / _width;
                         s++;
@@ -2627,8 +2627,8 @@ class CellImage {
                     int s = 0;
                     int pointx = 0;
                     int pointy = 0;
-                    for (Object o : bpoint2) {
-                        int pconA = (Integer) o + Ddiff;
+                    for (Integer o : bpoint2) {
+                        int pconA = o + Ddiff;
                         pointx += pconA % _width;
                         pointy += pconA / _width;
                         s++;
@@ -2648,8 +2648,8 @@ class CellImage {
         for (Cell cell6 : cell) cell6.Dmaxbright = new Vector();
         for (Cell cell5 : cell) cell5.DmaxbrightB = new Vector();
 
-        for (Object o2 : MafterB) {
-            int i = (Integer) o2;
+        for (Integer o2 : MafterB) {
+            int i = o2;
             if (pixeltocell[mpoint[i]] >= 0) {
                 cell[pixeltocell[mpoint[i]]].Dbrightpoint.add(new Point(brightpoint[i] % _width, brightpoint[i] / _width));
                 cell[pixeltocell[mpoint[i]]].Dmaxbright.add(_nucleus_points[brightpoint[i]]);
@@ -2670,8 +2670,8 @@ class CellImage {
         for (Cell cell3 : cell) cell3.Dtotalbright = new Vector();
         for (Cell cell2 : cell) cell2.DcoverB = new Vector();
         for (Cell cell1 : cell) cell1.DtotalbrightB = new Vector();
-        for (Object o1 : MafterB) {
-            int i = (Integer) o1;
+        for (Integer o1 : MafterB) {
+            int i = o1;
             if (pixeltocell[mpoint[i]] >= 0) {
                 Vector<Integer> Dc = new Vector<>();
                 int totalbr = 0;
@@ -2709,8 +2709,8 @@ class CellImage {
         //ここから核の外縁を求めるための処理
         for (Cell element : cell) element.Dedge = new Vector();
         Vector[] De = new Vector[vec.length];
-        for (Object item : MafterB) {
-            int i = (Integer) item;
+        for (Integer item : MafterB) {
+            int i = item;
             if (pixeltocell[mpoint[i]] >= 0) {
                 De[i] = new Vector();
                 for (int j = 0; j < vec[i].size(); j++) {
@@ -2727,8 +2727,8 @@ class CellImage {
             value.D345point = new Vector[3];
             for (int j = 0; j < 3; j++) value.D345point[j] = new Vector();
         }
-        for (Object o : MafterB) {
-            int i = (Integer) o;
+        for (Integer o : MafterB) {
+            int i = o;
             if (mpoint[i] >= 0) {
                 double maxdist = -1;
                 int maxpoint = -1;
@@ -3665,8 +3665,8 @@ class CellImage {
                 ActinLabel al = same.get(now);
                 if (al.isEnabled()) {//ラベルが消えてなければ
                     if (al.getPointer() == now) {//ﾙｰﾄまでたどり着いたら
-                        for (Object o : temp) {//それまでのラベルのポインタをﾙｰﾄにして
-                            (same.get((Integer) o)).setPointer(now);
+                        for (Integer o : temp) {//それまでのラベルのポインタをﾙｰﾄにして
+                            (same.get(o)).setPointer(now);
                         }
                         return now;//ﾙｰﾄの番号を返す
                     } else {//ﾙｰﾄじゃなければ

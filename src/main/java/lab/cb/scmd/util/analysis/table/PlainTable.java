@@ -22,13 +22,13 @@ import java.util.HashMap;
  */
 public class PlainTable {
     private String FIELD_SEPARATOR = "\t";
-    private ArrayList<ArrayList<String>> dataArray = new ArrayList<ArrayList<String>>();
+    private ArrayList<ArrayList<String>> dataArray = new ArrayList<>();
     private int rowsize = 0;
     private int colsize = 0;
-    private HashMap<String, Integer> colnameMap = new HashMap<String, Integer>();
-    private ArrayList<String> colnameList = new ArrayList<String>();
-    private HashMap<String, Integer> rownameMap = new HashMap<String, Integer>();
-    private ArrayList<String> rownameList = new ArrayList<String>();
+    private HashMap<String, Integer> colnameMap = new HashMap<>();
+    private ArrayList<String> colnameList = new ArrayList<>();
+    private HashMap<String, Integer> rownameMap = new HashMap<>();
+    private ArrayList<String> rownameList = new ArrayList<>();
 
     PlainTable() {
     }
@@ -59,7 +59,7 @@ public class PlainTable {
     }
 
     public ArrayList getOneCol(int n) {
-        ArrayList<Object> al = new ArrayList<Object>();
+        ArrayList<Object> al = new ArrayList<>();
         Object tmp;
         for (int i = 0; i < rowsize; i++) {
             tmp = dataArray.get(i);
@@ -102,7 +102,7 @@ public class PlainTable {
             int maxrowsize = 0;
             while ((str = in.readLine()) != null) {
                 strvector = str.split(separator);
-                ArrayList<String> v = new ArrayList<String>();
+                ArrayList<String> v = new ArrayList<>();
                 if (rowname) {
                     rownameMap.put(strvector[0], n);
                     rownameList.add(strvector[0]);

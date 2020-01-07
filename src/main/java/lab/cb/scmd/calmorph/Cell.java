@@ -229,8 +229,8 @@ class Cell implements Serializable {
     void setCellData() {
         // 位置
         int left = w, right = 0, top = h, bottom = 0;
-        for (Object value : cover) {// pointのセット
-            int p = (Integer) value;
+        for (Integer value : cover) {// pointのセット
+            int p = value;
             if (left > p % w)
                 left = p % w;
             if (right < p % w)
@@ -1722,8 +1722,8 @@ class Cell implements Serializable {
             int counter_nearneck = 0;
             int counter_inbudnearneck = 0;
             int counter_inbudneartip = 0;
-            for (Object o : cover) {
-                int po = (Integer) o - diff;
+            for (Integer o : cover) {
+                int po = o - diff;
                 if (po >= 0 && po < size && po / w == (po + diffx) / w) {
                     int px = po % w;
                     int py = po / w;
@@ -1882,14 +1882,14 @@ class Cell implements Serializable {
                 farfromneckApoint[2] = new Point(maxpoint % w, maxpoint / w);
         }
 
-        if (Agroup != "N" && group > 0) {
+        if (!Agroup.equals("N") && group > 0) {
 
             // 最も遠いアクチンパッチ同士の距離（ただし、母細胞と芽の両方にパッチがある細胞については、ネックの中点を通した距離）を求める
             boolean check1 = false;
             boolean check2 = false;
             if (group > 1) {
-                for (Object o : actinpatchpoint) {
-                    if (inmother((Integer) o))
+                for (Integer o : actinpatchpoint) {
+                    if (inmother(o))
                         check1 = true;
                     else
                         check2 = true;
@@ -1909,8 +1909,8 @@ class Cell implements Serializable {
             } else {
                 double mmax = 0;
                 double bmax = 0;
-                for (Object o : actinpatchpoint) {
-                    int p = (Integer) o;
+                for (Integer o : actinpatchpoint) {
+                    int p = o;
                     if (inmother(p) && distance(p, neckpoint) > mmax)
                         mmax = distance(p, neckpoint);
                     else if (!inmother(p) && distance(p, neckpoint) > bmax)
@@ -2123,8 +2123,8 @@ class Cell implements Serializable {
             double my = (neckpoint.y * 4 - (budtop.y)) / 3;
             double a = neckpoint.y - budtop.y;
             double b = neckpoint.x - budtop.x;
-            for (Object o : actinpatchpoint) {
-                int p = (Integer) o;
+            for (Integer o : actinpatchpoint) {
+                int p = o;
                 int px = p % w;
                 int py = p / w;
                 if (!inmother(p)
@@ -2145,8 +2145,8 @@ class Cell implements Serializable {
             }
         } else {
             g.setColor(Color.white);
-            for (Object o : actinpatchpoint) {
-                int p = (Integer) o;
+            for (Integer o : actinpatchpoint) {
+                int p = o;
                 g.fillOval(p % w - 2, p / w - 2, 4, 4);
             }
         }
@@ -2770,8 +2770,8 @@ class Cell implements Serializable {
             } else if (this.getGroup() > 1) {
                 Vector<Integer> mpatch = new Vector<>();
                 Vector<Integer> bpatch = new Vector<>();
-                for (Object o : this.actinpatchpoint) {
-                    int p = (Integer) o;
+                for (Integer o : this.actinpatchpoint) {
+                    int p = o;
                     if (this.inmother(p))
                         mpatch.add(p);
                     else

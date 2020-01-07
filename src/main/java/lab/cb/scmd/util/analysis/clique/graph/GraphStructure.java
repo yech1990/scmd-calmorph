@@ -13,9 +13,6 @@ package lab.cb.scmd.util.analysis.clique.graph;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class GraphStructure {
-    //	List vertexList;
-//	List edgeList;
-    private VertexDescriptor root = null;
     /*
      * isDirectedGraph -- true: directed graph, false: undirected
      */
@@ -24,6 +21,9 @@ public class GraphStructure {
      * allowParallelEdge -- true: allow the insertion of parallel edge, false: don't
      */
     boolean allowParallelEdge = false;
+    //	List vertexList;
+//	List edgeList;
+    private VertexDescriptor root = null;
 
     public static void main(String[] args) {
     }

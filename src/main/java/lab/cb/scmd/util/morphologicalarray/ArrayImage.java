@@ -30,14 +30,14 @@ import java.util.Vector;
  * @author nakatani
  */
 public class ArrayImage {
-    private static final int RED = toRGB(255, 20, 20);
     static final int Red = toRGB(255, 80, 80);
     static final int red = toRGB(255, 150, 150);
     static final int redwhite = toRGB(255, 200, 200);
-    private static final int GREEN = toRGB(0, 255, 0);
     static final int Green = toRGB(60, 255, 60);
     static final int green = toRGB(120, 255, 120);
     static final int greenwhite = toRGB(200, 255, 200);
+    private static final int RED = toRGB(255, 20, 20);
+    private static final int GREEN = toRGB(0, 255, 0);
     private static final int white = toRGB(255, 255, 255);
     private static final int backgroundColor = toRGB(255, 255, 255);
     private CalMorphTable tableW;
@@ -47,6 +47,7 @@ public class ArrayImage {
     private int parameterSize;
     private BufferedImage image;
     private int[][] colorTable;
+
     private ArrayImage(String CalmorphTableFilename_Wildtype, String CalmorphTableFilename_Mutant, String transformLogFilename) throws SCMDException, IOException {
         tableW = new CalMorphTable(CalmorphTableFilename_Wildtype);
         orfSizeW = tableW.getRowSize();
@@ -176,7 +177,7 @@ public class ArrayImage {
      * @author nakatani
      */
     private Double[] getDataByParameter(CalMorphTable cmt, int parameter) {
-        Vector<Double> dataW = new Vector<Double>();
+        Vector<Double> dataW = new Vector<>();
         TableIterator i = cmt.getVerticalIterator(parameter);
         for (int j = 0; i.hasNext(); ++j) {
             lab.cb.scmd.util.table.Cell c = (lab.cb.scmd.util.table.Cell) i.next();

@@ -134,9 +134,7 @@ public class BudValidation {
     }
 
     private static Vector budEdgeConcatinatesMotherEdge(Vector mother_edge, Vector bud_edge) {
-        for (Object o : bud_edge) {
-            mother_edge.add(o);
-        }
+        mother_edge.addAll(bud_edge);
         return mother_edge;
     }
 

@@ -33,6 +33,7 @@ public class HorisontalTableRangeIterator implements TableIterator {
         _colIndexBegin = 0;
         _colIndexEnd = table.getColSize() - 1;
     }
+
     /**
      * 一行の特定の範囲内を動くIterator
      *

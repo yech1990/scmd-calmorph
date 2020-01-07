@@ -13,6 +13,7 @@ package lab.cb.scmd.calmorph;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Vector;
 
 class AverageData {
@@ -45,21 +46,13 @@ class AverageData {
         Dgroup = new Vector<>();
         Agroup = new Vector<>();
         versparam = new Vector[26];
-        for (int i = 0; i < versparam.length; i++) {
-            versparam[i] = new Vector();
-        }
+        Arrays.fill(versparam, new Vector());
         Cparam = new Vector[26];
-        for (int i = 0; i < Cparam.length; i++) {
-            Cparam[i] = new Vector();
-        }
+        Arrays.fill(Cparam, new Vector());
         Aparam = new Vector[13];
-        for (int i = 0; i < Aparam.length; i++) {
-            Aparam[i] = new Vector();
-        }
+        Arrays.fill(Aparam, new Vector());
         Dparam = new Vector[110];
-        for (int i = 0; i < Dparam.length; i++) {
-            Dparam[i] = new Vector();
-        }
+        Arrays.fill(Dparam, new Vector());
         this.name = name;
         this.outdir = outdir;
     }
@@ -419,7 +412,7 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     //データの個数
     //////////////////////////////////////////////////////////////////////////////////////////
-    public int count(Vector v) {
+    private int count(Vector v) {
         int count = 0;
         for (Object o : v) {
             double d = (Double) o;

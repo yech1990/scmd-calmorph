@@ -1,20 +1,20 @@
 package lab.cb.scmd.autoanalysis.validparameter;
 
 
-public class LabeledData {
-    double d_;
-    int label_;
+class LabeledData {
+    private double d_;
+    private int label_;
 
-    public LabeledData(Double d, int label) {
-        d_ = d.doubleValue();
+    LabeledData(Double d, int label) {
+        d_ = d;
         label_ = label;
     }
 
-    public double get_value() {
+    double get_value() {
         return d_;
     }
 
-    public int get_label() {
+    int get_label() {
         return label_;
     }
 

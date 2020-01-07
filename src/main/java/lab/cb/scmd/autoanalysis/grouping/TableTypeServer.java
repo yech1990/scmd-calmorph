@@ -21,6 +21,7 @@ import java.util.Objects;
 class TableElement {
     private String _tableTypeName;
     private String _fileSuffix;
+
     TableElement(String tableTypeName, String fileSuffix) {
         _tableTypeName = tableTypeName;
         _fileSuffix = fileSuffix;

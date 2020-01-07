@@ -39,7 +39,7 @@ public class HTMLFilter implements TextContentFilter {
             return m.group(1);
         }
 
-        StringBuffer substituedStringBuffer = new StringBuffer(content.length());
+        StringBuilder substituedStringBuffer = new StringBuilder(content.length());
         for (int i = 0; i < content.length(); i++) {
             char c = content.charAt(i);
             switch (c) {

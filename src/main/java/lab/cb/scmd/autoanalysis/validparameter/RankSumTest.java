@@ -13,6 +13,7 @@ package lab.cb.scmd.autoanalysis.validparameter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 
 public class RankSumTest {
@@ -20,26 +21,26 @@ public class RankSumTest {
     private static RankSumExactProbTable exact = new RankSumExactProbTable();
     private int data_size1;
     private int data_size2;
-    private java.util.Vector all = null;
+    private java.util.Vector<LabeledData> all = null;
     private double rank_sum1 = 0;
     private double rank_sum2 = 0;
     private double test_statistic_z;
-    private ArrayList probTable;
+    private ArrayList<Double> probTable;
     private int minRankSum;
 
-    RankSumTest(java.util.Vector f, java.util.Vector g) throws IOException {
+    RankSumTest(java.util.Vector<Double> f, java.util.Vector<Double> g) throws IOException {
         data_size1 = f.size();
         data_size2 = g.size();
         if (data_size1 < 10 || data_size2 < 10) {
             //System.out.println("error. can not approx by normal.");
         }
 
-        all = new java.util.Vector();//LabeledData[data_size1+data_size2];
+        all = new java.util.Vector<LabeledData>();//LabeledData[data_size1+data_size2];
         for (int i = 0; i < data_size1; ++i) {
-            all.add(new LabeledData((Double) f.get(i), -1));
+            all.add(new LabeledData(f.get(i), -1));
         }
         for (int i = 0; i < data_size2; ++i) {
-            all.add(new LabeledData((Double) g.get(i), 1));
+            all.add(new LabeledData(g.get(i), 1));
         }
 
         get_test_statistics();
@@ -80,7 +81,7 @@ public class RankSumTest {
             return 1;
         }
         int r = (int) Math.floor(ranksum);
-        return (double) (Double) probTable.get(r - minRankSum);
+        return probTable.get(r - minRankSum);
     }
 
     double getProb() {
@@ -105,21 +106,13 @@ public class RankSumTest {
     }
 
     private void get_test_statistics() {
-        java.util.List list = new java.util.LinkedList(all);
-        java.util.Collections.sort(list, new java.util.Comparator() {
-            public int compare(Object a, Object b) {
-                LabeledData A = (LabeledData) a;
-                LabeledData B = (LabeledData) b;
-                if (A.get_value() < B.get_value()) {
-                    return -1;
-                } else if (A.get_value() == B.get_value()) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            }
+        java.util.List<LabeledData> list = new java.util.LinkedList<LabeledData>(all);
+        list.sort((Comparator<? super LabeledData>) (a, b) -> {
+            LabeledData A = a;
+            LabeledData B = b;
+            return Double.compare(A.get_value(), B.get_value());
         });
-        all = new java.util.Vector(list);
+        all = new java.util.Vector<LabeledData>(list);
         rank_sum1 = get_rank_sum(-1);
         rank_sum2 = get_rank_sum(1);
         if (rank_sum1 + rank_sum2 != (data_size1 + data_size2) * (data_size1 + data_size2 + 1) / 2) {
@@ -136,9 +129,9 @@ public class RankSumTest {
         int partial_rank_sum = 0;
         int data_same_rank = 0;
         int num_of_target_data = 0;
-        double previous_value = ((LabeledData) all.get(0)).get_value();
+        double previous_value = (all.get(0)).get_value();
         for (int i = 0; i < all.size(); ++i) {
-            if (((LabeledData) all.get(i)).get_value() != previous_value) {
+            if ((all.get(i)).get_value() != previous_value) {
                 tmp_rank_sum += partial_rank_sum / (double) data_same_rank * num_of_target_data;
                 partial_rank_sum = 0;
                 data_same_rank = 0;
@@ -146,8 +139,8 @@ public class RankSumTest {
             }
             partial_rank_sum += i + 1;
             data_same_rank++;
-            if (((LabeledData) all.get(i)).get_label() == label) num_of_target_data++;
-            previous_value = ((LabeledData) all.get(i)).get_value();
+            if ((all.get(i)).get_label() == label) num_of_target_data++;
+            previous_value = (all.get(i)).get_value();
         }
         tmp_rank_sum += partial_rank_sum / (double) data_same_rank * num_of_target_data;
         return tmp_rank_sum;

@@ -31,6 +31,7 @@ public class ChiSquareGoodnessOfFitTest {
     private double[] partition;
     private double[] prob;
     private int degreeOfFreedom;
+
     public ChiSquareGoodnessOfFitTest(Double[] originalData) {
         makePartition(originalData.length);
         standardizedData = StatisticalTests.getStandardizedData(originalData);
@@ -82,11 +83,8 @@ public class ChiSquareGoodnessOfFitTest {
 
     private int[] getSampleFrequency(Double[] data) {
         int[] freq = new int[partition.length - 1];
-        for (int i = 0; i < freq.length; ++i) {
-            freq[i] = 0;
-        }
-        for (int i = 0; i < data.length; ++i) {
-            ++freq[inWhichInterval(data[i].doubleValue())];
+        for (Double datum : data) {
+            ++freq[inWhichInterval(datum)];
         }
         return freq;
     }

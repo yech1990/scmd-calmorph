@@ -172,7 +172,7 @@ class DisruptantProcess {
      *
      * @param pw printerWriter object for writing
      */
-    public void setXLSHeaderBaseC(PrintWriter pw) {
+    private void setXLSHeaderBaseC(PrintWriter pw) {
         String[] headerBaseC = {
                 "image_number",
                 "cell_id",
@@ -206,7 +206,7 @@ class DisruptantProcess {
      *
      * @param pw printerWriter object for writing
      */
-    public void setXLSHeaderExpandC(PrintWriter pw) {
+    private void setXLSHeaderExpandC(PrintWriter pw) {
         pw.print("image_number\tcell_id\tCgroup\t");
         for (int i = 101; i <= 118; i++) pw.print("C" + i + "\t");
         pw.print("C126\tC127\tC128\t");
@@ -218,7 +218,7 @@ class DisruptantProcess {
      *
      * @param pw printerWriter object for writing
      */
-    public void setXLSHeaderBaseD(PrintWriter pw) {
+    private void setXLSHeaderBaseD(PrintWriter pw) {
         String[] headerBaseD = {
                 "image_number",
                 "cell_id",
@@ -276,7 +276,7 @@ class DisruptantProcess {
      *
      * @param pw
      */
-    public void setXLSHeaderExpandD(PrintWriter pw) {
+    private void setXLSHeaderExpandD(PrintWriter pw) {
         pw.print("image_number\tcell_id\tCgroup\tDgroup\t");
         for (int i = 101; i <= 198; i++) pw.print("D" + i + "\t");
         pw.println();
@@ -287,7 +287,7 @@ class DisruptantProcess {
      *
      * @param pw
      */
-    public void setXLSHeaderBaseA(PrintWriter pw) {
+    private void setXLSHeaderBaseA(PrintWriter pw) {
         String[] headerBaseA = {
                 "image_number",
                 "cell_id",
@@ -322,7 +322,7 @@ class DisruptantProcess {
      *
      * @param pw
      */
-    public void setXLSHeaderExpandA(PrintWriter pw) {
+    private void setXLSHeaderExpandA(PrintWriter pw) {
         String[] headerExpandA = {
                 "image_number",
                 "cell_id",
@@ -348,7 +348,7 @@ class DisruptantProcess {
      *
      * @param pw
      */
-    public void setXLSHeaderPatchA(PrintWriter pw) {
+    private void setXLSHeaderPatchA(PrintWriter pw) {
         pw.println("image_number\tcell_id\tposition\tsize\tbrightness\t");
     }
 
@@ -357,7 +357,7 @@ class DisruptantProcess {
      *
      * @param pw
      */
-    public void setXLSHeaderVers(PrintWriter pw) {
+    private void setXLSHeaderVers(PrintWriter pw) {
         String[] versatiles = {
                 "image_number",
                 "cell_id",
@@ -399,11 +399,11 @@ class DisruptantProcess {
 //        pw.println("image_number\tcell_id\tCgroup\tmother_cell_size\tbud_cell_size\tbud_ratio\taxis_ratio_in_mother\taxis_ratio_in_bud\tbud_direction\tneck_position\tneck_width\tAgroup\tactin_region_ratio\tbud_actin_ratio\tmother_actin_gravity_point\tbud_actin_gravity_point\tDgroup\tnuclear_number\tnuclear_size_in_mother\tnuclear_size_in_bud\tnuclear_size_in_cell\tnuclear_axis_ratio_in_mother\tnuclear_axis_ratio_in_bud\tnuclear_axis_ratio_in_cell\thip_nuclear\tmother_cell_center_nuclear\tneck_nuclear_in_mother\tbud_top_nuclear\tbud_cell_center_nuclear\tneck_nuclear_in_bud\tlength_between_nucleus\t");
     }
 
-    public void setXMLHeader(PrintWriter pwxml) {
+    private void setXMLHeader(PrintWriter pwxml) {
         pwxml.println("<imagedata orf=\"" + name + "\">");
     }
 
-    public void setXMLBottom(PrintWriter pwxml) {
+    private void setXMLBottom(PrintWriter pwxml) {
         pwxml.println("</imagedata>");
     }
 

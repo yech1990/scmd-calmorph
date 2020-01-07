@@ -123,7 +123,7 @@ public class DataMatrix {
      * @param str
      */
     private void addColumnName(String str) {
-        axisNameToNumber[0].put(str, new Integer(axisNameList[0].size()));
+        axisNameToNumber[0].put(str, axisNameList[0].size());
         axisNameList[0].add(str);
     }
 
@@ -132,7 +132,7 @@ public class DataMatrix {
      * @param str
      */
     public void setColumnName(int n, String str) {
-        axisNameToNumber[0].put(str, new Integer(axisNameList[0].size()));
+        axisNameToNumber[0].put(str, axisNameList[0].size());
         axisNameList[0].set(n, str);
     }
 
@@ -173,7 +173,7 @@ public class DataMatrix {
      * @param str
      */
     private void addRowName(String str) {
-        axisNameToNumber[1].put(str, new Integer(axisNameList[1].size()));
+        axisNameToNumber[1].put(str, axisNameList[1].size());
         axisNameList[1].add(str);
     }
 
@@ -182,7 +182,7 @@ public class DataMatrix {
      * @param str
      */
     public void setRowName(int n, String str) {
-        axisNameToNumber[1].put(str, new Integer(axisNameList[1].size()));
+        axisNameToNumber[1].put(str, axisNameList[1].size());
         axisNameList[1].set(n, str);
     }
 
@@ -216,7 +216,7 @@ public class DataMatrix {
         Integer i = getRowNumber(str);
         if (i == null)
             return new double[0];
-        int row = i.intValue();
+        int row = i;
         return getOneRow(row);
     }
 
@@ -232,7 +232,7 @@ public class DataMatrix {
         Integer colnum = getColumnNumber(str);
         if (colnum == null)
             return null;
-        int column = colnum.intValue();
+        int column = colnum;
         return getOneColumn(column);
     }
 
@@ -300,12 +300,12 @@ public class DataMatrix {
                 ArrayList<Double> v = new ArrayList<>();
                 for (int i = dataStartColumn; i < strvector.length; i++) {
                     if (strvector[i].equals(nullvalue))
-                        v.add(new Double(Double.NaN));
+                        v.add(Double.NaN);
                     else
-                        v.add(new Double(Double.parseDouble(strvector[i])));
+                        v.add(Double.parseDouble(strvector[i]));
                 }
                 for (int i = strvector.length; i < maxrowsize; i++) {
-                    v.add(new Double(Double.NaN));
+                    v.add(Double.NaN);
                 }
                 dataArray.add(v);
             }
@@ -321,7 +321,7 @@ public class DataMatrix {
         for (int i = 0; i < getRowSize(); i++) {
             ArrayList v = dataArray.get(i);
             for (int j = 0; j < getColumnSize(); j++) {
-                dataMatrix[i][j] = ((Double) v.get(j)).doubleValue();
+                dataMatrix[i][j] = (Double) v.get(j);
             }
         }
         return;
@@ -581,9 +581,9 @@ public class DataMatrix {
         int rowNumber, colNumber;
         for (int i = 0; i < rows.length; i++) {
             nm.addRowName((String) rows[i]);
-            rowNumber = this.getRowNumber((String) rows[i]).intValue();
+            rowNumber = this.getRowNumber((String) rows[i]);
             for (int j = 0; j < cols.length; j++) {
-                colNumber = this.getColumnNumber((String) cols[j]).intValue();
+                colNumber = this.getColumnNumber((String) cols[j]);
                 nm.set(i, j, this.get(rowNumber, colNumber));
             }
         }
@@ -651,7 +651,7 @@ public class DataMatrix {
         }
 
         for (Object o : member) {
-            int n = ((Integer) o).intValue();
+            int n = (Integer) o;
             if (printRowName) {
                 fOut.print(axisNameList[1].get(n) + FIELD_SEPARATOR);
             }

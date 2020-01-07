@@ -418,7 +418,7 @@ public class CalcGroupStat implements TableFileName {
      */
     private HashMap countRatio(String[] groupTypePattern, FlatTable inputTable, String targetColumnLabel) {
         // 出現する文字列ごとにカウントする（このときはgroupTypePatternと一致するかは判定しない）
-        HashMap<String, Integer> countResult = new HashMap<String, Integer>();
+        HashMap<String, Integer> countResult = new HashMap<>();
         for (TableIterator ti = inputTable.getVerticalIterator(targetColumnLabel); ti.hasNext(); ) {
             String group = ti.nextCell().toString();
             countResult.merge(group, 1, Integer::sum);
@@ -488,7 +488,7 @@ public class CalcGroupStat implements TableFileName {
             String label = (String) item;
             if (label.matches(regex)) // 末尾に"_" + groupNameがついたものを取り出す
                 parameter.add(label);
-                //   _log.println("parameter " + label + " is removed");
+            //   _log.println("parameter " + label + " is removed");
         }
 
         // calc average
@@ -499,7 +499,7 @@ public class CalcGroupStat implements TableFileName {
             numValidSampleMap.put(paramName, result.getNumElement());
         }
 
-        LinkedList<String> cvParameterList = new LinkedList<String>();
+        LinkedList<String> cvParameterList = new LinkedList<>();
         // outputLabel中で、CVの含まれているものを取り出す
         Pattern cvPattern = Pattern.compile("([A-Za-z])CV([0-9][0-9-]*_(A|A1B|C))");
         for (String s : outputLabel) {
@@ -591,6 +591,7 @@ public class CalcGroupStat implements TableFileName {
 
         HashMap _resultHash;
         HashMap _numValidSampleHash;
+
         OutputResult(HashMap resultHash, HashMap numValidSampleHash) {
             _resultHash = resultHash;
             _numValidSampleHash = numValidSampleHash;

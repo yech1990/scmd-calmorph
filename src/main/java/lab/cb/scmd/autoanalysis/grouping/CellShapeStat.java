@@ -54,6 +54,7 @@ public class CellShapeStat implements TableFileName {
     private String[] _shapeParameter = new String[]{"longAxis", "roundness", "budNeckPosition",
             "budGrowthDirection", "areaRatio"};
     private String[] _correspondingParameter = new String[]{"C103", "C115", "C105", "C106", "C118"};
+
     /**
      * C-num-no, D-num-C などのグループの組み合わせの値を求めるクラス
      *

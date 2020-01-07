@@ -17,8 +17,9 @@ package lab.cb.scmd.util.stat;
  */
 public class NumElementAndStatValuePair {
 
-    private int numElement;
     public double value;
+    private int numElement;
+
     NumElementAndStatValuePair(int numElement_, double value_) {
         numElement = numElement_;
         value = value_;

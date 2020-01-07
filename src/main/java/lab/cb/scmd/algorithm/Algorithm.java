@@ -140,10 +140,10 @@ public class Algorithm {
         return !it2.hasNext();
     }
 
-    static public boolean equal(Collection input, Object[] comparisonTarget) {
+    static public boolean equal(Collection<Object> input, Object[] comparisonTarget) {
         if (input.size() != comparisonTarget.length)
             return false;
-        Iterator it = input.iterator();
+        Iterator<Object> it = input.iterator();
         for (Object o : comparisonTarget) {
             if (!it.hasNext())
                 return false;
@@ -154,15 +154,15 @@ public class Algorithm {
     }
 
 
-    static public boolean equal(Collection input, int[] comparisonTarget) {
+    static public boolean equal(Collection<Integer> input, int[] comparisonTarget) {
         if (input.size() != comparisonTarget.length)
             return false;
 
-        Iterator it = input.iterator();
+        Iterator<Integer> it = input.iterator();
         for (int value : comparisonTarget) {
             if (!it.hasNext())
                 return false;
-            int intVal = (Integer) it.next();
+            int intVal = it.next();
 
             if (intVal != value)
                 return false;
@@ -170,15 +170,15 @@ public class Algorithm {
         return true;
     }
 
-    static public boolean equal(Collection input, double[] comparisonTarget) {
+    static public boolean equal(Collection<Double> input, double[] comparisonTarget) {
         if (input.size() != comparisonTarget.length)
             return false;
 
-        Iterator it = input.iterator();
+        Iterator<Double> it = input.iterator();
         for (double v : comparisonTarget) {
             if (!it.hasNext())
                 return false;
-            double doubleVal = (Double) it.next();
+            double doubleVal = it.next();
 
             if (doubleVal != v)
                 return false;
@@ -207,14 +207,14 @@ public class Algorithm {
      * @param initialValue     初期値の配列
      * @return targetCollection
      */
-    static public Collection initializeCollection(Collection targetCollection, int[] initialValue) {
+    static public Collection<Integer> initializeCollection(Collection<Integer> targetCollection, int[] initialValue) {
         for (int value : initialValue) {
             targetCollection.add(value);
         }
         return targetCollection;
     }
 
-    static public Collection initializeCollection(Collection targetCollection, double[] initialValue) {
+    static public Collection<Double> initializeCollection(Collection<Double> targetCollection, double[] initialValue) {
         for (double v : initialValue) {
             targetCollection.add(v);
         }
@@ -226,7 +226,7 @@ public class Algorithm {
      * @param initialValue
      * @return
      */
-    static public Collection initializeCollection(Collection targetCollection, String[] initialValue) {
+    static public Collection<String> initializeCollection(Collection<String> targetCollection, String[] initialValue) {
         Collections.addAll(targetCollection, initialValue);
         return targetCollection;
     }

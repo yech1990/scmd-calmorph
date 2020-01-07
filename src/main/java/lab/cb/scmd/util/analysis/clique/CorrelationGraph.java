@@ -69,9 +69,7 @@ public class CorrelationGraph {
         cc.setThreshold(Double.parseDouble(args[num++]));
         cc.load(args[num++]);
         String[] genes = new String[args.length - num];
-        for (int i = num; i < args.length; i++) {
-            genes[i - num] = args[i];
-        }
+        if (args.length - num >= 0) System.arraycopy(args, num, genes, 0, args.length - num);
         cc.computeCorrelations(genes);
     }
 
@@ -144,7 +142,7 @@ public class CorrelationGraph {
         double[] row2;
         VertexDescriptor v;
         for (int i = 0; i < size; i++) {
-            v = new VertexDescriptor(new Integer(i), nm.getColumnName(i));
+            v = new VertexDescriptor(i, nm.getColumnName(i));
             adjGraph.addVertex(v);
         }
 
@@ -165,9 +163,9 @@ public class CorrelationGraph {
                 }
                 corMatrix[i][j] = cor;
                 // for finding maximum clique
-                if ((isSmallerCorrelation == false && (cor >= THRESHOLD || cor <= -1.0 * THRESHOLD)) ||
-                        (isSmallerCorrelation == true && cor <= THRESHOLD && cor >= -1.0 * THRESHOLD)) {
-                    adjGraph.addAdjacency(new Integer(i), new Integer(j));
+                if ((!isSmallerCorrelation && (cor >= THRESHOLD || cor <= -1.0 * THRESHOLD)) ||
+                        (isSmallerCorrelation && cor <= THRESHOLD && cor >= -1.0 * THRESHOLD)) {
+                    adjGraph.addAdjacency(i, j);
                     isUsed = true;
                 }
             }
@@ -255,12 +253,12 @@ public class CorrelationGraph {
     private void printAdjacencies() {
         System.out.println("graph Corr { ");
         int size = dm.getColumnSize();
-        HashSet<Integer> availableList = new HashSet<Integer>();
-        HashSet<Integer> components = new HashSet<Integer>();
+        HashSet<Integer> availableList = new HashSet<>();
+        HashSet<Integer> components = new HashSet<>();
         for (int i = 0; i < size; i++) {
             availableList.add(i);
         }
-        if (coloredNodes == true) {
+        if (coloredNodes) {
             System.out.println("\tnode [style=filled];");
             for (int i = 0; i < size; i++) {
                 String color = "";
@@ -279,12 +277,12 @@ public class CorrelationGraph {
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
                 double cor = corMatrix[i][j];
-                if ((isSmallerCorrelation == false && (cor >= THRESHOLD || cor <= -1.0 * THRESHOLD)) ||
-                        (isSmallerCorrelation == true && cor <= THRESHOLD && cor >= -1.0 * THRESHOLD)) {
+                if ((!isSmallerCorrelation && (cor >= THRESHOLD || cor <= -1.0 * THRESHOLD)) ||
+                        (isSmallerCorrelation && cor <= THRESHOLD && cor >= -1.0 * THRESHOLD)) {
                     System.out.print("\t\"" + dm.getColumnName(i) + "\" -- ");
                     System.out.print("\"" + dm.getColumnName(j) + "\"");
                     DecimalFormat exFormat = new DecimalFormat("##.#####");
-                    if (coloredNodes != true) {
+                    if (!coloredNodes) {
                         System.out.print(" [label=\"" + exFormat.format(cor) + "\"]");
                     }
                     System.out.println(";");

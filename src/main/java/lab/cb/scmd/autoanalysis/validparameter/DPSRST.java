@@ -50,10 +50,7 @@ public class DPSRST {
             dps.printPvalueTable();
             dps.printGsnameStat();
             dps.printParameterStat();
-        } catch (SCMDException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
+        } catch (SCMDException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
@@ -141,7 +138,7 @@ public class DPSRST {
             //System.out.println(parameter+"\t"+orf+"\t"+c.toString());
             if (c.isValidAsDouble()) {
                 double d = c.doubleValue();
-                data.add(new Double(d));
+                data.add(d);
             }
         }
         return data;
@@ -176,8 +173,7 @@ public class DPSRST {
         int orf = begin;
         for (; orf < table.getRowSize(); ++orf) {
             if (table.getCell(orf, 0).toString().equals(orfName)) {
-            }
-            else break;
+            } else break;
         }
         return orf;
     }

@@ -28,14 +28,14 @@ public class XMLOutputter {
      * デフォルトでは、standard outに出力
      */
     protected PrintWriter _out;
+    protected boolean _isRootTag = true;
+    String _DTDFile = null;
     private String L_BRACE = "<";
     private String R_BRACE = ">";
     private String ENDTAG_MARK = "/";
-    protected boolean _isRootTag = true;
     private Stack _tagNameStack = new Stack();
     private boolean _previousIsTag = false;
     private boolean _previousIsTextContent = false;
-    String _DTDFile = null;
     private boolean _omitHeader = false;
     private DTDDeclaration _dtdDeclaration = null;
     private TextContentFilter _contentFilter = new HTMLFilter();

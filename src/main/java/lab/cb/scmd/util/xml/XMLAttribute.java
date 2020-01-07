@@ -21,7 +21,7 @@ import java.util.*;
 public class XMLAttribute {
     private static TextContentFilter _filter = new HTMLFilter();
     protected LinkedList<String> _attributeNameList = new LinkedList<>();
-    protected HashMap<String, String> _attributeValue = new HashMap<String, String>();
+    protected HashMap<String, String> _attributeValue = new HashMap<>();
 
     public XMLAttribute(String attributeName, String attributeValue) {
         add(attributeName, attributeValue);

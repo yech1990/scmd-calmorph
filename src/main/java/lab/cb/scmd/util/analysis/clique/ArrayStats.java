@@ -14,14 +14,14 @@ public class ArrayStats {
         System.out.println("MEDIAN:" + stat.median(ary));
     }
 
-    public double avg(double[] ary) {
+    double avg(double[] ary) {
         double center = 0.0;
         int size = ary.length;
         int count = 0;
-        for (int i = 0; i < size; i++) {
-            if (!Double.isNaN(ary[i])) {
+        for (double v : ary) {
+            if (!Double.isNaN(v)) {
                 count++;
-                center += ary[i];
+                center += v;
             }
         }
         return center / count;
@@ -32,10 +32,10 @@ public class ArrayStats {
         int count = 0;
         double c = avg(ary);
         double var = 0.0;
-        for (int i = 0; i < size; i++) {
-            if (!Double.isNaN(ary[i])) {
+        for (double v : ary) {
+            if (!Double.isNaN(v)) {
                 count++;
-                var += (ary[i] - c) * (ary[i] - c);
+                var += (v - c) * (v - c);
             }
         }
         if (count < 2) {
@@ -51,9 +51,9 @@ public class ArrayStats {
     public double max(double[] ary) {
         int size = ary.length;
         double maxvalue = Double.MIN_VALUE;
-        for (int i = 0; i < size; i++) {
-            if (maxvalue < ary[i]) {
-                maxvalue = ary[i];
+        for (double v : ary) {
+            if (maxvalue < v) {
+                maxvalue = v;
             }
         }
         return maxvalue;
@@ -64,23 +64,21 @@ public class ArrayStats {
         int size = ary.length;
         double minvalue = Double.MAX_VALUE;
 
-        for (int i = 0; i < size; i++) {
-            if (minvalue > ary[i]) {
-                minvalue = ary[i];
+        for (double v : ary) {
+            if (minvalue > v) {
+                minvalue = v;
             }
         }
         return minvalue;
     }
 
-    public double median(double[] ary) {
+    private double median(double[] ary) {
         int size = ary.length;
         if (size <= 2) {
             return avg(ary);
         }
         double[] tmpary = new double[size];
-        for (int i = 0; i < size; i++) {
-            tmpary[i] = ary[i];
-        }
+        System.arraycopy(ary, 0, tmpary, 0, size);
 
         Arrays.sort(tmpary); // sorry!
         if (size % 2 == 1) {

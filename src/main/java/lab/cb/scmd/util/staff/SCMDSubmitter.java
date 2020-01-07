@@ -25,19 +25,23 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
     private final static int P_PHOTO_DIR = 1;
     private final static int P_IRFAN_VIEW = 2;
     private final static int P_IMAGE_MAGICK = 3;
-    //static String username2 = "bird";
+
+//    static String username2 = "bird";
 //  	final static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
 //  	final static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
 //  	final static String PHOTO_FOLDER = "staff/photo";
 //  	final static String PHOTO_FOLDER2 = "staff/images/new images/auto";
 //  	final static String SERVER = SCMD_ROOT + PHOTO_FOLDER;
-//  	final static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
+//    final static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
 //	final static String username = "birdstaff";
 //	final static String username2 = "bird";
+
     private final static int P_CONVERT = 4;
     private final static int P_MOGRIFY = 5;
     private final static int P_ORF_TABLE = 6;
     private final static int P_PLATE_TABLE = 7;
+    static JRadioButton onlineButton;
+    static JRadioButton offlineButton;
     private static String[] PropertyNames =
             {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
                     "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
@@ -54,8 +58,6 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
     private static String password;
     private static JFrame passFrame;
     private static JLabel label;
-    static JRadioButton onlineButton;
-    static JRadioButton offlineButton;
     public final String[] photoCategory = {"A", "C", "D"};
     public final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
     private final int ACTINE = 0;
@@ -67,18 +69,18 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
     private final String DIR_SELECT = "dir select";
     private final String DIR_CHANGE = "dir change";
     private final String SUBMIT = "submit";
-    private final String FILE_PATTERN =
-            "[-0-9a-z]*-(A|C|D)([1-9][0-9]*).jpg";
+    private final String FILE_PATTERN = "[-0-9a-z]*-([ACD])([1-9][0-9]*).jpg";
     private final int IMAGE_TYPE = 1;
     private final int PHOTO_NUM = 2;
+    JFrame confirmFrame;
     private JFileChooser fc;
     private String newline = "\n";
     private JButton dirSelectButton;
     private JButton exitButton;
     private JTextField inputDir;
     private JButton submitButton;
-    JFrame confirmFrame;
     private JProgressBar progress;
+
     private SCMDSubmitter(char[] pswd) {
         super("SCMD Toolkit");
         JPanel directorySelectPane = new JPanel();
@@ -318,6 +320,7 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
                             wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
                             //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
                             String[] unusefiles = unuse.list();
+                            assert unusefiles != null;
                             for (String s : unusefiles) {
                                 File unusefile = new File(inputDir.getText() + SLA + "unusable" + SLA + s);
                                 wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
@@ -462,6 +465,28 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
         }
     }
 
+    static class PhotoNumComparator implements Comparator {
+        public int compare(Object a, Object b) {
+            Integer ai = (Integer) a;
+            Integer bi = (Integer) b;
+            return ai - bi;
+        }
+
+        public boolean equal(Integer a, Integer b) {
+            Integer ai = a;
+            Integer bi = b;
+            return ai.intValue() == bi.intValue();
+        }
+    }
+
+    static class ProgressFrame extends JFrame {
+        ProgressFrame() {
+            super("Progress");
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        }
+    }
+
     class PhotoGroup {
         public String[] File;
 
@@ -488,28 +513,6 @@ public class SCMDSubmitter extends JFrame implements ActionListener {
                     File[DAPI] = file;
                     break;
             }
-        }
-    }
-
-    static class PhotoNumComparator implements Comparator {
-        public int compare(Object a, Object b) {
-            Integer ai = (Integer) a;
-            Integer bi = (Integer) b;
-            return ai - bi;
-        }
-
-        public boolean equal(Object a, Object b) {
-            Integer ai = (Integer) a;
-            Integer bi = (Integer) b;
-            return ai.intValue() == bi.intValue();
-        }
-    }
-
-    static class ProgressFrame extends JFrame {
-        ProgressFrame() {
-            super("Progress");
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
         }
     }
 }

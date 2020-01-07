@@ -20,6 +20,7 @@ public class OutlierTestForNormal {
     private double SD;
     private double MAX;
     private double MIN;
+
     public OutlierTestForNormal(Double[] givenData) {
         data = givenData;
         getEandSD(data);

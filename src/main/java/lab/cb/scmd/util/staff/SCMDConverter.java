@@ -46,20 +46,20 @@ import java.util.regex.Pattern;
 
 public class SCMDConverter extends JFrame implements ActionListener {
 
-    final static public int P_SCMD_ROOT = 0;
-    final static public int P_PHOTO_DIR = 1;
-    final static public int P_IRFAN_VIEW = 2;
-    final static public int P_IMAGE_MAGICK = 3;
+    private final static int P_SCMD_ROOT = 0;
+    private final static int P_PHOTO_DIR = 1;
+    private final static int P_IRFAN_VIEW = 2;
+    private final static int P_IMAGE_MAGICK = 3;
     //static String username2 = "bird";
-    final static public int P_CONVERT = 4;
-    final static public int P_MOGRIFY = 5;
-    final static public int P_ORF_TABLE = 6;
-    final static public int P_PLATE_TABLE = 7;
-    public static String[] PropertyNames =
+    private final static int P_CONVERT = 4;
+    private final static int P_MOGRIFY = 5;
+    private final static int P_ORF_TABLE = 6;
+    private final static int P_PLATE_TABLE = 7;
+    private static String[] PropertyNames =
             {"SCMD_ROOT", "PHOTO_DIR", "IRFAN_VIEW",
                     "IMAGE_MAGICK", "CONVERT", "MOGRIFY",
                     "ORF_TABLE", "PLATE_TABLE"};
-    public static String[] UserProperties;
+    private static String[] UserProperties;
     //--------------------------------------------------------------------------------
     // ORF_QUERY: ORFを入手するCGIページ
     //
@@ -81,35 +81,35 @@ public class SCMDConverter extends JFrame implements ActionListener {
     //--------------------------------------------------------------------------------
     //static String SCMD_ROOT = "http://yeast.gi.k.u-tokyo.ac.jp/";
     //static String SCMD_ROOT2 = "http://bird.gi.k.u-tokyo.ac.jp/";
-    static String ORF_QUERY; // = SCMD_ROOT + "tools/get_orf.cgi?name=";
-    static String PHOTO_FOLDER;// = "staff/photo";
+    private static String ORF_QUERY; // = SCMD_ROOT + "tools/get_orf.cgi?name=";
+    private static String PHOTO_FOLDER;// = "staff/photo";
     //static String PHOTO_FOLDER2 = "staff/images/new images/auto";
-    static String SERVER; // = SCMD_ROOT + PHOTO_FOLDER;
+    private static String SERVER; // = SCMD_ROOT + PHOTO_FOLDER;
     //static String SERVER2 = SCMD_ROOT2 + PHOTO_FOLDER2;
-    static String username = "birdstaff";
-    static String password;
-    static JFrame passFrame;
-    static String ORF_DESCRIPTIONS; // = "." + SLA + "orf_descriptions.tab";
-    static String PLATE_TABLE; // = "." + SLA + "platetable.tab";
-    static String IRFAN_VIEW; // = "." + SLA + "i_view32" + SLA + "i_view32.exe";
-    static String CONVERT; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "convert.exe";
-    static String MOGRIFY; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "mogrify.exe";
-    static JRadioButton onlineButton;
-    static JRadioButton offlineButton;
+    private static String username = "birdstaff";
+    private static String password;
+    private static JFrame passFrame;
+    private static String ORF_DESCRIPTIONS; // = "." + SLA + "orf_descriptions.tab";
+    private static String PLATE_TABLE; // = "." + SLA + "platetable.tab";
+    private static String IRFAN_VIEW; // = "." + SLA + "i_view32" + SLA + "i_view32.exe";
+    private static String CONVERT; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "convert.exe";
+    private static String MOGRIFY; // = "C:" + SLA + "Program Files" + SLA + "ImageMagick-5.5.6-Q16" + SLA + "mogrify.exe";
+    private static JRadioButton onlineButton;
+    private static JRadioButton offlineButton;
     //final String CONVERT = "convert.exe";
     //final String MOGRIFY = "mogrify.exe";
-    static JLabel label;
-    static boolean online;
+    private static JLabel label;
+    private static boolean online;
     // Actin, ConA, DAPIのための配列
-    public final String[] photoCategory = {"A", "C", "D"};
-    public final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
-    public final int ACTINE = 0;
-    public final int CON_A = 1;
-    public final int DAPI = 2;
-    final int MENU_FILE = 0;
+    private final String[] photoCategory = {"A", "C", "D"};
+    private final String[] photoClassifier = {"Rh", "FITC", "DAPI"};
+    private final int ACTINE = 0;
+    private final int CON_A = 1;
+    private final int DAPI = 2;
+    private final int MENU_FILE = 0;
     final int MENU_CONVERT = 1;
     // WindowsとLinuxでパスの区切り文字が違うので、File.separatorを使う
-    final String SLA = File.separator;
+    private final String SLA = File.separator;
     /*final String ROOTDIR =
         "D:"
             + SLA
@@ -124,76 +124,76 @@ public class SCMDConverter extends JFrame implements ActionListener {
             + "bird"
             + SLA
             + "img";*/
-    final String ROOTDIR = "C:" + SLA;
+    private final String ROOTDIR = "C:" + SLA;
     // GUIでボタンクリックが起こったときのコマンド名
-    final String EXIT = "exit";
-    final String DIR_SELECT = "dir select";
-    final String BUDIR_SELECT = "backupdir select";
-    final String HELP = "help";
-    final String ORF = "ORF";
-    final String DIR_CHANGE = "dir change";
-    final String BUDIR_CHANGE = "backupdir change";
-    final String RENAME = "rename";
-    final String SELECT_PHOTO = "select photo";
-    final String SUBMIT = "submit";
+    private final String EXIT = "exit";
+    private final String DIR_SELECT = "dir select";
+    private final String BUDIR_SELECT = "backupdir select";
+    private final String HELP = "help";
+    private final String ORF = "ORF";
+    private final String DIR_CHANGE = "dir change";
+    private final String BUDIR_CHANGE = "backupdir change";
+    private final String RENAME = "rename";
+    private final String SELECT_PHOTO = "select photo";
+    private final String SUBMIT = "submit";
     // 顕微鏡の写真ファイルをmatchするための正規表現
-    final String FILE_PATTERN =
+    private final String FILE_PATTERN =
             "([1-9][0-9]*)_w[1-3](FITC|Rh|DAPI)"
                     + "(_s([1-9][0-9]*))?"
                     + ".(jpg|JPG|tif|TIF)";
-    final int FP_FIRST_PHOTO_NUM = 1;
+    private final int FP_FIRST_PHOTO_NUM = 1;
     final int FP_WAVE_TYPE = 2;
-    final int FP_SECOND_PHOTO_NUM = 4;
+    private final int FP_SECOND_PHOTO_NUM = 4;
     final int FP_PHOTO_TYPE = 5;
-    JMenuBar menuBar;
-    JFileChooser fc, fc2;
-    String newline = "\n";
-    String[] menuList;
-    JMenu[] menu;
-    JMenu help_menu;
-    JButton dirSelectButton;
-    JTextField inputDir;
-    JRadioButton manipButton, autoButton, localButton, plateButton;
-    JFrame plateFrame;
-    JTextField plateField1, plateField2, plateField3;
-    String[] plateposition;
-    JTextField backupDir;
-    JButton budirSelectButton;
-    JButton selectButton, submitButton, renameButton;
-    JTextField orfField; // ORFのテキストボックス
-    JTextField geneNameField; // Standard Nameのテキストボックス
-    JLabel orfMessage;
-    JButton orfGetButton;
-    JFrame confirmFrame;
-    JSpinner firstNumber;
-    SpinnerNumberModel sNm;
-    JProgressBar progress;
-    JFrame progressFrame;
-    JFrame settingFrame;
-    JCheckBox[] usecheck;
-    JFrame usecheckFrame;
-    int unusefileNum;
-    int imgfilenum;
-    JSpinner Currentspinner;
-    int counter;
-    String[] oldfiles;
-    String[] newfiles;
-    PhotoGroup[] pgs;
-    PhotoGroup[] pgs2;
-    boolean isReadyORF = false; // ORFがわかっているかどうか
-    int currentimage;
-    int currentkind;
-    boolean renamed = false;
-    String imagedir;
-    Image[] img;
-    SpinnerNumberModel sNm2;
-    JFrame photoselectFrame;
-    Canvas photocanvas;
-    JLabel photoLabel;
-    JRadioButton conAButton, ActinButton, DAPIButton, compositeButton;
-    JCheckBox checkUseornot;
+    private JMenuBar menuBar;
+    private JFileChooser fc, fc2;
+    private String newline = "\n";
+    private String[] menuList;
+    private JMenu[] menu;
+    private JMenu help_menu;
+    private JButton dirSelectButton;
+    private JTextField inputDir;
+    private JRadioButton manipButton, autoButton, localButton, plateButton;
+    private JFrame plateFrame;
+    private JTextField plateField1, plateField2, plateField3;
+    private String[] plateposition;
+    private JTextField backupDir;
+    private JButton budirSelectButton;
+    private JButton selectButton, submitButton, renameButton;
+    private JTextField orfField; // ORFのテキストボックス
+    private JTextField geneNameField; // Standard Nameのテキストボックス
+    private JLabel orfMessage;
+    private JButton orfGetButton;
+    private JFrame confirmFrame;
+    private JSpinner firstNumber;
+    private SpinnerNumberModel sNm;
+    private JProgressBar progress;
+    private JFrame progressFrame;
+    private JFrame settingFrame;
+    private JCheckBox[] usecheck;
+    private JFrame usecheckFrame;
+    private int unusefileNum;
+    private int imgfilenum;
+    private JSpinner Currentspinner;
+    private int counter;
+    private String[] oldfiles;
+    private String[] newfiles;
+    private PhotoGroup[] pgs;
+    private PhotoGroup[] pgs2;
+    private boolean isReadyORF = false; // ORFがわかっているかどうか
+    private int currentimage;
+    private int currentkind;
+    private boolean renamed = false;
+    private String imagedir;
+    private Image[] img;
+    private SpinnerNumberModel sNm2;
+    private JFrame photoselectFrame;
+    private Canvas photocanvas;
+    private JLabel photoLabel;
+    private JRadioButton conAButton, ActinButton, DAPIButton, compositeButton;
+    private JCheckBox checkUseornot;
 
-    public SCMDConverter(char[] pswd) {
+    private SCMDConverter(char[] pswd) {
         super("SCMD Toolkit");
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -287,80 +287,70 @@ public class SCMDConverter extends JFrame implements ActionListener {
         JLabel mLabel = new JLabel("ORF naming:");
 
         // 各radio buttonを押したときのAction
-        manipButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                orfField.setEditable(true);
-                orfMessage.setText("input ORF by hand");
-                orfGetButton.setEnabled(false);
-            }
+        manipButton.addActionListener(e -> {
+            orfField.setEditable(true);
+            orfMessage.setText("input ORF by hand");
+            orfGetButton.setEnabled(false);
         });
-        autoButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                isReadyORF = false;
-                //selectButton.setEnabled(false);
-                submitButton.setEnabled(false);
-                //autoButton.setSelected(true);
+        autoButton.addActionListener(e -> {
+            isReadyORF = false;
+            //selectButton.setEnabled(false);
+            submitButton.setEnabled(false);
+            //autoButton.setSelected(true);
+            retrieveORF();
+            orfField.setEditable(false);
+            orfGetButton.setEnabled(true);
+        });
+        localButton.addActionListener(e -> {
+            isReadyORF = false;
+            //selectButton.setEnabled(false);
+            submitButton.setEnabled(false);
+            //localButton.setSelected(true);
+            retrieveORF();
+            orfField.setEditable(false);
+            orfGetButton.setEnabled(true);
+        });
+        plateButton.addActionListener(e -> {
+            isReadyORF = false;
+            submitButton.setEnabled(false);
+            orfField.setEditable(false);
+            plateFrame = new JFrame("Position on plates");
+            JPanel platePane1 = new JPanel();
+            JLabel platelabel1 = new JLabel("株のプレート上の位置を入力してください ");
+            platePane1.add(platelabel1);
+            JPanel platePane2 = new JPanel();
+            JLabel platelabel2 = new JLabel("plate");
+            plateField1 = new JTextField(6);
+            plateField2 = new JTextField(2);
+            JLabel platelabel3 = new JLabel("(alphabet)----");
+            plateField3 = new JTextField(2);
+            JLabel platelabel4 = new JLabel("(number)");
+            platePane2.add(platelabel2);
+            platePane2.add(plateField1);
+            platePane2.add(plateField2);
+            platePane2.add(platelabel3);
+            platePane2.add(plateField3);
+            platePane2.add(platelabel4);
+            JPanel platePane3 = new JPanel();
+            JButton plateButton = new JButton("OK");
+            platePane3.add(plateButton);
+            plateButton.addActionListener(e1 -> {
+                plateposition[0] = plateField1.getText();
+                plateposition[1] = plateField2.getText();
+                plateposition[2] = plateField3.getText();
+                plateFrame.dispose();
                 retrieveORF();
-                orfField.setEditable(false);
                 orfGetButton.setEnabled(true);
-            }
-        });
-        localButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                isReadyORF = false;
-                //selectButton.setEnabled(false);
-                submitButton.setEnabled(false);
-                //localButton.setSelected(true);
-                retrieveORF();
-                orfField.setEditable(false);
-                orfGetButton.setEnabled(true);
-            }
-        });
-        plateButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                isReadyORF = false;
-                submitButton.setEnabled(false);
-                orfField.setEditable(false);
-                plateFrame = new JFrame("Position on plates");
-                JPanel platePane1 = new JPanel();
-                JLabel platelabel1 = new JLabel("株のプレート上の位置を入力してください ");
-                platePane1.add(platelabel1);
-                JPanel platePane2 = new JPanel();
-                JLabel platelabel2 = new JLabel("plate");
-                plateField1 = new JTextField(6);
-                plateField2 = new JTextField(2);
-                JLabel platelabel3 = new JLabel("(alphabet)----");
-                plateField3 = new JTextField(2);
-                JLabel platelabel4 = new JLabel("(number)");
-                platePane2.add(platelabel2);
-                platePane2.add(plateField1);
-                platePane2.add(plateField2);
-                platePane2.add(platelabel3);
-                platePane2.add(plateField3);
-                platePane2.add(platelabel4);
-                JPanel platePane3 = new JPanel();
-                JButton plateButton = new JButton("OK");
-                platePane3.add(plateButton);
-                plateButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        plateposition[0] = plateField1.getText();
-                        plateposition[1] = plateField2.getText();
-                        plateposition[2] = plateField3.getText();
-                        plateFrame.dispose();
-                        retrieveORF();
-                        orfGetButton.setEnabled(true);
-                    }
-                });
-                JPanel contentPane = new JPanel(new BorderLayout());
-                contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-                contentPane.add(platePane1, BorderLayout.NORTH);
-                contentPane.add(platePane2, BorderLayout.CENTER);
-                contentPane.add(platePane3, BorderLayout.SOUTH);
-                plateFrame.setContentPane(contentPane);
-                plateFrame.pack();
-                plateFrame.setVisible(true);
+            });
+            JPanel contentPane = new JPanel(new BorderLayout());
+            contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            contentPane.add(platePane1, BorderLayout.NORTH);
+            contentPane.add(platePane2, BorderLayout.CENTER);
+            contentPane.add(platePane3, BorderLayout.SOUTH);
+            plateFrame.setContentPane(contentPane);
+            plateFrame.pack();
+            plateFrame.setVisible(true);
 
-            }
         });
 
 
@@ -512,35 +502,33 @@ public class SCMDConverter extends JFrame implements ActionListener {
         label = new JLabel("Enter the password: ");
         JPasswordField passwordField = new JPasswordField(10);
         passwordField.setEchoChar('*');
-        passwordField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JPasswordField input = (JPasswordField) e.getSource();
-                char[] pswd = input.getPassword();
-                password = new String(pswd);
-                boolean check = true;
-                online = false;
-                if (onlineButton.isSelected()) {
-                    online = true;
-                    try {
-                        HttpURL httpURL = new HttpURL(SERVER);
-                        httpURL.setUserInfo(username, password);
-                        WebdavResource wr = new WebdavResource(httpURL);
-                        wr.close();
-                    } catch (IOException e2) {
-                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
-                        check = false;
-                    } catch (HttpException e2) {
-                        JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
-                        check = false;
-                    }
+        passwordField.addActionListener(e -> {
+            JPasswordField input = (JPasswordField) e.getSource();
+            char[] pswd = input.getPassword();
+            password = new String(pswd);
+            boolean check = true;
+            online = false;
+            if (onlineButton.isSelected()) {
+                online = true;
+                try {
+                    HttpURL httpURL = new HttpURL(SERVER);
+                    httpURL.setUserInfo(username, password);
+                    WebdavResource wr = new WebdavResource(httpURL);
+                    wr.close();
+                } catch (IOException e2) {
+                    JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
+                    check = false;
+                } catch (HttpException e2) {
+                    JOptionPane.showMessageDialog(null, "パスワードが違うかインターネット接続が正常でありません", "", JOptionPane.ERROR_MESSAGE);
+                    check = false;
                 }
-                if (check) {
-                    passFrame.dispose();
-                    SCMDConverter main_frame = new SCMDConverter(pswd);
-                    main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    main_frame.setSize(620, 400);
-                    main_frame.setVisible(true);
-                }
+            }
+            if (check) {
+                passFrame.dispose();
+                SCMDConverter main_frame = new SCMDConverter(pswd);
+                main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                main_frame.setSize(620, 400);
+                main_frame.setVisible(true);
             }
         });
 
@@ -560,12 +548,12 @@ public class SCMDConverter extends JFrame implements ActionListener {
         passFrame.setVisible(true);
     }
 
-    void displayErrorDialog(Exception e) {
+    private void displayErrorDialog(Exception e) {
         JOptionPane.showMessageDialog(null, "Exception", e.getMessage(), JOptionPane.ERROR_MESSAGE);
     }
 
     // GUIでパネルのサイズを固定しまうための関数
-    public void setPanelSize(JPanel pane, Dimension dim) {
+    private void setPanelSize(JPanel pane, Dimension dim) {
         pane.setMaximumSize(dim);
         pane.setMinimumSize(dim);
         pane.setPreferredSize(dim);
@@ -696,10 +684,10 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
                     // PhotoNumComparetorで定義される順序でsortされた
                     // PhotoNumクラスの集合 -> PhotoGroup というMap
-                    TreeMap fileMap = new TreeMap(new PhotoNumComparator());
+                    TreeMap<PhotoNum, PhotoGroup> fileMap = new TreeMap<PhotoNum, PhotoGroup>(new PhotoNumComparator());
                     imgfilenum = 0;
-                    for (int i = 0; i < ls.length; i++) {
-                        Matcher m = p.matcher(ls[i]);
+                    for (String l : ls) {
+                        Matcher m = p.matcher(l);
                         if (m.matches()) {
                             imgfilenum++;
                             // ファイルがMetaMorphのパターンにマッチしている場合
@@ -710,37 +698,37 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                     // 手動の顕微鏡でとられた写真
                                     pn =
                                             new PhotoNum(
-                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    Integer.parseInt(m.group(FP_FIRST_PHOTO_NUM)),
                                                     -1);
                                 } else {
                                     // 自動顕微鏡でとられた写真
                                     pn =
                                             new PhotoNum(
-                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                    new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
+                                                    Integer.parseInt(m.group(FP_FIRST_PHOTO_NUM)),
+                                                    Integer.parseInt(m.group(FP_SECOND_PHOTO_NUM)));
                                 }
                                 // search treemap
                                 PhotoGroup pg;
                                 if (fileMap.containsKey(pn)) {
                                     // 既に同じ番号のPhotoGroupが存在する場合
-                                    pg = (PhotoGroup) fileMap.get(pn);
+                                    pg = fileMap.get(pn);
                                     fileMap.remove(pn);
                                 } else {
                                     pg = new PhotoGroup();
                                 }
-                                pg.add(ls[i], m.group(2));
+                                pg.add(l, m.group(2));
                                 fileMap.put(pn, pg);
                             }
                         }
                     }
 
-                    Collection c = fileMap.values();
-                    Iterator ci = c.iterator();
+                    Collection<PhotoGroup> c = fileMap.values();
+                    Iterator<PhotoGroup> ci = c.iterator();
                     pgs = new PhotoGroup[c.size()];
 
                     int count = 0;
                     while (ci.hasNext()) {
-                        PhotoGroup pg = (PhotoGroup) ci.next();
+                        PhotoGroup pg = ci.next();
                         pgs[count] = pg;
                         count++;
                     }
@@ -753,19 +741,15 @@ public class SCMDConverter extends JFrame implements ActionListener {
                     JPanel checkPane = new JPanel();
                     setPanelSize(checkPane, new Dimension(470, 30 * count));
                     for (int i = 0; i < count; i++) {
-                        String orifile = "";
+                        StringBuilder orifile = new StringBuilder();
                         for (int j = 0; j < 3; j++) {
                             if (pgs[i].origFile[j] != null) {
-                                orifile += pgs[i].origFile[j] + " ";
+                                orifile.append(pgs[i].origFile[j]).append(" ");
                             }
                         }
-                        usecheck[i] = new JCheckBox(orifile, pgs[currentimage].useornot);
+                        usecheck[i] = new JCheckBox(orifile.toString(), pgs[currentimage].useornot);
                         usecheck[i].setActionCommand(Integer.toString(i));
-                        usecheck[i].addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e1) {
-                                pgs[Integer.parseInt(e1.getActionCommand())].useornot = usecheck[Integer.parseInt(e1.getActionCommand())].isSelected();
-                            }
-                        });
+                        usecheck[i].addActionListener(e1 -> pgs[Integer.parseInt(e1.getActionCommand())].useornot = usecheck[Integer.parseInt(e1.getActionCommand())].isSelected());
                         checkPane.add(usecheck[i]);
                     }
                     JScrollPane cs = new JScrollPane(checkPane);
@@ -783,241 +767,222 @@ public class SCMDConverter extends JFrame implements ActionListener {
                     setPanelSize(checkbuttonPane, new Dimension(470, 40));
                     checkbuttonPane.add(checkokButton);
                     checkbuttonPane.add(checkcancelButton);
-                    checkcancelButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e1) {
-                            usecheckFrame.dispose();
-                        }
-                    });
+                    checkcancelButton.addActionListener(e1 -> usecheckFrame.dispose());
 
-                    checkokButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e1) {
-                            usecheckFrame.dispose();
-                            int fileNum = sNm.getNumber().intValue();
-                            unusefileNum = 1;
-                            String filePrefix = orfField.getText();
-                            Vector files = new Vector();
-                            counter = 0;
-                            oldfiles = new String[imgfilenum];
-                            newfiles = new String[imgfilenum];
-                            String renameText = "";        // file名をどのように変更するかを表示するためのHTML
-                            renameText += "<html><center>"
-                                    + "rename log"
-                                    + "<table>"
-                                    + "<tr bgcolor=white><td width=110>Original</td>"
-                                    + "<td width=25></td><td width=110>New</td></tr>";
-                            for (int j = 0; j < pgs.length; j++) {
-                                if (pgs[j].useornot) {
-                                    for (int i = 0; i < 3; i++) {
-                                        if (pgs[j].origFile[i] != null) {
-                                            String newFile =
-                                                    filePrefix
-                                                            + "-"
-                                                            + photoCategory[i]
-                                                            + fileNum
-                                                            + ".jpg";
-                                            pgs[j].addNewFile(newFile, photoClassifier[i]);
-                                            files.add(pgs[j]);
-                                            renameText += "<tr><td>"
-                                                    + pgs[j].origFile[i]
-                                                    + "</td><td> -- </td><td><font color=#7070FF>"
-                                                    + pgs[j].newFile[i]
-                                                    + "</font></td></tr>";
-                                            oldfiles[counter] = pgs[j].origFile[i];
-                                            newfiles[counter] = pgs[j].newFile[i];
-                                            counter++;
+                    checkokButton.addActionListener(e1 -> {
+                        usecheckFrame.dispose();
+                        int fileNum = sNm.getNumber().intValue();
+                        unusefileNum = 1;
+                        String filePrefix = orfField.getText();
+                        Vector<PhotoGroup> files = new Vector<PhotoGroup>();
+                        counter = 0;
+                        oldfiles = new String[imgfilenum];
+                        newfiles = new String[imgfilenum];
+                        StringBuilder renameText = new StringBuilder();        // file名をどのように変更するかを表示するためのHTML
+                        renameText.append("<html><center>" + "rename log" + "<table>" + "<tr bgcolor=white><td width=110>Original</td>" + "<td width=25></td><td width=110>New</td></tr>");
+                        for (PhotoGroup pg : pgs) {
+                            if (pg.useornot) {
+                                for (int i = 0; i < 3; i++) {
+                                    if (pg.origFile[i] != null) {
+                                        String newFile =
+                                                filePrefix
+                                                        + "-"
+                                                        + photoCategory[i]
+                                                        + fileNum
+                                                        + ".jpg";
+                                        pg.addNewFile(newFile, photoClassifier[i]);
+                                        files.add(pg);
+                                        renameText.append("<tr><td>").append(pg.origFile[i]).append("</td><td> -- </td><td><font color=#7070FF>").append(pg.newFile[i]).append("</font></td></tr>");
+                                        oldfiles[counter] = pg.origFile[i];
+                                        newfiles[counter] = pg.newFile[i];
+                                        counter++;
+                                    }
+                                }
+                                fileNum++;
+                                renameText.append("<tr><td> </td></tr>");
+                            } else {
+                                for (int i = 0; i < 3; i++) {
+                                    if (pg.origFile[i] != null) {
+                                        String newFile =
+                                                filePrefix
+                                                        + "-"
+                                                        + "unusable"
+                                                        + "-"
+                                                        + photoCategory[i]
+                                                        + unusefileNum
+                                                        + ".jpg";
+                                        pg.addNewFile(newFile, photoClassifier[i]);
+                                        files.add(pg);
+                                    }
+                                }
+                                unusefileNum++;
+                            }
+                        }
+                        renameText.append("</table></center></html>");
+
+                        // どのようにrenameされるか確認するpaneを作成
+                        JLabel renameListText = new JLabel(renameText.toString());
+                        //renameListText.setFont(new Font("Arial", Font.BOLD, 12));
+                        JScrollPane js = new JScrollPane(renameListText);
+                        js.setVerticalScrollBarPolicy(
+                                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                        js.setPreferredSize(new Dimension(270, 200));
+
+                        confirmFrame = new RenameFrame();
+                        Container confirmPane = confirmFrame.getContentPane();
+                        JPanel listPane = new JPanel();
+                        confirmFrame.setSize(300, 317);
+                        listPane.add(js, BorderLayout.CENTER);
+
+                        JButton okButton = new JButton("Rename Execute");
+                        JButton cancelButton = new JButton("Cancel");
+                        JPanel buttonPane = new JPanel();
+                        setPanelSize(buttonPane, new Dimension(400, 40));
+                        buttonPane.add(okButton);
+                        buttonPane.add(cancelButton);
+
+                        cancelButton.addActionListener(e23 -> confirmFrame.dispose());
+
+                        okButton.addActionListener(e22 -> {
+                            int max = 0;
+                            if (online) {
+                                try {
+                                    HttpURL httpURL = new HttpURL(SERVER);
+                                    httpURL.setUserInfo(username, password);
+                                    WebdavResource wr = new WebdavResource(httpURL);
+                                    String folder = orfField.getText();
+                                    wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
+                                    if (wr.exists()) {
+                                        wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
+                                        if (wr.exists()) {
+                                            max = 0;
+                                            File log = new File(inputDir.getText() + SLA + "old_rename_log");
+                                            wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
+                                            PrintWriter pw;
+                                            FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
+                                            int ch;
+                                            int counter = 0;
+                                            StringBuilder str;
+                                            while ((char) (ch = fr.read()) != '\t') {
+                                                while ((char) (ch = fr.read()) != '\t') ;
+                                                str = new StringBuilder();
+                                                while ((char) (ch = fr.read()) != 'A' && ch != 'C' && ch != 'D')
+                                                    ;
+                                                while ((char) (ch = fr.read()) != '.') {
+                                                    str.append((char) ch);
+                                                }
+                                                if (Integer.parseInt(str.toString()) > max)
+                                                    max = Integer.parseInt(str.toString());
+                                                while ((char) (ch = fr.read()) != '\n') ;
+                                            }
+                                            fr.close();
+                                            log.delete();
                                         }
                                     }
-                                    fileNum++;
-                                    renameText += "<tr><td> </td></tr>";
-                                } else {
-                                    for (int i = 0; i < 3; i++) {
-                                        if (pgs[j].origFile[i] != null) {
-                                            String newFile =
-                                                    filePrefix
-                                                            + "-"
-                                                            + "unusable"
-                                                            + "-"
-                                                            + photoCategory[i]
-                                                            + unusefileNum
-                                                            + ".jpg";
-                                            pgs[j].addNewFile(newFile, photoClassifier[i]);
-                                            files.add(pgs[j]);
-                                        }
-                                    }
-                                    unusefileNum++;
+                                    wr.close();
+                                } catch (HttpException e2) {
+                                    displayErrorDialog(e2);
+                                } catch (IOException e2) {
+                                    displayErrorDialog(e2);
                                 }
                             }
-                            renameText += "</table></center></html>";
-
-                            // どのようにrenameされるか確認するpaneを作成
-                            JLabel renameListText = new JLabel(renameText);
-                            //renameListText.setFont(new Font("Arial", Font.BOLD, 12));
-                            JScrollPane js = new JScrollPane(renameListText);
-                            js.setVerticalScrollBarPolicy(
-                                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-                            js.setPreferredSize(new Dimension(270, 200));
-
-                            confirmFrame = new RenameFrame();
-                            Container confirmPane = confirmFrame.getContentPane();
-                            JPanel listPane = new JPanel();
-                            confirmFrame.setSize(300, 317);
-                            listPane.add(js, BorderLayout.CENTER);
-
-                            JButton okButton = new JButton("Rename Execute");
-                            JButton cancelButton = new JButton("Cancel");
-                            JPanel buttonPane = new JPanel();
-                            setPanelSize(buttonPane, new Dimension(400, 40));
-                            buttonPane.add(okButton);
-                            buttonPane.add(cancelButton);
-
-                            cancelButton.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
+                            try {
+                                String sourcedir = inputDir.getText();
+                                boolean flag = true;
+                                File bufolder = new File(backupDir.getText() + SLA + orfField.getText());
+                                if (bufolder.exists()) {
+                                    int ans = JOptionPane.showConfirmDialog(null, "すでに同じORF名のついたバックアップフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
+                                    if (ans == JOptionPane.NO_OPTION) {
+                                        flag = false;
+                                    }
+                                }
+                                if (flag && max >= sNm.getNumber().intValue()) {
+                                    int ans = JOptionPane.showConfirmDialog(null, "サーバー上の同ORF名のフォルダの中のファイルと番号が重なる可能性があります。（サーバーのフォルダ中の最大番号　" + max + "）　よろしいですか？", "", JOptionPane.YES_NO_OPTION);
+                                    if (ans == JOptionPane.NO_OPTION) {
+                                        flag = false;
+                                    }
+                                }
+                                if (!flag) {
                                     confirmFrame.dispose();
-                                }
-                            });
+                                    JOptionPane.showMessageDialog(null, "renameを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    bufolder.mkdirs();
+                                    if (!bufolder.exists()) {
+                                        confirmFrame.dispose();
+                                        JOptionPane.showMessageDialog(null, "backup folderの生成に失敗しました", "", JOptionPane.ERROR_MESSAGE);
+                                    } else {
+                                        Process[] proc = new Process[counter];
+                                        for (int i = 0; i < counter; i++) {
+                                            String[] cmd = {IRFAN_VIEW, sourcedir + SLA + oldfiles[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                            proc[i] = Runtime.getRuntime().exec(cmd);
+                                            proc[i].waitFor();
+                                            //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                            //Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                            //proc0.waitFor();
+                                            progress.setValue(i + 1);
+                                            progress.update(progress.getGraphics());
+                                        }
+                                        String[] cmd0 = {MOGRIFY, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + "*.jpg"};
+                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                        proc0.waitFor();
 
-                            okButton.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    int max = 0;
-                                    if (online) {
-                                        try {
-                                            HttpURL httpURL = new HttpURL(SERVER);
-                                            httpURL.setUserInfo(username, password);
-                                            WebdavResource wr = new WebdavResource(httpURL);
-                                            String folder = orfField.getText();
-                                            wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
-                                            if (wr.exists()) {
-                                                wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
-                                                if (wr.exists()) {
-                                                    max = 0;
-                                                    File log = new File(inputDir.getText() + SLA + "old_rename_log");
-                                                    wr.getMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log", log);
-                                                    PrintWriter pw;
-                                                    FileReader fr = new FileReader(inputDir.getText() + SLA + "old_rename_log");
-                                                    int ch;
-                                                    int counter = 0;
-                                                    String str;
-                                                    while ((char) (ch = fr.read()) != '\t') {
-                                                        while ((char) (ch = fr.read()) != '\t') ;
-                                                        str = "";
-                                                        while ((char) (ch = fr.read()) != 'A' && ch != 'C' && ch != 'D')
-                                                            ;
-                                                        while ((char) (ch = fr.read()) != '.') {
-                                                            str += (char) ch;
-                                                        }
-                                                        if (Integer.parseInt(str) > max) max = Integer.parseInt(str);
-                                                        while ((char) (ch = fr.read()) != '\n') ;
+                                        File f1 = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
+                                        f1.mkdir();
+                                        int k = 0;
+                                        int l = 0;
+                                        pgs2 = new PhotoGroup[pgs.length - unusefileNum + 1];
+                                        for (PhotoGroup pg : pgs) {
+                                            if (!pg.useornot) {
+                                                for (int i = 0; i < 3; i++) {
+                                                    if (pg.origFile[i] != null) {
+                                                        String[] cmd = {IRFAN_VIEW, sourcedir + SLA + pg.origFile[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + pg.newFile[i]};
+                                                        proc[i] = Runtime.getRuntime().exec(cmd);
+                                                        proc[i].waitFor();
+                                                        //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
+                                                        //Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                                        //proc0.waitFor();
+                                                        progress.setValue(counter + k + 2);
+                                                        progress.update(progress.getGraphics());
+                                                        k++;
                                                     }
-                                                    fr.close();
-                                                    log.delete();
                                                 }
-                                            }
-                                            wr.close();
-                                        } catch (HttpException e2) {
-                                            displayErrorDialog(e2);
-                                        } catch (IOException e2) {
-                                            displayErrorDialog(e2);
-                                        }
-                                    }
-                                    try {
-                                        String sourcedir = inputDir.getText();
-                                        boolean flag = true;
-                                        File bufolder = new File(backupDir.getText() + SLA + orfField.getText());
-                                        if (bufolder.exists()) {
-                                            int ans = JOptionPane.showConfirmDialog(null, "すでに同じORF名のついたバックアップフォルダが存在しますが、このフォルダ上に書き込みますか？", "同ORF名のフォルダが存在します", JOptionPane.YES_NO_OPTION);
-                                            if (ans == JOptionPane.NO_OPTION) {
-                                                flag = false;
-                                            }
-                                        }
-                                        if (flag && max >= sNm.getNumber().intValue()) {
-                                            int ans = JOptionPane.showConfirmDialog(null, "サーバー上の同ORF名のフォルダの中のファイルと番号が重なる可能性があります。（サーバーのフォルダ中の最大番号　" + max + "）　よろしいですか？", "", JOptionPane.YES_NO_OPTION);
-                                            if (ans == JOptionPane.NO_OPTION) {
-                                                flag = false;
-                                            }
-                                        }
-                                        if (!flag) {
-                                            confirmFrame.dispose();
-                                            JOptionPane.showMessageDialog(null, "renameを中止しました", "", JOptionPane.INFORMATION_MESSAGE);
-                                        } else {
-                                            bufolder.mkdirs();
-                                            if (!bufolder.exists()) {
-                                                confirmFrame.dispose();
-                                                JOptionPane.showMessageDialog(null, "backup folderの生成に失敗しました", "", JOptionPane.ERROR_MESSAGE);
                                             } else {
-                                                Process[] proc = new Process[counter];
-                                                for (int i = 0; i < counter; i++) {
-                                                    String[] cmd = {IRFAN_VIEW, sourcedir + SLA + oldfiles[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                    proc[i] = Runtime.getRuntime().exec(cmd);
-                                                    proc[i].waitFor();
-                                                    //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                    //Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                                    //proc0.waitFor();
-                                                    progress.setValue(i + 1);
-                                                    progress.update(progress.getGraphics());
-                                                }
-                                                String[] cmd0 = {MOGRIFY, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + "*.jpg"};
-                                                Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                                proc0.waitFor();
-
-                                                File f1 = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable");
-                                                f1.mkdir();
-                                                int k = 0;
-                                                int l = 0;
-                                                pgs2 = new PhotoGroup[pgs.length - unusefileNum + 1];
-                                                for (int j = 0; j < pgs.length; j++) {
-                                                    if (!pgs[j].useornot) {
-                                                        for (int i = 0; i < 3; i++) {
-                                                            if (pgs[j].origFile[i] != null) {
-                                                                String[] cmd = {IRFAN_VIEW, sourcedir + SLA + pgs[j].origFile[i], "/resize=(696,520)", "/convert=" + backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + pgs[j].newFile[i]};
-                                                                proc[i] = Runtime.getRuntime().exec(cmd);
-                                                                proc[i].waitFor();
-                                                                //String[] cmd0 = {CONVERT, "-colorspace", "GRAY", backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i], backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]};
-                                                                //Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                                                //proc0.waitFor();
-                                                                progress.setValue(counter + k + 2);
-                                                                progress.update(progress.getGraphics());
-                                                                k++;
-                                                            }
-                                                        }
-                                                    } else {
-                                                        pgs2[l] = pgs[j];
-                                                        l++;
-                                                    }
-                                                }
-                                                //File path = new File(sourcedir);
-                                                //String ls[] = path.list();
-                                                //for(int i=0;i<ls.length;i++)
-                                                //{
-                                                //	new File(sourcedir + SLA + ls[i]).delete();
-                                                //}
-                                                //new File(sourcedir).delete();
-                                                confirmFrame.dispose();
-                                                renamed = true;
-                                                JOptionPane.showMessageDialog(null, "ファイル名の付け替えが完了しました", "", JOptionPane.INFORMATION_MESSAGE);
-                                                //selectButton.setEnabled(true);
-                                                if (online) submitButton.setEnabled(true);
+                                                pgs2[l] = pg;
+                                                l++;
                                             }
                                         }
-                                    } catch (IOException e2) {
-                                        displayErrorDialog(e2);
-                                    } catch (InterruptedException e2) {
-                                        displayErrorDialog(e2);
+                                        //File path = new File(sourcedir);
+                                        //String ls[] = path.list();
+                                        //for(int i=0;i<ls.length;i++)
+                                        //{
+                                        //	new File(sourcedir + SLA + ls[i]).delete();
+                                        //}
+                                        //new File(sourcedir).delete();
+                                        confirmFrame.dispose();
+                                        renamed = true;
+                                        JOptionPane.showMessageDialog(null, "ファイル名の付け替えが完了しました", "", JOptionPane.INFORMATION_MESSAGE);
+                                        //selectButton.setEnabled(true);
+                                        if (online) submitButton.setEnabled(true);
                                     }
                                 }
-                            });
+                            } catch (IOException e2) {
+                                displayErrorDialog(e2);
+                            } catch (InterruptedException e2) {
+                                displayErrorDialog(e2);
+                            }
+                        });
 
-                            progress = new JProgressBar(0, imgfilenum);
-                            progress.setValue(0);
-                            progress.setStringPainted(true);
-                            JPanel progressPane = new JPanel();
-                            progressPane.add(progress);
-                            setPanelSize(progressPane, new Dimension(400, 40));
+                        progress = new JProgressBar(0, imgfilenum);
+                        progress.setValue(0);
+                        progress.setStringPainted(true);
+                        JPanel progressPane = new JPanel();
+                        progressPane.add(progress);
+                        setPanelSize(progressPane, new Dimension(400, 40));
 
-                            listPane.add(buttonPane);
-                            listPane.add(progressPane);
-                            confirmPane.add(listPane);
-                            confirmFrame.setVisible(true);
-                        }
+                        listPane.add(buttonPane);
+                        listPane.add(progressPane);
+                        confirmPane.add(listPane);
+                        confirmFrame.setVisible(true);
                     });
                     JPanel checklistPane = new JPanel();
                     setPanelSize(checklistPane, new Dimension(500, 347));
@@ -1045,7 +1010,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
                         String folder = orfField.getText();
                         wr.setPath("/" + PHOTO_FOLDER + "/" + folder);
                         //wr2.setPath("/" + PHOTO_FOLDER2 + "/" + folder);
-                        String logText = "";
+                        String logText;
 
                         progress = new JProgressBar(0, newfiles.length);
                         progress.setValue(0);
@@ -1063,18 +1028,20 @@ public class SCMDConverter extends JFrame implements ActionListener {
                             progressFrame.setVisible(true);
                             wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder);
                             //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder);
+                            StringBuilder logTextBuilder = new StringBuilder();
                             for (int i = 0; i < newfiles.length; i++) {
                                 File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
                                 if (file.exists()) {
                                     wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
                                     //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
                                     Calendar cl = Calendar.getInstance();
-                                    logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
+                                    logTextBuilder.append(oldfiles[i]).append('\t').append(newfiles[i]).append('\t').append(cl.getTime()).append(newline);
                                     prcounter++;
                                     progress.setValue(prcounter);
                                     progress.update(progress.getGraphics());
                                 }
                             }
+                            logText = logTextBuilder.toString();
                             PrintWriter pw;
                             pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
                             pw.print(logText);
@@ -1089,9 +1056,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                 wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
                                 //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
                                 String[] unusefiles = unuse.list();
-                                for (int i = 0; i < unusefiles.length; i++) {
-                                    File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                for (String s : unusefiles) {
+                                    File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + s);
+                                    wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
                                     //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
                                     prcounter++;
                                     progress.setValue(prcounter);
@@ -1105,18 +1072,20 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                 progressFrame.setVisible(true);
                                 wr.setPath("/" + PHOTO_FOLDER + "/" + folder + "/" + "rename_log");
                                 if (!wr.exists()) {
+                                    StringBuilder logTextBuilder = new StringBuilder();
                                     for (int i = 0; i < newfiles.length; i++) {
                                         File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
                                         if (file.exists()) {
                                             wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
                                             //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
                                             Calendar cl = Calendar.getInstance();
-                                            logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
+                                            logTextBuilder.append(oldfiles[i]).append('\t').append(newfiles[i]).append('\t').append(cl.getTime()).append(newline);
                                             prcounter++;
                                             progress.setValue(prcounter);
                                             progress.update(progress.getGraphics());
                                         }
                                     }
+                                    logText = logTextBuilder.toString();
                                     PrintWriter pw;
                                     pw = new PrintWriter(new FileWriter(backupDir.getText() + SLA + orfField.getText() + SLA + "rename_log"));
                                     pw.print(logText);
@@ -1131,9 +1100,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                         wr.mkcolMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable");
                                         //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
                                         String[] unusefiles = unuse.list();
-                                        for (int i = 0; i < unusefiles.length; i++) {
-                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                        for (String s : unusefiles) {
+                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + s);
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
                                             //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
                                             prcounter++;
                                             progress.setValue(prcounter);
@@ -1166,6 +1135,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                     }
                                     fr.close();
                                     log.delete();
+                                    StringBuilder logTextBuilder = new StringBuilder();
                                     for (int i = 0; i < newfiles.length; i++) {
                                         File file = new File(backupDir.getText() + SLA + orfField.getText() + SLA + newfiles[i]);
                                         if (file.exists()) {
@@ -1173,20 +1143,24 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                             boolean flag = true;
                                             if (wr.exists()) {
                                                 for (int j = 0; j < counter; j++) {
-                                                    if (str[j].equals(newfiles[i])) flag = false;
+                                                    if (str[j].equals(newfiles[i])) {
+                                                        flag = false;
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             if (flag) {
                                                 wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + newfiles[i], file);
                                                 //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + newfiles[i], file);
                                                 Calendar cl = Calendar.getInstance();
-                                                logText += oldfiles[i] + '\t' + newfiles[i] + '\t' + cl.getTime() + newline;
+                                                logTextBuilder.append(oldfiles[i]).append('\t').append(newfiles[i]).append('\t').append(cl.getTime()).append(newline);
                                             }
                                         }
                                         prcounter++;
                                         progress.setValue(prcounter);
                                         progress.update(progress.getGraphics());
                                     }
+                                    logText = logTextBuilder.toString();
                                     pw.print(logText);
                                     pw.print('\t' + "finished");
                                     pw.flush();
@@ -1202,9 +1176,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                             //wr2.mkcolMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable");
                                         }
                                         String[] unusefiles = unuse.list();
-                                        for (int i = 0; i < unusefiles.length; i++) {
-                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + unusefiles[i]);
-                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
+                                        for (String s : unusefiles) {
+                                            File unusefile = new File(backupDir.getText() + SLA + orfField.getText() + SLA + "unusable" + SLA + s);
+                                            wr.putMethod("/" + PHOTO_FOLDER + "/" + folder + "/" + "unusable" + "/" + s, unusefile);
                                             //wr2.putMethod("/" + PHOTO_FOLDER2 + "/" + folder + "/" + "unusable" + "/" + unusefiles[i], unusefile);
                                             prcounter++;
                                             progress.setValue(prcounter);
@@ -1220,15 +1194,12 @@ public class SCMDConverter extends JFrame implements ActionListener {
                         progressFrame.dispose();
                         wr.close();
                         //wr2.close();
-                    } catch (IOException e2) {
+                    } catch (IOException | HttpException e2) {
                         // yeastサーバーへの書き込みエラー
                         System.out.println(e2.getMessage());
                         JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-                    } catch (HttpException e2) {
-                        //yeastサーバーへのアクセスエラー
-                        System.out.println(e2.getMessage());
-                        JOptionPane.showMessageDialog(null, "サーバーへのファイルの書き込みに失敗しました", "エラー：サーバーへの書き込みに失敗しました", JOptionPane.ERROR_MESSAGE);
-                    }
+                    } //yeastサーバーへのアクセスエラー
+
                 }
                 break;
             case SELECT_PHOTO:
@@ -1243,9 +1214,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
                     // PhotoNumComparetorで定義される順序でsortされた
                     // PhotoNumクラスの集合 -> PhotoGroup というMap
-                    TreeMap fileMap = new TreeMap(new PhotoNumComparator());
-                    for (int i = 0; i < ls.length; i++) {
-                        Matcher m = p.matcher(ls[i]);
+                    TreeMap<PhotoNum, PhotoGroup> fileMap = new TreeMap<PhotoNum, PhotoGroup>(new PhotoNumComparator());
+                    for (String l : ls) {
+                        Matcher m = p.matcher(l);
                         if (m.matches()) {
                             // ファイルがMetaMorphのパターンにマッチしている場合
                             for (int j = 1; j <= m.groupCount(); j++) {
@@ -1255,37 +1226,37 @@ public class SCMDConverter extends JFrame implements ActionListener {
                                     // 手動の顕微鏡でとられた写真
                                     pn =
                                             new PhotoNum(
-                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
+                                                    Integer.parseInt(m.group(FP_FIRST_PHOTO_NUM)),
                                                     -1);
                                 } else {
                                     // 自動顕微鏡でとられた写真
                                     pn =
                                             new PhotoNum(
-                                                    new Integer(m.group(FP_FIRST_PHOTO_NUM)).intValue(),
-                                                    new Integer(m.group(FP_SECOND_PHOTO_NUM)).intValue());
+                                                    Integer.parseInt(m.group(FP_FIRST_PHOTO_NUM)),
+                                                    Integer.parseInt(m.group(FP_SECOND_PHOTO_NUM)));
                                 }
                                 // search treemap
                                 PhotoGroup pg;
                                 if (fileMap.containsKey(pn)) {
                                     // 既に同じ番号のPhotoGroupが存在する場合
-                                    pg = (PhotoGroup) fileMap.get(pn);
+                                    pg = fileMap.get(pn);
                                     fileMap.remove(pn);
                                 } else {
                                     pg = new PhotoGroup();
                                 }
-                                pg.add(ls[i], m.group(2));
+                                pg.add(l, m.group(2));
                                 fileMap.put(pn, pg);
                             }
                         }
                     }
 
-                    Collection c = fileMap.values();
-                    Iterator ci = c.iterator();
+                    Collection<PhotoGroup> c = fileMap.values();
+                    Iterator<PhotoGroup> ci = c.iterator();
                     pgs2 = new PhotoGroup[c.size()];
 
                     int count = 0;
                     while (ci.hasNext()) {
-                        PhotoGroup pg = (PhotoGroup) ci.next();
+                        PhotoGroup pg = ci.next();
                         pg.newFile = pg.origFile;
                         pgs2[count] = pg;
                         count++;
@@ -1361,9 +1332,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
                         proc4.waitFor();
                         img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
                     }
-                } catch (IOException e2) {
-                    displayErrorDialog(e2);
-                } catch (InterruptedException e2) {
+                } catch (IOException | InterruptedException e2) {
                     displayErrorDialog(e2);
                 }
 
@@ -1383,29 +1352,21 @@ public class SCMDConverter extends JFrame implements ActionListener {
                 photogroup.add(ActinButton);
                 photogroup.add(DAPIButton);
                 photogroup.add(compositeButton);
-                conAButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        currentkind = 1;
-                        photoselectupdate();
-                    }
+                conAButton.addActionListener(e110 -> {
+                    currentkind = 1;
+                    photoselectupdate();
                 });
-                ActinButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        currentkind = 0;
-                        photoselectupdate();
-                    }
+                ActinButton.addActionListener(e19 -> {
+                    currentkind = 0;
+                    photoselectupdate();
                 });
-                DAPIButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        currentkind = 2;
-                        photoselectupdate();
-                    }
+                DAPIButton.addActionListener(e18 -> {
+                    currentkind = 2;
+                    photoselectupdate();
                 });
-                compositeButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        currentkind = 3;
-                        photoselectupdate();
-                    }
+                compositeButton.addActionListener(e17 -> {
+                    currentkind = 3;
+                    photoselectupdate();
                 });
                 JPanel kindSelectPane = new JPanel();
                 setPanelSize(kindSelectPane, new Dimension(825, 40));
@@ -1415,11 +1376,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
                 kindSelectPane.add(compositeButton);
 
                 checkUseornot = new JCheckBox("use this image", pgs2[currentimage].useornot);
-                checkUseornot.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        pgs2[currentimage].useornot = checkUseornot.isSelected();
-                    }
-                });
+                checkUseornot.addActionListener(e16 -> pgs2[currentimage].useornot = checkUseornot.isSelected());
                 JPanel checkPane = new JPanel();
                 setPanelSize(checkPane, new Dimension(825, 30));
                 checkPane.add(checkUseornot);
@@ -1430,178 +1387,172 @@ public class SCMDConverter extends JFrame implements ActionListener {
                 Currentspinner = new JSpinner(sNm2);
                 JButton jumpButton = new JButton("jump");
 
-                previousButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (currentimage == 0) currentimage = pgs2.length - 1;
-                        else currentimage--;
-                        try {
-                            for (int i = 0; i < 3; i++) {
-                                if (pgs2[currentimage].newFile[i] != null) {
-                                    if (!renamed) {
-                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                        Process proc = Runtime.getRuntime().exec(cmd);
-                                        proc.waitFor();
-                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                    } else {
-                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                    }
+                previousButton.addActionListener(e15 -> {
+                    if (currentimage == 0) currentimage = pgs2.length - 1;
+                    else currentimage--;
+                    try {
+                        for (int i = 0; i < 3; i++) {
+                            if (pgs2[currentimage].newFile[i] != null) {
+                                if (!renamed) {
+                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                    Process proc = Runtime.getRuntime().exec(cmd);
+                                    proc.waitFor();
+                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                } else {
+                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
                                 }
                             }
-                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                                if (!f1.exists()) {
-                                    if (!renamed) {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    } else {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    }
-                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                    proc3.waitFor();
-                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                    proc4.waitFor();
-                                }
-                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            }
-                        } catch (IOException e2) {
-                            displayErrorDialog(e2);
-                        } catch (InterruptedException e2) {
-                            displayErrorDialog(e2);
                         }
-                        photoselectupdate();
+                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            if (!f1.exists()) {
+                                if (!renamed) {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                } else {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                }
+                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                proc3.waitFor();
+                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                proc4.waitFor();
+                            }
+                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                        }
+                    } catch (IOException e2) {
+                        displayErrorDialog(e2);
+                    } catch (InterruptedException e2) {
+                        displayErrorDialog(e2);
                     }
+                    photoselectupdate();
                 });
-                nextButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (currentimage == pgs2.length - 1) currentimage = 0;
-                        else currentimage++;
-                        try {
-                            for (int i = 0; i < 3; i++) {
-                                if (pgs2[currentimage].newFile[i] != null) {
-                                    if (!renamed) {
-                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                        Process proc = Runtime.getRuntime().exec(cmd);
-                                        proc.waitFor();
-                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                    } else {
-                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                    }
+                nextButton.addActionListener(e14 -> {
+                    if (currentimage == pgs2.length - 1) currentimage = 0;
+                    else currentimage++;
+                    try {
+                        for (int i = 0; i < 3; i++) {
+                            if (pgs2[currentimage].newFile[i] != null) {
+                                if (!renamed) {
+                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                    Process proc = Runtime.getRuntime().exec(cmd);
+                                    proc.waitFor();
+                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                } else {
+                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
                                 }
                             }
-                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                                if (!f1.exists()) {
-                                    if (!renamed) {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    } else {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    }
-                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                    proc3.waitFor();
-                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                    proc4.waitFor();
-                                }
-                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            }
-                        } catch (IOException e2) {
-                            displayErrorDialog(e2);
-                        } catch (InterruptedException e2) {
-                            displayErrorDialog(e2);
                         }
-                        photoselectupdate();
+                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            if (!f1.exists()) {
+                                if (!renamed) {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                } else {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                }
+                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                proc3.waitFor();
+                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                proc4.waitFor();
+                            }
+                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                        }
+                    } catch (IOException e2) {
+                        displayErrorDialog(e2);
+                    } catch (InterruptedException e2) {
+                        displayErrorDialog(e2);
                     }
+                    photoselectupdate();
                 });
-                jumpButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        currentimage = sNm2.getNumber().intValue() - 1;
-                        try {
-                            for (int i = 0; i < 3; i++) {
-                                if (pgs2[currentimage].newFile[i] != null) {
-                                    if (!renamed) {
-                                        String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
-                                        Process proc = Runtime.getRuntime().exec(cmd);
-                                        proc.waitFor();
-                                        img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
-                                    } else {
-                                        img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
-                                    }
+                jumpButton.addActionListener(e13 -> {
+                    currentimage = sNm2.getNumber().intValue() - 1;
+                    try {
+                        for (int i = 0; i < 3; i++) {
+                            if (pgs2[currentimage].newFile[i] != null) {
+                                if (!renamed) {
+                                    String[] cmd = {IRFAN_VIEW, imagedir + SLA + pgs2[currentimage].newFile[i], "/resize=(696,520)", "/convert=" + imagedir + SLA + "im" + i + ".jpg"};
+                                    Process proc = Runtime.getRuntime().exec(cmd);
+                                    proc.waitFor();
+                                    img[i] = getToolkit().createImage(imagedir + SLA + "im" + i + ".jpg");
+                                } else {
+                                    img[i] = getToolkit().getImage(imagedir + SLA + pgs2[currentimage].newFile[i]);
                                 }
                             }
-                            if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
-                                File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
-                                if (!f1.exists()) {
-                                    if (!renamed) {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    } else {
-                                        String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
-                                        Process proc0 = Runtime.getRuntime().exec(cmd0);
-                                        String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
-                                        Process proc1 = Runtime.getRuntime().exec(cmd1);
-                                        String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
-                                        Process proc2 = Runtime.getRuntime().exec(cmd2);
-                                        proc0.waitFor();
-                                        proc1.waitFor();
-                                        proc2.waitFor();
-                                    }
-                                    String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
-                                    Process proc3 = Runtime.getRuntime().exec(cmd3);
-                                    proc3.waitFor();
-                                    String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
-                                    Process proc4 = Runtime.getRuntime().exec(cmd4);
-                                    proc4.waitFor();
-                                }
-                                img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
-                            }
-                        } catch (IOException e2) {
-                            displayErrorDialog(e2);
-                        } catch (InterruptedException e2) {
-                            displayErrorDialog(e2);
                         }
-                        photoselectupdate();
+                        if (pgs2[currentimage].newFile[0] != null && pgs2[currentimage].newFile[1] != null && pgs2[currentimage].newFile[2] != null) {
+                            File f1 = new File(imagedir + SLA + "convert" + currentimage + ".jpg");
+                            if (!f1.exists()) {
+                                if (!renamed) {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + "im0.jpg", imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + "im1.jpg", imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + "im2.jpg", imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                } else {
+                                    String[] cmd0 = {CONVERT, "-colorize", "0/100/100", imagedir + SLA + pgs2[currentimage].newFile[0], imagedir + SLA + "to0.jpg"};
+                                    Process proc0 = Runtime.getRuntime().exec(cmd0);
+                                    String[] cmd1 = {CONVERT, "-colorize", "100/0/100", imagedir + SLA + pgs2[currentimage].newFile[1], imagedir + SLA + "to1.jpg"};
+                                    Process proc1 = Runtime.getRuntime().exec(cmd1);
+                                    String[] cmd2 = {CONVERT, "-colorize", "100/100/0", imagedir + SLA + pgs2[currentimage].newFile[2], imagedir + SLA + "to2.jpg"};
+                                    Process proc2 = Runtime.getRuntime().exec(cmd2);
+                                    proc0.waitFor();
+                                    proc1.waitFor();
+                                    proc2.waitFor();
+                                }
+                                String[] cmd3 = {CONVERT, "-average", imagedir + SLA + "to0.jpg", imagedir + SLA + "to1.jpg", imagedir + SLA + "to2.jpg", imagedir + SLA + "to3.jpg"};
+                                Process proc3 = Runtime.getRuntime().exec(cmd3);
+                                proc3.waitFor();
+                                String[] cmd4 = {CONVERT, "-gamma", "1.7/1.7/1.7", imagedir + SLA + "to3.jpg", imagedir + SLA + "convert" + currentimage + ".jpg"};
+                                Process proc4 = Runtime.getRuntime().exec(cmd4);
+                                proc4.waitFor();
+                            }
+                            img[3] = getToolkit().getImage(imagedir + SLA + "convert" + currentimage + ".jpg");
+                        }
+                    } catch (IOException e2) {
+                        displayErrorDialog(e2);
+                    } catch (InterruptedException e2) {
+                        displayErrorDialog(e2);
                     }
+                    photoselectupdate();
                 });
                 JPanel imageselectPane = new JPanel();
                 setPanelSize(imageselectPane, new Dimension(825, 40));
@@ -1611,38 +1562,36 @@ public class SCMDConverter extends JFrame implements ActionListener {
                 imageselectPane.add(jumpButton);
 
                 JButton finishButton = new JButton("finish selection");
-                finishButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        File f1, f2;
-                        for (int i = 0; i < pgs2.length; i++) {
-                            f1 = new File(imagedir + SLA + "convert" + i + ".jpg");
-                            if (f1.exists()) f1.delete();
-                        }
-                        for (int i = 0; i < 4; i++) {
-                            f1 = new File(imagedir + SLA + "to" + i + ".jpg");
-                            if (f1.exists()) f1.delete();
-                        }
+                finishButton.addActionListener(e12 -> {
+                    File f1, f2;
+                    for (int i = 0; i < pgs2.length; i++) {
+                        f1 = new File(imagedir + SLA + "convert" + i + ".jpg");
+                        if (f1.exists()) f1.delete();
+                    }
+                    for (int i = 0; i < 4; i++) {
+                        f1 = new File(imagedir + SLA + "to" + i + ".jpg");
+                        if (f1.exists()) f1.delete();
+                    }
+                    for (int i = 0; i < 3; i++) {
+                        f1 = new File(imagedir + SLA + "im" + i + ".jpg");
+                        if (f1.exists()) f1.delete();
+                    }
+                    f1 = new File(imagedir + SLA + "unusable");
+                    if (!f1.exists()) {
+                        f1.mkdir();
+                    }
+                    for (PhotoGroup photoGroup : pgs2) {
                         for (int i = 0; i < 3; i++) {
-                            f1 = new File(imagedir + SLA + "im" + i + ".jpg");
-                            if (f1.exists()) f1.delete();
-                        }
-                        f1 = new File(imagedir + SLA + "unusable");
-                        if (!f1.exists()) {
-                            f1.mkdir();
-                        }
-                        for (int j = 0; j < pgs2.length; j++) {
-                            for (int i = 0; i < 3; i++) {
-                                if (pgs2[j].newFile[i] != null) {
-                                    if (!pgs2[j].useornot) {
-                                        f1 = new File(imagedir + SLA + pgs2[j].newFile[i]);
-                                        f2 = new File(imagedir + SLA + "unusable" + SLA + pgs2[j].newFile[i]);
-                                        f1.renameTo(f2);
-                                    }
+                            if (photoGroup.newFile[i] != null) {
+                                if (!photoGroup.useornot) {
+                                    f1 = new File(imagedir + SLA + photoGroup.newFile[i]);
+                                    f2 = new File(imagedir + SLA + "unusable" + SLA + photoGroup.newFile[i]);
+                                    f1.renameTo(f2);
                                 }
                             }
                         }
-                        photoselectFrame.dispose();
                     }
+                    photoselectFrame.dispose();
                 });
                 JPanel finishPane = new JPanel();
                 setPanelSize(finishPane, new Dimension(825, 40));
@@ -1661,7 +1610,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
         }
     }
 
-    public void photoselectupdate() {
+    private void photoselectupdate() {
 
         if (currentkind != 3) {
             if (pgs2[currentimage].newFile[currentkind] != null) {
@@ -1681,7 +1630,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
     }
 
     // ORFをweb(あるいは、local file)から取得する
-    public boolean retrieveORF() {
+    private boolean retrieveORF() {
         boolean flag = false;
         if (autoButton.isSelected() || localButton.isSelected() || plateButton.isSelected()) {
             if (isReadyORF) {
@@ -1747,7 +1696,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
     }
 
     // ORFをSCMD(http://yeast.gi.k.u-tokyo.ac.jp/tools/get_orf.cgi" から取得
-    public GeneName getORF(String name) {
+    private GeneName getORF(String name) {
         String orf = "";
         String genename = "";
         if (name.equals("")) {
@@ -1789,7 +1738,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
     }
 
     //	ORFをlocal file(orf_descriptions.tab)から取得
-    public GeneName getORF2(String name) {
+    private GeneName getORF2(String name) {
         String orf = "";
         String genename = "";
 
@@ -1803,11 +1752,12 @@ public class SCMDConverter extends JFrame implements ActionListener {
             String groupname;
             String groupname2;
             while (!flag && (ch = fr.read()) != -1) {
-                groupname = "";
+                StringBuilder groupnameBuilder = new StringBuilder();
                 while ((char) ch != '\t') {
-                    groupname += (char) ch;
+                    groupnameBuilder.append((char) ch);
                     ch = fr.read();
                 }
+                groupname = groupnameBuilder.toString();
                 groupname = groupname.toLowerCase();
                 if (name.equalsIgnoreCase(groupname)) {
                     flag = true;
@@ -1816,20 +1766,22 @@ public class SCMDConverter extends JFrame implements ActionListener {
                     if ((char) ch == '\t') {
                         genename = orf;
                     } else {
-                        groupname2 = "";
+                        StringBuilder groupname2Builder = new StringBuilder();
                         while ((char) ch != '\t') {
-                            groupname2 += (char) ch;
+                            groupname2Builder.append((char) ch);
                             ch = fr.read();
                         }
+                        groupname2 = groupname2Builder.toString();
                         groupname2 = groupname2.toLowerCase();
                         genename = groupname2;
                     }
                 } else if ((char) (ch = fr.read()) != '\t') {
-                    groupname2 = "";
+                    StringBuilder groupname2Builder = new StringBuilder();
                     while ((char) ch != '\t') {
-                        groupname2 += (char) ch;
+                        groupname2Builder.append((char) ch);
                         ch = fr.read();
                     }
+                    groupname2 = groupname2Builder.toString();
                     groupname2 = groupname2.toLowerCase();
                     if (name.equalsIgnoreCase(groupname2)) {
                         flag = true;
@@ -1857,17 +1809,19 @@ public class SCMDConverter extends JFrame implements ActionListener {
         }
     }
 
-    public GeneName getORF3() {
-        String orf = "";
+    private GeneName getORF3() {
+        String orf;
 
         boolean flag = false;
         try {
             FileReader fr = new FileReader(PLATE_TABLE);
             int ch;
             String platename;
+            StringBuilder orfBuilder = new StringBuilder();
             for (int i = 0; i < 65; i++) {
-                platename = "";
-                while ((char) (ch = fr.read()) != '\t') platename += (char) ch;
+                StringBuilder platenameBuilder = new StringBuilder();
+                while ((char) (ch = fr.read()) != '\t') platenameBuilder.append((char) ch);
+                platename = platenameBuilder.toString();
                 if (platename.equalsIgnoreCase("plate" + plateposition[0])) {
                     int alp = (int) plateposition[1].charAt(0) - 64;
                     if (alp > 0 && alp < 9) {
@@ -1898,9 +1852,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(null, "株の位置の番号が間違っています（1から12まで）", "", JOptionPane.ERROR_MESSAGE);
                         break;
                     }
-                    while ((char) (ch = fr.read()) != '\t' && (char) ch != '\r') orf += (char) ch;
-                    orf = orf.toLowerCase();
-                    if (!orf.equals("")) flag = true;
+                    while ((char) (ch = fr.read()) != '\t' && (char) ch != '\r') orfBuilder.append((char) ch);
+                    orfBuilder = new StringBuilder(orfBuilder.toString().toLowerCase());
+                    if (!orfBuilder.toString().equals("")) flag = true;
                     else JOptionPane.showMessageDialog(null, "その位置には株が存在しません", "", JOptionPane.ERROR_MESSAGE);
                     break;
                 }
@@ -1912,6 +1866,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
                     while ((char) (ch = fr.read()) != '\n') ;
                 }
             }
+            orf = orfBuilder.toString();
         } catch (FileNotFoundException e) {
             displayErrorDialog(e);
             System.out.println(e.getMessage());
@@ -1949,9 +1904,10 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
     // MetaMorphの写真ファイル名に含まれる二つの数を合成したもの
     class PhotoNum {
-        public int headerNum;
-        public int sNum;
-        public PhotoNum(int n1, int n2) {
+        int headerNum;
+        int sNum;
+
+        PhotoNum(int n1, int n2) {
             headerNum = n1;
             sNum = n2;
         }
@@ -1959,12 +1915,12 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
     // A,C,D3枚の写真の新旧のファイル名を入れておくコンテナ
     class PhotoGroup {
-        public String[] origFile;
-        public String[] newFile;
-        public boolean useornot;
+        String[] origFile;
+        String[] newFile;
+        boolean useornot;
         private int count;
 
-        public PhotoGroup() {
+        PhotoGroup() {
             origFile = new String[3];
             newFile = new String[3];
             count = 0;
@@ -1995,7 +1951,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
         }
 
         // renameされた後の写真名を加える
-        public void addNewFile(String file, String type) {
+        void addNewFile(String file, String type) {
             switch (type) {
                 case "FITC":
                     newFile[CON_A] = file;
@@ -2023,9 +1979,9 @@ public class SCMDConverter extends JFrame implements ActionListener {
             }
         }
 
-        public boolean equal(Object a, Object b) {
-            PhotoNum ai = (PhotoNum) a;
-            PhotoNum bi = (PhotoNum) b;
+        public boolean equal(PhotoNum a, PhotoNum b) {
+            PhotoNum ai = a;
+            PhotoNum bi = b;
             return ((ai.headerNum == bi.headerNum) && (ai.sNum == bi.sNum));
         }
     }
@@ -2041,7 +1997,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
     // Help画面
     class HelpFrame extends JFrame {
-        public HelpFrame() {
+        HelpFrame() {
             super("Help");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -2050,7 +2006,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
 
     // Rename画面
     class RenameFrame extends JFrame {
-        public RenameFrame() {
+        RenameFrame() {
             super("Rename Files");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -2058,14 +2014,14 @@ public class SCMDConverter extends JFrame implements ActionListener {
     }
 
     class UsecheckFrame extends JFrame {
-        public UsecheckFrame() {
+        UsecheckFrame() {
             super("Select usable images");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         }
     }
 
     class ProgressFrame extends JFrame {
-        public ProgressFrame() {
+        ProgressFrame() {
             super("Progress");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -2073,7 +2029,7 @@ public class SCMDConverter extends JFrame implements ActionListener {
     }
 
     class PhotoselectFrame extends JFrame {
-        public PhotoselectFrame() {
+        PhotoselectFrame() {
             super("Select Photo");
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -2082,17 +2038,18 @@ public class SCMDConverter extends JFrame implements ActionListener {
 }
 
 class GeneName {
-    public static final String ST_MULTIPLE = "multiple";
-    public static final String ST_NONE = "none";
-    public static final String ST_DONE = "done";
-    public static final String ST_NETWORK_ERROR = "net error";
-    public static final String ST_NOFILE_ERROR = "no file";
-    public static final String ST_FILEREAD_ERROR = "fileread error";
-    public static final String ST_NOFILE_ERROR2 = "no file2";
-    public static final String ST_FILEREAD_ERROR2 = "fileread error2";
+    static final String ST_MULTIPLE = "multiple";
+    static final String ST_NONE = "none";
+    static final String ST_DONE = "done";
+    static final String ST_NETWORK_ERROR = "net error";
+    static final String ST_NOFILE_ERROR = "no file";
+    static final String ST_FILEREAD_ERROR = "fileread error";
+    static final String ST_NOFILE_ERROR2 = "no file2";
+    static final String ST_FILEREAD_ERROR2 = "fileread error2";
     public String orf;
-    public String gene_name;
+    String gene_name;
     public String status = null;
+
     GeneName(String orf_string, String gname_string, String status_string) {
         orf = orf_string;
         gene_name = gname_string;

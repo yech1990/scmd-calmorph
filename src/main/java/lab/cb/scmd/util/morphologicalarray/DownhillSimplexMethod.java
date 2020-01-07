@@ -24,13 +24,12 @@ public class DownhillSimplexMethod {
     private static final int mpts = 3;
     private static final int ndim = 2;
     private static final double ftol = 1.0e-10;
+    Double[] transformThis;
     private double[] y;
     private double[] psum;
     private double[][] p;
-
     private PowerTransformation transform;
     private double minX;
-    Double[] transformThis;
 
     //MLE
 //	private double funk(double[] parameters) throws SCMDException{
@@ -221,7 +220,10 @@ public class DownhillSimplexMethod {
                             boolean changed = false;
                             for (int j = 0; j < ndim; ++j) {
                                 double newValue = psum[j] = 0.5 * (p[i][j] + p[ilo][j]);
-                                if (newValue != p[i][j]) changed = true;
+                                if (newValue != p[i][j]) {
+                                    changed = true;
+                                    break;
+                                }
                                 p[i][j] = newValue;
                             }
                             y[i] = funk(psum);

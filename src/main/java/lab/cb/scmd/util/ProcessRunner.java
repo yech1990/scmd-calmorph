@@ -84,10 +84,7 @@ public class ProcessRunner {
             (new PipeWorker(p.getInputStream(), out)).run();
             p.waitFor();
             logThread.join();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new UnfinishedTaskException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             throw new UnfinishedTaskException(e);
         }
@@ -117,9 +114,7 @@ public class ProcessRunner {
             p.waitFor();
             thread.join();
             logThread.join();
-        } catch (IOException e) {
-            throw new UnfinishedTaskException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new UnfinishedTaskException(e);
         }
 
@@ -156,7 +151,7 @@ class PipeWorker implements Runnable {
             if (_out != System.out && _out != System.err)
                 _out.close();
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
     }
 }

@@ -56,7 +56,7 @@ public class CalMorphClient {
     private void runCalmorphOnServer() {
         try {
             // セキュリティマネージャーを設定します
-            System.setSecurityManager(new RMISecurityManager());
+            System.setSecurityManager(new SecurityManager());
             // リモートオブジェクトの参照(スタブ)を取得します
             System.out.println("rmi://" + _servername + "/CalMorph");
             obj = (CalMorphInterface) Naming.lookup("rmi://" + _servername + "/CalMorph");

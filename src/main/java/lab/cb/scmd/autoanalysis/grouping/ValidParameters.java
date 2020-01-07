@@ -42,6 +42,7 @@ public class ValidParameters implements DataFileName {
     private Vector<Vector<Cell>> _yukoDataTable;
     private String[] missingValueList = {"NaN", "Infinity", "-1", "-1.0"};
     private int number_of_partitions = 20;
+
     private ValidParameters() {
     }
 
@@ -139,7 +140,7 @@ public class ValidParameters implements DataFileName {
             String parameter_name = (String) parameter;
 
             TableIterator ti = cmt.getVerticalIterator(parameter_name);
-            Vector<Cell> verticalData = new Vector<Cell>(rowSize);
+            Vector<Cell> verticalData = new Vector<>(rowSize);
             while (ti.hasNext()) {
                 Cell c = ti.nextCell();
                 verticalData.add(c);
@@ -223,7 +224,7 @@ public class ValidParameters implements DataFileName {
 
     //縦横を逆にする＋String->Double＋missing_valueを消す。
     private Vector transpose_ToDouble_IgnoreNaN(Vector v) {
-        java.util.HashSet<String> missingValueSet = new java.util.HashSet<String>();
+        java.util.HashSet<String> missingValueSet = new java.util.HashSet<>();
         Collections.addAll(missingValueSet, missingValueList);
 
         int x = ((Vector) v.get(0)).size();
@@ -285,7 +286,7 @@ public class ValidParameters implements DataFileName {
 
     private Vector<Integer> getHistogram(Vector data, double min, double max, int n_box) {
         double intervalSize = (max - min) / (double) n_box;
-        Vector<Integer> histogram = new Vector<Integer>();
+        Vector<Integer> histogram = new Vector<>();
         for (int i = 0; i < n_box + 2; ++i) {
             histogram.add(0);
         }
@@ -481,9 +482,9 @@ public class ValidParameters implements DataFileName {
                 if (getPSDrank(wildtypeESD[1] / mutantsESD[1]).equals("A") || getPFQrank(Math.abs(pRankMutantsMode - pRankWildtypeMean)).equals("A")) {
                     continue;
                 }
-                System.out.print((String)param_names.get(i)+t);
-                wpw.print((String)param_names.get(i)+n);
-                mpw.print((String)param_names.get(i)+n);
+                System.out.print((String) param_names.get(i) + t);
+                wpw.print((String) param_names.get(i) + n);
+                mpw.print((String) param_names.get(i) + n);
                 //System.out.print(wildtypeESD[1]/mutantsESD[1]);
                 //System.out.print(t);
                 //System.out.println(Math.abs(pRankMutantsMode-pRankWildtypeMean));
