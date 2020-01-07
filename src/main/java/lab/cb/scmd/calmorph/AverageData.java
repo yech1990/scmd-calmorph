@@ -321,8 +321,8 @@ class AverageData {
     //////////////////////////////////////////////////////////////////////////////////////////
     private void setCountGroup() {
         countCgroup = new int[6];
-        for (Object item : Cgroup) {
-            String g = (String) item;
+        for (String item : Cgroup) {
+            String g = item;
             switch (g) {
                 case "complex":
                     countCgroup[0]++;
@@ -344,8 +344,8 @@ class AverageData {
             }
         }
         countDgroup = new int[8];
-        for (Object value : Dgroup) {
-            String g = (String) value;
+        for (String value : Dgroup) {
+            String g = value;
             switch (g) {
                 case "-":
                     countDgroup[0]++;
@@ -376,8 +376,8 @@ class AverageData {
             }
         }
         countAgroup = new int[8];
-        for (Object o : Agroup) {
-            String g = (String) o;
+        for (String o : Agroup) {
+            String g = o;
             switch (g) {
                 case "-":
                     countAgroup[0]++;

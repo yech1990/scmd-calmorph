@@ -24,11 +24,9 @@ public class BudValidation {
 
             double neck_length = Math.sqrt(getDistance(cells[i].neck[0], cells[i].neck[cells[i].neck.length - 1], width));
             int neck_middle = getMiddlePoint(cells[i].neck[0], cells[i].neck[cells[i].neck.length - 1], width);
-
             Line line = new Line();
             Line perpendicular = line.calculatePerpendicularLine(cells[i].neck[0],
                     neck_middle, cells[i].neck[cells[i].neck.length - 1], width);
-
             int bud_middle = Line.findTheNearestPoint(perpendicular, cells[i].bud_edge, width);
             double bud_perpendicular_length = Math.sqrt(getDistance(neck_middle, bud_middle, width));
 
@@ -36,18 +34,20 @@ public class BudValidation {
                 deleteBudEdge(cells, i);
                 continue;
             }
-			/*
-			int bud_center = getMiddlePoint(neck_middle, bud_middle, width);
-			double[] max_min = calculateMaxAndMinDistances(bud_center, width, cells[i].bud_edge);
-			setNeckAndBudMiddle(neck_middle, bud_middle, bud_center, cells, i);
-			setGradCeptMiddle(perpendicular.getGradient(), perpendicular.getIntercept(), neck_middle, cells, i);
-			*/
+
+      /*
+      int bud_center = getMiddlePoint(neck_middle, bud_middle, width);
+      double[] max_min = calculateMaxAndMinDistances(bud_center, width, cells[i].bud_edge);
+      setNeckAndBudMiddle(neck_middle, bud_middle, bud_center, cells, i);
+      setGradCeptMiddle(perpendicular.getGradient(), perpendicular.getIntercept(), neck_middle, cells, i);
+      */
             if (motherLengthValidation(cells[i].mother_edge.size(), cells[i].bud_edge.size()) &&
                     (budPerpendicularLengthValidation(neck_length, bud_perpendicular_length) ||
                             budLengthValidation(neck_length, cells[i].bud_edge.size()))) {
                 deleteBudEdge(cells, i);
             }
         }
+
         return cells;
     }
 
@@ -138,14 +138,14 @@ public class BudValidation {
         return mother_edge;
     }
 
-    protected static double[] calculateMaxAndMinDistances(int center, int width, Vector edge) {
+    protected static double[] calculateMaxAndMinDistances(int center, int width, Vector<Integer> edge) {
         double[] result = new double[2];
-
-        double max = getDistance(center, (Integer) edge.get(0), width);
+        double max = getDistance(center, edge.get(0), width);
         double min = max;
 
         for (int i = 1; i < edge.size(); i++) {
-            double distance = getDistance(center, (Integer) edge.get(i), width);
+            double distance = getDistance(center, edge.get(i), width);
+
             if (min > distance) {
                 min = distance;
             } else if (max < distance) {
