@@ -54,7 +54,7 @@ class CalMorph {
             parser.addOptionWithArgument(Opt.DAPI, "d", "dapi", "ture/false",
                     "DAPI mode, opt: [true / false], default true", "true");
             parser.addOptionWithArgument(Opt.DARKEN_BACKGROUND, "b", "background", "PERCENTAGE",
-                    "make the background " + Chalk.on("darker").inverse().bold().bgWhite().gray() + " by percentage (%), opt: float number in 0~100, default 0", "0");
+                    "make the background " + Chalk.on("darker").gray() + " by percentage (%), opt: float number in 0~100, default 0", "0");
             parser.addOptionWithArgument(Opt.LOG_CONFIG, "l", "logconfig", "CONFIG_FILE",
                     "logger configuration file");
             parser.addOption(Opt.VERBOSE, "v", "verbose",
@@ -86,10 +86,13 @@ class CalMorph {
 
 
             // run in command line user interface (CUI) mode
-            String inputDirName = parser.getValue(Opt.INPUTDIR);
-
             CalMorphOption calMorphOption = new CalMorphOption();
+
+            // input dir
+            String inputDirName = parser.getValue(Opt.INPUTDIR);
             calMorphOption.setInputDirectory(inputDirName);
+
+            // output dir
             calMorphOption.setOutputDirectory(parser.getValue(Opt.OUTPUTDIR));
             calMorphOption.setXmlOutputDirectory(parser.getValue(Opt.OUTPUT_DIR_IMAGE_XMLDATA));
 

@@ -10,6 +10,9 @@
 
 package lab.cb.scmd.calmorph;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +56,8 @@ class CalMorphOption {
     private boolean calA = true;
     private double darkenBackground = 0;
 
+    private Logger _logger = LogManager.getLogger(this.getClass());
+
     CalMorphOption() {
 
     }
@@ -62,6 +67,11 @@ class CalMorphOption {
     }
 
     void setInputDirectory(String inputDirectory) {
+        File dir = new File(inputDirectory);
+        if (!dir.exists()) {
+            _logger.warn("Input Dir: [" + inputDirectory + "] is not exits!");
+            System.exit(1);
+        }
         this.inputDirectory = inputDirectory;
     }
 
