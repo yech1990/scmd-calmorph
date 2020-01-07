@@ -83,7 +83,7 @@ public class CountNumCells {
             _log.print(" reading \t" + inputTableFile + "               \r");
             File file = new File(inputTableFile);
             if (!file.exists()) {
-                _log.println("\nskip this file because of no existance");
+                _log.println("\nskip this file because of no existence");
                 continue;
             }
             int count = calc_count(inputTableFile);
@@ -109,7 +109,7 @@ public class CountNumCells {
     }
 
     private void setupOptionParser() throws SCMDException {
-        _parser.setOption(new Option(OPT_HELP, "h", "help", "diaplay help message"));
+        _parser.setOption(new Option(OPT_HELP, "h", "help", "display help message"));
         _parser.setOption(new Option(OPT_VERBOSE, "v", "verbose", "display verbose messages"));
         _parser.setOption(new OptionWithArgument(OPT_BASEDIR, "b", "basedir", "DIR",
                 "set input directory base (default = current directory)"));

@@ -1714,14 +1714,14 @@ class Cell implements Serializable {
         if (group >= 2 && !Agroup.equals("N")) {
             double a = neckpoint.y - budtop.y;
             double b = neckpoint.x - budtop.x;
-            int motherbright = 0;
-            int nearneckbright = 0;
-            int inbudnearneckbright = 0;
-            int inbudneartipbright = 0;
-            int counter_mother = 0;
-            int counter_nearneck = 0;
-            int counter_inbudnearneck = 0;
-            int counter_inbudneartip = 0;
+            int motherBright = 0;
+            int nearNeckBright = 0;
+            int inBudNearNeckBright = 0;
+            int inBudNearTipBright = 0;
+            int counterOfMother = 0;
+            int counterOfNearNeck = 0;
+            int counterOfInBudNearNeck = 0;
+            int counterOfInBudNearTip = 0;
             for (Integer o : cover) {
                 int po = o - diff;
                 if (po >= 0 && po < size && po / w == (po + diffx) / w) {
@@ -1732,61 +1732,62 @@ class Cell implements Serializable {
                     int counter = 0;
                     if ((a * (py - sy) + b * (px - sx))
                             * (a * (budtop.y - sy) + b * (budtop.x - sx)) < 0) {
-                        counter_mother++;
-                        motherbright += AImage[po];
+                        counterOfMother++;
+                        motherBright += AImage[po];
                     } else {
                         sx = ((neckpoint.x) * 9 + (budtop.x)) / 10;
                         sy = ((neckpoint.y) * 9 + (budtop.y)) / 10;
                         if ((a * (py - sy) + b * (px - sx))
                                 * (a * (budtop.y - sy) + b * (budtop.x - sx)) < 0) {
-                            counter_nearneck++;
-                            nearneckbright += AImage[po];
+                            counterOfNearNeck++;
+                            nearNeckBright += AImage[po];
                         }
                         sx = neckpoint.x;
                         sy = neckpoint.y;
                         double tx = ((neckpoint.x) * 6 + (budtop.x) * 4) / 10;
                         double ty = ((neckpoint.y) * 6 + (budtop.y) * 4) / 10;
+                        var v = a * (py - ty) + b * (px - tx);
                         if ((a * (py - sy) + b * (px - sx))
                                 * (a * (budtop.y - sy) + b * (budtop.x - sx)) > 0
-                                && (a * (py - ty) + b * (px - tx))
+                                && v
                                 * (a * (budtop.y - ty) + b
                                 * (budtop.x - tx)) < 0) {
-                            counter_inbudnearneck++;
-                            inbudnearneckbright += AImage[po];
+                            counterOfInBudNearNeck++;
+                            inBudNearNeckBright += AImage[po];
                         }
                         sx = ((neckpoint.x) * 2 + (budtop.x) * 8) / 10;
                         sy = ((neckpoint.y) * 2 + (budtop.y) * 8) / 10;
                         if ((a * (py - sy) + b * (px - sx))
                                 * (a * (budtop.y - sy) + b * (budtop.x - sx)) < 0
-                                && (a * (py - ty) + b * (px - tx))
+                                && v
                                 * (a * (budtop.y - ty) + b
                                 * (budtop.x - tx)) > 0) {
-                            counter_inbudneartip++;
-                            inbudneartipbright += AImage[po];
+                            counterOfInBudNearTip++;
+                            inBudNearTipBright += AImage[po];
                         }
                     }
                 }
             }
-            if (counter_mother != 0)
-                motherbright /= counter_mother;
-            if (counter_nearneck != 0)
-                nearneckbright /= counter_nearneck;
-            if (counter_inbudnearneck != 0)
-                inbudnearneckbright /= counter_inbudnearneck;
-            if (counter_inbudneartip != 0)
-                inbudneartipbright /= counter_inbudneartip;
-            if (inbudneartipbright > motherbright + 60
-                    && inbudneartipbright > inbudnearneckbright + 40
-                    && inbudneartipbright > nearneckbright + 40)
+            if (counterOfMother != 0)
+                motherBright /= counterOfMother;
+            if (counterOfNearNeck != 0)
+                nearNeckBright /= counterOfNearNeck;
+            if (counterOfInBudNearNeck != 0)
+                inBudNearNeckBright /= counterOfInBudNearNeck;
+            if (counterOfInBudNearTip != 0)
+                inBudNearTipBright /= counterOfInBudNearTip;
+            if (inBudNearTipBright > motherBright + 60
+                    && inBudNearTipBright > inBudNearNeckBright + 40
+                    && inBudNearTipBright > nearNeckBright + 40)
                 Agroup = "api";
-            else if (group != 2 && inbudneartipbright > motherbright + 40
-                    && inbudnearneckbright > motherbright + 40)
+            else if (group != 2 && inBudNearTipBright > motherBright + 40
+                    && inBudNearNeckBright > motherBright + 40)
                 Agroup = "iso";
-            else if (group != 2 && nearneckbright > motherbright + 30
-                    && nearneckbright > inbudneartipbright + 50)
+            else if (group != 2 && nearNeckBright > motherBright + 30
+                    && nearNeckBright > inBudNearTipBright + 50)
                 Agroup = "F";
-            else if (motherbright > inbudneartipbright
-                    || motherbright > inbudnearneckbright)
+            else if (motherBright > inBudNearTipBright
+                    || motherBright > inBudNearNeckBright)
                 Agroup = "E";
             else
                 Agroup = "X";

@@ -75,7 +75,7 @@ class TableSchema {
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
             throw new SCMDException(
-                    "error occured while loading " + schemaFile);
+                    "error occurred while loading " + schemaFile);
         }
     }
 
@@ -115,7 +115,7 @@ class TableSchema {
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new SCMDException(
-                    "error occured while loading schema file");
+                    "error occurred while loading schema file");
         }
     }
 }
