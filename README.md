@@ -8,23 +8,25 @@
 
 ```bash
 cd $PROJECT_PATH
-mvn package
+make
 ```
 
 ### How to use?
 
 ```bash
 cd $PROJECT_PATH
-java -jar ./target/CalMolph-2.0.0.jar -i ./test/zzz -o zzz -a false -d true -v
+java -jar ./target/CalMolph-2.0.2.jar -i ./test/zzz -o ./test/out -x ./test/xml -v
 ```
 
 > parameters
 
 | name | description                                   |
 | ---- | --------------------------------------------- |
-| o    | output directory of the analysis results      |
 | i    | input photo directory                         |
+| o    | output directory of the analysis results      |
+| x    | output directory of the point coordinates     |
 | n    | specify the strain name                       |
+| s    | specify the suffix of image file              |
 | a    | actin mode, opt: [true / false], default true |
 | d    | DAPI mode, opt: [true / false], default true  |
 
@@ -35,6 +37,7 @@ java -jar ./target/CalMolph-2.0.0.jar -i ./test/zzz -o zzz -a false -d true -v
 
 - change ant build to maven
 - fix SJIS encoding to UTF-8
+- replace log4j 1.x with 2.13
 
 ### TODO
 
