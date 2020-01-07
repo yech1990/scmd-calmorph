@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: lab.cb.scmd.calmorph.CalMorph
+Multi-Release: true
 

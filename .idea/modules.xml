@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/scmd.iml" filepath="$PROJECT_DIR$/scmd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CalMorph.iml" filepath="$PROJECT_DIR$/CalMorph.iml" />
     </modules>
   </component>
 </project>

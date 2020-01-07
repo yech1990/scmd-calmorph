@@ -11,10 +11,11 @@
 package lab.cb.scmd.calmorph;
 
 import com.github.tomaslanger.chalk.Chalk;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.xerial.util.cui.OptionParser;
 
 import java.io.File;
@@ -31,8 +32,8 @@ class CalMorph {
      */
     public static void main(String[] args) {
         OptionParser<Opt> parser = new OptionParser<>();
-        BasicConfigurator.configure();
-        Logger _logger = Logger.getLogger(CalMorph.class);
+        //BasicConfigurator.configure();
+        Logger _logger = LogManager.getLogger(CalMorph.class);
         try {
             parser.addOption(Opt.HELP, "h", "help",
                     "display this help message");
@@ -71,13 +72,16 @@ class CalMorph {
             }
 
             if (parser.isSet(Opt.VERBOSE))
-                Logger.getRootLogger().setLevel(Level.TRACE);
+                Configurator.setRootLevel(Level.TRACE);
             else
-                Logger.getRootLogger().setLevel(Level.INFO);
-
+                Configurator.setRootLevel(Level.INFO);
             if (parser.isSet(Opt.LOG_CONFIG)) {
+                LoggerContext logContext = (LoggerContext) LogManager.getContext(false);
+                File file = new File(parser.getValue(Opt.LOG_CONFIG));
+                logContext.setConfigLocation(file.toURI());
+                logContext.reconfigure();
                 // configure the logger
-                PropertyConfigurator.configure(parser.getValue(Opt.LOG_CONFIG));
+                // PropertyConfigurator.configure(parser.getValue(Opt.LOG_CONFIG));
             }
 
 

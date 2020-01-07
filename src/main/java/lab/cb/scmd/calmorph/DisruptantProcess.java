@@ -9,7 +9,8 @@
 //--------------------------------------
 package lab.cb.scmd.calmorph;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
@@ -104,7 +105,7 @@ class DisruptantProcess {
         if (pwxml != null) setXMLHeader(pwxml);
         int startid = 0;
 
-        Logger _logger = Logger.getLogger(this.getClass());
+        Logger _logger = LogManager.getLogger(this.getClass());
 
         //	平均値計算？
         AverageData ad = new AverageData(name, outdir);

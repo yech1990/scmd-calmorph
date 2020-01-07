@@ -12,7 +12,8 @@ package lab.cb.scmd.calmorph;
 
 //import com.sun.image.codec.jpeg.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -39,7 +40,7 @@ class CellImage {
     Cell[] cell;                                                 //cells in the image
     boolean err, calD, calA;                                     //Whether err has occurred, whether to process DAPI images or actin images
     String err_kind;
-    private Logger _logger = Logger.getLogger(this.getClass());
+    private Logger _logger = LogManager.getLogger(this.getClass());
     private int _width, _height, _size;                          //Image width, height, number of pixels
     private int number, Ddiff, Adiff, startid;                   //Image number, DAPI image shift, actin image shift, start cell number
     private String name, suffix, path, outdir;                           //knockout strain name, image directory, output directory
