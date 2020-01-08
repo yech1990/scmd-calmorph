@@ -15,7 +15,7 @@ make
 
 ```bash
 cd $PROJECT_PATH
-java -jar ./target/CalMolph-2.0.2.jar -i ./test/zzz -o ./test/out -x ./test/xml -v
+java -jar ./target/CalMolph-2.0.3.jar -i ./test/zzz -o ./test/out -x ./test/xml -v
 ```
 
 > parameters

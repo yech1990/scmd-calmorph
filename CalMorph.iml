@@ -15,6 +15,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Python 3.8 interpreter library" level="application" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:1.0" level="project" />
     <orderEntry type="library" name="Maven: slide:webdavlib:1.0.16" level="project" />
     <orderEntry type="library" name="Maven: commons-dbutils:commons-dbutils:1.6" level="project" />
@@ -29,6 +30,5 @@
     <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi-native:1.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.fusesource.jansi:jansi-native:windows32:1.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.fusesource.jansi:jansi-native:windows64:1.5" level="project" />
-    <orderEntry type="library" name="Python 3.8 interpreter library" level="application" />
   </component>
 </module>

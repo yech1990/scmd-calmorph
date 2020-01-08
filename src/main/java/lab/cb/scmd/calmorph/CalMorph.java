@@ -63,7 +63,7 @@ class CalMorph {
             parser.parse(args); // read the command line arguments
 
             if (parser.isSet(Opt.HELP) || args.length == 0) {
-                System.out.println(Chalk.on("CalMorph").cyan().bold() + " version " + Chalk.on("2.0.2").cyan().bold());
+                System.out.println(Chalk.on("CalMorph").cyan().bold() + " version " + Chalk.on("2.0.3").cyan().bold());
                 System.out.println(Chalk.on("> A forked version of CalMorph in HeLab by YC\n").yellow());
                 System.out.println("Usage: java -jar CalMorph.jar [options]");
                 System.out.println("> [options]");

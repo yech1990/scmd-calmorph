@@ -342,11 +342,13 @@ class CellImage {
                 short[] pixels = ((DataBufferUShort) input.getRaster().getDataBuffer()).getData();
                 double upperBound = 0.999; // in python: 0.999
                 double lowerBound = 0.001; // in python: 0.8
-                lowerBound += (upperBound - lowerBound) * darkenBackground;
+                //lowerBound += (upperBound - lowerBound) * darkenBackground;
                 short[] per = percentiles(pixels, lowerBound, upperBound);
                 short min = per[0];
                 short max = per[1];
-                double norm = 255 / ((max - min) * 1.0);
+                // darken factor works here will be better
+                min += (short) ((max - min) * darkenBackground);
+                double norm = 255.0 / (max - min);
                 short[] pixelsNorm = new short[pixels.length];
                 for (int i = 0; i < pixels.length; i++) {
                     if (pixels[i] < min) {
